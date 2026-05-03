@@ -39,9 +39,9 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'KYROZ API is running' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
 app.get("/api/test", (req, res) => {
   res.json({ message: "API working ✅" });
+});
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
