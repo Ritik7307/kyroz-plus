@@ -24,6 +24,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import FloatingKOSA from '@/components/dashboard/FloatingKOSA';
 import { useRouter } from 'next/navigation';
+import { API_URL } from '@/lib/api';
 
 export default function DashboardPage() {
   const [user, setUser] = React.useState<any>(null);
@@ -40,7 +41,7 @@ export default function DashboardPage() {
 
       try {
         // Fetch User
-        const userRes = await fetch('http://localhost:5000/api/auth/me', {
+        const userRes = await fetch(`${API_URL}/api/auth/me`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const userData = await userRes.json();
@@ -52,7 +53,7 @@ export default function DashboardPage() {
         setUser(userData);
 
         // Fetch User's SOPs
-        const sopRes = await fetch('http://localhost:5000/api/sops', {
+        const sopRes = await fetch(`${API_URL}/api/sops`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const sopData = await sopRes.json();

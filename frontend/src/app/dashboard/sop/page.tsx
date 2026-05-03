@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CardSkeleton } from '@/components/dashboard/Skeleton';
+import { API_URL } from '@/lib/api';
 
 interface Sop {
   _id: string;
@@ -74,7 +75,7 @@ export default function SOPLibraryPage() {
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/sops', {
+      const res = await fetch(`${API_URL}/api/sops`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -107,7 +108,7 @@ export default function SOPLibraryPage() {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/sops', {
+      const res = await fetch(`${API_URL}/api/sops`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -142,7 +143,7 @@ export default function SOPLibraryPage() {
       const formData = new FormData();
       formData.append('file', selectedFile);
 
-      const res = await fetch('http://localhost:5000/api/ai/upload-sop', {
+      const res = await fetch(`${API_URL}/api/ai/upload-sop`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
