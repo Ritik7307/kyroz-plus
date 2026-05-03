@@ -42,3 +42,6 @@ app.get('/api/health', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+app.get("/api/test", (req, res) => {
+  res.json({ message: "API working ✅" });
+});
