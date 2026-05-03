@@ -1,0 +1,79 @@
+import { Response } from 'express';
+import { AuthRequest } from '../middleware/auth.middleware';
+import { processSopText } from '../services/ai/ingestion.service';
+import { generateRagResponse } from '../services/ai/ragPipeline.service';
+const pdf = require('pdf-parse');
+import mammoth from 'mammoth';
+
+// RAG Chat Endpoint
+export const chatWithKosa = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { message } = req.body;
+    const userId = req.user?.userId;
+
+    if (!message) {
+      res.status(400).json({ error: 'Message is required' });
+      return;
+    }
+
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    // Call the newly created RAG Pipeline
+    const reply = await generateRagResponse(userId, message);
+
+    res.status(200).json({ reply });
+  } catch (error: any) {
+    console.error('Error in AI Chat:', error);
+    res.status(500).json({ error: error.message || 'Failed to communicate with KYROZ KOSA.' });
+  }
+};
+
+// Automated SOP Ingestion Endpoint (File Upload)
+export const uploadSopFile = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const file = req.file;
+    const userId = req.user?.userId;
+
+    if (!file) {
+      res.status(400).json({ error: 'No file uploaded. Please upload a PDF, DOCX, or TXT file.' });
+      return;
+    }
+
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    let extractedText = '';
+
+    // 1. Extract Text based on Mimetype
+    if (file.mimetype === 'application/pdf') {
+      const data = await pdf(file.buffer);
+      extractedText = data.text;
+    } else if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      const result = await mammoth.extractRawText({ buffer: file.buffer });
+      extractedText = result.value;
+    } else if (file.mimetype === 'text/plain') {
+      extractedText = file.buffer.toString('utf-8');
+    } else {
+      res.status(400).json({ error: 'Unsupported file format. Use PDF, DOCX, or TXT.' });
+      return;
+    }
+
+    // 2. Pass to the Ingestion Service to Parse, Chunk, Embed, and Save
+    const { dish, chunksStored } = await processSopText(userId, extractedText);
+
+    res.status(200).json({
+      message: 'SOP processed successfully',
+      dish,
+      chunksStored
+    });
+
+  } catch (error: any) {
+    console.error('Error uploading SOP:', error);
+    res.status(500).json({ error: error.message || 'Failed to process SOP file.' });
+  }
+};
