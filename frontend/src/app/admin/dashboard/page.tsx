@@ -11,15 +11,16 @@ import {
   Search,
   ArrowUpRight,
   Upload,
-  UserCheck
+  UserCheck,
+  ChefHat
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import { API_URL } from '@/lib/api';
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState<any>(null);
-  const [adminName, setAdminName] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -29,7 +30,7 @@ export default function AdminDashboard() {
 
       try {
         // Verify Admin Status
-        const meRes = await fetch('http://localhost:5000/api/auth/me', {
+        const meRes = await fetch(`${API_URL}/api/auth/me`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const meData = await meRes.json();
@@ -37,15 +38,14 @@ export default function AdminDashboard() {
           router.push('/dashboard');
           return;
         }
-        setAdminName(meData.name);
 
         // Fetch Admin Data
-        const statsRes = await fetch('http://localhost:5000/api/admin/stats', {
+        const statsRes = await fetch(`${API_URL}/api/admin/stats`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setStats(await statsRes.json());
 
-        const usersRes = await fetch('http://localhost:5000/api/admin/users', {
+        const usersRes = await fetch(`${API_URL}/api/admin/users`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setUsers(await usersRes.json());
@@ -57,34 +57,15 @@ export default function AdminDashboard() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans">
-      {/* HEADER */}
-      <header className="border-b border-border h-20 flex items-center justify-between px-8 bg-black/50 backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gold-gradient rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.3)]">
-            <ShieldCheck size={24} className="text-black" />
-          </div>
-          <h1 className="text-xl font-bold tracking-tight">
-            KYROZ <span className="text-gold font-light uppercase text-sm ml-2 tracking-[0.3em]">Admin Central</span>
-          </h1>
-        </div>
-
-        <div className="flex items-center gap-6">
-          <span className="text-sm font-medium text-white/60">Welcome, {adminName} (SuperAdmin)</span>
-          <button onClick={() => { localStorage.clear(); router.push('/login'); }} className="text-red-500 hover:text-red-400 transition-colors flex items-center gap-2 text-sm font-bold">
-            <LogOut size={18} /> Logout
-          </button>
-        </div>
-      </header>
-
-      <main className="max-w-[1400px] mx-auto p-8 space-y-8">
+    <div className="font-sans">
+      <div className="space-y-8">
         
         {/* STATS OVERVIEW */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {[
             { label: 'Total Members', value: stats?.memberCount || 0, icon: Users, color: 'text-blue-400' },
-            { label: 'Platform Revenue', value: `₹${stats?.revenue?.toLocaleString() || 0}`, icon: IndianRupee, color: 'text-green-400' },
-            { label: 'Global SOPs', value: '42', icon: FileText, color: 'text-gold' },
+            { label: 'Platform Revenue', value: `₹${(stats?.revenue || 0).toLocaleString()}`, icon: IndianRupee, color: 'text-green-400' },
+            { label: 'Global SOPs', value: stats?.masterSopCount || 0, icon: FileText, color: 'text-gold' },
             { label: 'System Health', value: stats?.systemStatus || 'Online', icon: ShieldCheck, color: 'text-purple-400' },
           ].map((stat, idx) => (
             <motion.div 
@@ -172,11 +153,14 @@ export default function AdminDashboard() {
               </h3>
               
               <div className="space-y-4">
-                <button className="w-full bg-gold-gradient p-6 rounded-2xl text-black font-bold flex flex-col items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-xl group">
-                  <Upload size={32} />
+                <button 
+                  onClick={() => router.push('/admin/sops')}
+                  className="w-full bg-gold-gradient p-6 rounded-2xl text-black font-bold flex flex-col items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-xl group"
+                >
+                  <ChefHat size={32} />
                   <div className="text-center">
-                    <span className="block text-sm uppercase tracking-widest">Upload Global SOP</span>
-                    <span className="text-[10px] opacity-60">PDF/DOCX support</span>
+                    <span className="block text-sm uppercase tracking-widest">Manage Global SOPs</span>
+                    <span className="text-[10px] opacity-60">Add, Edit or Remove SOPs</span>
                   </div>
                 </button>
 
@@ -198,7 +182,7 @@ export default function AdminDashboard() {
           </div>
 
         </div>
-      </main>
+      </div>
     </div>
   );
 }

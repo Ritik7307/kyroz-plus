@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { API_URL } from '@/lib/api';
 
 export default function MembershipPage() {
   const router = useRouter();
@@ -18,7 +19,11 @@ export default function MembershipPage() {
     // Get current plan from local storage
     const userStr = localStorage.getItem('user');
     if (userStr) {
-      setCurrentPlan(JSON.parse(userStr).plan);
+      const user = JSON.parse(userStr);
+      setCurrentPlan(user.plan);
+      if (user.role === 'admin') {
+        setCurrentPlan('Admin');
+      }
     }
     
     return () => {
@@ -32,7 +37,7 @@ export default function MembershipPage() {
       const token = localStorage.getItem('token');
       
       // 1. Create Order
-      const orderRes = await fetch('http://localhost:5000/api/payments/create-order', {
+      const orderRes = await fetch(`${API_URL}/api/payments/create-order`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -60,7 +65,7 @@ export default function MembershipPage() {
         order_id: orderData.order.id,
         handler: async function (response: any) {
           // 3. Verify Payment
-          const verifyRes = await fetch('http://localhost:5000/api/payments/verify', {
+          const verifyRes = await fetch(`${API_URL}/api/payments/verify`, {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json',
@@ -114,11 +119,19 @@ export default function MembershipPage() {
   return (
     <div className="flex flex-col h-full max-w-6xl mx-auto">
       <header className="mb-12 text-center mt-8">
-        <h2 className="text-4xl font-bold text-white tracking-wide">Choose Your Plan</h2>
-        <p className="text-gray-400 mt-4 text-lg">Scale your restaurant operations with the perfect set of tools.</p>
+        <h2 className="text-4xl font-bold text-white tracking-wide">
+          {currentPlan === 'Admin' ? 'Admin Control Center' : 'Choose Your Plan'}
+        </h2>
+        <p className="text-gray-400 mt-4 text-lg">
+          {currentPlan === 'Admin' 
+            ? 'As a Platform Administrator, you have full access to all elite features without any cost.' 
+            : 'Scale your restaurant operations with the perfect set of tools.'}
+        </p>
         <div className="mt-4 inline-block bg-[#111111] px-6 py-2 rounded-full border border-[#333333]">
-          <span className="text-gray-400">Current Plan: </span>
-          <span className="text-[#d4af37] font-bold tracking-wider uppercase">{currentPlan}</span>
+          <span className="text-gray-400">Current Status: </span>
+          <span className="text-[#d4af37] font-bold tracking-wider uppercase">
+            {currentPlan === 'Admin' ? 'LIFETIME ACCESS (ADMIN)' : currentPlan}
+          </span>
         </div>
       </header>
 

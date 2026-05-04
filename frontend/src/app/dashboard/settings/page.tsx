@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { API_URL } from '@/lib/api';
 
 interface Session {
   _id: string;
@@ -27,7 +28,7 @@ export default function SettingsPage() {
         setUserPlan(JSON.parse(userStr).plan);
       }
 
-      const res = await fetch('http://localhost:5000/api/sessions', {
+      const res = await fetch(`${API_URL}/api/sessions`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -48,7 +49,7 @@ export default function SettingsPage() {
   const handleLogoutDevice = async (sessionId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/sessions/${sessionId}`, {
+      const res = await fetch(`${API_URL}/api/sessions/${sessionId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

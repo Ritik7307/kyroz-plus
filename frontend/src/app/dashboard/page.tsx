@@ -67,31 +67,36 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-12 pb-24 max-w-[1400px] mx-auto">
-      {/* --- HERO SECTION --- */}
+        {/* --- HERO SECTION --- */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* POS Terminal Button */}
-          <div className="lg:col-span-4 h-full">
-            <button className="w-full h-full min-h-[180px] bg-card glass-card rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:scale-[1.02] transition-all duration-500 animate-gold-glow border-gold/30 border-2 shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
-              <div className="w-20 h-20 rounded-[1.5rem] bg-gold/10 flex items-center justify-center text-gold group-hover:scale-110 transition-transform shadow-inner">
-                <CreditCard size={44} />
-              </div>
-              <div className="text-center">
-                <h3 className="text-gold font-black text-2xl uppercase tracking-widest">POS TERMINAL</h3>
-                <p className="text-white/40 text-[10px] mt-2 font-black tracking-[0.2em]">OPEN BILLING INTERFACE</p>
-              </div>
-            </button>
-          </div>
+          {/* POS Terminal Button - Only for Manager/Billing/User */}
+          {(user?.role === 'manager' || user?.role === 'billing' || user?.role === 'user') && (
+            <div className="lg:col-span-4 h-full">
+              <button 
+                onClick={() => router.push('/dashboard/pos')}
+                className="w-full h-full min-h-[180px] bg-card glass-card rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:scale-[1.02] transition-all duration-500 animate-gold-glow border-gold/30 border-2 shadow-2xl relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+                <div className="w-20 h-20 rounded-[1.5rem] bg-gold/10 flex items-center justify-center text-gold group-hover:scale-110 transition-transform shadow-inner">
+                  <CreditCard size={44} />
+                </div>
+                <div className="text-center">
+                  <h3 className="text-gold font-black text-2xl uppercase tracking-widest">POS TERMINAL</h3>
+                  <p className="text-white/40 text-[10px] mt-2 font-black tracking-[0.2em]">OPEN BILLING INTERFACE</p>
+                </div>
+              </button>
+            </div>
+          )}
 
           {/* Welcome & Status */}
-          <div className="lg:col-span-8 space-y-8">
+          <div className={user?.role === 'cook' ? 'lg:col-span-12' : 'lg:col-span-8'}>
             <div className="bg-card glass-card rounded-[2.5rem] p-10 flex flex-col lg:flex-row items-center justify-between gap-8 border border-white/5 shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 left-0 w-64 h-64 bg-gold/5 rounded-full -ml-32 -mt-32 blur-[100px]"></div>
               <div className="space-y-3 relative z-10 text-center lg:text-left">
-                <h2 className="text-4xl font-black tracking-tighter">WELCOME BACK, <span className="text-gold">{user?.name?.toUpperCase() || 'CHEF RITIK'}!</span></h2>
+                <h2 className="text-4xl font-black tracking-tighter">WELCOME BACK, <span className="text-gold">{user?.name?.toUpperCase() || 'CHEF'}!</span></h2>
                 <div className="flex items-center gap-3 justify-center lg:justify-start">
                   <span className="px-4 py-1 bg-gold/10 text-gold text-[10px] font-black uppercase tracking-widest rounded-full border border-gold/20">
-                    {user?.plan || 'PREMIUM'} ACCOUNT
+                    {user?.role?.toUpperCase()} ACCOUNT
                   </span>
                   <div className="flex items-center gap-2 text-green-500 font-black text-[10px] uppercase tracking-widest">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -100,67 +105,74 @@ export default function DashboardPage() {
                 </div>
               </div>
               
-              <div className="flex gap-4 relative z-10 w-full lg:w-auto">
-                <div 
-                  onClick={() => router.push('/dashboard/costing')}
-                  className="flex-1 bg-black/40 p-6 rounded-3xl border border-white/10 hover:border-gold/30 transition-all cursor-pointer group"
-                >
-                  <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Daily Profit</p>
-                  <div className="flex items-end justify-between gap-4">
-                    <span className="text-2xl font-black">₹18.5k</span>
-                    <span className="text-green-500 text-[10px] font-black flex items-center gap-1 mb-1">
-                      <TrendingUp size={12} /> 12%
-                    </span>
+              {(user?.role === 'manager' || user?.role === 'user') && (
+                <div className="flex gap-4 relative z-10 w-full lg:w-auto">
+                  <div 
+                    onClick={() => router.push('/dashboard/costing')}
+                    className="flex-1 bg-black/40 p-6 rounded-3xl border border-white/10 hover:border-gold/30 transition-all cursor-pointer group"
+                  >
+                    <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Daily Profit</p>
+                    <div className="flex items-end justify-between gap-4">
+                      <span className="text-2xl font-black">₹18.5k</span>
+                      <span className="text-green-500 text-[10px] font-black flex items-center gap-1 mb-1">
+                        <TrendingUp size={12} /> 12%
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex-1 bg-black/40 p-6 rounded-3xl border border-white/10 hover:border-gold/30 transition-all cursor-pointer group">
-                  <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Efficiency</p>
-                  <div className="flex items-end justify-between gap-4">
-                    <span className="text-2xl font-black">94%</span>
-                    <span className="text-green-500 text-[10px] font-black flex items-center gap-1 mb-1">
-                      <TrendingUp size={12} /> 4%
-                    </span>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* Top 3 Problems Widget */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-red-500/5 border border-red-500/20 p-6 rounded-3xl flex items-center gap-4 group hover:bg-red-500/10 transition-all cursor-pointer">
-                <div className="w-12 h-12 rounded-2xl bg-red-500/20 flex items-center justify-center text-red-500">
-                  <AlertCircle size={24} />
+            {/* Role Specific Widgets */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+              {(user?.role === 'manager' || user?.role === 'user' || user?.role === 'cook') && (
+                <div 
+                  onClick={() => router.push('/dashboard/inventory')}
+                  className="bg-red-500/5 border border-red-500/20 p-6 rounded-3xl flex items-center gap-4 group hover:bg-red-500/10 transition-all cursor-pointer"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-red-500/20 flex items-center justify-center text-red-500">
+                    <AlertCircle size={24} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-red-500/60 uppercase tracking-widest">Wastage Alert</p>
+                    <p className="text-xs font-black text-white uppercase">Milk Expiring Today</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-[10px] font-black text-red-500/60 uppercase tracking-widest">Wastage Alert</p>
-                  <p className="text-xs font-black text-white uppercase">Milk Expiring Today</p>
+              )}
+              
+              {(user?.role === 'manager' || user?.role === 'user' || user?.role === 'cook') && (
+                <div 
+                  onClick={() => router.push('/dashboard/inventory')}
+                  className="bg-yellow-500/5 border border-yellow-500/20 p-6 rounded-3xl flex items-center gap-4 group hover:bg-yellow-500/10 transition-all cursor-pointer"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-yellow-500/20 flex items-center justify-center text-yellow-500">
+                    <ShoppingCart size={24} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-yellow-500/60 uppercase tracking-widest">Low Stock</p>
+                    <p className="text-xs font-black text-white uppercase">Premix Packet A (2 Left)</p>
+                  </div>
                 </div>
-              </div>
-              <div className="bg-yellow-500/5 border border-yellow-500/20 p-6 rounded-3xl flex items-center gap-4 group hover:bg-yellow-500/10 transition-all cursor-pointer">
-                <div className="w-12 h-12 rounded-2xl bg-yellow-500/20 flex items-center justify-center text-yellow-500">
-                  <ShoppingCart size={24} />
+              )}
+
+              {(user?.role === 'manager' || user?.role === 'user' || user?.role === 'billing') && (
+                <div className="bg-orange-500/5 border border-orange-500/20 p-6 rounded-3xl flex items-center gap-4 group hover:bg-orange-500/10 transition-all cursor-pointer">
+                  <div className="w-12 h-12 rounded-2xl bg-orange-500/20 flex items-center justify-center text-orange-500">
+                    <DollarSign size={24} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-orange-500/60 uppercase tracking-widest">Low Margin</p>
+                    <p className="text-xs font-black text-white uppercase">Veg Jalfrezi (12%)</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-[10px] font-black text-yellow-500/60 uppercase tracking-widest">Low Stock</p>
-                  <p className="text-xs font-black text-white uppercase">Premix Packet A (2 Left)</p>
-                </div>
-              </div>
-              <div className="bg-orange-500/5 border border-orange-500/20 p-6 rounded-3xl flex items-center gap-4 group hover:bg-orange-500/10 transition-all cursor-pointer">
-                <div className="w-12 h-12 rounded-2xl bg-orange-500/20 flex items-center justify-center text-orange-500">
-                  <DollarSign size={24} />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-orange-500/60 uppercase tracking-widest">Low Margin</p>
-                  <p className="text-xs font-black text-white uppercase">Veg Jalfrezi (12%)</p>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </section>
 
         {/* --- SOP LIBRARY GRID --- */}
         <section className="space-y-8">
-          {sops.length > 0 && (
+          {(user?.role === 'manager' || user?.role === 'user') && sops.length > 0 && (
             <div className="space-y-6">
               <h3 className="text-white/40 text-sm font-bold tracking-[0.2em] uppercase flex items-center gap-2">
                 <FileText size={16} className="text-gold" /> My Recent Uploads
@@ -194,12 +206,16 @@ export default function DashboardPage() {
             <h3 className="text-white/40 text-sm font-bold tracking-[0.2em] uppercase">Global Library</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                { title: "Cooking SOPs", sub: "(Shahi Paneer, Kadhai Chicken...)", icon: ChefHat },
-                { title: "Gravy Master", sub: "(Batch size, storage, reheating...)", icon: UtensilsCrossed },
-                { title: "Costing Master", sub: "(Menu Pricing, Margin %...)", icon: Calculator },
-                { title: "Wastage Master", sub: "(FIFO, inventory Rules...)", icon: Trash2 },
-              ].map((item, idx) => (
-                <div key={idx} className="bg-card glass-card p-6 rounded-2xl gold-border-hover cursor-pointer group flex flex-col items-center text-center gap-4">
+                { title: "Cooking SOPs", sub: "(Shahi Paneer, Kadhai Chicken...)", icon: ChefHat, roles: ['manager', 'user', 'cook'] },
+                { title: "Gravy Master", sub: "(Batch size, storage, reheating...)", icon: UtensilsCrossed, roles: ['manager', 'user', 'cook'] },
+                { title: "Costing Master", sub: "(Menu Pricing, Margin %...)", icon: Calculator, roles: ['manager', 'user', 'billing'] },
+                { title: "Wastage Master", sub: "(FIFO, inventory Rules...)", icon: Trash2, roles: ['manager', 'user', 'cook'] },
+              ].filter(item => item.roles.includes(user?.role || 'user')).map((item, idx) => (
+                <div 
+                  key={idx} 
+                  onClick={() => router.push(`/dashboard/sop?category=${item.title.split(' ')[0]}`)}
+                  className="bg-card glass-card p-6 rounded-2xl gold-border-hover cursor-pointer group flex flex-col items-center text-center gap-4 transition-all"
+                >
                   <div className="w-14 h-14 bg-white/5 rounded-full flex items-center justify-center text-white/80 group-hover:text-gold group-hover:bg-gold/10 transition-all">
                     <item.icon size={32} />
                   </div>
@@ -207,9 +223,9 @@ export default function DashboardPage() {
                     <h4 className="font-bold text-lg">{item.title}</h4>
                     <p className="text-white/40 text-xs mt-1 px-2">{item.sub}</p>
                   </div>
-                  <button className="text-gold text-xs font-bold flex items-center gap-1 hover:gap-2 transition-all mt-2">
-                    VIEW ALL <ArrowRight size={14} />
-                  </button>
+                  <div className="text-gold text-xs font-bold flex items-center gap-1 hover:gap-2 transition-all mt-2">
+                    OPEN {item.title.toUpperCase()} <ArrowRight size={14} />
+                  </div>
                 </div>
               ))}
             </div>

@@ -4,7 +4,10 @@ export interface ISop extends Document {
   userId: mongoose.Types.ObjectId;
   title: string;
   category: 'Dish' | 'Gravy' | 'Costing' | 'Wastage' | 'Discipline';
-  content: string;
+  contentEn?: string;
+  contentHi?: string;
+  content?: string;
+  fileUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -20,7 +23,8 @@ const SopSchema: Schema = new Schema(
     },
     contentEn: { type: String },
     contentHi: { type: String },
-    content: { type: String } // Legacy support
+    content: { type: String }, // Legacy support
+    fileUrl: { type: String }
   },
   { timestamps: true }
 );

@@ -6,8 +6,8 @@ export interface IUser extends Document {
   shopName?: string;
   shopAddress?: string;
   gstNumber?: string;
-  role: 'admin' | 'user';
-  subscriptionPlan: 'Basic' | 'Pro' | 'Elite';
+  role: 'admin' | 'manager' | 'cook' | 'billing' | 'user';
+  subscriptionPlan: 'Basic' | 'Pro' | 'Elite' | 'Admin';
   otpHash?: string;
   otpExpiresAt?: Date;
   createdAt: Date;
@@ -21,8 +21,8 @@ const UserSchema: Schema = new Schema(
     shopName: { type: String },
     shopAddress: { type: String },
     gstNumber: { type: String },
-    role: { type: String, enum: ['admin', 'user'], default: 'user' },
-    subscriptionPlan: { type: String, enum: ['Basic', 'Pro', 'Elite'], default: 'Basic' },
+    role: { type: String, enum: ['admin', 'manager', 'cook', 'billing', 'user'], default: 'user' },
+    subscriptionPlan: { type: String, enum: ['Basic', 'Pro', 'Elite', 'Admin'], default: 'Basic' },
     otpHash: { type: String },
     otpExpiresAt: { type: Date }
   },

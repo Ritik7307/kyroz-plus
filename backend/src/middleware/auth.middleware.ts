@@ -30,10 +30,17 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
   }
 };
 
-export const isAdmin = (req: AuthRequest, res: Response, next: NextFunction): void => {
-  if (req.user?.role !== 'admin') {
-    res.status(403).json({ error: 'Access denied. Admin only.' });
-    return;
-  }
-  next();
+export const authorizeRoles = (...roles: string[]) => {
+  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      res.status(403).json({ error: 'Access denied. Unauthorized role.' });
+      return;
+    }
+    next();
+  };
 };
+
+export const isAdmin = authorizeRoles('admin');
+export const isManager = authorizeRoles('admin', 'manager', 'user');
+export const isCook = authorizeRoles('admin', 'manager', 'cook');
+export const isBilling = authorizeRoles('admin', 'manager', 'billing');

@@ -11,6 +11,11 @@ export const requirePlan = (requiredPlan: 'Basic' | 'Pro' | 'Elite') => {
   return (req: AuthRequest, res: Response, next: NextFunction): void => {
     const userPlan = req.user?.plan as 'Basic' | 'Pro' | 'Elite' | undefined;
 
+    // Admins bypass all plan checks
+    if (req.user?.role === 'admin') {
+      return next();
+    }
+
     if (!userPlan) {
       res.status(403).json({ error: 'No subscription plan found.' });
       return;

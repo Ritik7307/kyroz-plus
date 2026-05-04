@@ -12,7 +12,8 @@ import {
   LogOut,
   X,
   Menu,
-  Bell
+  Bell,
+  Utensils
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,27 +21,66 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface SidebarProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  userRole?: 'admin' | 'user';
+  userRole?: 'admin' | 'manager' | 'cook' | 'billing' | 'user';
 }
 
 export default function Sidebar({ isOpen, setIsOpen, userRole = 'user' }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const menuItems = userRole === 'admin' ? [
-    { name: 'Admin Dashboard', icon: LayoutDashboard, path: '/admin/dashboard' },
-    { name: 'Member List', icon: Users, path: '/admin/users' },
-    { name: 'Global SOPs', icon: ChefHat, path: '/admin/sops' },
-    { name: 'System Settings', icon: Settings, path: '/admin/settings' },
-  ] : [
-    { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { name: 'KOSA AI', icon: MessageSquare, path: '/dashboard/ai' },
-    { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
-    { name: 'Costing Tools', icon: Calculator, path: '/dashboard/costing' },
-    { name: 'Inventory & Wastage', icon: Trash2, path: '/dashboard/inventory' },
-    { name: 'Membership', icon: Bell, path: '/dashboard/membership' },
-    { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
-  ];
+  const getMenuItems = () => {
+    // If we are in the Admin section, show Admin menu
+    if (pathname.startsWith('/admin')) {
+      return [
+        { name: 'Admin Dashboard', icon: LayoutDashboard, path: '/admin/dashboard' },
+        { name: 'Member List', icon: Users, path: '/admin/users' },
+        { name: 'Global SOPs', icon: ChefHat, path: '/admin/sops' },
+        { name: 'Member View (Test)', icon: Utensils, path: '/dashboard' },
+        { name: 'System Settings', icon: Settings, path: '/admin/settings' },
+      ];
+    }
+
+    // Otherwise, show Member menu based on role
+    switch (userRole) {
+      case 'admin':
+      case 'manager':
+        return [
+          { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+          { name: 'POS Terminal', icon: Calculator, path: '/dashboard/pos' },
+          { name: 'Staff Management', icon: Users, path: '/dashboard/staff' },
+          { name: 'KOSA AI', icon: MessageSquare, path: '/dashboard/ai' },
+          { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
+          { name: 'Costing Tools', icon: Calculator, path: '/dashboard/costing' },
+          { name: 'Inventory & Wastage', icon: Trash2, path: '/dashboard/inventory' },
+          { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
+        ];
+      case 'cook':
+        return [
+          { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+          { name: 'KOSA AI', icon: MessageSquare, path: '/dashboard/ai' },
+          { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
+          { name: 'Inventory & Wastage', icon: Trash2, path: '/dashboard/inventory' },
+          { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
+        ];
+      case 'billing':
+        return [
+          { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+          { name: 'POS Terminal', icon: Calculator, path: '/dashboard/pos' },
+          { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
+          { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
+        ];
+      default:
+        return [
+          { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+          { name: 'KOSA AI', icon: MessageSquare, path: '/dashboard/ai' },
+          { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
+          { name: 'Membership', icon: Bell, path: '/dashboard/membership' },
+          { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
+        ];
+    }
+  };
+
+  const menuItems = getMenuItems();
 
   const handleLogout = () => {
     localStorage.clear();

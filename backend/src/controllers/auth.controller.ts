@@ -6,13 +6,15 @@ import { UAParser } from 'ua-parser-js';
 import User from '../models/User';
 import Session from '../models/Session';
 import { AuthRequest } from '../middleware/auth.middleware';
+import { syncMasterSopsForUser } from '../services/sop.service';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'kyroz_super_secret_key_123';
 
 const PLAN_LIMITS = {
   'Basic': 1,
   'Pro': 2,
-  'Elite': 3
+  'Elite': 3,
+  'Admin': 999
 };
 
 // Create transporter function to use Port 465 (SSL) for maximum reliability with Gmail
@@ -40,32 +42,34 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
     const plainOtp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
     
-    // Hash OTP before storing
-    const salt = await bcrypt.genSalt(10);
-    const otpHash = await bcrypt.hash(plainOtp, salt);
+    // Hash OTP - reduced rounds for speed (still secure for 5-min OTP)
+    const otpHash = await bcrypt.hash(plainOtp, 6);
 
-    let user = await User.findOne({ email });
-    if (!user) {
-      user = new User({ email, otpHash, otpExpiresAt, name, shopName, shopAddress, gstNumber });
-    } else {
-      user.otpHash = otpHash;
-      user.otpExpiresAt = otpExpiresAt;
-      if (name) user.name = name;
-      if (shopName) user.shopName = shopName;
-      if (shopAddress) user.shopAddress = shopAddress;
-      if (gstNumber) user.gstNumber = gstNumber;
-    }
+    // Single DB operation instead of two
     try {
-      await user.save();
+      await User.findOneAndUpdate(
+        { email },
+        { 
+          $set: { 
+            otpHash, 
+            otpExpiresAt,
+            ...(name && { name }),
+            ...(shopName && { shopName }),
+            ...(shopAddress && { shopAddress }),
+            ...(gstNumber && { gstNumber })
+          } 
+        },
+        { upsert: true, new: true }
+      );
     } catch (dbError: any) {
       console.error('Database error while saving user/OTP:', dbError);
       res.status(500).json({ error: 'Database error', details: dbError.message });
       return;
     }
 
-    // Send Real Email if credentials exist
+    console.log(`[DEBUG] OTP for ${email}: ${plainOtp}`);
+    // Send Real Email in background to speed up UI
     if (process.env.SMTP_USER && process.env.SMTP_PASS) {
-      console.log(`Attempting to send real email via: ${process.env.SMTP_USER}`);
       const mailOptions = {
         from: `"KYROZ Security" <${process.env.SMTP_USER}>`,
         to: email,
@@ -80,17 +84,11 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
         `
       };
       
-      try {
-        const transporter = getTransporter();
-        await transporter.sendMail(mailOptions);
-        console.log(`Sent real email OTP to ${email}`);
-      } catch (mailError: any) {
-        console.error('Nodemailer error:', mailError);
-        res.status(500).json({ error: 'Email delivery failed', details: mailError.message });
-        return;
-      }
+      // Fire and forget (errors logged in console)
+      getTransporter().sendMail(mailOptions)
+        .then(() => console.log(`Sent real email OTP to ${email}`))
+        .catch(err => console.error('Nodemailer background error:', err));
     } else {
-      // Fallback to console log if no email setup
       console.log(`[MOCK EMAIL OTP] Sent to ${email}: ${plainOtp}`);
     }
 
@@ -118,6 +116,9 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
       res.status(400).json({ error: 'Invalid OTP' });
       return;
     }
+
+    // Sync Master SOPs in background
+    syncMasterSopsForUser(user._id as any).catch(err => console.error('BG Sync failed:', err));
 
     // Clear OTP
     user.otpHash = undefined;
@@ -205,5 +206,27 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: 'Server error fetching profile' });
+  }
+};
+
+export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { name, shopName, shopAddress, gstNumber } = req.body;
+    
+    const user = await User.findById(req.user?.userId);
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    if (name) user.name = name;
+    if (shopName) user.shopName = shopName;
+    if (shopAddress) user.shopAddress = shopAddress;
+    if (gstNumber) user.gstNumber = gstNumber;
+
+    await user.save();
+    res.status(200).json({ message: 'Profile updated successfully', user });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error updating profile' });
   }
 };

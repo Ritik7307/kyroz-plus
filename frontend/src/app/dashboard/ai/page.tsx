@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { API_URL } from '@/lib/api';
 
 type Message = {
   role: 'user' | 'kosa';
@@ -78,7 +79,7 @@ export default function AiDashboard() {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/ai/chat', {
+      const res = await fetch(`${API_URL}/api/ai/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

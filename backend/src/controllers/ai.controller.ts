@@ -2,6 +2,9 @@ import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { processSopText } from '../services/ai/ingestion.service';
 import { generateRagResponse } from '../services/ai/ragPipeline.service';
+import Sop from '../models/Sop';
+import fs from 'fs';
+import path from 'path';
 const pdf = require('pdf-parse');
 import mammoth from 'mammoth';
 
@@ -63,13 +66,30 @@ export const uploadSopFile = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    // 2. Pass to the Ingestion Service to Parse, Chunk, Embed, and Save
+    // 2. Save the file to disk for direct download/viewing
+    const fileName = `${Date.now()}-${file.originalname}`;
+    const uploadPath = path.join(__dirname, '../../public/uploads/sops', fileName);
+    fs.writeFileSync(uploadPath, file.buffer);
+    const fileUrl = `/public/uploads/sops/${fileName}`;
+
+    // 3. Pass to the Ingestion Service to Parse, Chunk, Embed, and Save (for AI)
     const { dish, chunksStored } = await processSopText(userId, extractedText);
+
+    // 4. Create a persistent SOP record with the file attachment
+    const newSop = new Sop({
+      userId,
+      title: dish.toUpperCase(),
+      category: 'Dish',
+      contentEn: extractedText,
+      fileUrl: fileUrl
+    });
+    await newSop.save();
 
     res.status(200).json({
       message: 'SOP processed successfully',
       dish,
-      chunksStored
+      chunksStored,
+      fileUrl
     });
 
   } catch (error: any) {

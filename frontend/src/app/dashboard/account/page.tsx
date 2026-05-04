@@ -13,28 +13,60 @@ import {
   Bell
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { API_URL } from '@/lib/api';
 
 export default function AccountPage() {
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    shopName: ''
+  });
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const token = localStorage.getItem('token');
-      try {
-        const res = await fetch('http://localhost:5000/api/auth/me', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
-        setUser(data);
-      } catch (err) {
-        console.error('Failed to fetch user');
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchUser();
   }, []);
+
+  const fetchUser = async () => {
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch(`${API_URL}/api/auth/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setUser(data);
+      setFormData({
+        name: data.name || '',
+        shopName: data.shopName || ''
+      });
+    } catch (err) {
+      console.error('Failed to fetch user');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch(`${API_URL}/api/auth/update-profile`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify(formData)
+      });
+      if (res.ok) {
+        setIsEditing(false);
+        fetchUser();
+      }
+    } catch (err) {
+      console.error('Update failed');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -100,7 +132,10 @@ export default function AccountPage() {
               </div>
             </div>
 
-            <button className="w-full mt-8 py-4 bg-white/5 hover:bg-white/10 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all border border-white/10">
+            <button 
+              onClick={() => setIsEditing(true)}
+              className="w-full mt-8 py-4 bg-white/5 hover:bg-white/10 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all border border-white/10"
+            >
               Edit Profile Details
             </button>
           </div>
@@ -155,6 +190,54 @@ export default function AccountPage() {
         </div>
 
       </div>
+
+      {/* EDIT MODAL */}
+      {isEditing && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-card glass-card p-8 rounded-[2rem] border border-white/10 w-full max-w-md shadow-2xl"
+          >
+            <h3 className="text-xl font-bold mb-6">EDIT <span className="text-gold">PROFILE</span></h3>
+            <form onSubmit={handleUpdate} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Full Name</label>
+                <input 
+                  type="text" 
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none transition-all"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Restaurant Name</label>
+                <input 
+                  type="text" 
+                  value={formData.shopName}
+                  onChange={(e) => setFormData({...formData, shopName: e.target.value})}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none transition-all"
+                />
+              </div>
+              <div className="flex gap-4 pt-4">
+                <button 
+                  type="button" 
+                  onClick={() => setIsEditing(false)}
+                  className="flex-1 py-4 bg-white/5 rounded-xl text-xs font-bold uppercase tracking-widest border border-white/5"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="flex-1 py-4 bg-gold text-black rounded-xl text-xs font-bold uppercase tracking-widest"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

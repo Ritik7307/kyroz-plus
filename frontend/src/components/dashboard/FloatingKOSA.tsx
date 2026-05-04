@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageSquare, X, Minus, Send, Bot, User as UserIcon, Loader2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { API_URL } from '@/lib/api';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -34,7 +35,7 @@ export default function FloatingKOSA() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/ai/chat', {
+      const response = await fetch(`${API_URL}/api/ai/chat`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

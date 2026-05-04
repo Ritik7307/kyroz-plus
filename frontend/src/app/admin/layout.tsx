@@ -4,16 +4,15 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Sidebar from '@/components/layout/Sidebar';
-import { Menu, Bell, User, Plus, Search as SearchIcon, Command } from 'lucide-react';
+import { Menu, ShieldCheck, Search as SearchIcon, Command, LogOut } from 'lucide-react';
 import { GlobalSearch, ToastContainer, Toast } from '@/components/dashboard/GlobalSearch';
-import { motion, AnimatePresence } from 'framer-motion';
 import { API_URL } from '@/lib/api';
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [adminUser, setAdminUser] = useState<any>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -23,20 +22,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (!token) {
       router.push('/login');
     } else {
-      setIsAuthorized(true);
-      fetchUser(token);
+      verifyAdmin(token);
     }
   }, [router]);
 
-  const fetchUser = async (token: string) => {
+  const verifyAdmin = async (token: string) => {
     try {
       const res = await fetch(`${API_URL}/api/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
-      setUser(data);
+      
+      if (data.role !== 'admin') {
+        router.push('/dashboard');
+        return;
+      }
+
+      setAdminUser(data);
+      setIsAuthorized(true);
     } catch (err) {
-      console.error('Failed to fetch user', err);
+      console.error('Failed to verify admin', err);
+      router.push('/login');
     }
   };
 
@@ -55,17 +61,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="min-h-screen bg-black flex items-center justify-center text-gold font-bold uppercase tracking-[0.3em]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin"></div>
-          Authenticating...
+          Verifying Admin Access...
         </div>
       </div>
     );
   }
 
   const navLinks = [
-    { name: 'Dashboard', path: '/dashboard' },
-    { name: 'SOP Library', path: '/dashboard/sop' },
-    { name: 'KOSA AI', path: '/dashboard/ai' },
-    { name: 'Account', path: '/dashboard/account' },
+    { name: 'Admin Hub', path: '/admin/dashboard' },
+    { name: 'Global SOPs', path: '/admin/sops' },
+    { name: 'User Management', path: '/admin/users' },
   ];
 
   return (
@@ -73,8 +78,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <GlobalSearch isOpen={isSearchOpen} setIsOpen={setIsSearchOpen} />
       <ToastContainer toasts={toasts} removeToast={removeToast} />
 
-      {/* Sidebar */}
-      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} userRole={user?.role || 'user'} />
+      {/* Sidebar set to Admin role */}
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} userRole="admin" />
 
       {/* Top Header */}
       <header className="h-24 border-b border-white/5 bg-background/50 backdrop-blur-xl sticky top-0 z-50 px-6 md:px-12 flex items-center justify-between">
@@ -88,11 +93,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-gold-gradient rounded-2xl flex items-center justify-center shadow-[0_10px_30px_rgba(212,175,55,0.2)] border border-white/10">
-              <span className="text-black font-black text-2xl">K</span>
+              <ShieldCheck size={24} className="text-black" />
             </div>
             <div className="hidden sm:block">
               <h1 className="font-black text-xl tracking-tighter leading-none">KYROZ</h1>
-              <p className="text-gold font-black uppercase text-[9px] tracking-[0.3em] mt-1 opacity-60">Restaurant KOS</p>
+              <p className="text-gold font-black uppercase text-[9px] tracking-[0.3em] mt-1 opacity-60">Admin Central</p>
             </div>
           </div>
         </div>
@@ -126,26 +131,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
             </button>
             
-            <div className="relative">
-              <Bell size={20} className="text-white/30 hover:text-gold cursor-pointer transition-colors" />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-background animate-pulse"></span>
-            </div>
-
-            <div className="flex items-center gap-4 bg-white/5 px-5 py-2.5 rounded-2xl border border-white/10 hover:border-gold/30 transition-all cursor-pointer group shadow-lg">
-              <div className="w-9 h-9 rounded-xl bg-gold-gradient flex items-center justify-center text-black font-black text-sm shadow-inner">
-                R
-              </div>
-              <div className="text-left hidden md:block">
-                <p className="text-[11px] font-black text-white uppercase leading-none group-hover:text-gold transition-colors">{user?.name || 'User'}</p>
-                <p className="text-[9px] text-gold/40 uppercase mt-1.5 font-bold tracking-tighter">{user?.role || 'Member'}</p>
-              </div>
-            </div>
+            <button 
+              onClick={() => { localStorage.clear(); router.push('/login'); }} 
+              className="flex items-center gap-2 text-red-500 hover:text-red-400 transition-colors text-sm font-bold ml-4"
+            >
+              <LogOut size={18} /> Logout
+            </button>
           </div>
         </div>
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 w-full max-w-7xl mx-auto p-6 md:p-12 relative">
+      <main className="flex-1 w-full max-w-[1400px] mx-auto p-6 md:p-12 relative">
         {children}
       </main>
 
