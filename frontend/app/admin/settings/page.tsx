@@ -1,0 +1,146 @@
+'use client';
+
+import React, { useState } from 'react';
+import { 
+  Settings, 
+  Shield, 
+  Bell, 
+  Database, 
+  Globe, 
+  Lock, 
+  Cpu,
+  Save,
+  RefreshCw,
+  Server,
+  Cloud
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+
+export default function AdminSettingsPage() {
+  const [activeTab, setActiveTab] = useState('General');
+
+  const settingsTabs = [
+    { name: 'General', icon: Settings },
+    { name: 'Security', icon: Shield },
+    { name: 'Infrastructure', icon: Server },
+    { name: 'AI Engine', icon: Cpu },
+    { name: 'Notifications', icon: Bell },
+  ];
+
+  return (
+    <div className="space-y-10 pb-20">
+      <header>
+        <div className="flex items-center gap-3 text-gold text-xs font-black uppercase tracking-[0.3em] mb-3">
+          <span className="w-8 h-[1px] bg-gold"></span>
+          System Config
+        </div>
+        <h1 className="text-4xl font-black tracking-tighter">GLOBAL <span className="text-gold">SETTINGS</span></h1>
+        <p className="text-white/40 text-sm mt-2 font-medium">Fine-tune the KYROZ neural network and platform-wide configurations.</p>
+      </header>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        {/* SIDEBAR TABS */}
+        <div className="lg:col-span-3 space-y-2">
+          {settingsTabs.map((tab) => (
+            <button
+              key={tab.name}
+              onClick={() => setActiveTab(tab.name)}
+              className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 ${
+                activeTab === tab.name 
+                ? 'bg-gold/10 text-gold font-bold border border-gold/20 shadow-[0_0_20px_rgba(212,175,55,0.05)]' 
+                : 'text-white/40 hover:text-white hover:bg-white/5 border border-transparent'
+              }`}
+            >
+              <tab.icon size={20} />
+              <span className="text-sm font-bold uppercase tracking-widest">{tab.name}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* CONTENT AREA */}
+        <div className="lg:col-span-9">
+          <div className="bg-card glass-card rounded-[2.5rem] border border-white/5 p-12 shadow-2xl relative overflow-hidden min-h-[600px]">
+            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-gold/5 rounded-full -mr-48 -mt-48 blur-[100px]"></div>
+            
+            <div className="relative z-10 space-y-12">
+              <div className="flex items-center justify-between border-b border-white/5 pb-8">
+                <div>
+                  <h3 className="text-2xl font-black tracking-tight">{activeTab.toUpperCase()} CONTROLS</h3>
+                  <p className="text-white/40 text-xs mt-1 font-bold uppercase tracking-widest">Update global parameters for {activeTab.toLowerCase()}</p>
+                </div>
+                <button className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-gold transition-all border border-white/10 group">
+                  <RefreshCw size={20} className="group-hover:rotate-180 transition-transform duration-700" />
+                </button>
+              </div>
+
+              {/* MOCK SETTINGS FOR DEMO */}
+              <div className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Platform Mode</label>
+                    <select className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm font-bold focus:outline-none focus:border-gold transition-all">
+                      <option>Production (Stable)</option>
+                      <option>Maintenance Mode</option>
+                      <option>Development (Sandbox)</option>
+                    </select>
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Global API Cache</label>
+                    <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl p-4">
+                      <div className="flex-1 text-sm font-bold">Enabled (Redis 7.0)</div>
+                      <div className="w-12 h-6 bg-gold rounded-full relative">
+                        <div className="absolute right-1 top-1 w-4 h-4 bg-black rounded-full"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Master Security Level</label>
+                  <div className="grid grid-cols-3 gap-4">
+                    {['Standard', 'High', 'Maximum'].map((level) => (
+                      <button 
+                        key={level}
+                        className={`py-4 rounded-2xl border text-[10px] font-black uppercase tracking-widest transition-all ${
+                          level === 'High' 
+                          ? 'bg-gold/10 border-gold text-gold' 
+                          : 'bg-white/5 border-white/5 text-white/40 hover:bg-white/10'
+                        }`}
+                      >
+                        {level}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-10 border-t border-white/5 flex justify-end gap-6">
+                  <button className="px-10 py-4 text-white/20 font-black uppercase text-[11px] tracking-widest hover:text-white transition-all">
+                    Reset Changes
+                  </button>
+                  <button className="px-16 py-4 bg-gold-gradient text-black rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-2xl shadow-gold/20 flex items-center gap-3 hover:scale-105 transition-all">
+                    <Save size={18} /> Update Core
+                  </button>
+                </div>
+              </div>
+
+              {/* Status Footer */}
+              <div className="pt-12 flex items-center gap-8 text-[9px] font-black uppercase tracking-[0.2em] text-white/20">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  Database: Connected
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  AI Cluster: Optimized
+                </div>
+                <div className="flex items-center gap-2">
+                  <Globe size={12} /> Edge Nodes: 12 Active
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
