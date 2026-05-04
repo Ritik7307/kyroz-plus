@@ -1,6 +1,13 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
+console.log('--- KYROZ SERVER STARTUP ---');
+console.log('SMTP_USER:', process.env.SMTP_USER || 'NOT FOUND');
+console.log('MONGO_URI:', process.env.MONGO_URI ? 'FOUND' : 'NOT FOUND');
+console.log('-----------------------------');
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import authRoutes from './routes/auth.routes';
@@ -12,8 +19,6 @@ import paymentRoutes from './routes/payment.routes';
 import adminRoutes from './routes/admin.routes';
 import masterSopRoutes from './routes/masterSop.routes';
 
-dotenv.config();
-
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -23,6 +28,13 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
+
+// Request Logger for debugging
+app.use((req, res, next) => {
+  console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${req.path}`);
+  next();
+});
+
 app.use('/public', express.static('public'));
 
 // MongoDB Connection

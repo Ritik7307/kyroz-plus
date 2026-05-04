@@ -17,17 +17,24 @@ const PLAN_LIMITS = {
   'Admin': 999
 };
 
-// Create transporter function to use Port 465 (SSL) for maximum reliability with Gmail
+let transporter: nodemailer.Transporter | null = null;
+
 const getTransporter = () => {
-  return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS
+  if (!transporter) {
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      throw new Error('SMTP_USER or SMTP_PASS is missing in environment');
     }
-  });
+    transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      }
+    });
+  }
+  return transporter;
 };
 
 export const sendOtp = async (req: Request, res: Response): Promise<void> => {
@@ -39,62 +46,61 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    // Generate 6-digit OTP
     const plainOtp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
     
-    // Hash OTP - reduced rounds for speed (still secure for 5-min OTP)
-    const otpHash = await bcrypt.hash(plainOtp, 6);
+    // Hash OTP - reduced rounds for maximum speed
+    const otpHash = await bcrypt.hash(plainOtp, 4);
 
-    // Single DB operation instead of two
+    // Single DB operation
+    await User.findOneAndUpdate(
+      { email },
+      { 
+        $set: { 
+          otpHash, 
+          otpExpiresAt,
+          ...(name && { name }),
+          ...(shopName && { shopName }),
+          ...(shopAddress && { shopAddress }),
+          ...(gstNumber && { gstNumber })
+        } 
+      },
+      { upsert: true, new: true }
+    );
+
+    console.log(`[AUTH] Generating OTP for ${email}: ${plainOtp}`);
+    
+    // Send Real Email
     try {
-      await User.findOneAndUpdate(
-        { email },
-        { 
-          $set: { 
-            otpHash, 
-            otpExpiresAt,
-            ...(name && { name }),
-            ...(shopName && { shopName }),
-            ...(shopAddress && { shopAddress }),
-            ...(gstNumber && { gstNumber })
-          } 
-        },
-        { upsert: true, new: true }
-      );
-    } catch (dbError: any) {
-      console.error('Database error while saving user/OTP:', dbError);
-      res.status(500).json({ error: 'Database error', details: dbError.message });
-      return;
-    }
-
-    console.log(`[DEBUG] OTP for ${email}: ${plainOtp}`);
-    // Send Real Email in background to speed up UI
-    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
       const mailOptions = {
         from: `"KYROZ Security" <${process.env.SMTP_USER}>`,
         to: email,
         subject: 'Your KYROZ Login Code',
         html: `
-          <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto; padding: 20px; text-align: center; border: 1px solid #eee; border-radius: 10px;">
-            <h2 style="color: #333;">Welcome to KYROZ</h2>
-            <p style="color: #666; font-size: 16px;">Your 6-digit verification code is:</p>
-            <h1 style="font-size: 48px; letter-spacing: 5px; color: #d4af37; margin: 20px 0;">${plainOtp}</h1>
-            <p style="color: #999; font-size: 14px;">This code will expire in 5 minutes. Do not share it with anyone.</p>
+          <div style="font-family: sans-serif; padding: 20px; border: 1px solid #d4af37; border-radius: 10px;">
+            <h2>Your KYROZ Login Code</h2>
+            <p style="font-size: 32px; font-weight: bold; color: #d4af37; letter-spacing: 5px;">${plainOtp}</p>
+            <p>Enter this code to verify your identity. Valid for 5 minutes.</p>
           </div>
         `
       };
       
-      // Fire and forget (errors logged in console)
-      getTransporter().sendMail(mailOptions)
-        .then(() => console.log(`Sent real email OTP to ${email}`))
-        .catch(err => console.error('Nodemailer background error:', err));
-    } else {
-      console.log(`[MOCK EMAIL OTP] Sent to ${email}: ${plainOtp}`);
+      await getTransporter().sendMail(mailOptions);
+      console.log(`✅ [SMTP] OTP sent to ${email}`);
+      res.status(200).json({ message: 'OTP sent successfully' });
+    } catch (smtpErr: any) {
+      console.error('❌ [SMTP] Error:', smtpErr);
+      // Return a 200 but with a warning for development, or 500 for production
+      res.status(500).json({ 
+        error: 'SMTP Connection Failed', 
+        details: smtpErr.message,
+        code: smtpErr.code,
+        command: smtpErr.command
+      });
     }
-
-    res.status(200).json({ message: 'OTP sent to email successfully' });
   } catch (error: any) {
-    console.error('General error in sendOtp:', error);
+    console.error('❌ [AUTH] Error:', error);
     res.status(500).json({ error: 'Server error', details: error.message });
   }
 };
