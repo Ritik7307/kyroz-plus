@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { UAParser } from 'ua-parser-js';
 import User from '../models/User';
 import Session from '../models/Session';
@@ -17,25 +17,7 @@ const PLAN_LIMITS = {
   'Admin': 999
 };
 
-let transporter: nodemailer.Transporter | null = null;
-
-const getTransporter = () => {
-  if (!transporter) {
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-      throw new Error('SMTP_USER or SMTP_PASS is missing in environment');
-    }
-    transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-      }
-    });
-  }
-  return transporter;
-};
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendOtp = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -73,8 +55,8 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
     
     // Send Real Email
     try {
-      const mailOptions = {
-        from: `"KYROZ Security" <${process.env.SMTP_USER}>`,
+      const { data, error } = await resend.emails.send({
+        from: `KYROZ Security <onboarding@resend.dev>`, // Resend requires verified domains or onboarding@resend.dev for testing
         to: email,
         subject: 'Your KYROZ Login Code',
         html: `
@@ -84,19 +66,19 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
             <p>Enter this code to verify your identity. Valid for 5 minutes.</p>
           </div>
         `
-      };
+      });
       
-      await getTransporter().sendMail(mailOptions);
-      console.log(`✅ [SMTP] OTP sent to ${email}`);
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      console.log(`✅ [RESEND] OTP sent to ${email}`);
       res.status(200).json({ message: 'OTP sent successfully' });
-    } catch (smtpErr: any) {
-      console.error('❌ [SMTP] Error:', smtpErr);
-      // Return a 200 but with a warning for development, or 500 for production
+    } catch (resendErr: any) {
+      console.error('❌ [RESEND] Error:', resendErr);
       res.status(500).json({ 
-        error: 'SMTP Connection Failed', 
-        details: smtpErr.message,
-        code: smtpErr.code,
-        command: smtpErr.command
+        error: 'Email Sending Failed', 
+        details: resendErr.message
       });
     }
   } catch (error: any) {
