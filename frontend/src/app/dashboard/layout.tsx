@@ -63,6 +63,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const navLinks = [
     { name: 'Dashboard', path: '/dashboard' },
+    { name: 'POS Terminal', path: '/dashboard/pos' },
     { name: 'SOP Library', path: '/dashboard/sop' },
     { name: 'KOSA AI', path: '/dashboard/ai' },
     { name: 'Account', path: '/dashboard/account' },

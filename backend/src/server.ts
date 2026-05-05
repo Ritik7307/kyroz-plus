@@ -18,6 +18,8 @@ import sessionRoutes from './routes/session.routes';
 import paymentRoutes from './routes/payment.routes';
 import adminRoutes from './routes/admin.routes';
 import masterSopRoutes from './routes/masterSop.routes';
+import dishRoutes from './routes/dish.routes';
+import uploadRoutes from './routes/upload.routes';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -51,6 +53,8 @@ app.use('/api/sessions', sessionRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/master-sops', masterSopRoutes);
+app.use('/api/dishes', dishRoutes);
+app.use('/api/upload', uploadRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'KYROZ API is running' });
