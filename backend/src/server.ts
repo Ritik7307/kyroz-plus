@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-console.log('--- KYROZ SERVER STARTUP ---');
+console.log('--- KYYROZ-PLUS SERVER STARTUP ---');
 console.log('SMTP_USER:', process.env.SMTP_USER || 'NOT FOUND');
 console.log('MONGO_URI:', process.env.MONGO_URI ? 'FOUND' : 'NOT FOUND');
 console.log('-----------------------------');
@@ -20,6 +20,8 @@ import adminRoutes from './routes/admin.routes';
 import masterSopRoutes from './routes/masterSop.routes';
 import dishRoutes from './routes/dish.routes';
 import uploadRoutes from './routes/upload.routes';
+import inventoryRoutes from './routes/inventory.routes';
+import orderRoutes from './routes/order.routes';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -55,6 +57,12 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/master-sops', masterSopRoutes);
 app.use('/api/dishes', dishRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/inventory', inventoryRoutes);
+app.use('/api/orders', orderRoutes);
+
+app.get('/api/debug-routes', (req, res) => {
+  res.json({ message: 'Routes are active' });
+});
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'KYROZ API is running' });

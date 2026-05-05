@@ -115,7 +115,7 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user' }: Sideba
             <div className="w-10 h-10 bg-gold-gradient rounded-lg flex items-center justify-center">
               <span className="text-black font-bold text-xl">K</span>
             </div>
-            <span className="font-bold text-white tracking-widest text-xs uppercase">Kyroz Menu</span>
+            <span className="font-bold text-white tracking-widest text-[10px] uppercase">Kyyroz-Plus Menu</span>
           </div>
           <button onClick={() => setIsOpen(false)} className="text-white/40 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-lg">
             <X size={20} />

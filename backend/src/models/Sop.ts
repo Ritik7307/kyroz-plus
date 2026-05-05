@@ -8,6 +8,8 @@ export interface ISop extends Document {
   contentHi?: string;
   content?: string;
   fileUrl?: string;
+  isInventoryLinked?: boolean;
+  platesPerPacket?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -24,7 +26,9 @@ const SopSchema: Schema = new Schema(
     contentEn: { type: String },
     contentHi: { type: String },
     content: { type: String }, // Legacy support
-    fileUrl: { type: String }
+    fileUrl: { type: String },
+    isInventoryLinked: { type: Boolean, default: false },
+    platesPerPacket: { type: Number, default: 10 }
   },
   { timestamps: true }
 );

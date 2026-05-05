@@ -18,7 +18,9 @@ import {
   Loader2,
   Image as ImageIcon,
   DollarSign,
-  Upload
+  Upload,
+  MessageCircle,
+  Share2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_URL } from '@/lib/api';
@@ -126,8 +128,8 @@ export default function POSTerminal() {
         },
         body: JSON.stringify({ 
           ...newDish, 
-          price: Number(newDish.price), 
-          ingredientPrice: Number(newDish.ingredientPrice) 
+          price: Number(newDish.price) || 0, 
+          ingredientPrice: Number(newDish.ingredientPrice) || 0 
         })
       });
       if (res.ok) {
@@ -152,8 +154,8 @@ export default function POSTerminal() {
         },
         body: JSON.stringify({
           ...editingDish,
-          price: Number(editingDish.price),
-          ingredientPrice: Number(editingDish.ingredientPrice)
+          price: Number(editingDish.price) || 0,
+          ingredientPrice: Number(editingDish.ingredientPrice) || 0
         })
       });
       if (res.ok) {
@@ -215,52 +217,86 @@ export default function POSTerminal() {
 
   const isManager = ['admin', 'manager', 'user'].includes(userRole);
 
+  const handleCheckout = async () => {
+    if (cart.length === 0) return;
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch(`${API_URL}/api/orders/checkout`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({
+          items: cart.map(item => ({
+            dishId: item.dish._id,
+            quantity: item.quantity
+          }))
+        })
+      });
+      
+      if (res.ok) {
+        alert('Order processed successfully! Inventory updated.');
+        setCart([]);
+      } else {
+        alert('Failed to process order.');
+      }
+    } catch (err) {
+      console.error('Checkout error', err);
+    }
+  };
+
+  const shareOrderOnWhatsApp = () => {
+    if (cart.length === 0) return;
+    const itemsList = cart.map(item => `• ${item.dish.name} (x${item.quantity}) - ₹${item.dish.price * item.quantity}`).join('\n');
+    const grandTotal = Math.round(total * 1.05);
+    const message = `Hello Admin, 👨‍🍳\n\nI would like to place/confirm this order:\n\n*ORDER DETAILS:*\n${itemsList}\n\n*Grand Total (inc. Tax): ₹${grandTotal}*\n\nPlease process this order. Thank you!\n\n_Sent via Kyyroz-Plus_`;
+    const encodedMessage = encodeURIComponent(message);
+    window.open(`https://wa.me/917307255940?text=${encodedMessage}`, '_blank');
+  };
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[calc(100vh-120px)] overflow-hidden relative">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[calc(100vh-140px)] overflow-hidden">
       
       {/* MENU SECTION */}
-      <div className="lg:col-span-8 flex flex-col space-y-6 overflow-hidden">
-        <div className="bg-card glass-card p-6 rounded-[2rem] border border-white/5 space-y-6">
+      <div className="lg:col-span-8 flex flex-col min-h-0">
+        <div className="bg-card glass-card p-6 rounded-[2rem] border border-white/5 space-y-6 mb-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-black flex items-center gap-3">
-              <Utensils className="text-gold" /> {isManagementMode ? 'MANAGE SHOP ITEMS' : 'DISH MENU'}
+              <Utensils className="text-gold" /> {isManagementMode ? 'SHOP MANAGER' : 'DISH MENU'}
             </h2>
             <div className="flex items-center gap-4">
               <div className="relative w-48 hidden sm:block">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={18} />
                 <input 
                   type="text" 
-                  placeholder="Search dishes..."
+                  placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-gold/50 transition-all"
+                  className="w-full bg-black/40 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-gold/50"
                 />
               </div>
               {isManager && (
                 <button 
                   onClick={() => setIsManagementMode(!isManagementMode)}
                   className={`p-3 rounded-xl border transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-widest ${
-                    isManagementMode 
-                      ? 'bg-gold text-black border-gold' 
-                      : 'bg-white/5 text-white/40 border-white/10 hover:border-gold/50'
+                    isManagementMode ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
                   }`}
                 >
-                  <Settings size={18} /> {isManagementMode ? 'Exit Management' : 'Manage Shop'}
+                  <Settings size={18} /> {isManagementMode ? 'Exit' : 'Manage'}
                 </button>
               )}
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4 overflow-hidden">
             <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide flex-1">
               {categories.map(cat => (
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
                   className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border ${
-                    activeCategory === cat 
-                      ? 'bg-gold text-black border-gold shadow-[0_0_15px_rgba(212,175,55,0.3)]' 
-                      : 'bg-white/10 text-white/70 border-white/10 hover:bg-white/20'
+                    activeCategory === cat ? 'bg-gold text-black border-gold' : 'bg-white/10 text-white/70 border-white/10'
                   }`}
                 >
                   {cat}
@@ -270,15 +306,15 @@ export default function POSTerminal() {
             {isManagementMode && (
               <button 
                 onClick={() => setShowAddModal(true)}
-                className="ml-4 px-6 py-2 bg-green-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-green-600 transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(34,197,94,0.3)]"
+                className="px-6 py-2 bg-green-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2"
               >
-                <Plus size={16} /> Add Item
+                <Plus size={16} /> Add
               </button>
             )}
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto pr-2 grid grid-cols-2 md:grid-cols-3 gap-4 scrollbar-hide">
+        <div className="flex-1 overflow-y-auto pr-2 grid grid-cols-2 md:grid-cols-3 gap-4 custom-scrollbar">
           {loading ? (
             <div className="col-span-full flex flex-col items-center justify-center py-20 text-white/20 gap-4">
               <Loader2 className="animate-spin" size={48} />
@@ -288,9 +324,8 @@ export default function POSTerminal() {
             const quantity = getItemQuantity(dish._id);
             return (
               <motion.div
-                layout
                 key={dish._id}
-                className={`bg-card glass-card rounded-3xl border transition-all flex flex-col overflow-hidden h-[300px] ${
+                className={`bg-card glass-card rounded-3xl border transition-all flex flex-col overflow-hidden h-[280px] ${
                   isManagementMode ? 'border-white/10' : 'border-white/5 hover:border-gold/30'
                 }`}
               >
@@ -302,54 +337,28 @@ export default function POSTerminal() {
                       <ImageIcon size={32} />
                     </div>
                   )}
-                  <div className="absolute top-2 right-2 flex gap-1.5">
-                    {isManagementMode && (
-                      <>
-                        <button onClick={(e) => { e.stopPropagation(); setEditingDish(dish); }} className="p-2 bg-black/60 rounded-lg text-white hover:text-gold transition-colors backdrop-blur-md border border-white/10"><Edit size={12}/></button>
-                        <button onClick={(e) => { e.stopPropagation(); handleDeleteDish(dish._id); }} className="p-2 bg-black/60 rounded-lg text-white hover:text-red-500 transition-colors backdrop-blur-md border border-white/10"><Trash2 size={12}/></button>
-                      </>
-                    )}
-                  </div>
-                  <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/60 backdrop-blur-md border border-white/10 rounded-full text-[8px] font-black text-gold uppercase tracking-widest">
-                    {dish.category}
-                  </div>
+                  {isManagementMode && (
+                    <div className="absolute top-2 right-2 flex gap-1.5">
+                      <button onClick={() => setEditingDish(dish)} className="p-2 bg-black/60 rounded-lg text-white hover:text-gold border border-white/10"><Edit size={12}/></button>
+                      <button onClick={() => handleDeleteDish(dish._id)} className="p-2 bg-black/60 rounded-lg text-white hover:text-red-500 border border-white/10"><Trash2 size={12}/></button>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="p-4 flex flex-col justify-between flex-1">
-                  <div>
-                    <h3 className="font-bold text-base leading-tight line-clamp-2">{dish.name}</h3>
-                    {isManagementMode && (
-                      <p className="text-[9px] text-white/40 mt-1 uppercase tracking-wider font-bold">Cost: ₹{dish.ingredientPrice}</p>
-                    )}
-                  </div>
-                  <div className="mt-2 flex items-center justify-between">
-                    <span className="text-xl font-black">₹{dish.price}</span>
-                    
+                  <h3 className="font-bold text-sm leading-tight line-clamp-2">{dish.name}</h3>
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-black text-white">₹{dish.price}</span>
                     {!isManagementMode && (
                       <div className="flex items-center gap-2 bg-white/5 p-1 rounded-xl border border-white/10">
                         {quantity > 0 ? (
                           <>
-                            <button 
-                              onClick={() => updateQuantity(dish._id, -1)}
-                              className="w-7 h-7 bg-white/5 rounded-lg flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-all"
-                            >
-                              <Minus size={14} />
-                            </button>
-                            <span className="text-sm font-black min-w-[20px] text-center">{quantity}</span>
-                            <button 
-                              onClick={() => addToCart(dish)}
-                              className="w-7 h-7 bg-gold/10 rounded-lg flex items-center justify-center text-gold hover:bg-gold hover:text-black transition-all"
-                            >
-                              <Plus size={14} />
-                            </button>
+                            <button onClick={() => updateQuantity(dish._id, -1)} className="w-6 h-6 bg-white/5 rounded-lg flex items-center justify-center text-white/60"><Minus size={12} /></button>
+                            <span className="text-xs font-black min-w-[16px] text-center">{quantity}</span>
+                            <button onClick={() => addToCart(dish)} className="w-6 h-6 bg-gold/10 rounded-lg flex items-center justify-center text-gold"><Plus size={12} /></button>
                           </>
                         ) : (
-                          <button 
-                            onClick={() => addToCart(dish)}
-                            className="px-4 py-1.5 bg-gold/10 text-gold rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-gold hover:text-black transition-all"
-                          >
-                            Add
-                          </button>
+                          <button onClick={() => addToCart(dish)} className="px-3 py-1 bg-gold/10 text-gold rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-gold hover:text-black">Add</button>
                         )}
                       </div>
                     )}
@@ -361,15 +370,16 @@ export default function POSTerminal() {
         </div>
       </div>
 
-      {/* CART / BILLING SECTION */}
-      <div className="lg:col-span-4 bg-card glass-card rounded-[2.5rem] border border-white/5 flex flex-col overflow-hidden shadow-2xl">
-        <div className="p-8 border-b border-white/5">
+      {/* CART SECTION - FIXED & SCROLLABLE */}
+      <div className="lg:col-span-4 bg-card glass-card rounded-[2.5rem] border border-white/5 flex flex-col overflow-hidden max-h-full">
+        <div className="p-6 border-b border-white/5 shrink-0">
           <h2 className="text-xl font-black flex items-center gap-3">
-            <ShoppingCart className="text-gold" /> CURRENT ORDER
+            <ShoppingCart className="text-gold" /> ORDER SUMMARY
           </h2>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        {/* This is the part that now scrolls correctly */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0 custom-scrollbar">
           <AnimatePresence>
             {cart.map(item => (
               <motion.div
@@ -380,191 +390,82 @@ export default function POSTerminal() {
                 className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/5"
               >
                 <div className="flex-1">
-                  <h4 className="font-bold text-sm">{item.dish.name}</h4>
+                  <h4 className="font-bold text-xs">{item.dish.name}</h4>
                   <p className="text-[10px] text-white/40">₹{item.dish.price} x {item.quantity}</p>
                 </div>
-                <div className="flex items-center gap-3 bg-black/40 rounded-xl p-1 px-2 border border-white/5">
-                  <button onClick={() => updateQuantity(item.dish._id, -1)} className="text-white/40 hover:text-white transition-colors">
-                    <Minus size={14} />
-                  </button>
-                  <span className="text-sm font-bold min-w-[20px] text-center">{item.quantity}</span>
-                  <button onClick={() => updateQuantity(item.dish._id, 1)} className="text-gold hover:text-gold/80 transition-colors">
-                    <Plus size={14} />
-                  </button>
+                <div className="flex items-center gap-2 bg-black/40 rounded-xl p-1 border border-white/5">
+                  <button onClick={() => updateQuantity(item.dish._id, -1)} className="text-white/40 hover:text-white"><Minus size={12} /></button>
+                  <span className="text-xs font-bold min-w-[16px] text-center">{item.quantity}</span>
+                  <button onClick={() => updateQuantity(item.dish._id, 1)} className="text-gold hover:text-gold/80"><Plus size={12} /></button>
                 </div>
-                <div className="ml-4 font-black text-sm w-16 text-right">
-                  ₹{item.dish.price * item.quantity}
-                </div>
+                <div className="ml-3 font-black text-xs w-14 text-right">₹{item.dish.price * item.quantity}</div>
               </motion.div>
             ))}
           </AnimatePresence>
           
           {cart.length === 0 && (
-            <div className="h-full flex flex-col items-center justify-center text-white/10 space-y-4 py-20">
-              <Utensils size={64} />
-              <p className="font-black uppercase tracking-[0.2em] text-sm text-center">Cart is empty<br/><span className="text-[10px] font-bold">Select items to begin</span></p>
+            <div className="h-full flex flex-col items-center justify-center text-white/5 space-y-4 py-10">
+              <Utensils size={48} />
+              <p className="font-black uppercase tracking-widest text-[10px]">Select items to begin bill</p>
             </div>
           )}
         </div>
 
-        <div className="p-8 bg-black/40 border-t border-white/5 space-y-6">
+        <div className="p-6 bg-black/40 border-t border-white/5 space-y-6 shrink-0">
           <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-white/40">Subtotal</span>
+            <div className="flex justify-between text-xs">
+              <span className="text-white/40 uppercase font-black tracking-widest">Subtotal</span>
               <span className="font-bold text-white">₹{total}</span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-white/40">Tax (GST 5%)</span>
-              <span className="font-bold text-white">₹{Math.round(total * 0.05)}</span>
-            </div>
             <div className="flex justify-between items-end pt-2">
-              <span className="text-lg font-black uppercase tracking-tighter">Grand Total</span>
-              <span className="text-4xl font-black text-gold">₹{Math.round(total * 1.05)}</span>
+              <span className="text-sm font-black uppercase tracking-widest">Total Amount</span>
+              <span className="text-3xl font-black text-gold">₹{Math.round(total * 1.05)}</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-3">
+            <div className="grid grid-cols-2 gap-3">
+              <button 
+                onClick={() => setCart([])}
+                className="py-3.5 rounded-xl border border-red-500/20 text-red-500 font-bold text-[10px] uppercase tracking-widest hover:bg-red-500/5 transition-all"
+              >
+                Clear
+              </button>
+              <button 
+                onClick={shareOrderOnWhatsApp}
+                disabled={cart.length === 0}
+                className="py-3.5 rounded-xl bg-green-500/10 border border-green-500/20 text-green-500 font-bold text-[10px] uppercase tracking-widest hover:bg-green-500/20 transition-all flex items-center justify-center gap-2"
+              >
+                <MessageCircle size={14} /> WhatsApp
+              </button>
+            </div>
             <button 
-              onClick={() => setCart([])}
-              className="py-4 rounded-2xl border border-red-500/20 text-red-500 font-bold text-xs uppercase tracking-widest hover:bg-red-500/10 transition-all flex items-center justify-center gap-2"
-            >
-              <Trash2 size={16} /> Clear
-            </button>
-            <button 
+              onClick={handleCheckout}
               disabled={cart.length === 0}
-              className="py-4 rounded-2xl bg-gold text-black font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-gold/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:grayscale"
+              className="w-full py-4 rounded-xl bg-gold text-black font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl disabled:opacity-50"
             >
-              <CheckCircle size={16} /> Checkout
+              Confirm Checkout
             </button>
           </div>
         </div>
       </div>
 
-      {/* MODALS */}
+      {/* MODALS (Simplified for clarity) */}
       <AnimatePresence>
         {(showAddModal || editingDish) && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => { setShowAddModal(false); setEditingDish(null); }}
-              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-card border border-white/10 rounded-[2.5rem] p-8 w-full max-w-lg relative z-10 shadow-2xl max-h-[90vh] overflow-y-auto scrollbar-hide"
-            >
-              <h3 className="text-2xl font-black uppercase tracking-tighter mb-6 flex items-center gap-3">
-                {editingDish ? <Edit className="text-gold" /> : <Plus className="text-gold" />}
-                {editingDish ? 'Update Shop Item' : 'Add New Shop Item'}
-              </h3>
-              
-              <div className="space-y-6">
-                <div 
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full h-48 bg-black/40 border-2 border-dashed border-white/10 rounded-3xl flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-gold/30 hover:bg-gold/5 transition-all group relative overflow-hidden"
-                >
-                  {(editingDish?.imageUrl || newDish.imageUrl) ? (
-                    <>
-                      <img src={editingDish ? editingDish.imageUrl : newDish.imageUrl} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
-                        <Upload size={32} />
-                        <span className="text-[10px] font-black uppercase tracking-widest mt-2">Change Image</span>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-white/40 group-hover:text-gold transition-colors">
-                        {uploading ? <Loader2 className="animate-spin" /> : <Upload size={24} />}
-                      </div>
-                      <div className="text-center">
-                        <p className="text-xs font-black text-white uppercase tracking-widest">Click to upload image</p>
-                        <p className="text-[9px] text-white/20 uppercase tracking-widest mt-1">PNG, JPG or WEBP (Max 5MB)</p>
-                      </div>
-                    </>
-                  )}
-                </div>
-                <input 
-                  type="file" 
-                  ref={fileInputRef}
-                  onChange={handleFileUpload}
-                  className="hidden" 
-                  accept="image/*"
-                />
-
-                <div>
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 block">Item Name</label>
-                  <input 
-                    type="text" 
-                    value={editingDish ? editingDish.name : newDish.name}
-                    onChange={(e) => editingDish ? setEditingDish({...editingDish, name: e.target.value}) : setNewDish({...newDish, name: e.target.value})}
-                    placeholder="e.g. Premium Shahi Paneer"
-                    className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-white placeholder:text-white/10 focus:outline-none focus:border-gold/50"
-                  />
-                </div>
-
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-white/10 rounded-[2.5rem] p-8 w-full max-w-lg">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-black uppercase tracking-tighter">{editingDish ? 'Edit Item' : 'New Item'}</h3>
+                <button onClick={() => { setShowAddModal(false); setEditingDish(null); }}><X /></button>
+              </div>
+              <div className="space-y-4">
+                <input type="text" value={editingDish ? editingDish.name : newDish.name} onChange={(e) => editingDish ? setEditingDish({...editingDish, name: e.target.value}) : setNewDish({...newDish, name: e.target.value})} placeholder="Item Name" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 block">Ingredient Price (Cost)</label>
-                    <div className="relative">
-                      <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
-                      <input 
-                        type="number" 
-                        value={editingDish ? editingDish.ingredientPrice : newDish.ingredientPrice}
-                        onChange={(e) => editingDish ? setEditingDish({...editingDish, ingredientPrice: Number(e.target.value)}) : setNewDish({...newDish, ingredientPrice: e.target.value})}
-                        placeholder="0"
-                        className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 pl-10 text-white placeholder:text-white/10 focus:outline-none focus:border-gold/50"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 block">Selling Price (Total)</label>
-                    <div className="relative">
-                      <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-gold/40" size={16} />
-                      <input 
-                        type="number" 
-                        value={editingDish ? editingDish.price : newDish.price}
-                        onChange={(e) => editingDish ? setEditingDish({...editingDish, price: Number(e.target.value)}) : setNewDish({...newDish, price: e.target.value})}
-                        placeholder="0"
-                        className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 pl-10 text-white placeholder:text-white/10 focus:outline-none focus:border-gold/50 font-bold"
-                      />
-                    </div>
-                  </div>
+                  <input type="number" value={editingDish ? editingDish.price : newDish.price} onChange={(e) => editingDish ? setEditingDish({...editingDish, price: Number(e.target.value)}) : setNewDish({...newDish, price: e.target.value})} placeholder="Price" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
+                  <input type="number" value={editingDish ? editingDish.ingredientPrice : newDish.ingredientPrice} onChange={(e) => editingDish ? setEditingDish({...editingDish, ingredientPrice: Number(e.target.value)}) : setNewDish({...newDish, ingredientPrice: e.target.value})} placeholder="Cost" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
                 </div>
-
-                <div>
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 block">Category</label>
-                  <select 
-                    value={editingDish ? editingDish.category : newDish.category}
-                    onChange={(e) => editingDish ? setEditingDish({...editingDish, category: e.target.value}) : setNewDish({...newDish, category: e.target.value})}
-                    className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-gold/50 appearance-none"
-                  >
-                    <option value="Main Course">Main Course</option>
-                    <option value="Starters">Starters</option>
-                    <option value="Breads">Breads</option>
-                    <option value="Rice">Rice</option>
-                    <option value="Beverages">Beverages</option>
-                    <option value="Desserts">Desserts</option>
-                  </select>
-                </div>
-                
-                <div className="flex gap-4 pt-4">
-                  <button 
-                    onClick={() => { setShowAddModal(false); setEditingDish(null); }}
-                    className="flex-1 py-4 rounded-2xl bg-white/5 text-white font-bold text-xs uppercase tracking-widest hover:bg-white/10 transition-all"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    onClick={editingDish ? handleUpdateDish : handleAddDish}
-                    className="flex-1 py-4 rounded-2xl bg-gold text-black font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-gold/20 flex items-center justify-center gap-2"
-                  >
-                    <Save size={16} /> {editingDish ? 'Save Changes' : 'Add to Shop'}
-                  </button>
-                </div>
+                <button onClick={editingDish ? handleUpdateDish : handleAddDish} className="w-full py-4 bg-gold text-black font-black uppercase rounded-xl">{editingDish ? 'Save Changes' : 'Add Item'}</button>
               </div>
             </motion.div>
           </div>
