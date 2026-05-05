@@ -19,7 +19,7 @@ const InventorySchema: Schema = new Schema({
 });
 
 // Virtual for remaining packets
-InventorySchema.virtual('remainingPackets').get(function() {
+InventorySchema.virtual('remainingPackets').get(function(this: IInventory) {
   return Math.floor(this.totalPlates / this.platesPerPacket);
 });
 
