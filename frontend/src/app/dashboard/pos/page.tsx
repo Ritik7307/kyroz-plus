@@ -43,6 +43,7 @@ export default function POSTerminal() {
   const [userRole, setUserRole] = useState('');
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
 
   // Management Form State
   const [showAddModal, setShowAddModal] = useState(false);
@@ -256,34 +257,47 @@ export default function POSTerminal() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[calc(100vh-140px)] overflow-hidden">
+    <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:h-[calc(100vh-140px)] lg:overflow-hidden relative">
       
-      {/* MENU SECTION */}
-      <div className="lg:col-span-8 flex flex-col min-h-0">
-        <div className="bg-card glass-card p-6 rounded-[2rem] border border-white/5 space-y-6 mb-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-black flex items-center gap-3">
+      {/* Floating Cart Button (Mobile Only) */}
+      <div className="lg:hidden fixed bottom-6 right-6 z-[60]">
+        <button 
+          onClick={() => setIsMobileCartOpen(true)}
+          className="w-16 h-16 bg-gold rounded-full flex items-center justify-center shadow-2xl text-black relative"
+        >
+          <ShoppingCart size={24} />
+          {cart.length > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-6 h-6 flex items-center justify-center rounded-full border-2 border-background">
+              {cart.reduce((s, i) => s + i.quantity, 0)}
+            </span>
+          )}
+        </button>
+      </div>
+      <div className="lg:col-span-8 flex flex-col min-h-0 order-2 lg:order-1">
+        <div className="bg-card glass-card p-4 md:p-6 rounded-[2rem] border border-white/5 space-y-4 md:space-y-6 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h2 className="text-xl md:text-2xl font-black flex items-center gap-3">
               <Utensils className="text-gold" /> {isManagementMode ? 'SHOP MANAGER' : 'DISH MENU'}
             </h2>
-            <div className="flex items-center gap-4">
-              <div className="relative w-48 hidden sm:block">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={18} />
+            <div className="flex items-center gap-2 md:gap-4 w-full sm:w-auto">
+              <div className="relative flex-1 sm:w-48">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={16} />
                 <input 
                   type="text" 
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-gold/50"
+                  className="w-full bg-black/40 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-gold/50"
                 />
               </div>
               {isManager && (
                 <button 
                   onClick={() => setIsManagementMode(!isManagementMode)}
-                  className={`p-3 rounded-xl border transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-widest ${
+                  className={`p-2.5 md:p-3 rounded-xl border transition-all flex items-center gap-2 text-[9px] md:text-[10px] font-black uppercase tracking-widest shrink-0 ${
                     isManagementMode ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
                   }`}
                 >
-                  <Settings size={18} /> {isManagementMode ? 'Exit' : 'Manage'}
+                  <Settings size={16} /> {isManagementMode ? 'Exit' : 'Manage'}
                 </button>
               )}
             </div>
@@ -370,12 +384,20 @@ export default function POSTerminal() {
         </div>
       </div>
 
-      {/* CART SECTION - FIXED & SCROLLABLE */}
-      <div className="lg:col-span-4 bg-card glass-card rounded-[2.5rem] border border-white/5 flex flex-col overflow-hidden max-h-full">
-        <div className="p-6 border-b border-white/5 shrink-0">
+      {/* CART SECTION - MOBILE OVERLAY / DESKTOP SIDEBAR */}
+      <div className={`
+        fixed inset-0 z-[100] lg:relative lg:inset-auto lg:z-auto lg:flex
+        lg:col-span-4 bg-card glass-card lg:rounded-[2.5rem] border border-white/5 flex flex-col overflow-hidden max-h-full order-1 lg:order-2
+        transition-transform duration-300
+        ${isMobileCartOpen ? 'translate-y-0' : 'translate-y-full lg:translate-y-0'}
+      `}>
+        <div className="p-6 border-b border-white/5 shrink-0 flex items-center justify-between">
           <h2 className="text-xl font-black flex items-center gap-3">
             <ShoppingCart className="text-gold" /> ORDER SUMMARY
           </h2>
+          <button onClick={() => setIsMobileCartOpen(false)} className="lg:hidden p-2 text-white/40">
+            <X size={24} />
+          </button>
         </div>
 
         {/* This is the part that now scrolls correctly */}

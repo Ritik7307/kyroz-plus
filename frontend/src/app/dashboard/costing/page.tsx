@@ -58,31 +58,31 @@ export default function CostingMaster() {
   return (
     <div className="max-w-7xl mx-auto space-y-12 pb-24">
       {/* Header */}
-      <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 bg-card/30 p-10 rounded-[3rem] border border-white/5 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gold/5 rounded-full -mr-64 -mt-64 blur-[120px]"></div>
+      <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 bg-card/30 p-6 md:p-10 rounded-[2.5rem] md:rounded-[3rem] border border-white/5 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-gold/5 rounded-full -mr-32 md:-mr-64 -mt-32 md:-mt-64 blur-[80px] md:blur-[120px]"></div>
         
-        <div className="space-y-4 relative z-10">
-          <div className="flex items-center gap-3 text-gold text-xs font-bold uppercase tracking-[0.4em]">
-            <span className="w-10 h-[2px] bg-gold"></span>
+        <div className="space-y-4 relative z-10 text-center lg:text-left">
+          <div className="flex items-center justify-center lg:justify-start gap-3 text-gold text-[10px] md:text-xs font-bold uppercase tracking-[0.4em]">
+            <span className="w-6 md:w-10 h-[2px] bg-gold"></span>
             Financial Intelligence
           </div>
-          <h1 className="text-5xl font-black tracking-tighter leading-none text-white">
+          <h1 className="text-3xl md:text-5xl font-black tracking-tighter leading-none text-white">
             COSTING <span className="text-gold">MASTER</span>
           </h1>
-          <p className="text-white/40 text-lg max-w-xl font-medium leading-relaxed italic">
+          <p className="text-white/40 text-sm md:text-lg max-w-xl font-medium leading-relaxed italic mx-auto lg:mx-0">
             "Optimize your margins. Protect your profits."
           </p>
         </div>
 
-        <div className="flex flex-col items-end gap-2 relative z-10">
+        <div className="flex flex-col items-center lg:items-end gap-2 relative z-10">
           <input 
             type="text" 
             value={dishName}
             onChange={(e) => setDishName(e.target.value)}
-            className="bg-transparent border-b-2 border-gold/30 text-3xl font-black text-right text-gold focus:border-gold outline-none uppercase tracking-tighter px-2"
+            className="bg-transparent border-b-2 border-gold/30 text-xl md:text-3xl font-black text-center lg:text-right text-gold focus:border-gold outline-none uppercase tracking-tighter px-2 w-full lg:w-auto"
             placeholder="DISH NAME"
           />
-          <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">Recipe Financial Audit</p>
+          <p className="text-[9px] md:text-[10px] font-black text-white/20 uppercase tracking-widest">Recipe Financial Audit</p>
         </div>
       </header>
 
@@ -92,9 +92,9 @@ export default function CostingMaster() {
         <div className="lg:col-span-8 space-y-10">
           
           {/* Ingredient Builder */}
-          <div className="bg-card glass-card rounded-[2.5rem] border border-white/5 p-10 shadow-2xl">
-            <h3 className="text-xl font-black uppercase tracking-tight text-white mb-8 flex items-center gap-3">
-              <Plus className="text-gold" size={24} /> Ingredient Costing
+          <div className="bg-card glass-card rounded-[2rem] md:rounded-[2.5rem] border border-white/5 p-6 md:p-10 shadow-2xl">
+            <h3 className="text-lg md:text-xl font-black uppercase tracking-tight text-white mb-6 md:mb-8 flex items-center gap-3">
+              <Plus className="text-gold" size={20} md:size={24} /> Ingredient Costing
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
