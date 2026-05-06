@@ -153,7 +153,7 @@ export default function DashboardPage() {
                 </div>
               )}
               {(user?.role === 'manager' || user?.role === 'user' || user?.role === 'billing') && (
-                <div className="bg-orange-500/5 border border-orange-500/20 p-6 rounded-3xl flex items-center gap-4 group hover:bg-orange-500/10 transition-all cursor-pointer">
+                <div onClick={() => router.push('/dashboard/sop?category=Costing')} className="bg-orange-500/5 border border-orange-500/20 p-6 rounded-3xl flex items-center gap-4 group hover:bg-orange-500/10 transition-all cursor-pointer">
                   <div className="w-12 h-12 rounded-2xl bg-orange-500/20 flex items-center justify-center text-orange-500"><DollarSign size={24} /></div>
                   <div>
                     <p className="text-[10px] font-black text-orange-500/60 uppercase tracking-widest">Low Margin</p>
@@ -200,12 +200,12 @@ export default function DashboardPage() {
             <h3 className="text-white/40 text-[11px] font-black tracking-[0.4em] uppercase">Operational Standards</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                { title: "Cooking SOPs", sub: "(Shahi Paneer, Kadhai Chicken...)", icon: ChefHat, roles: ['manager', 'user', 'cook'] },
-                { title: "Gravy Master", sub: "(Batch size, storage, reheating...)", icon: UtensilsCrossed, roles: ['manager', 'user', 'cook'] },
-                { title: "Costing Master", sub: "(Menu Pricing, Margin %...)", icon: Calculator, roles: ['manager', 'user', 'billing'] },
-                { title: "Wastage Master", sub: "(FIFO, inventory Rules...)", icon: Trash2, roles: ['manager', 'user', 'cook'] },
+                { title: "Cooking SOPs", category: "Dish", sub: "(Shahi Paneer, Kadhai Chicken...)", icon: ChefHat, roles: ['manager', 'user', 'cook'] },
+                { title: "Gravy Master", category: "Gravy", sub: "(Batch size, storage, reheating...)", icon: UtensilsCrossed, roles: ['manager', 'user', 'cook'] },
+                { title: "Costing Master", category: "Costing", sub: "(Menu Pricing, Margin %...)", icon: Calculator, roles: ['manager', 'user', 'billing'] },
+                { title: "Wastage Master", category: "Wastage", sub: "(FIFO, inventory Rules...)", icon: Trash2, roles: ['manager', 'user', 'cook'] },
               ].filter(item => item.roles.includes(user?.role || 'user')).map((item, idx) => (
-                <div key={idx} onClick={() => router.push(`/dashboard/sop?category=${item.title.split(' ')[0]}`)} className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 hover:border-gold/30 cursor-pointer group flex flex-col items-center text-center gap-6 shadow-xl">
+                <div key={idx} onClick={() => router.push(`/dashboard/sop?category=${item.category}`)} className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 hover:border-gold/30 cursor-pointer group flex flex-col items-center text-center gap-6 shadow-xl">
                   <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-white/40 group-hover:text-gold group-hover:bg-gold/10 transition-all border border-white/5">
                     <item.icon size={32} />
                   </div>
@@ -229,11 +229,11 @@ export default function DashboardPage() {
             <h3 className="text-white/40 text-[11px] font-black tracking-[0.4em] uppercase">Quick Actions</h3>
             <div className="space-y-3">
               {[
-                { label: "Check Food Cost %", icon: TrendingUp },
-                { label: "Report Daily Wastage", icon: AlertCircle },
-                { label: "Staff Discipline Checklist", icon: CheckCircle2 },
+                { label: "Check Food Cost %", icon: TrendingUp, category: "Costing" },
+                { label: "Report Daily Wastage", icon: AlertCircle, category: "Wastage" },
+                { label: "Staff Discipline Checklist", icon: CheckCircle2, category: "Discipline" },
               ].map((action, idx) => (
-                <button key={idx} className="w-full bg-card/50 hover:bg-card glass-card p-4 rounded-2xl flex items-center gap-4 group transition-all text-left border border-white/5">
+                <button key={idx} onClick={() => router.push(`/dashboard/sop?category=${action.category}`)} className="w-full bg-card/50 hover:bg-card glass-card p-4 rounded-2xl flex items-center gap-4 group transition-all text-left border border-white/5">
                   <div className="w-10 h-10 bg-gold-gradient rounded-xl flex items-center justify-center text-black shadow-lg">
                     <action.icon size={20} />
                   </div>

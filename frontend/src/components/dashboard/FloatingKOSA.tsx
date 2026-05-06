@@ -17,13 +17,60 @@ export default function FloatingKOSA() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [starters, setStarters] = useState<string[]>([]);
+  const [isMuted, setIsMuted] = useState(false);
+  const [selectedLang, setSelectedLang] = useState<'en' | 'hi'>('en');
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetchStarters();
+  }, []);
+
+  const fetchStarters = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/ai/starters`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.starters) setStarters(data.starters);
+    } catch (e) {
+      console.error("Failed to fetch starters");
+    }
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const playVoice = (text: string) => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const cleanText = text.replace(/[*#]/g, '').replace(/\n/g, ' ');
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      
+      const allVoices = window.speechSynthesis.getVoices();
+      let bestVoice = null;
+      
+      if (selectedLang === 'hi') {
+        bestVoice = allVoices.find(v => v.name.includes('Google हिन्दी')) || 
+                    allVoices.find(v => v.name.includes('Hemant')) ||
+                    allVoices.find(v => v.lang.includes('hi-IN'));
+      } else {
+        bestVoice = allVoices.find(v => v.name.includes('Google UK English Female')) || 
+                    allVoices.find(v => v.name.includes('Aria')) ||
+                    allVoices.find(v => v.name.includes('Female'));
+      }
+
+      if (bestVoice) utterance.voice = bestVoice;
+      utterance.lang = selectedLang === 'hi' ? 'hi-IN' : 'en-GB';
+      utterance.rate = 0.95;
+      utterance.pitch = 1.05;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -41,11 +88,13 @@ export default function FloatingKOSA() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ query: userMessage })
+        body: JSON.stringify({ message: userMessage, lang: selectedLang })
       });
 
       const data = await response.json();
-      setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
+      const reply = data.reply || data.response;
+      setMessages(prev => [...prev, { role: 'assistant', content: reply }]);
+      if (!isMuted) playVoice(reply);
     } catch (error) {
       setMessages(prev => [...prev, { role: 'assistant', content: "Maaf kijiye, connection error ho gaya. Please try again." }]);
     } finally {
@@ -75,6 +124,13 @@ export default function FloatingKOSA() {
                 <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-black/10 rounded transition-colors text-black">
                   <Minus size={20} />
                 </button>
+                <button onClick={() => setIsMuted(!isMuted)} className="p-1 hover:bg-black/10 rounded transition-colors text-black">
+                  {isMuted ? '🔇' : '🔊'}
+                </button>
+                <div className="flex bg-black/20 rounded-md p-0.5 border border-black/10 ml-1">
+                  <button onClick={() => setSelectedLang('en')} className={`px-2 py-0.5 text-[10px] font-bold rounded ${selectedLang === 'en' ? 'bg-black text-gold' : 'text-black/60'}`}>EN</button>
+                  <button onClick={() => setSelectedLang('hi')} className={`px-2 py-0.5 text-[10px] font-bold rounded ${selectedLang === 'hi' ? 'bg-black text-gold' : 'text-black/60'}`}>हि</button>
+                </div>
                 <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-black/10 rounded transition-colors text-black">
                   <X size={20} />
                 </button>
@@ -106,6 +162,21 @@ export default function FloatingKOSA() {
                 </div>
               )}
             </div>
+
+            {/* Suggested Questions */}
+            {messages.length < 3 && starters.length > 0 && (
+              <div className="px-4 py-2 flex flex-wrap gap-2 bg-black/20">
+                {starters.map((s, i) => (
+                  <button
+                    key={i}
+                    onClick={() => { setInput(s); setTimeout(handleSend, 100); }}
+                    className="px-2 py-1 bg-gold/10 border border-gold/30 text-gold text-[10px] rounded-full hover:bg-gold/20 transition-all"
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Input */}
             <div className="p-4 bg-black/40 border-t border-white/5">

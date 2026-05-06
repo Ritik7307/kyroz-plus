@@ -81,7 +81,7 @@ export default function SignupPage() {
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-white mb-2">Create Account</h2>
           <p className="text-gray-400">
-            {step === 1 ? 'Enter your details to join KYROZ' : `Verify OTP sent to ${email}`}
+            {step === 1 ? 'Enter your details to join KYROZ-PLUS' : `Verify OTP sent to ${email}`}
           </p>
         </div>
 

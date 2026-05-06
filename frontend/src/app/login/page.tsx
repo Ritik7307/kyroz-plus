@@ -77,7 +77,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full bg-[#111111] border border-[#333333] rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-white mb-2">
-            {step === 1 ? 'Welcome to KYROZ' : 'Enter OTP'}
+            {step === 1 ? 'Welcome to KYROZ-PLUS' : 'Enter OTP'}
           </h2>
           <p className="text-gray-400">
             {step === 1 ? 'Log in or sign up with your email' : `Sent to ${email}`}

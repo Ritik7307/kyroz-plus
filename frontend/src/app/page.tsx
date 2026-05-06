@@ -6,7 +6,7 @@ export default function Home() {
       {/* Navigation */}
       <nav className="flex items-center justify-between px-6 md:px-12 py-6 border-b border-[#222]">
         <div className="flex items-center gap-2">
-          <span className="text-2xl font-extrabold tracking-tighter text-[#d4af37]">KYROZ</span>
+          <span className="text-2xl font-extrabold tracking-tighter text-[#d4af37]">KYROZ-PLUS</span>
         </div>
         <div className="hidden md:flex gap-8 text-sm font-medium text-gray-300">
           <Link href="#features" className="hover:text-[#d4af37] transition">Features</Link>
@@ -202,7 +202,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-[#222] py-12 px-6">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="text-2xl font-extrabold tracking-tighter text-[#d4af37]">KYROZ</div>
+          <div className="text-2xl font-extrabold tracking-tighter text-[#d4af37]">KYROZ-PLUS</div>
           <div className="text-sm text-gray-500">© {new Date().getFullYear()} KYROZ OS. All rights reserved.</div>
         </div>
       </footer>

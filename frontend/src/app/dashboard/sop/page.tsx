@@ -79,6 +79,8 @@ export default function SOPLibraryPage() {
 
   const [error, setError] = useState<string | null>(null);
 
+  const searchParams = useSearchParams();
+  
   const fetchSops = async () => {
     setIsLoading(true);
     setError(null);
@@ -90,6 +92,19 @@ export default function SOPLibraryPage() {
       if (res.ok) {
         const data = await res.json();
         setSops(data);
+        
+        // Handle deep linking via search params after data is fetched
+        const categoryParam = searchParams.get('category');
+        const idParam = searchParams.get('id');
+
+        if (categoryParam) {
+          setActiveCategory(categoryParam);
+        }
+
+        if (idParam) {
+          const targetSop = data.find((s: Sop) => s._id === idParam);
+          if (targetSop) setViewingSop(targetSop);
+        }
       } else {
         setError(`Server Error: ${res.status}`);
       }
@@ -102,7 +117,7 @@ export default function SOPLibraryPage() {
 
   useEffect(() => {
     fetchSops();
-  }, []);
+  }, [searchParams]);
 
   const handleCreateSop = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,18 +159,37 @@ export default function SOPLibraryPage() {
 
   const renderContentWithHighlights = (text: string) => {
     if (!text) return null;
-    const sections = text.split('\n');
-    return sections.map((line, i) => {
-      const isHeader = line.toUpperCase().includes(':') && line.length < 50;
-      const parts = line.split(/(\bHigh\b|\bMedium\b|\bLow\b|\bOil\b|\bButter\b|\bGhee\b)/g);
+    const lines = text.split('\n');
+    
+    return lines.map((line, i) => {
+      const trimmedLine = line.trim();
+      if (!trimmedLine) return <div key={i} className="h-4" />;
+
+      // Section Headers (e.g. "INGREDIENTS:", "METHOD:")
+      const isHeader = (trimmedLine.toUpperCase().includes(':') && trimmedLine.length < 40) || trimmedLine.startsWith('###');
+      
+      // Bullet points or Numbered lists
+      const isBullet = trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ') || /^\d+\./.test(trimmedLine);
+      
+      const cleanLine = trimmedLine.replace(/^[-*]\s+/, '').replace(/^###\s+/, '');
+      
+      // Highlight specific keywords
+      const parts = cleanLine.split(/(\bHigh\b|\bMedium\b|\bLow\b|\bOil\b|\bButter\b|\bGhee\b|\*\*[^*]+\*\*)/g);
       
       return (
-        <div key={i} className={`mb-4 ${isHeader ? 'mt-8 border-b border-white/5 pb-2' : ''}`}>
-          <p className={`${isHeader ? 'font-black text-base text-gray-200 uppercase tracking-tight' : 'font-medium text-gray-400 text-sm leading-relaxed'}`}>
+        <div key={i} className={`mb-3 ${isHeader ? 'mt-10 border-b border-white/10 pb-2 mb-6' : ''} ${isBullet ? 'pl-6 relative' : ''}`}>
+          {isBullet && <span className="absolute left-0 text-gold font-bold">{trimmedLine.split(' ')[0]}</span>}
+          <p className={`
+            ${isHeader ? 'font-black text-lg text-gold uppercase tracking-tight' : 'font-medium text-gray-300 text-sm leading-relaxed'}
+            ${isBullet ? 'pl-2' : ''}
+          `}>
             {parts.map((part, j) => {
+              if (part.startsWith('**') && part.endsWith('**')) {
+                return <span key={j} className="font-black text-white">{part.slice(2, -2)}</span>;
+              }
               const isHighlight = ['High', 'Medium', 'Low', 'Oil', 'Butter', 'Ghee'].includes(part);
               return isHighlight ? (
-                <span key={j} className="text-gray-100 font-black underline decoration-gold/30 decoration-2">
+                <span key={j} className="text-white font-black underline decoration-gold/40 decoration-2 px-1 bg-white/5 rounded-sm">
                   {part}
                 </span>
               ) : part;
@@ -167,6 +201,7 @@ export default function SOPLibraryPage() {
   };
 
   return (
+    <>
     <div className="max-w-7xl mx-auto space-y-12 pb-20">
       
       <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 bg-card/30 p-10 rounded-[3rem] border border-white/5 relative overflow-hidden">
@@ -398,7 +433,17 @@ export default function SOPLibraryPage() {
             <motion.div className="bg-[#111] border border-white/10 rounded-[3rem] p-12 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-8">
                 <h2 className="text-3xl font-black uppercase tracking-tighter text-gold">{viewingSop.title}</h2>
-                <button onClick={() => setViewingSop(null)} className="p-2 hover:bg-white/5 rounded-xl"><X /></button>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => window.print()} 
+                    className="p-3 bg-white/5 hover:bg-white/10 rounded-xl text-white/60 hover:text-gold transition-all flex items-center gap-2"
+                    title="Download as PDF"
+                  >
+                    <Printer size={20} />
+                    <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">Save PDF</span>
+                  </button>
+                  <button onClick={() => setViewingSop(null)} className="p-3 hover:bg-white/10 rounded-xl text-white/40"><X size={24} /></button>
+                </div>
               </div>
               <div className="space-y-8">
                 <div className="flex gap-4">
@@ -415,5 +460,51 @@ export default function SOPLibraryPage() {
       </AnimatePresence>
 
     </div>
+    
+    {/* --- PRINT ONLY STYLE --- */}
+    <style dangerouslySetInnerHTML={{ __html: `
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        .fixed.inset-0, .fixed.inset-0 * {
+          visibility: visible;
+        }
+        .fixed.inset-0 {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          background: white !important;
+          color: black !important;
+          padding: 0 !important;
+        }
+        .bg-\\[\\#111\\] {
+          background: white !important;
+          border: none !important;
+          box-shadow: none !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          padding: 40px !important;
+        }
+        .text-gold {
+          color: black !important;
+          border-bottom: 2px solid black !important;
+        }
+        .text-gray-300 {
+          color: #333 !important;
+        }
+        .bg-white\\/5 {
+          display: none !important;
+        }
+        button {
+          display: none !important;
+        }
+        .border-white\\/10 {
+          border-color: #eee !important;
+        }
+      }
+    `}} />
+    </>
   );
 }

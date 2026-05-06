@@ -8,7 +8,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "KYROZ | AI-Powered Restaurant Operating System",
+  title: "KYROZ-PLUS | AI-Powered Restaurant Operating System",
   description: "Standardize your kitchen, control food costs, and scale your restaurant with KYROZ KOSA AI.",
 };
 

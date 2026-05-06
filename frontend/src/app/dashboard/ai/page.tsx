@@ -15,56 +15,119 @@ export default function AiDashboard() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [selectedLang, setSelectedLang] = useState<'en' | 'hi'>('en');
+  const [starters, setStarters] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    fetchStarters();
+  }, []);
+
+  const fetchStarters = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/ai/starters`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.starters) setStarters(data.starters);
+    } catch (e) {
+      // Silent catch for starters
+    }
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Setup Speech Recognition
+  // Setup Speech Recognition with dependency on language
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRecognition) {
-        recognitionRef.current = new SpeechRecognition();
-        recognitionRef.current.continuous = false;
-        recognitionRef.current.interimResults = false;
-        recognitionRef.current.lang = 'en-IN'; // Default to Indian English/Hindi mix
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = selectedLang === 'hi' ? 'hi-IN' : 'en-IN';
 
-        recognitionRef.current.onresult = (event: any) => {
+        recognition.onresult = (event: any) => {
           const transcript = event.results[0][0].transcript;
           setInput(transcript);
         };
 
-        recognitionRef.current.onerror = (event: any) => {
-          console.error("Speech recognition error", event.error);
+        recognition.onerror = (event: any) => {
+          setIsRecording(false);
+          // Only log as warning to prevent Next.js error popup
+          if (event.error !== 'aborted') {
+            console.warn("KOSA Speech Recognition Notice:", event.error);
+          }
+        };
+
+        recognition.onend = () => {
           setIsRecording(false);
         };
 
-        recognitionRef.current.onend = () => {
-          setIsRecording(false);
-        };
+        recognitionRef.current = recognition;
       }
     }
-  }, []);
+    
+    // Cleanup
+    return () => {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch(e) {}
+      }
+    };
+  }, [selectedLang]);
 
   const toggleRecording = () => {
-    if (isRecording) {
-      recognitionRef.current?.stop();
-    } else {
-      recognitionRef.current?.start();
-      setIsRecording(true);
+    if (!recognitionRef.current) {
+      alert("Voice recognition is not supported in this browser.");
+      return;
+    }
+
+    try {
+      if (isRecording) {
+        recognitionRef.current.stop();
+      } else {
+        recognitionRef.current.start();
+        setIsRecording(true);
+      }
+    } catch (err) {
+      setIsRecording(false);
+      console.warn("Speech start ignored - already active or blocked.");
     }
   };
 
   const playVoice = (text: string) => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      // Clean up text for TTS (remove formatting like *, -, \n)
+      window.speechSynthesis.cancel();
+      
       const cleanText = text.replace(/[*#]/g, '').replace(/\n/g, ' ');
       const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.lang = 'hi-IN'; // Indian accent (works well for Hinglish)
-      utterance.rate = 1.0;
+      
+      const findBestVoice = () => {
+        const allVoices = window.speechSynthesis.getVoices();
+        if (selectedLang === 'hi') {
+          return allVoices.find(v => v.name.includes('Google हिन्दी')) || 
+                 allVoices.find(v => v.name.includes('Microsoft Hemant')) ||
+                 allVoices.find(v => v.lang.includes('hi-IN')) ||
+                 allVoices.find(v => v.lang.includes('hi'));
+        } else {
+          return allVoices.find(v => v.name.includes('Google UK English Female')) || 
+                 allVoices.find(v => v.name.includes('Microsoft Aria')) ||
+                 allVoices.find(v => v.lang.includes('en-IN')) ||
+                 allVoices.find(v => v.name.includes('Female'));
+        }
+      };
+
+      const bestVoice = findBestVoice();
+      if (bestVoice) utterance.voice = bestVoice;
+      
+      utterance.lang = selectedLang === 'hi' ? 'hi-IN' : 'en-GB';
+      utterance.rate = 0.95;
+      utterance.pitch = 1.05;
       window.speechSynthesis.speak(utterance);
     }
   };
@@ -85,7 +148,7 @@ export default function AiDashboard() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ message: userQuery })
+        body: JSON.stringify({ message: userQuery, lang: selectedLang })
       });
 
       const data = await res.json();
@@ -94,7 +157,7 @@ export default function AiDashboard() {
         setMessages(prev => [...prev, { role: 'kosa', content: `Error: ${data.error}` }]);
       } else {
         setMessages(prev => [...prev, { role: 'kosa', content: data.reply }]);
-        // Optionally auto-play voice here: playVoice(data.reply);
+        if (!isMuted) playVoice(data.reply);
       }
     } catch (error) {
       setMessages(prev => [...prev, { role: 'kosa', content: 'Sorry, I am having trouble connecting to my brain right now.' }]);
@@ -118,6 +181,29 @@ export default function AiDashboard() {
               Online & Connected to SOPs
             </p>
           </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex bg-[#000000] rounded-lg p-1 border border-[#333333] mr-2">
+            <button 
+              onClick={() => setSelectedLang('en')}
+              className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${selectedLang === 'en' ? 'bg-[#d4af37] text-black' : 'text-gray-500'}`}
+            >
+              EN
+            </button>
+            <button 
+              onClick={() => setSelectedLang('hi')}
+              className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${selectedLang === 'hi' ? 'bg-[#d4af37] text-black' : 'text-gray-500'}`}
+            >
+              हिन्दी
+            </button>
+          </div>
+          <button 
+            onClick={() => setIsMuted(!isMuted)}
+            className={`p-2 rounded-lg transition-colors ${isMuted ? 'text-gray-500 bg-white/5' : 'text-[#d4af37] bg-[#d4af37]/10'}`}
+            title={isMuted ? "Unmute AI" : "Mute AI"}
+          >
+            {isMuted ? '🔇' : '🔊'}
+          </button>
         </div>
       </div>
 
@@ -155,6 +241,21 @@ export default function AiDashboard() {
         )}
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Suggested Questions */}
+      {messages.length < 3 && starters.length > 0 && (
+        <div className="px-6 py-2 flex flex-wrap gap-2 animate-in fade-in slide-in-from-bottom-2">
+          {starters.map((s, i) => (
+            <button
+              key={i}
+              onClick={() => { setInput(s); setTimeout(handleSend, 100); }}
+              className="px-3 py-1.5 bg-[#d4af37]/10 border border-[#d4af37]/30 text-[#d4af37] text-xs rounded-full hover:bg-[#d4af37]/20 transition-all"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Input Area */}
       <div className="p-4 border-t border-[#333333] bg-[#1a1a1a]">

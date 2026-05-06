@@ -25,7 +25,8 @@ export const chatWithKosa = async (req: AuthRequest, res: Response): Promise<voi
     }
 
     // Call the newly created RAG Pipeline
-    const reply = await generateRagResponse(userId, message);
+    const { lang } = req.body;
+    const reply = await generateRagResponse(userId, message, lang);
 
     res.status(200).json({ reply });
   } catch (error: any) {
@@ -95,5 +96,30 @@ export const uploadSopFile = async (req: AuthRequest, res: Response): Promise<vo
   } catch (error: any) {
     console.error('Error uploading SOP:', error);
     res.status(500).json({ error: error.message || 'Failed to process SOP file.' });
+  }
+};
+
+// Get suggested questions (dish names) from the library
+export const getKosaStarters = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    // Get 3 random unique dish names
+    const sops = await Sop.find({ userId }).select('title').limit(20);
+    const shuffled = sops.sort(() => 0.5 - Math.random());
+    const starters = shuffled.slice(0, 3).map(s => `How to make ${s.title}?`);
+    
+    // Default fallback if no SOPs yet
+    if (starters.length === 0) {
+      starters.push("How to reduce food waste?", "Tips for kitchen hygiene?", "Standard cooking procedures?");
+    }
+
+    res.status(200).json({ starters });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch starters' });
   }
 };

@@ -42,3 +42,45 @@ export const retrieveRelevantChunks = async (userId: string, queryEmbedding: num
   // Fallback to topK regardless of threshold if no strong match, or just return topK
   return scoredChunks.slice(0, topK);
 };
+
+export const searchSopByText = async (userId: string, query: string, topK: number = 3) => {
+  // Clean query: remove common question words
+  const cleanQuery = query.toLowerCase()
+    .replace(/\b(how|to|make|get|the|recipe|for|is|are|a|an)\b/g, '')
+    .trim();
+
+  try {
+    // 1. Try MongoDB Text Search (requires text index)
+    // We use the cleaned query for better matching
+    const results = await SopChunk.find(
+      { 
+        userId, 
+        $text: { $search: cleanQuery || query } 
+      },
+      { score: { $meta: "textScore" } }
+    )
+    .sort({ score: { $meta: "textScore" } })
+    .limit(topK)
+    .lean<ISopChunk[]>();
+
+    if (results.length > 0) return results;
+  } catch (error) {
+    console.warn("Text index search failed or not ready:", error);
+  }
+
+  // 2. Fallback: Keyword-based Regex Search
+  // We split the clean query into words and search for any of them
+  const keywords = (cleanQuery || query).split(/\s+/).filter(k => k.length > 2);
+  const regexQuery = keywords.length > 0 ? keywords.join('|') : query;
+
+  return await SopChunk.find({
+    userId,
+    $or: [
+      { dish: { $regex: regexQuery, $options: 'i' } },
+      { section: { $regex: regexQuery, $options: 'i' } },
+      { content: { $regex: regexQuery, $options: 'i' } }
+    ]
+  })
+  .limit(topK)
+  .lean<ISopChunk[]>();
+};

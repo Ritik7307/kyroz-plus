@@ -1,64 +1,119 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { generateEmbedding } from './embedding.service';
-import { retrieveRelevantChunks } from './vectorStore.service';
+import { retrieveRelevantChunks, searchSopByText } from './vectorStore.service';
+import Sop from '../../models/Sop';
+import { processSopText } from './ingestion.service';
 
 const ai = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
 
-export const generateRagResponse = async (userId: string, query: string): Promise<string> => {
-  if (!ai) throw new Error("Gemini API Key not configured.");
+/**
+ * Formats retrieved SOP data into a human-like response in the requested language.
+ */
+const formatResponse = (relevantChunks: any[], query: string, lang: string = 'en'): string => {
+  const bestMatch = relevantChunks[0];
+  const otherMatch = relevantChunks[1];
 
-  // 1. Convert Query to Embedding
-  const queryEmbedding = await generateEmbedding(query);
-
-  // 2. Retrieve Top K Chunks from Vector Store
-  const relevantChunks = await retrieveRelevantChunks(userId, queryEmbedding, 3);
-
-  if (relevantChunks.length === 0) {
-    return "This is not available in KYROZ SOP.";
+  const isHi = lang === 'hi';
+  
+  let response = isHi 
+    ? `नमस्ते! आपके **${bestMatch.dish.toUpperCase()}** (${bestMatch.section}) के SOP के आधार पर, यहाँ जानकारी है:\n\n`
+    : `Namaste! Based on your SOP for **${bestMatch.dish.toUpperCase()}** (${bestMatch.section}), here is what you need:\n\n`;
+  
+  if (bestMatch.section.includes('TROUBLESHOOTING')) {
+    response += isHi ? `**समस्या:** ${query}\n` : `**Issue:** ${query}\n`;
+    response += isHi ? `**समाधान:** ${bestMatch.content}\n\n` : `**Fix:** ${bestMatch.content}\n\n`;
+  } else {
+    response += `${bestMatch.content}\n\n`;
   }
 
-  // 3. Build Strict Context Prompt
-  const contextText = relevantChunks.map(chunk => 
-    `[Dish: ${chunk.dish} | Section: ${chunk.section}]\n${chunk.content}\n---`
-  ).join('\n');
+  if (otherMatch && otherMatch.dish === bestMatch.dish && otherMatch.section !== bestMatch.section) {
+    response += isHi 
+      ? `**अतिरिक्त टिप (${otherMatch.section}):**\n${otherMatch.content}\n\n`
+      : `**Additional Tip (${otherMatch.section}):**\n${otherMatch.content}\n\n`;
+  }
 
-  const systemInstruction = `
-    You are KYROZ KOSA, an elite AI restaurant consultant. 
-    You MUST strictly answer questions based ONLY on the provided SOP context chunks below. 
-    If the answer is not in the context, say exactly: "This is not available in KYROZ SOP."
-    Do NOT hallucinate. Do NOT use outside knowledge.
+  response += isHi 
+    ? `आशा है कि यह मदद करेगा! मुझे बताएं कि क्या आपको कुछ और चाहिए।`
+    : `Hope this helps! Let me know if you need anything else.`;
+    
+  return response;
+};
 
-    Automatically detect the language of the user's query (e.g., Hindi, English, Hinglish).
-    If they ask in Hinglish, respond in natural conversational Hinglish. 
-    Make the response sound human, not robotic. 
-    Keep responses short (5-7 lines), clear, and actionable.
+/**
+ * Fallback logic to retrieve SOP info using keyword search.
+ */
+const getFallbackResponse = async (userId: string, query: string, lang: string = 'en'): Promise<string> => {
+  console.log(`Using Text Search Fallback for query (${lang}):`, query);
+  let relevantChunks = await searchSopByText(userId, query, 2);
 
-    Required Format:
-    Problem: [Brief summary]
-    Cause: [Reason based on SOP]
-    Solution: [Actionable advice based on SOP]
-    SOP Reference: [Dish Name - Section]
-    Practical Tip: [Humanized tip from the SOP or inferred context]
+  if (relevantChunks.length === 0) {
+    // AUTO-SYNC: If no chunks found, try to import from main SOP collection
+    const userSops = await Sop.find({ userId }).limit(20);
+    if (userSops.length > 0) {
+      for (const sop of userSops) {
+        // If Hindi requested, try to sync Hindi content if available
+        const content = (lang === 'hi' && sop.contentHi) ? sop.contentHi : (sop.contentEn || sop.content || '');
+        const text = `SOP: ${sop.title}\nGENERAL INFO\n${content}`;
+        try {
+          await processSopText(userId, text);
+        } catch (e) {
+          console.warn(`Failed to sync SOP: ${sop.title}`);
+        }
+      }
+      // Re-search after sync
+      relevantChunks = await searchSopByText(userId, query, 2);
+    }
+  }
 
-    Context Chunks:
-    ${contextText}
-  `;
+  if (relevantChunks.length === 0) {
+    return lang === 'hi' 
+      ? "नमस्ते! मैंने लाइब्रेरी की जाँच की, लेकिन मुझे आपके KYROZ SOP में आपके अनुरोध के लिए कोई सीधा मिलान नहीं मिला। कृपया किसी विशिष्ट डिश या खाना पकाने की प्रक्रिया के बारे में पूछें।"
+      : "Namaste! I checked the library, but I couldn't find a direct match for your request in your KYROZ SOPs. Try asking about a specific dish name or cooking process.";
+  }
 
-  // 4. Send to Gemini 2.5 Flash
+  return formatResponse(relevantChunks, query, lang);
+};
+
+export const generateRagResponse = async (userId: string, query: string, lang: string = 'en'): Promise<string> => {
+  if (!ai) {
+    return await getFallbackResponse(userId, query, lang);
+  }
+
   try {
+    const queryEmbedding = await generateEmbedding(query);
+    const relevantChunks = await retrieveRelevantChunks(userId, queryEmbedding, 3);
+
+    if (relevantChunks.length === 0) {
+      return await getFallbackResponse(userId, query, lang);
+    }
+
+    const contextText = relevantChunks.map(chunk => 
+      `[Dish: ${chunk.dish} | Section: ${chunk.section}]\n${chunk.content}\n---`
+    ).join('\n');
+
+    const systemInstruction = `
+      You are KYROZ KOSA, an elite AI restaurant consultant. 
+      You MUST strictly answer questions based ONLY on the provided SOP context chunks below. 
+      If the answer is not in the context, say exactly: "This is not available in KYROZ SOP."
+      Do NOT hallucinate. Do NOT use outside knowledge.
+      
+      Language: ${lang === 'hi' ? 'Hindi (हिन्दी)' : 'English'}.
+      Respond entirely in ${lang === 'hi' ? 'Hindi' : 'English'}.
+      
+      Required Format: Problem, Cause, Solution, SOP Reference, Practical Tip.
+      Context: ${contextText}
+    `;
+
     const model = ai.getGenerativeModel({ model: "gemini-flash-latest" });
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: query }] }],
-      generationConfig: {
-        temperature: 0.1,
-      },
+      generationConfig: { temperature: 0.1 },
       systemInstruction: systemInstruction,
     });
 
-    const response = result.response;
-    return response.text() || "Failed to generate response.";
+    return result.response.text() || "Failed to generate response.";
   } catch (error: any) {
-    console.error("Error calling Gemini generation API:", error);
-    throw new Error("AI generation failed.");
+    console.error("AI Pipeline failed, falling back to text search:", error);
+    return await getFallbackResponse(userId, query, lang);
   }
 };

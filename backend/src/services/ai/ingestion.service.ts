@@ -76,19 +76,34 @@ export const processSopText = async (userId: string, text: string) => {
     const textToEmbed = `Dish: ${chunk.dish}\nSection: ${chunk.section}\nContent: ${chunk.content}`;
     
     try {
-      const embedding = await generateEmbedding(textToEmbed);
+      let embedding = null;
+      
+      // Only generate embedding if API key is present
+      if (process.env.GEMINI_API_KEY) {
+        embedding = await generateEmbedding(textToEmbed);
+      }
       
       await SopChunk.create({
         userId,
         dish: chunk.dish,
         section: chunk.section,
         content: chunk.content,
-        embedding
+        embedding: embedding || [] // Save even if no embedding
       });
       
       chunksStored++;
     } catch (error) {
-      console.error(`Failed to embed chunk for ${chunk.dish} - ${chunk.section}`);
+      console.error(`Failed to process chunk for ${chunk.dish} - ${chunk.section}:`, error);
+      
+      // Fallback: save without embedding if generation fails
+      await SopChunk.create({
+        userId,
+        dish: chunk.dish,
+        section: chunk.section,
+        content: chunk.content,
+        embedding: []
+      });
+      chunksStored++;
     }
   }
 
