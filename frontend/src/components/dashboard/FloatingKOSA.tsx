@@ -211,8 +211,7 @@ export default function FloatingKOSA() {
               Need help? Ask KOSA
               <div className="absolute -bottom-1 right-6 w-2 h-2 bg-white rotate-45"></div>
             </div>
-            <MessageSquare size={30} className="text-black" />
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-background animate-bounce">1</span>
+            <Sparkles size={30} className="text-black" />
           </motion.button>
         )}
       </AnimatePresence>

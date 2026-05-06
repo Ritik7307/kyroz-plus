@@ -114,12 +114,6 @@ export default function DashboardPage() {
               </div>
               
               <div className="flex gap-4 relative z-10 w-full lg:w-auto">
-                <button 
-                  onClick={openWhatsAppSupport}
-                  className="flex-1 bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-lg"
-                >
-                  <MessageCircle size={18} /> Support
-                </button>
                 {(user?.role === 'manager' || user?.role === 'user') && (
                   <div className="bg-black/40 p-4 px-6 rounded-2xl border border-white/10 hidden sm:block">
                     <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Daily Profit</p>
@@ -200,12 +194,12 @@ export default function DashboardPage() {
             <h3 className="text-white/40 text-[11px] font-black tracking-[0.4em] uppercase">Operational Standards</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                { title: "Cooking SOPs", category: "Dish", sub: "(Shahi Paneer, Kadhai Chicken...)", icon: ChefHat, roles: ['manager', 'user', 'cook'] },
-                { title: "Gravy Master", category: "Gravy", sub: "(Batch size, storage, reheating...)", icon: UtensilsCrossed, roles: ['manager', 'user', 'cook'] },
-                { title: "Costing Master", category: "Costing", sub: "(Menu Pricing, Margin %...)", icon: Calculator, roles: ['manager', 'user', 'billing'] },
-                { title: "Wastage Master", category: "Wastage", sub: "(FIFO, inventory Rules...)", icon: Trash2, roles: ['manager', 'user', 'cook'] },
+                { title: "Cooking SOPs", category: "Dish", path: "/dashboard/sop?category=Dish", sub: "(Shahi Paneer, Kadhai Chicken...)", icon: ChefHat, roles: ['manager', 'user', 'cook'] },
+                { title: "Gravy Master", category: "Gravy", path: "/dashboard/gravy", sub: "(Batch size, storage, reheating...)", icon: UtensilsCrossed, roles: ['manager', 'user', 'cook'] },
+                { title: "Costing Master", category: "Costing", path: "/dashboard/costing", sub: "(Menu Pricing, Margin %...)", icon: Calculator, roles: ['manager', 'user', 'billing'] },
+                { title: "Wastage Master", category: "Wastage", path: "/dashboard/wastage", sub: "(FIFO, inventory Rules...)", icon: Trash2, roles: ['manager', 'user', 'cook'] },
               ].filter(item => item.roles.includes(user?.role || 'user')).map((item, idx) => (
-                <div key={idx} onClick={() => router.push(`/dashboard/sop?category=${item.category}`)} className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 hover:border-gold/30 cursor-pointer group flex flex-col items-center text-center gap-6 shadow-xl">
+                <div key={idx} onClick={() => router.push(item.path)} className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 hover:border-gold/30 cursor-pointer group flex flex-col items-center text-center gap-6 shadow-xl">
                   <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-white/40 group-hover:text-gold group-hover:bg-gold/10 transition-all border border-white/5">
                     <item.icon size={32} />
                   </div>
@@ -229,11 +223,10 @@ export default function DashboardPage() {
             <h3 className="text-white/40 text-[11px] font-black tracking-[0.4em] uppercase">Quick Actions</h3>
             <div className="space-y-3">
               {[
-                { label: "Check Food Cost %", icon: TrendingUp, category: "Costing" },
-                { label: "Report Daily Wastage", icon: AlertCircle, category: "Wastage" },
-                { label: "Staff Discipline Checklist", icon: CheckCircle2, category: "Discipline" },
+                { label: "Check Food Cost %", icon: TrendingUp, category: "Costing", path: "/dashboard/costing" },
+                { label: "Report Daily Wastage", icon: AlertCircle, category: "Wastage", path: "/dashboard/wastage" },
               ].map((action, idx) => (
-                <button key={idx} onClick={() => router.push(`/dashboard/sop?category=${action.category}`)} className="w-full bg-card/50 hover:bg-card glass-card p-4 rounded-2xl flex items-center gap-4 group transition-all text-left border border-white/5">
+                <button key={idx} onClick={() => router.push(action.path)} className="w-full bg-card/50 hover:bg-card glass-card p-4 rounded-2xl flex items-center gap-4 group transition-all text-left border border-white/5">
                   <div className="w-10 h-10 bg-gold-gradient rounded-xl flex items-center justify-center text-black shadow-lg">
                     <action.icon size={20} />
                   </div>
@@ -281,18 +274,6 @@ export default function DashboardPage() {
 
       {/* --- KOSA FLOATING AI --- */}
       <FloatingKOSA />
-      
-      {/* Floating WhatsApp FAB - Higher position */}
-      <motion.button
-        whileHover={{ scale: 1.1, rotate: -5 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={openWhatsAppSupport}
-        className="fixed bottom-[140px] right-8 w-16 h-16 bg-green-500 text-white rounded-full flex items-center justify-center shadow-[0_15px_40px_rgba(34,197,94,0.4)] z-[110] hover:bg-green-600 transition-all border-2 border-white/10"
-        title="Contact Support"
-      >
-        <MessageCircle size={32} />
-      </motion.button>
-
     </div>
   );
 }

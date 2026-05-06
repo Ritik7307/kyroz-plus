@@ -50,8 +50,10 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user' }: Sideba
           { name: 'Staff Management', icon: Users, path: '/dashboard/staff' },
           { name: 'KOSA AI', icon: MessageSquare, path: '/dashboard/ai' },
           { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
-          { name: 'Costing Tools', icon: Calculator, path: '/dashboard/costing' },
-          { name: 'Inventory & Wastage', icon: Trash2, path: '/dashboard/inventory' },
+          { name: 'Inventory', icon: Utensils, path: '/dashboard/inventory' },
+          { name: 'Gravy Master', icon: Utensils, path: '/dashboard/gravy' },
+          { name: 'Costing Master', icon: Calculator, path: '/dashboard/costing' },
+          { name: 'Wastage Master', icon: Trash2, path: '/dashboard/wastage' },
           { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
         ];
       case 'cook':
@@ -59,7 +61,8 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user' }: Sideba
           { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
           { name: 'KOSA AI', icon: MessageSquare, path: '/dashboard/ai' },
           { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
-          { name: 'Inventory & Wastage', icon: Trash2, path: '/dashboard/inventory' },
+          { name: 'Inventory', icon: Utensils, path: '/dashboard/inventory' },
+          { name: 'Wastage Master', icon: Trash2, path: '/dashboard/wastage' },
           { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
         ];
       case 'billing':

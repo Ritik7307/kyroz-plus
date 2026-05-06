@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { 
   FileText,
@@ -31,7 +31,8 @@ import {
   Box,
   Database,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  ArrowRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CardSkeleton } from '@/components/dashboard/Skeleton';
@@ -51,15 +52,16 @@ interface Sop {
   updatedAt?: string;
 }
 
-export default function SOPLibraryPage() {
+function SOPLibraryContent() {
   const [sops, setSops] = useState<Sop[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [language, setLanguage] = useState<'EN' | 'HI'>('EN');
-  
-  // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [viewingSop, setViewingSop] = useState<Sop | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
   const [formData, setFormData] = useState({
     title: '',
     category: 'Dish' as const,
@@ -68,16 +70,6 @@ export default function SOPLibraryPage() {
     isInventoryLinked: false,
     platesPerPacket: 10
   });
-
-  // Viewer State
-  const [viewingSop, setViewingSop] = useState<Sop | null>(null);
-
-  // File Upload State
-  const [isFileModalOpen, setIsFileModalOpen] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-
-  const [error, setError] = useState<string | null>(null);
 
   const searchParams = useSearchParams();
   
@@ -93,14 +85,11 @@ export default function SOPLibraryPage() {
         const data = await res.json();
         setSops(data);
         
-        // Handle deep linking via search params after data is fetched
+        // Handle deep linking
         const categoryParam = searchParams.get('category');
         const idParam = searchParams.get('id');
 
-        if (categoryParam) {
-          setActiveCategory(categoryParam);
-        }
-
+        if (categoryParam) setActiveCategory(categoryParam);
         if (idParam) {
           const targetSop = data.find((s: Sop) => s._id === idParam);
           if (targetSop) setViewingSop(targetSop);
@@ -134,12 +123,8 @@ export default function SOPLibraryPage() {
       if (res.ok) {
         setIsModalOpen(false);
         setFormData({
-          title: '',
-          category: 'Dish',
-          contentEn: '',
-          contentHi: '',
-          isInventoryLinked: false,
-          platesPerPacket: 10
+          title: '', category: 'Dish', contentEn: '', contentHi: '',
+          isInventoryLinked: false, platesPerPacket: 10
         });
         fetchSops();
       }
@@ -148,7 +133,7 @@ export default function SOPLibraryPage() {
     }
   };
 
-  const categories = ['All', 'Dish', 'Gravy', 'Costing', 'Wastage', 'Discipline'];
+  const categories = ['All', 'Dish', 'Gravy', 'Costing', 'Wastage'];
   
   const filteredSops = sops.filter(sop => {
     const matchesCategory = activeCategory === 'All' || 
@@ -160,39 +145,22 @@ export default function SOPLibraryPage() {
   const renderContentWithHighlights = (text: string) => {
     if (!text) return null;
     const lines = text.split('\n');
-    
     return lines.map((line, i) => {
       const trimmedLine = line.trim();
       if (!trimmedLine) return <div key={i} className="h-4" />;
-
-      // Section Headers (e.g. "INGREDIENTS:", "METHOD:")
       const isHeader = (trimmedLine.toUpperCase().includes(':') && trimmedLine.length < 40) || trimmedLine.startsWith('###');
-      
-      // Bullet points or Numbered lists
       const isBullet = trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ') || /^\d+\./.test(trimmedLine);
-      
       const cleanLine = trimmedLine.replace(/^[-*]\s+/, '').replace(/^###\s+/, '');
-      
-      // Highlight specific keywords
       const parts = cleanLine.split(/(\bHigh\b|\bMedium\b|\bLow\b|\bOil\b|\bButter\b|\bGhee\b|\*\*[^*]+\*\*)/g);
       
       return (
         <div key={i} className={`mb-3 ${isHeader ? 'mt-10 border-b border-white/10 pb-2 mb-6' : ''} ${isBullet ? 'pl-6 relative' : ''}`}>
           {isBullet && <span className="absolute left-0 text-gold font-bold">{trimmedLine.split(' ')[0]}</span>}
-          <p className={`
-            ${isHeader ? 'font-black text-lg text-gold uppercase tracking-tight' : 'font-medium text-gray-300 text-sm leading-relaxed'}
-            ${isBullet ? 'pl-2' : ''}
-          `}>
+          <p className={`${isHeader ? 'font-black text-lg text-gold uppercase tracking-tight' : 'font-medium text-gray-300 text-sm leading-relaxed'} ${isBullet ? 'pl-2' : ''}`}>
             {parts.map((part, j) => {
-              if (part.startsWith('**') && part.endsWith('**')) {
-                return <span key={j} className="font-black text-white">{part.slice(2, -2)}</span>;
-              }
+              if (part.startsWith('**') && part.endsWith('**')) return <span key={j} className="font-black text-white">{part.slice(2, -2)}</span>;
               const isHighlight = ['High', 'Medium', 'Low', 'Oil', 'Butter', 'Ghee'].includes(part);
-              return isHighlight ? (
-                <span key={j} className="text-white font-black underline decoration-gold/40 decoration-2 px-1 bg-white/5 rounded-sm">
-                  {part}
-                </span>
-              ) : part;
+              return isHighlight ? <span key={j} className="text-white font-black underline decoration-gold/40 decoration-2 px-1 bg-white/5 rounded-sm">{part}</span> : part;
             })}
           </p>
         </div>
@@ -201,67 +169,33 @@ export default function SOPLibraryPage() {
   };
 
   return (
-    <>
     <div className="max-w-7xl mx-auto space-y-12 pb-20">
-      
       <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 bg-card/30 p-10 rounded-[3rem] border border-white/5 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gold/5 rounded-full -mr-64 -mt-64 blur-[120px]"></div>
-        
         <div className="space-y-4 relative z-10">
-          <div className="flex items-center gap-3 text-gold text-xs font-bold uppercase tracking-[0.4em]">
-            <span className="w-10 h-[2px] bg-gold"></span>
-            Central SOP Repository
-          </div>
-          <h1 className="text-5xl font-black tracking-tighter leading-none">
-            RESTAURANT <span className="text-gold">STANDARDS</span>
-          </h1>
-          <p className="text-white/60 text-lg max-w-xl font-medium leading-relaxed italic">
-            "Consistency is the difference between a good kitchen and a great one."
-          </p>
+          <div className="flex items-center gap-3 text-gold text-xs font-bold uppercase tracking-[0.4em]"><span className="w-10 h-[2px] bg-gold"></span>Central SOP Repository</div>
+          <h1 className="text-5xl font-black tracking-tighter leading-none">RESTAURANT <span className="text-gold">STANDARDS</span></h1>
+          <p className="text-white/60 text-lg max-w-xl font-medium leading-relaxed italic">"Consistency is the difference between a good kitchen and a great one."</p>
         </div>
-        
         <div className="flex flex-col sm:flex-row gap-4 relative z-10">
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center justify-center gap-3 px-8 py-4 bg-gold text-black rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest hover:scale-[1.05] transition-all shadow-[0_20px_50px_rgba(212,175,55,0.2)]"
-          >
-            <Plus size={18} />
-            Add New Recipe SOP
+          <button onClick={() => setIsModalOpen(true)} className="flex items-center justify-center gap-3 px-8 py-4 bg-gold text-black rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest hover:scale-[1.05] transition-all shadow-[0_20px_50px_rgba(212,175,55,0.2)]">
+            <Plus size={18} /> Add New Recipe SOP
           </button>
         </div>
       </header>
 
-      {/* SEARCH & FILTERS */}
       <div className="flex flex-col lg:flex-row gap-8 items-center justify-between bg-card p-8 rounded-[2.5rem] border border-white/5 shadow-2xl">
         <div className="relative w-full lg:w-[450px]">
           <Search size={22} className="absolute left-6 top-1/2 -translate-y-1/2 text-white/40" />
-          <input 
-            type="text" 
-            placeholder="Search recipes or procedures..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-[1.5rem] py-4 pl-16 pr-6 text-sm text-white focus:outline-none transition-all"
-          />
+          <input type="text" placeholder="Search recipes or procedures..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-[1.5rem] py-4 pl-16 pr-6 text-sm text-white focus:outline-none transition-all" />
         </div>
-
         <div className="flex gap-3 overflow-x-auto pb-2 w-full lg:w-auto">
           {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-8 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all border ${
-                activeCategory === cat 
-                  ? 'bg-gold/20 border-gold text-gold shadow-gold/10' 
-                  : 'bg-white/5 border-white/5 text-white/40 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              {cat}
-            </button>
+            <button key={cat} onClick={() => setActiveCategory(cat)} className={`px-8 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all border ${activeCategory === cat ? 'bg-gold/20 border-gold text-gold shadow-gold/10' : 'bg-white/5 border-white/5 text-white/40 hover:text-white hover:bg-white/10'}`}>{cat}</button>
           ))}
         </div>
       </div>
 
-      {/* SOP GRID */}
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
           {[1, 2, 3, 4, 5, 6].map(i => <CardSkeleton key={i} />)}
@@ -269,242 +203,79 @@ export default function SOPLibraryPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
           {filteredSops.map((sop, idx) => (
-            <motion.div 
-              key={sop._id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.05 }}
-              className="bg-[#111] rounded-[2rem] border border-white/5 hover:border-white/10 transition-all p-8 flex flex-col shadow-2xl group"
-            >
+            <motion.div key={sop._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }} className="bg-[#111] rounded-[2rem] border border-white/5 hover:border-white/10 transition-all p-8 flex flex-col shadow-2xl group">
               <div className="flex justify-between items-start mb-6">
-                <span className="px-3 py-1 bg-white/5 rounded-lg text-[9px] font-black text-gold uppercase tracking-widest border border-white/5">
-                  {sop.category}
-                </span>
-                {sop.isInventoryLinked && (
-                  <span className="flex items-center gap-1.5 px-3 py-1 bg-green-500/10 rounded-lg text-[9px] font-black text-green-500 uppercase tracking-widest border border-green-500/20">
-                    <Database size={10} /> Inventory Linked
-                  </span>
-                )}
+                <span className="px-3 py-1 bg-white/5 rounded-lg text-[9px] font-black text-gold uppercase tracking-widest border border-white/5">{sop.category}</span>
+                {sop.isInventoryLinked && <span className="flex items-center gap-1.5 px-3 py-1 bg-green-500/10 rounded-lg text-[9px] font-black text-green-500 uppercase tracking-widest border border-green-500/20"><Database size={10} /> Inventory Linked</span>}
               </div>
-
               <h3 className="text-xl font-black text-gold mb-4 uppercase tracking-tight group-hover:translate-x-1 transition-transform">{sop.title}</h3>
-              
               <div className="mt-auto flex items-center gap-3">
-                <button 
-                  onClick={() => setViewingSop(sop)}
-                  className="flex-1 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all"
-                >
-                  <Eye size={16} /> View Recipe
-                </button>
-                {sop.isInventoryLinked && (
-                  <div className="p-4 bg-white/5 rounded-2xl text-white/20 border border-white/5" title={`${sop.platesPerPacket} Plates per Packet`}>
-                    <Box size={16} />
-                  </div>
-                )}
+                <button onClick={() => setViewingSop(sop)} className="flex-1 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all"><Eye size={16} /> View Recipe</button>
               </div>
             </motion.div>
           ))}
         </div>
       )}
 
-      {/* --- ADD SOP MODAL --- */}
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/95 backdrop-blur-2xl">
-            <motion.div 
-              initial={{ opacity: 0, y: 100 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 100 }}
-              className="bg-card w-full max-w-5xl rounded-[3rem] p-12 border border-white/10 shadow-3xl overflow-y-auto max-h-[90vh]"
-            >
-              <div className="flex items-center justify-between mb-10">
-                <h3 className="text-3xl font-black tracking-tighter uppercase">NEW <span className="text-gold">RECIPE ENTRY</span></h3>
-                <button onClick={() => setIsModalOpen(false)} className="p-3 hover:bg-white/10 rounded-2xl transition-all"><X size={32} /></button>
-              </div>
-
+            <motion.div initial={{ opacity: 0, y: 100 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 100 }} className="bg-card w-full max-w-5xl rounded-[3rem] p-12 border border-white/10 shadow-3xl overflow-y-auto max-h-[90vh]">
+              <div className="flex items-center justify-between mb-10"><h3 className="text-3xl font-black tracking-tighter uppercase">NEW <span className="text-gold">RECIPE ENTRY</span></h3><button onClick={() => setIsModalOpen(false)} className="p-3 hover:bg-white/10 rounded-2xl transition-all"><X size={32} /></button></div>
               <form onSubmit={handleCreateSop} className="space-y-12">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  <div className="space-y-3">
-                    <label className="text-[11px] font-black uppercase tracking-widest text-white/40">Recipe Name (Match with Dish Name)</label>
-                    <input
-                      type="text"
-                      value={formData.title}
-                      onChange={(e) => setFormData({...formData, title: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-base font-bold focus:outline-none focus:border-gold transition-all"
-                      placeholder="e.g., Corn Palak Cheese"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-3">
-                    <label className="text-[11px] font-black uppercase tracking-widest text-white/40">Category</label>
-                    <select
-                      value={formData.category}
-                      onChange={(e: any) => setFormData({...formData, category: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-base font-bold focus:outline-none focus:border-gold transition-all appearance-none"
-                    >
-                      <option value="Dish">Dish Production</option>
-                      <option value="Gravy">Base Gravy</option>
-                      <option value="Costing">Financial Controls</option>
-                    </select>
-                  </div>
+                  <div className="space-y-3"><label className="text-[11px] font-black uppercase tracking-widest text-white/40">Recipe Name</label><input type="text" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-base font-bold focus:outline-none focus:border-gold transition-all" required /></div>
+                  <div className="space-y-3"><label className="text-[11px] font-black uppercase tracking-widest text-white/40">Category</label><select value={formData.category} onChange={(e: any) => setFormData({...formData, category: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-base font-bold focus:outline-none focus:border-gold transition-all appearance-none"><option value="Dish">Dish Production</option><option value="Gravy">Base Gravy</option><option value="Costing">Financial Controls</option></select></div>
                 </div>
-
                 <div className="bg-white/5 p-8 rounded-[2rem] border border-white/5 space-y-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Database className="text-gold" size={24} />
-                      <div>
-                        <h4 className="text-sm font-black uppercase tracking-widest">Inventory Connection</h4>
-                        <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">Automatically track stock for this recipe</p>
-                      </div>
-                    </div>
-                    <button 
-                      type="button"
-                      onClick={() => setFormData({...formData, isInventoryLinked: !formData.isInventoryLinked})}
-                      className={`w-14 h-8 rounded-full transition-all relative ${formData.isInventoryLinked ? 'bg-gold' : 'bg-white/10'}`}
-                    >
-                      <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${formData.isInventoryLinked ? 'right-1' : 'left-1'}`} />
-                    </button>
-                  </div>
-
-                  {formData.isInventoryLinked && (
-                    <motion.div 
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      className="pt-6 border-t border-white/5"
-                    >
-                      <div className="flex items-center gap-6">
-                        <div className="flex-1 space-y-3">
-                          <label className="text-[11px] font-black uppercase tracking-widest text-white/40">Plates Per Packet (Yield)</label>
-                          <input
-                            type="number"
-                            value={formData.platesPerPacket}
-                            onChange={(e) => setFormData({...formData, platesPerPacket: Number(e.target.value)})}
-                            className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-base font-bold text-gold focus:outline-none focus:border-gold"
-                            placeholder="e.g. 5"
-                          />
-                        </div>
-                        <div className="w-1/2 p-6 bg-gold/5 rounded-2xl border border-gold/10">
-                          <p className="text-[9px] font-black uppercase tracking-widest text-gold/60 leading-relaxed">
-                            Every time 1 plate of this dish is sold in POS, the system will reduce 1/{formData.platesPerPacket} packet from the kitchen inventory.
-                          </p>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
+                  <div className="flex items-center justify-between"><div className="flex items-center gap-3"><Database className="text-gold" size={24} /><div><h4 className="text-sm font-black uppercase tracking-widest">Inventory Connection</h4></div></div><button type="button" onClick={() => setFormData({...formData, isInventoryLinked: !formData.isInventoryLinked})} className={`w-14 h-8 rounded-full transition-all relative ${formData.isInventoryLinked ? 'bg-gold' : 'bg-white/10'}`}><div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${formData.isInventoryLinked ? 'right-1' : 'left-1'}`} /></button></div>
+                  {formData.isInventoryLinked && <div className="pt-6 border-t border-white/5"><div className="flex items-center gap-6"><div className="flex-1 space-y-3"><label className="text-[11px] font-black uppercase tracking-widest text-white/40">Plates Per Packet</label><input type="number" value={formData.platesPerPacket} onChange={(e) => setFormData({...formData, platesPerPacket: Number(e.target.value)})} className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-base font-bold text-gold focus:outline-none focus:border-gold" /></div></div></div>}
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  <div className="space-y-3">
-                    <label className="text-[11px] font-black uppercase tracking-widest text-gold">English Protocol</label>
-                    <textarea
-                      value={formData.contentEn}
-                      onChange={(e) => setFormData({...formData, contentEn: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-[2rem] p-8 text-base font-medium focus:outline-none focus:border-gold h-80 resize-none"
-                      placeholder="Step by step recipe details..."
-                    />
-                  </div>
-                  <div className="space-y-3">
-                    <label className="text-[11px] font-black uppercase tracking-widest text-gold">हिन्दी निर्देशिका</label>
-                    <textarea
-                      value={formData.contentHi}
-                      onChange={(e) => setFormData({...formData, contentHi: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-[2rem] p-8 text-base font-medium focus:outline-none focus:border-gold h-80 resize-none"
-                      placeholder="रेसिपी के निर्देश..."
-                    />
-                  </div>
+                  <div className="space-y-3"><label className="text-[11px] font-black uppercase tracking-widest text-gold">English Protocol</label><textarea value={formData.contentEn} onChange={(e) => setFormData({...formData, contentEn: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-[2rem] p-8 text-base font-medium focus:outline-none focus:border-gold h-80 resize-none" /></div>
+                  <div className="space-y-3"><label className="text-[11px] font-black uppercase tracking-widest text-gold">हिन्दी निर्देशिका</label><textarea value={formData.contentHi} onChange={(e) => setFormData({...formData, contentHi: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-[2rem] p-8 text-base font-medium focus:outline-none focus:border-gold h-80 resize-none" /></div>
                 </div>
-
-                <div className="flex justify-end gap-6 pt-6">
-                  <button type="submit" className="px-16 py-5 bg-gold text-black rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-2xl hover:scale-[1.05] transition-all">
-                    Save Recipe & Sync Inventory
-                  </button>
-                </div>
+                <div className="flex justify-end gap-6 pt-6"><button type="submit" className="px-16 py-5 bg-gold text-black rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-2xl hover:scale-[1.05] transition-all">Save Recipe</button></div>
               </form>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
 
-      {/* Viewer Modal (Simplified for brevity) */}
       <AnimatePresence>
         {viewingSop && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/95 backdrop-blur-md">
             <motion.div className="bg-[#111] border border-white/10 rounded-[3rem] p-12 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-3xl font-black uppercase tracking-tighter text-gold">{viewingSop.title}</h2>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => window.print()} 
-                    className="p-3 bg-white/5 hover:bg-white/10 rounded-xl text-white/60 hover:text-gold transition-all flex items-center gap-2"
-                    title="Download as PDF"
-                  >
-                    <Printer size={20} />
-                    <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">Save PDF</span>
-                  </button>
-                  <button onClick={() => setViewingSop(null)} className="p-3 hover:bg-white/10 rounded-xl text-white/40"><X size={24} /></button>
-                </div>
-              </div>
-              <div className="space-y-8">
-                <div className="flex gap-4">
-                  <button onClick={() => setLanguage('EN')} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${language === 'EN' ? 'bg-gold text-black' : 'bg-white/5 text-white/40'}`}>English</button>
-                  <button onClick={() => setLanguage('HI')} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${language === 'HI' ? 'bg-gold text-black' : 'bg-white/5 text-white/40'}`}>Hindi</button>
-                </div>
-                <div className="prose prose-invert max-w-none">
-                  {renderContentWithHighlights(language === 'EN' ? viewingSop.contentEn || '' : viewingSop.contentHi || '')}
-                </div>
+              <div className="flex justify-between items-center mb-8"><h2 className="text-3xl font-black uppercase tracking-tighter text-gold">{viewingSop.title}</h2><div className="flex gap-2"><button onClick={() => window.print()} className="p-3 bg-white/5 hover:bg-white/10 rounded-xl text-white/60 hover:text-gold transition-all flex items-center gap-2"><Printer size={20} /><span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">Save PDF</span></button><button onClick={() => setViewingSop(null)} className="p-3 hover:bg-white/10 rounded-xl text-white/40"><X size={24} /></button></div></div>
+              <div className="space-y-8"><div className="flex gap-4"><button onClick={() => setLanguage('EN')} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${language === 'EN' ? 'bg-gold text-black' : 'bg-white/5 text-white/40'}`}>English</button><button onClick={() => setLanguage('HI')} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${language === 'HI' ? 'bg-gold text-black' : 'bg-white/5 text-white/40'}`}>Hindi</button></div>
+                <div className="prose prose-invert max-w-none">{renderContentWithHighlights(language === 'EN' ? viewingSop.contentEn || '' : viewingSop.contentHi || '')}</div>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
 
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          body * { visibility: hidden; }
+          .fixed.inset-0, .fixed.inset-0 * { visibility: visible; }
+          .fixed.inset-0 { position: absolute; left: 0; top: 0; width: 100%; background: white !important; color: black !important; padding: 0 !important; }
+          .bg-\\[\\#111\\] { background: white !important; border: none !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; padding: 40px !important; }
+          .text-gold { color: black !important; border-bottom: 2px solid black !important; }
+          .text-gray-300 { color: #333 !important; }
+          .bg-white\\/5 { display: none !important; }
+          button { display: none !important; }
+          .border-white\\/10 { border-color: #eee !important; }
+        }
+      `}} />
     </div>
-    
-    {/* --- PRINT ONLY STYLE --- */}
-    <style dangerouslySetInnerHTML={{ __html: `
-      @media print {
-        body * {
-          visibility: hidden;
-        }
-        .fixed.inset-0, .fixed.inset-0 * {
-          visibility: visible;
-        }
-        .fixed.inset-0 {
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: 100%;
-          background: white !important;
-          color: black !important;
-          padding: 0 !important;
-        }
-        .bg-\\[\\#111\\] {
-          background: white !important;
-          border: none !important;
-          box-shadow: none !important;
-          width: 100% !important;
-          max-width: 100% !important;
-          padding: 40px !important;
-        }
-        .text-gold {
-          color: black !important;
-          border-bottom: 2px solid black !important;
-        }
-        .text-gray-300 {
-          color: #333 !important;
-        }
-        .bg-white\\/5 {
-          display: none !important;
-        }
-        button {
-          display: none !important;
-        }
-        .border-white\\/10 {
-          border-color: #eee !important;
-        }
-      }
-    `}} />
-    </>
+  );
+}
+
+export default function SOPLibraryPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gold font-black tracking-widest">LOADING STANDARDS...</div>}>
+      <SOPLibraryContent />
+    </Suspense>
   );
 }
