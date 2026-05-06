@@ -94,7 +94,7 @@ export default function CostingMaster() {
           {/* Ingredient Builder */}
           <div className="bg-card glass-card rounded-[2rem] md:rounded-[2.5rem] border border-white/5 p-6 md:p-10 shadow-2xl">
             <h3 className="text-lg md:text-xl font-black uppercase tracking-tight text-white mb-6 md:mb-8 flex items-center gap-3">
-              <Plus className="text-gold" size={20} md:size={24} /> Ingredient Costing
+              <Plus className="text-gold" size={20} /> Ingredient Costing
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">

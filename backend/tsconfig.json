@@ -1,9 +1,6 @@
 {
   "compilerOptions": {
-     "types": ["node"],
-       "typeRoots": ["./node_modules/@types"],
     "target": "es2022",
-     "moduleResolution": "node",
     "module": "commonjs",
     "rootDir": "./src",
     "outDir": "./dist",

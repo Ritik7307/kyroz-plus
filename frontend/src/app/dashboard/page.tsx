@@ -31,6 +31,7 @@ import { API_URL } from '@/lib/api';
 export default function DashboardPage() {
   const [user, setUser] = React.useState<any>(null);
   const [sops, setSops] = React.useState<any[]>([]);
+  const [dailyProfit, setDailyProfit] = React.useState<number>(0);
   const router = useRouter();
 
   React.useEffect(() => {
@@ -58,6 +59,19 @@ export default function DashboardPage() {
         });
         const sopData = await sopRes.json();
         setSops(sopData);
+
+        // Fetch daily profit
+        try {
+          const profitRes = await fetch(`${API_URL}/api/orders/daily-profit`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (profitRes.ok) {
+            const profitData = await profitRes.json();
+            setDailyProfit(profitData.dailyProfit || 0);
+          }
+        } catch (e) {
+          console.error("Failed to fetch daily profit", e);
+        }
       } catch (err) {
         router.push('/login');
       }
@@ -71,6 +85,13 @@ export default function DashboardPage() {
     const message = `Namaste Admin, 👨‍🍳\n\nI am ${userName} from Kyyroz-Plus. I need some assistance regarding the dashboard/operations.\n\nPlease guide me. Dhanyawad! 🙏`;
     const encoded = encodeURIComponent(message);
     window.open(`https://wa.me/${phoneNumber}?text=${encoded}`, '_blank');
+  };
+
+  const formatCurrency = (amount: number) => {
+    if (amount >= 1000) {
+      return `₹${(amount / 1000).toFixed(1)}k`;
+    }
+    return `₹${amount.toFixed(0)}`;
   };
 
   return (
@@ -118,7 +139,7 @@ export default function DashboardPage() {
                   <div className="bg-black/40 p-4 px-6 rounded-2xl border border-white/10 hidden sm:block">
                     <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Daily Profit</p>
                     <div className="flex items-center gap-3">
-                      <span className="text-xl font-black text-white">₹18.5k</span>
+                      <span className="text-xl font-black text-white">{formatCurrency(dailyProfit)}</span>
                       <TrendingUp size={14} className="text-green-500" />
                     </div>
                   </div>

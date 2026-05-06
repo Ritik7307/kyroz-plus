@@ -48,6 +48,7 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user' }: Sideba
           { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
           { name: 'POS Terminal', icon: Calculator, path: '/dashboard/pos' },
           { name: 'Staff Management', icon: Users, path: '/dashboard/staff' },
+          { name: 'Sales History', icon: Calculator, path: '/dashboard/history' },
           { name: 'KOSA AI', icon: MessageSquare, path: '/dashboard/ai' },
           { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
           { name: 'Inventory', icon: Utensils, path: '/dashboard/inventory' },
@@ -77,6 +78,7 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user' }: Sideba
           { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
           { name: 'KOSA AI', icon: MessageSquare, path: '/dashboard/ai' },
           { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
+          { name: 'Sales History', icon: Calculator, path: '/dashboard/history' },
           { name: 'Membership', icon: Bell, path: '/dashboard/membership' },
           { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
         ];
