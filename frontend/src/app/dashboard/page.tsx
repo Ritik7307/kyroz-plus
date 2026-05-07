@@ -11,6 +11,7 @@ import {
   LogOut, 
   LayoutDashboard,
   TrendingUp,
+  IndianRupee,
   Activity,
   CreditCard,
   MessageSquare,
@@ -21,7 +22,8 @@ import {
   FileText,
   DollarSign,
   MessageCircle,
-  Phone
+  Phone,
+  Package
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FloatingKOSA from '@/components/dashboard/FloatingKOSA';
