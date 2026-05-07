@@ -18,7 +18,7 @@ import { API_URL } from '@/lib/api';
 import CustomDropdown from '@/components/ui/CustomDropdown';
 
 export default function UserSopPacketsPage() {
-  const [packets, setPackets] = useState([]);
+  const [packets, setPackets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
