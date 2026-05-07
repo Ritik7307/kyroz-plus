@@ -12,7 +12,9 @@ import {
   ArrowUpRight,
   Upload,
   UserCheck,
-  ChefHat
+  ChefHat,
+  Package,
+  MessageSquare
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -155,14 +157,31 @@ export default function AdminDashboard() {
               <div className="space-y-4">
                 <button 
                   onClick={() => router.push('/admin/sops')}
-                  className="w-full bg-gold-gradient p-6 rounded-2xl text-black font-bold flex flex-col items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-xl group"
+                  className="w-full bg-gold-gradient p-6 rounded-2xl text-black font-bold flex flex-col items-center justify-center gap-2 hover:scale-[1.02] transition-all shadow-xl group"
                 >
-                  <ChefHat size={32} />
+                  <ChefHat size={28} />
                   <div className="text-center">
-                    <span className="block text-sm uppercase tracking-widest">Manage Global SOPs</span>
-                    <span className="text-[10px] opacity-60">Add, Edit or Remove SOPs</span>
+                    <span className="block text-xs uppercase tracking-widest leading-none">Global SOPs</span>
+                    <span className="text-[9px] opacity-60">Manage Recipes</span>
                   </div>
                 </button>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <button 
+                    onClick={() => router.push('/admin/packets')}
+                    className="bg-card glass-card p-4 rounded-2xl text-white font-bold flex flex-col items-center justify-center gap-2 hover:border-gold/50 border border-white/5 transition-all group"
+                  >
+                    <Package size={20} className="text-gold" />
+                    <span className="text-[9px] uppercase tracking-widest">Packets</span>
+                  </button>
+                  <button 
+                    onClick={() => router.push('/admin/testimonials')}
+                    className="bg-card glass-card p-4 rounded-2xl text-white font-bold flex flex-col items-center justify-center gap-2 hover:border-gold/50 border border-white/5 transition-all group"
+                  >
+                    <MessageSquare size={20} className="text-gold" />
+                    <span className="text-[9px] uppercase tracking-widest">Testimonials</span>
+                  </button>
+                </div>
 
                 <div className="bg-card glass-card p-6 rounded-2xl space-y-4">
                   <h4 className="text-xs font-bold uppercase tracking-widest text-white/40">Quick Stats</h4>

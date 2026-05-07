@@ -70,6 +70,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navLinks = [
     { name: 'Admin Hub', path: '/admin/dashboard' },
     { name: 'Global SOPs', path: '/admin/sops' },
+    { name: 'SOP Packets', path: '/admin/packets' },
+    { name: 'Testimonials', path: '/admin/testimonials' },
     { name: 'User Management', path: '/admin/users' },
   ];
 

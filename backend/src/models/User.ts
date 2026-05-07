@@ -10,6 +10,7 @@ export interface IUser extends Document {
   subscriptionPlan: 'Basic' | 'Pro' | 'Elite' | 'Admin';
   otpHash?: string;
   otpExpiresAt?: Date;
+  paymentQrCode?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -24,7 +25,8 @@ const UserSchema: Schema = new Schema(
     role: { type: String, enum: ['admin', 'manager', 'cook', 'billing', 'user'], default: 'user' },
     subscriptionPlan: { type: String, enum: ['Basic', 'Pro', 'Elite', 'Admin'], default: 'Basic' },
     otpHash: { type: String },
-    otpExpiresAt: { type: Date }
+    otpExpiresAt: { type: Date },
+    paymentQrCode: { type: String }
   },
   { timestamps: true }
 );

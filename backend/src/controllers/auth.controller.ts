@@ -21,21 +21,71 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendOtp = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, name, shopName, shopAddress, gstNumber } = req.body;
+    const { email, password, name, shopName, shopAddress, gstNumber } = req.body;
 
     if (!email) {
       res.status(400).json({ error: 'Email is required' });
       return;
     }
 
+    // Admin Password Bypass
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      let adminUser = await User.findOne({ email });
+      
+      // If user doesn't exist or isn't admin, force promote them
+      if (!adminUser) {
+        adminUser = new User({ email, role: 'admin', subscriptionPlan: 'Admin', name: 'Super Admin' });
+        await adminUser.save();
+      } else if (adminUser.role !== 'admin') {
+        adminUser.role = 'admin';
+        adminUser.subscriptionPlan = 'Admin';
+        await adminUser.save();
+      }
+
+      console.log(`[AUTH] Admin Password Login: ${email}`);
+        
+        const parser = new UAParser(req.headers['user-agent']);
+        const deviceInfo = `${parser.getBrowser().name || 'Unknown'} on ${parser.getOS().name || 'Unknown'}`;
+        
+        const newSession = new Session({
+          userId: adminUser._id,
+          deviceInfo,
+          ipAddress: req.ip || 'Unknown',
+          lastActive: new Date()
+        });
+        await newSession.save();
+
+        const token = jwt.sign(
+          { userId: adminUser._id, role: adminUser.role, plan: adminUser.subscriptionPlan, sessionId: newSession._id }, 
+          JWT_SECRET, 
+          { expiresIn: '7d' }
+        );
+
+        res.status(200).json({ 
+          message: 'Admin login successful',
+          isDirectLogin: true,
+          token,
+          user: { 
+            id: adminUser._id, 
+            email: adminUser.email, 
+            name: adminUser.name, 
+            role: adminUser.role, 
+            plan: adminUser.subscriptionPlan 
+          } 
+        });
+        return;
+      }
+
     // Generate 6-digit OTP
     const plainOtp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
     
-    // Hash OTP - reduced rounds for maximum speed
+    // Hash OTP
     const otpHash = await bcrypt.hash(plainOtp, 4);
 
-    // Single DB operation
     await User.findOneAndUpdate(
       { email },
       { 
@@ -53,10 +103,9 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
 
     console.log(`[AUTH] Generating OTP for ${email}: ${plainOtp}`);
     
-    // Send Real Email
     try {
-      const { data, error } = await resend.emails.send({
-        from: `KYROZ Security <onboarding@resend.dev>`, // Resend requires verified domains or onboarding@resend.dev for testing
+      await resend.emails.send({
+        from: `KYROZ Security <onboarding@resend.dev>`,
         to: email,
         subject: 'Your KYROZ Login Code',
         html: `
@@ -68,18 +117,11 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
         `
       });
       
-      if (error) {
-        throw new Error(error.message);
-      }
-
       console.log(`✅ [RESEND] OTP sent to ${email}`);
       res.status(200).json({ message: 'OTP sent successfully' });
     } catch (resendErr: any) {
       console.error('❌ [RESEND] Error:', resendErr);
-      res.status(500).json({ 
-        error: 'Email Sending Failed', 
-        details: resendErr.message
-      });
+      res.status(500).json({ error: 'Email Sending Failed', details: resendErr.message });
     }
   } catch (error: any) {
     console.error('❌ [AUTH] Error:', error);
@@ -199,7 +241,7 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
 
 export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, shopName, shopAddress, gstNumber } = req.body;
+    const { name, shopName, shopAddress, gstNumber, paymentQrCode } = req.body;
     
     const user = await User.findById(req.user?.userId);
     if (!user) {
@@ -211,6 +253,7 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
     if (shopName) user.shopName = shopName;
     if (shopAddress) user.shopAddress = shopAddress;
     if (gstNumber) user.gstNumber = gstNumber;
+    if (paymentQrCode !== undefined) user.paymentQrCode = paymentQrCode;
 
     await user.save();
     res.status(200).json({ message: 'Profile updated successfully', user });

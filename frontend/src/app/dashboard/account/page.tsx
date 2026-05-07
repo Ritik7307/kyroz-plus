@@ -10,7 +10,10 @@ import {
   Calendar,
   ChevronRight,
   Settings,
-  Bell
+  Bell,
+  QrCode,
+  Upload,
+  Loader2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { API_URL } from '@/lib/api';
@@ -21,8 +24,10 @@ export default function AccountPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    shopName: ''
+    shopName: '',
+    paymentQrCode: ''
   });
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     fetchUser();
@@ -38,12 +43,42 @@ export default function AccountPage() {
       setUser(data);
       setFormData({
         name: data.name || '',
-        shopName: data.shopName || ''
+        shopName: data.shopName || '',
+        paymentQrCode: data.paymentQrCode || ''
       });
     } catch (err) {
       console.error('Failed to fetch user');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const uploadData = new FormData();
+    uploadData.append('image', file);
+
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch(`${API_URL}/api/upload`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: uploadData
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setFormData(prev => ({ ...prev, paymentQrCode: data.url }));
+      } else {
+        alert(data.error || 'Upload failed');
+      }
+    } catch (err) {
+      console.error('Upload error', err);
+      alert('Upload failed');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -130,6 +165,19 @@ export default function AccountPage() {
                   <p className="text-sm font-bold text-green-500">Verified & Active</p>
                 </div>
               </div>
+
+              {user?.paymentQrCode && (
+                <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40">
+                    <QrCode size={18} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Payment QR Code</p>
+                    <p className="text-sm font-medium">Uploaded</p>
+                  </div>
+                  <img src={user.paymentQrCode} alt="QR Code" className="w-12 h-12 rounded-lg object-cover border border-white/10" />
+                </div>
+              )}
             </div>
 
             <button 
@@ -219,6 +267,42 @@ export default function AccountPage() {
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none transition-all"
                 />
               </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Payment QR Code (Optional)</label>
+                <div className="flex items-center gap-4">
+                  {formData.paymentQrCode ? (
+                    <div className="relative w-16 h-16 rounded-xl border border-white/10 overflow-hidden bg-white/5">
+                      <img src={formData.paymentQrCode} alt="QR Preview" className="w-full h-full object-cover" />
+                      <button 
+                        type="button"
+                        onClick={() => setFormData({...formData, paymentQrCode: ''})}
+                        className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
+                      >
+                        <span className="text-[10px] font-bold text-white uppercase">Remove</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 rounded-xl border border-white/10 border-dashed bg-white/5 flex items-center justify-center text-white/40">
+                      <QrCode size={20} />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <label className="flex items-center justify-center gap-2 w-full py-3 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold uppercase tracking-widest border border-white/10 cursor-pointer transition-all">
+                      {isUploading ? <Loader2 className="animate-spin" size={16} /> : <Upload size={16} />}
+                      {isUploading ? 'Uploading...' : 'Upload QR Image'}
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={handleFileUpload}
+                        disabled={isUploading}
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex gap-4 pt-4">
                 <button 
                   type="button" 

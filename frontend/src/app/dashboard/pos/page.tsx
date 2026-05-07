@@ -44,6 +44,10 @@ export default function POSTerminal() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
+  const [userQrCode, setUserQrCode] = useState<string | null>(null);
+  const [userShopName, setUserShopName] = useState<string>('KYROZ POS');
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
 
   // Management Form State
   const [showAddModal, setShowAddModal] = useState(false);
@@ -64,6 +68,8 @@ export default function POSTerminal() {
       });
       const data = await res.json();
       setUserRole(data.role);
+      if (data.paymentQrCode) setUserQrCode(data.paymentQrCode);
+      if (data.shopName) setUserShopName(data.shopName);
     } catch (err) {
       console.error('Failed to fetch user', err);
     }
@@ -220,6 +226,13 @@ export default function POSTerminal() {
 
   const handleCheckout = async () => {
     if (cart.length === 0) return;
+
+    if (userQrCode && !showQrModal) {
+      setShowQrModal(true);
+      return;
+    }
+
+    setIsProcessingCheckout(true);
     const token = localStorage.getItem('token');
     try {
       const res = await fetch(`${API_URL}/api/orders/checkout`, {
@@ -237,13 +250,21 @@ export default function POSTerminal() {
       });
       
       if (res.ok) {
-        alert('Order processed successfully! Inventory updated.');
-        setCart([]);
+        setShowQrModal(false);
+        // Trigger printing before clearing the cart
+        setTimeout(() => {
+          window.print();
+          setCart([]);
+          setIsMobileCartOpen(false);
+          setIsProcessingCheckout(false);
+        }, 300);
       } else {
         alert('Failed to process order.');
+        setIsProcessingCheckout(false);
       }
     } catch (err) {
       console.error('Checkout error', err);
+      setIsProcessingCheckout(false);
     }
   };
 
@@ -493,6 +514,89 @@ export default function POSTerminal() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* QR PAYMENT MODAL */}
+      <AnimatePresence>
+        {showQrModal && userQrCode && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-white/10 rounded-[2.5rem] p-8 w-full max-w-sm flex flex-col items-center">
+              <h3 className="text-xl font-black uppercase tracking-tighter mb-2">Scan to Pay</h3>
+              <p className="text-sm text-white/60 mb-6 text-center">Amount Due: <span className="text-gold font-black text-xl">₹{Math.round(total * 1.05)}</span></p>
+              
+              <div className="bg-white p-4 rounded-3xl mb-8 w-64 h-64 flex items-center justify-center">
+                <img src={userQrCode} alt="Payment QR" className="w-full h-full object-contain" />
+              </div>
+
+              <div className="flex w-full gap-4">
+                <button 
+                  onClick={() => setShowQrModal(false)}
+                  className="flex-1 py-4 bg-white/5 text-white font-black uppercase rounded-xl border border-white/10 hover:bg-white/10"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleCheckout}
+                  disabled={isProcessingCheckout}
+                  className="flex-[2] py-4 bg-green-500 text-white font-black uppercase rounded-xl shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {isProcessingCheckout ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle size={18} />}
+                  Payment Received
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* PRINT RECEIPT (Hidden on screen, visible on print) */}
+      <div className="hidden print:block print:absolute print:inset-0 print:bg-white print:text-black print:p-8 z-[200]">
+        <div className="max-w-[80mm] mx-auto font-mono text-sm">
+          <div className="text-center mb-6">
+            <h1 className="text-2xl font-black mb-1">{userShopName}</h1>
+            <p className="text-xs">Receipt / Bill</p>
+            <p className="text-xs">{new Date().toLocaleString()}</p>
+          </div>
+          
+          <div className="border-t border-b border-black py-2 mb-4">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-left border-b border-black">
+                  <th className="pb-1">Item</th>
+                  <th className="pb-1 text-center">Qty</th>
+                  <th className="pb-1 text-right">Amt</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cart.map((item, idx) => (
+                  <tr key={idx}>
+                    <td className="py-1 pr-2 truncate max-w-[40mm]">{item.dish.name}</td>
+                    <td className="py-1 text-center">{item.quantity}</td>
+                    <td className="py-1 text-right">₹{item.dish.price * item.quantity}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="flex justify-between text-xs mb-1">
+            <span>Subtotal:</span>
+            <span>₹{total}</span>
+          </div>
+          <div className="flex justify-between text-xs mb-1">
+            <span>Taxes (5%):</span>
+            <span>₹{Math.round(total * 0.05)}</span>
+          </div>
+          <div className="flex justify-between text-sm font-black border-t border-black pt-2 mt-2">
+            <span>TOTAL:</span>
+            <span>₹{Math.round(total * 1.05)}</span>
+          </div>
+
+          <div className="text-center mt-8 text-xs">
+            <p>Thank you for visiting!</p>
+            <p>Powered by KYROZ</p>
+          </div>
+        </div>
+      </div>
 
     </div>
   );

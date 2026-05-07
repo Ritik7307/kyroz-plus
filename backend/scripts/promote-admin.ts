@@ -17,11 +17,11 @@ async function promote(email: string) {
         email,
         name: 'Super Admin',
         role: 'admin',
-        subscriptionPlan: 'Elite'
+        subscriptionPlan: 'Admin'
       });
     } else {
       user.role = 'admin';
-      user.subscriptionPlan = 'Elite';
+      user.subscriptionPlan = 'Admin';
     }
 
     await user.save();
