@@ -22,6 +22,7 @@ import { API_URL } from '@/lib/api';
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
+  const [packets, setPackets] = useState([]);
   const [stats, setStats] = useState<any>(null);
   const router = useRouter();
 
@@ -31,7 +32,6 @@ export default function AdminDashboard() {
       if (!token) { router.push('/login'); return; }
 
       try {
-        // Verify Admin Status
         const meRes = await fetch(`${API_URL}/api/auth/me`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -41,7 +41,6 @@ export default function AdminDashboard() {
           return;
         }
 
-        // Fetch Admin Data
         const statsRes = await fetch(`${API_URL}/api/admin/stats`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -51,6 +50,11 @@ export default function AdminDashboard() {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setUsers(await usersRes.json());
+
+        const packetsRes = await fetch(`${API_URL}/api/sop-packets`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        setPackets(await packetsRes.json());
       } catch (err) {
         console.error('Admin fetch error:', err);
       }
@@ -60,7 +64,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="font-sans">
-      <div className="space-y-8">
+      <div className="space-y-8 pb-20">
         
         {/* STATS OVERVIEW */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -117,7 +121,7 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody className="text-sm">
-                  {users.map((u: any, idx) => (
+                  {users.slice(0, 5).map((u: any, idx) => (
                     <tr key={idx} className="border-t border-white/5 hover:bg-white/[0.02] transition-colors group">
                       <td className="p-4 pl-6">
                         <div className="font-bold">{u.name}</div>
@@ -144,6 +148,55 @@ export default function AdminDashboard() {
               {users.length === 0 && (
                 <div className="p-12 text-center text-white/20 uppercase tracking-widest font-bold">No members found</div>
               )}
+            </div>
+
+            {/* SOP PACKETS PREVIEW SECTION */}
+            <div className="space-y-6 pt-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold flex items-center gap-2">
+                  <Package size={20} className="text-gold" /> Commercial SOP Packets
+                </h3>
+                <button 
+                  onClick={() => router.push('/admin/packets')}
+                  className="text-gold text-[10px] font-black uppercase tracking-widest flex items-center gap-1 hover:underline"
+                >
+                  View All Packets <ArrowUpRight size={14} />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {packets.slice(0, 4).map((packet: any) => (
+                  <motion.div 
+                    key={packet._id}
+                    className="bg-card glass-card rounded-2xl border border-white/5 p-4 flex gap-4 hover:border-gold/30 transition-all"
+                  >
+                    <div className="w-20 h-20 bg-white/5 rounded-xl overflow-hidden shrink-0">
+                      {packet.images?.[0] ? (
+                        <img src={packet.images[0]} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-white/10">
+                          <Package size={24} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col justify-between">
+                      <div>
+                        <h4 className="font-bold text-sm">{packet.name}</h4>
+                        <p className="text-[10px] text-white/40 line-clamp-1">{packet.description}</p>
+                      </div>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-gold font-black text-xs">₹{packet.price}</span>
+                        <span className="text-[8px] bg-white/5 px-2 py-0.5 rounded text-white/40 uppercase font-black">{packet.category}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+                {packets.length === 0 && (
+                  <div className="col-span-full p-8 text-center bg-white/5 rounded-2xl border border-dashed border-white/10 text-white/20 text-xs font-bold uppercase tracking-widest">
+                    No packets created yet
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

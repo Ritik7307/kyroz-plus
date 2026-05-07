@@ -13,6 +13,8 @@ import {
   ArrowDownRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { API_URL } from '@/lib/api';
+import CustomDropdown from '@/components/ui/CustomDropdown';
 
 interface Ingredient {
   id: string;

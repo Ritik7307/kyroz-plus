@@ -18,6 +18,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { API_URL } from '@/lib/api';
+import CustomDropdown from '@/components/ui/CustomDropdown';
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<any[]>([]);
@@ -181,20 +182,18 @@ export default function UserManagementPage() {
                         <Store size={14} className="text-white/20" /> {u.shopName || 'Not Specified'}
                       </div>
                     </td>
-                    <td className="p-6">
-                      <select 
+                    <td className="px-8 py-6">
+                      <CustomDropdown 
+                        options={[
+                          { label: 'User (View Only)', value: 'user' },
+                          { label: 'Cook (AI & Inventory)', value: 'cook' },
+                          { label: 'Bill Counter (POS Only)', value: 'billing' },
+                          { label: 'Manager (Full Access)', value: 'manager' },
+                          { label: 'Admin (Master)', value: 'admin' }
+                        ]}
                         value={u.role}
-                        onChange={(e) => handleRoleChange(u._id, e.target.value)}
-                        className={`bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:border-gold/50 transition-all ${
-                          u.role === 'admin' ? 'text-red-400 border-red-500/20' : 'text-gold'
-                        }`}
-                      >
-                        <option value="user">User</option>
-                        <option value="manager">Manager</option>
-                        <option value="cook">Cook</option>
-                        <option value="billing">Billing</option>
-                        <option value="admin">Admin</option>
-                      </select>
+                        onChange={(val) => handleRoleChange(u._id, val)}
+                      />
                     </td>
                     <td className="p-6">
                       <span className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest border ${

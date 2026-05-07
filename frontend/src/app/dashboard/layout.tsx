@@ -60,6 +60,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'POS Terminal', path: '/dashboard/pos' },
     { name: 'SOP Library', path: '/dashboard/sop' },
     { name: 'Inventory', path: '/dashboard/inventory' },
+    { name: 'SOP Packets', path: '/dashboard/packets' },
     { name: 'Sales History', path: '/dashboard/history' },
     { name: 'KOSA AI', path: '/dashboard/ai' },
     { name: 'Account', path: '/dashboard/account' },

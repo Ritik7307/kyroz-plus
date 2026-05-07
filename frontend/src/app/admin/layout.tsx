@@ -98,7 +98,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <ShieldCheck size={24} className="text-black" />
             </div>
             <div className="hidden sm:block">
-              <h1 className="font-black text-xl tracking-tighter leading-none">KYROZ</h1>
+              <h1 className="font-black text-xl tracking-tighter leading-none">KYROZ-PLUS</h1>
               <p className="text-gold font-black uppercase text-[9px] tracking-[0.3em] mt-1 opacity-60">Admin Central</p>
             </div>
           </div>

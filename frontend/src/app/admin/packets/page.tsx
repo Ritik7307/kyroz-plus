@@ -15,6 +15,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { API_URL } from '@/lib/api';
+import CustomDropdown from '@/components/ui/CustomDropdown';
 
 export default function SopPacketsPage() {
   const [packets, setPackets] = useState([]);
@@ -91,6 +92,11 @@ export default function SopPacketsPage() {
       ? `${API_URL}/api/sop-packets/${editingPacket._id}` 
       : `${API_URL}/api/sop-packets`;
 
+    const payload = {
+      ...formData,
+      price: Number(formData.price) || 0
+    };
+
     try {
       const res = await fetch(url, {
         method,
@@ -98,10 +104,7 @@ export default function SopPacketsPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}` 
         },
-        body: JSON.stringify({
-          ...formData,
-          price: Number(formData.price)
-        })
+        body: JSON.stringify(payload)
       });
 
       if (res.ok) {
@@ -109,9 +112,13 @@ export default function SopPacketsPage() {
         setEditingPacket(null);
         setFormData({ name: '', price: '', description: '', category: 'General', images: [] });
         fetchPackets();
+      } else {
+        const errData = await res.json();
+        alert(`Error: ${errData.error || 'Failed to save packet'}`);
       }
     } catch (err) {
-      console.error('Failed to save sop packet', err);
+      console.error('Failed to save sop packet:', err);
+      alert('Network error while saving packet.');
     }
   };
 
@@ -281,27 +288,27 @@ export default function SopPacketsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Category</label>
-                  <select 
+                  <CustomDropdown 
+                    label="Category"
+                    options={[
+                      { label: 'Bakery & Pastry', value: 'Bakery & Pastry' },
+                      { label: 'Beverages', value: 'Beverages' },
+                      { label: 'Continental', value: 'Continental' },
+                      { label: 'Fast Food', value: 'Fast Food' },
+                      { label: 'Indian Cuisine', value: 'Indian Cuisine' }
+                    ]}
                     value={formData.category}
-                    onChange={(e) => setFormData({...formData, category: e.target.value})}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all appearance-none"
-                  >
-                    <option value="General">General</option>
-                    <option value="Recipes">Recipes</option>
-                    <option value="Operations">Operations</option>
-                    <option value="Training">Training</option>
-                  </select>
+                    onChange={(val) => setFormData({...formData, category: val})}
+                  />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Description</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Description (Optional)</label>
                   <textarea 
                     value={formData.description}
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
                     rows={4}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all resize-none text-sm"
-                    required
                   />
                 </div>
 

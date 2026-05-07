@@ -28,14 +28,12 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Admin Password Bypass
+    // Admin/Staff Password Bypass
     const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
     const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
     if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
       let adminUser = await User.findOne({ email });
-      
-      // If user doesn't exist or isn't admin, force promote them
       if (!adminUser) {
         adminUser = new User({ email, role: 'admin', subscriptionPlan: 'Admin', name: 'Super Admin' });
         await adminUser.save();
@@ -46,12 +44,49 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
       }
 
       console.log(`[AUTH] Admin Password Login: ${email}`);
+      const parser = new UAParser(req.headers['user-agent']);
+      const deviceInfo = `${parser.getBrowser().name || 'Unknown'} on ${parser.getOS().name || 'Unknown'}`;
+      
+      const newSession = new Session({
+        userId: adminUser._id,
+        deviceInfo,
+        ipAddress: req.ip || 'Unknown',
+        lastActive: new Date()
+      });
+      await newSession.save();
+
+      const token = jwt.sign(
+        { userId: adminUser._id, role: adminUser.role, plan: adminUser.subscriptionPlan, sessionId: newSession._id }, 
+        JWT_SECRET, 
+        { expiresIn: '7d' }
+      );
+
+      res.status(200).json({ 
+        message: 'Admin login successful',
+        isDirectLogin: true,
+        token,
+        user: { 
+          id: adminUser._id, 
+          email: adminUser.email, 
+          name: adminUser.name, 
+          role: adminUser.role, 
+          plan: adminUser.subscriptionPlan 
+        } 
+      });
+      return;
+    }
+
+    // Regular Staff Password Login
+    if (password) {
+      const user = await User.findOne({ email });
+      if (user && user.password && await bcrypt.compare(password, user.password)) {
+        console.log(`[AUTH] Staff Password Login: ${email}`);
         
         const parser = new UAParser(req.headers['user-agent']);
         const deviceInfo = `${parser.getBrowser().name || 'Unknown'} on ${parser.getOS().name || 'Unknown'}`;
         
         const newSession = new Session({
-          userId: adminUser._id,
+          userId: user._id,
           deviceInfo,
           ipAddress: req.ip || 'Unknown',
           lastActive: new Date()
@@ -59,25 +94,27 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
         await newSession.save();
 
         const token = jwt.sign(
-          { userId: adminUser._id, role: adminUser.role, plan: adminUser.subscriptionPlan, sessionId: newSession._id }, 
+          { userId: user._id, role: user.role, plan: user.subscriptionPlan, sessionId: newSession._id }, 
           JWT_SECRET, 
           { expiresIn: '7d' }
         );
 
         res.status(200).json({ 
-          message: 'Admin login successful',
+          message: 'Login successful',
           isDirectLogin: true,
           token,
           user: { 
-            id: adminUser._id, 
-            email: adminUser.email, 
-            name: adminUser.name, 
-            role: adminUser.role, 
-            plan: adminUser.subscriptionPlan 
+            id: user._id, 
+            email: user.email, 
+            name: user.name, 
+            role: user.role, 
+            plan: user.subscriptionPlan,
+            shopName: user.shopName
           } 
         });
         return;
       }
+    }
 
     // Generate 6-digit OTP
     const plainOtp = Math.floor(100000 + Math.random() * 900000).toString();

@@ -31,6 +31,7 @@ import { API_URL } from '@/lib/api';
 export default function DashboardPage() {
   const [user, setUser] = React.useState<any>(null);
   const [sops, setSops] = React.useState<any[]>([]);
+  const [packets, setPackets] = React.useState<any[]>([]);
   const [dailyProfit, setDailyProfit] = React.useState<number>(0);
   const router = useRouter();
 
@@ -59,6 +60,12 @@ export default function DashboardPage() {
         });
         const sopData = await sopRes.json();
         setSops(sopData);
+
+        const packetsRes = await fetch(`${API_URL}/api/sop-packets`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const packetsData = await packetsRes.json();
+        setPackets(packetsData);
 
         // Fetch daily profit
         try {
@@ -257,38 +264,57 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Premix Store */}
+          {/* SOP Packets Store */}
           <div className="lg:col-span-9 space-y-6">
             <div className="flex items-center justify-between px-2">
-              <h3 className="text-white/40 text-[11px] font-black tracking-[0.4em] uppercase">My Premix Store</h3>
-              <div className="bg-red-500/10 border border-red-500/20 px-4 py-2 rounded-xl flex items-center gap-3">
-                <div className="w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
-                <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Stock Alert: LOW</span>
-              </div>
+              <h3 className="text-white/40 text-[11px] font-black tracking-[0.4em] uppercase flex items-center gap-2">
+                <Package size={16} className="text-gold" /> Premium SOP Packets
+              </h3>
+              <button 
+                onClick={() => router.push('/dashboard/packets')}
+                className="text-gold text-[10px] font-black uppercase tracking-widest flex items-center gap-2 group hover:underline"
+              >
+                VIEW FULL STORE <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+              </button>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                { name: "Makhni Premix Packet A", price: "999", color: "Red Logo", img: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=200" },
-                { name: "Royal White Premix Packet B", price: "889", color: "Green Logo", img: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=200" },
-                { name: "Royal White Premix Packet C", price: "1200", color: "Yellow Logo", img: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&q=80&w=200" },
-              ].map((product, idx) => (
-                <div key={idx} className="bg-card glass-card rounded-[2rem] overflow-hidden group border border-white/5 hover:border-gold/30 transition-all shadow-xl">
+              {packets.slice(0, 3).map((packet: any, idx) => (
+                <div key={idx} className="bg-card glass-card rounded-[2rem] overflow-hidden group border border-white/5 hover:border-gold/30 transition-all shadow-xl flex flex-col">
                   <div className="h-40 overflow-hidden relative bg-black">
-                    <img src={product.img} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-50" />
-                    <div className="absolute top-4 right-4 px-3 py-1 bg-black/60 backdrop-blur-md rounded-lg text-[9px] font-black text-gold uppercase tracking-widest border border-white/10">{product.color}</div>
+                    {packet.images?.[0] ? (
+                      <img src={packet.images[0]} alt={packet.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-60" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-white/5">
+                        <Package size={32} />
+                      </div>
+                    )}
+                    <div className="absolute top-4 right-4 px-3 py-1 bg-black/60 backdrop-blur-md rounded-lg text-[9px] font-black text-gold uppercase tracking-widest border border-white/10">{packet.category}</div>
                   </div>
-                  <div className="p-6 space-y-4">
-                    <h5 className="font-black text-xs h-8 flex items-center leading-tight text-white uppercase tracking-tight">{product.name}</h5>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xl font-black text-white">₹{product.price}</span>
-                      <button className="bg-white/5 hover:bg-gold hover:text-black transition-all px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/10">
-                        Order
+                  <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                    <div>
+                      <h5 className="font-black text-xs leading-tight text-white uppercase tracking-tight line-clamp-2">{packet.name}</h5>
+                      <p className="text-[10px] text-white/30 mt-2 line-clamp-2 font-medium">{packet.description || 'Professional commercial collection.'}</p>
+                    </div>
+                    <div className="flex items-center justify-between pt-4">
+                      <span className="text-xl font-black text-white flex items-center gap-1">
+                        <IndianRupee size={16} className="text-gold" />{packet.price}
+                      </span>
+                      <button 
+                        onClick={() => router.push('/dashboard/packets')}
+                        className="bg-white/5 hover:bg-gold hover:text-black transition-all px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/10"
+                      >
+                        Details
                       </button>
                     </div>
                   </div>
                 </div>
               ))}
+              {packets.length === 0 && (
+                <div className="col-span-full py-12 text-center bg-white/5 rounded-[2rem] border border-dashed border-white/10">
+                   <p className="text-white/20 font-bold uppercase tracking-widest text-xs">No Premium Packets available yet.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

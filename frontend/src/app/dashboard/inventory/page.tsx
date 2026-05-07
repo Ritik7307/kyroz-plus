@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_URL } from '@/lib/api';
+import CustomDropdown from '@/components/ui/CustomDropdown';
 
 interface InventoryItem {
   _id: string;
@@ -243,18 +244,13 @@ export default function InventoryPage() {
               
               <form onSubmit={handleUpdate} className="space-y-8">
                 <div>
-                  <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 mb-3 block">Food Item</label>
-                  <select 
-                    required
+                  <CustomDropdown 
+                    label="Food Item"
+                    options={dishes.map(d => ({ label: d.name, value: d._id }))}
                     value={formData.dishId}
-                    onChange={(e) => setFormData({...formData, dishId: e.target.value})}
-                    className="w-full bg-white/10 border border-white/10 rounded-2xl p-5 text-white font-bold focus:outline-none focus:border-gold"
-                  >
-                    <option value="" className="text-black">Choose item...</option>
-                    {dishes.map(d => (
-                      <option key={d._id} value={d._id} className="text-black">{d.name}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => setFormData({...formData, dishId: val})}
+                    placeholder="Choose item..."
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-6">

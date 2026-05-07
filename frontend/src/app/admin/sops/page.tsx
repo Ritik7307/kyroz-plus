@@ -13,6 +13,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { API_URL } from '@/lib/api';
+import CustomDropdown from '@/components/ui/CustomDropdown';
 
 export default function GlobalSopsPage() {
   const [sops, setSops] = useState([]);
@@ -194,17 +195,17 @@ export default function GlobalSopsPage() {
 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Category</label>
-                    <select 
+                    <CustomDropdown 
+                      label="Category"
+                      options={[
+                        { label: 'Dish', value: 'Dish' },
+                        { label: 'Gravy', value: 'Gravy' },
+                        { label: 'Process', value: 'Process' },
+                        { label: 'Rules', value: 'Rules' }
+                      ]}
                       value={formData.category}
-                      onChange={(e) => setFormData({...formData, category: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all appearance-none"
-                    >
-                      <option value="Dish">Dish</option>
-                      <option value="Gravy">Gravy</option>
-                      <option value="Process">Process</option>
-                      <option value="Rules">Rules</option>
-                    </select>
+                      onChange={(val) => setFormData({...formData, category: val})}
+                    />
                   </div>
                 </div>
 
