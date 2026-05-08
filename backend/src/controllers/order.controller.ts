@@ -1,13 +1,15 @@
+import mongoose from 'mongoose';
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import Inventory from '../models/Inventory';
 import Dish from '../models/Dish';
 import Order from '../models/Order';
+import Customer from '../models/Customer';
 import { sendLowStockAlert } from '../services/whatsapp.service';
 
 export const processCheckout = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { items } = req.body; // Array of { dishId, quantity }
+    const { items, customerName, customerPhone, discount, paymentMethod } = req.body; // Array of { dishId, quantity }
     
     if (!items || !Array.isArray(items)) {
       res.status(400).json({ error: 'Invalid items format' });
@@ -63,13 +65,30 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
     }
 
     if (orderItems.length > 0) {
+      // Apply discount to total revenue and profit (simplified)
+      const discountAmount = totalRevenue * ((discount || 0) / 100);
+      const discountedRevenue = totalRevenue - discountAmount;
+      
       const order = new Order({
         userId: req.user?.userId,
         items: orderItems,
-        totalRevenue,
-        totalProfit
+        totalRevenue: discountedRevenue,
+        totalProfit: totalProfit - discountAmount, // Profit reduces by discount amount
+        customerName,
+        customerPhone,
+        discount: discount || 0,
+        paymentMethod: paymentMethod || 'Cash'
       });
       await order.save();
+
+      // Manage customer for future offers
+      if (customerPhone && customerName) {
+        await Customer.findOneAndUpdate(
+          { userId: req.user?.userId, phone: customerPhone },
+          { name: customerName },
+          { upsert: true, new: true }
+        );
+      }
     }
 
     res.status(200).json({ 
@@ -113,5 +132,53 @@ export const getOrderHistory = async (req: AuthRequest, res: Response): Promise<
   } catch (error) {
     console.error('Order History Error:', error);
     res.status(500).json({ error: 'Failed to fetch order history' });
+  }
+};
+
+export const getSalesSummary = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.user?.userId);
+    const now = new Date();
+    
+    const startOfDay = new Date(new Date(now).setHours(0, 0, 0, 0));
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+    const [daily, monthly, yearly] = await Promise.all([
+      Order.aggregate([
+        { $match: { userId, createdAt: { $gte: startOfDay } } },
+        { $group: { _id: null, revenue: { $sum: "$totalRevenue" }, profit: { $sum: "$totalProfit" }, count: { $sum: 1 } } }
+      ]),
+      Order.aggregate([
+        { $match: { userId, createdAt: { $gte: startOfMonth } } },
+        { $group: { _id: null, revenue: { $sum: "$totalRevenue" }, profit: { $sum: "$totalProfit" }, count: { $sum: 1 } } }
+      ]),
+      Order.aggregate([
+        { $match: { userId, createdAt: { $gte: startOfYear } } },
+        { $group: { _id: null, revenue: { $sum: "$totalRevenue" }, profit: { $sum: "$totalProfit" }, count: { $sum: 1 } } }
+      ])
+    ]);
+
+    // Top selling items (overall)
+    const topItems = await Order.aggregate([
+      { $match: { userId } },
+      { $unwind: "$items" },
+      { $group: { _id: "$items.dishId", totalQuantity: { $sum: "$items.quantity" } } },
+      { $sort: { totalQuantity: -1 } },
+      { $limit: 5 },
+      { $lookup: { from: 'dishes', localField: '_id', foreignField: '_id', as: 'dish' } },
+      { $unwind: "$dish" },
+      { $project: { name: "$dish.name", totalQuantity: 1 } }
+    ]);
+
+    res.status(200).json({
+      daily: daily[0] || { revenue: 0, profit: 0, count: 0 },
+      monthly: monthly[0] || { revenue: 0, profit: 0, count: 0 },
+      yearly: yearly[0] || { revenue: 0, profit: 0, count: 0 },
+      topItems
+    });
+  } catch (error) {
+    console.error('Sales Summary Error:', error);
+    res.status(500).json({ error: 'Failed to fetch sales summary' });
   }
 };

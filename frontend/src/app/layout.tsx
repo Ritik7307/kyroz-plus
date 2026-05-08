@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   description: "Standardize your kitchen, control food costs, and scale your restaurant with KYROZ KOSA AI.",
 };
 
+import { CartProvider } from "@/context/CartContext";
+import FloatingCart from "@/components/ui/FloatingCart";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -23,7 +26,12 @@ export default function RootLayout({
       className={`${inter.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>{children}</body>
+      <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
+        <CartProvider>
+          {children}
+          <FloatingCart />
+        </CartProvider>
+      </body>
     </html>
   );
 }

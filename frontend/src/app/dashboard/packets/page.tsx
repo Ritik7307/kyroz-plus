@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { API_URL } from '@/lib/api';
 import CustomDropdown from '@/components/ui/CustomDropdown';
+import { useCart } from '@/context/CartContext';
 
 export default function UserSopPacketsPage() {
   const [packets, setPackets] = useState<any[]>([]);
@@ -23,6 +24,7 @@ export default function UserSopPacketsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const router = useRouter();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     fetchPackets();
@@ -144,8 +146,11 @@ export default function UserSopPacketsPage() {
                       {packet.price}
                     </div>
                   </div>
-                  <button className="bg-gold-gradient text-black font-black px-8 py-3.5 rounded-2xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(212,175,55,0.2)]">
-                    <ShoppingCart size={18} /> BUY NOW
+                  <button 
+                    onClick={() => addToCart(packet)}
+                    className="bg-gold-gradient text-black font-black px-8 py-3.5 rounded-2xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(212,175,55,0.2)]"
+                  >
+                    <ShoppingCart size={18} /> ADD TO CART
                   </button>
                 </div>
               </div>

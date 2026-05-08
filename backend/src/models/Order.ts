@@ -12,6 +12,10 @@ export interface IOrder extends Document {
   items: IOrderItem[];
   totalRevenue: number;
   totalProfit: number;
+  customerName?: string;
+  customerPhone?: string;
+  discount?: number; // percentage
+  paymentMethod?: 'Cash' | 'Online';
   createdAt: Date;
 }
 
@@ -27,6 +31,10 @@ const OrderSchema: Schema = new Schema({
   items: { type: [OrderItemSchema], required: true },
   totalRevenue: { type: Number, required: true },
   totalProfit: { type: Number, required: true },
+  customerName: { type: String },
+  customerPhone: { type: String },
+  discount: { type: Number, default: 0 },
+  paymentMethod: { type: String, enum: ['Cash', 'Online'], default: 'Cash' },
   createdAt: { type: Date, default: Date.now }
 });
 

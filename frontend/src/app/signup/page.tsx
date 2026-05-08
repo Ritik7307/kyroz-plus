@@ -14,6 +14,7 @@ export default function SignupPage() {
   const [shopName, setShopName] = useState('');
   const [shopAddress, setShopAddress] = useState('');
   const [gstNumber, setGstNumber] = useState('');
+  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   
@@ -29,7 +30,7 @@ export default function SignupPage() {
       const res = await fetch(`${API_URL}/api/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name, shopName, shopAddress, gstNumber }),
+        body: JSON.stringify({ email, name, phone, shopName, shopAddress, gstNumber }),
       });
 
       const data = await res.json();
@@ -101,6 +102,18 @@ export default function SignupPage() {
                 onChange={(e) => setName(e.target.value)}
                 className="w-full px-4 py-3 bg-black border border-[#333333] rounded-lg focus:outline-none focus:border-[#d4af37] text-white transition-colors"
                 placeholder="John Doe"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Contact No.</label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full px-4 py-3 bg-black border border-[#333333] rounded-lg focus:outline-none focus:border-[#d4af37] text-white transition-colors"
+                placeholder="+91 99999 99999"
                 required
               />
             </div>

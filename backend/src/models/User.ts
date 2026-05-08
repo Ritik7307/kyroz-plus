@@ -7,6 +7,8 @@ export interface IUser extends Document {
   shopName?: string;
   shopAddress?: string;
   gstNumber?: string;
+  gstPercentage?: number;
+  phone?: string;
   role: 'admin' | 'manager' | 'cook' | 'billing' | 'user';
   subscriptionPlan: 'Basic' | 'Pro' | 'Elite' | 'Admin';
   ownerId?: mongoose.Types.ObjectId; // Links staff to their Manager
@@ -22,9 +24,11 @@ const UserSchema: Schema = new Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String },
     name: { type: String },
+    phone: { type: String },
     shopName: { type: String },
     shopAddress: { type: String },
     gstNumber: { type: String },
+    gstPercentage: { type: Number, default: 5 },
     role: { type: String, enum: ['admin', 'manager', 'cook', 'billing', 'user'], default: 'user' },
     subscriptionPlan: { type: String, enum: ['Basic', 'Pro', 'Elite', 'Admin'], default: 'Basic' },
     ownerId: { type: Schema.Types.ObjectId, ref: 'User' },

@@ -21,7 +21,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendOtp = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password, name, shopName, shopAddress, gstNumber } = req.body;
+    const { email, password, name, phone, shopName, shopAddress, gstNumber } = req.body;
 
     if (!email) {
       res.status(400).json({ error: 'Email is required' });
@@ -130,6 +130,7 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
           otpHash, 
           otpExpiresAt,
           ...(name && { name }),
+          ...(phone && { phone }),
           ...(shopName && { shopName }),
           ...(shopAddress && { shopAddress }),
           ...(gstNumber && { gstNumber })
@@ -278,7 +279,7 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
 
 export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, shopName, shopAddress, gstNumber, paymentQrCode } = req.body;
+    const { name, phone, shopName, shopAddress, gstNumber, gstPercentage, paymentQrCode } = req.body;
     
     const user = await User.findById(req.user?.userId);
     if (!user) {
@@ -287,9 +288,11 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
     }
 
     if (name) user.name = name;
+    if (phone) user.phone = phone;
     if (shopName) user.shopName = shopName;
     if (shopAddress) user.shopAddress = shopAddress;
     if (gstNumber) user.gstNumber = gstNumber;
+    if (gstPercentage !== undefined) user.gstPercentage = gstPercentage;
     if (paymentQrCode !== undefined) user.paymentQrCode = paymentQrCode;
 
     await user.save();

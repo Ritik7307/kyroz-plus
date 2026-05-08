@@ -48,6 +48,7 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user' }: Sideba
           { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
           { name: 'POS Terminal', icon: Calculator, path: '/dashboard/pos' },
           { name: 'Staff Management', icon: Users, path: '/dashboard/staff' },
+          { name: 'SOP Packets', icon: Utensils, path: '/dashboard/packets' },
           { name: 'Sales History', icon: Calculator, path: '/dashboard/history' },
           { name: 'KOSA AI', icon: MessageSquare, path: '/dashboard/ai' },
           { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
@@ -60,6 +61,7 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user' }: Sideba
       case 'cook':
         return [
           { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+          { name: 'SOP Packets', icon: Utensils, path: '/dashboard/packets' },
           { name: 'KOSA AI', icon: MessageSquare, path: '/dashboard/ai' },
           { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
           { name: 'Inventory', icon: Utensils, path: '/dashboard/inventory' },
@@ -70,12 +72,14 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user' }: Sideba
         return [
           { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
           { name: 'POS Terminal', icon: Calculator, path: '/dashboard/pos' },
+          { name: 'SOP Packets', icon: Utensils, path: '/dashboard/packets' },
           { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
           { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
         ];
       default:
         return [
           { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+          { name: 'SOP Packets', icon: Utensils, path: '/dashboard/packets' },
           { name: 'KOSA AI', icon: MessageSquare, path: '/dashboard/ai' },
           { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
           { name: 'Sales History', icon: Calculator, path: '/dashboard/history' },

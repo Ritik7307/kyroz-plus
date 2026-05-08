@@ -17,8 +17,10 @@ import { API_URL } from '@/lib/api';
 export default function HistoryPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<any[]>([]);
+  const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'daily' | 'monthly' | 'yearly'>('daily');
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -29,15 +31,22 @@ export default function HistoryPage() {
       }
 
       try {
-        const res = await fetch(`${API_URL}/api/orders/history`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
+        const [historyRes, summaryRes] = await Promise.all([
+          fetch(`${API_URL}/api/orders/history`, { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch(`${API_URL}/api/orders/summary`, { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+
+        if (historyRes.ok) {
+          const data = await historyRes.json();
           setOrders(data);
         }
+
+        if (summaryRes.ok) {
+          const summaryData = await summaryRes.json();
+          setSummary(summaryData);
+        }
       } catch (err) {
-        console.error('Failed to fetch history', err);
+        console.error('Failed to fetch data', err);
       } finally {
         setLoading(false);
       }
@@ -71,9 +80,78 @@ export default function HistoryPage() {
     <div className="space-y-12 pb-24 max-w-[1200px] mx-auto relative">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black uppercase tracking-tighter text-white">Sales History</h1>
-          <p className="text-gold font-bold text-[10px] uppercase tracking-[0.2em] mt-2">Daily Revenue & Profit Ledger</p>
+          <h1 className="text-4xl font-black uppercase tracking-tighter text-white">Sales Analysis</h1>
+          <p className="text-gold font-bold text-[10px] uppercase tracking-[0.2em] mt-2">Daily, Monthly & Annual Growth Ledger</p>
         </div>
+      </div>
+
+      {/* Summary Cards */}
+      {!loading && summary && (
+        <div className="space-y-8">
+          <div className="flex gap-4 p-1 bg-white/5 rounded-2xl w-fit">
+            {(['daily', 'monthly', 'yearly'] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                  activeTab === tab ? 'bg-gold text-black shadow-lg shadow-gold/20' : 'text-white/40 hover:text-white'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 space-y-4">
+              <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Total Revenue</p>
+              <h3 className="text-3xl font-black text-white">{formatCurrency(summary[activeTab].revenue)}</h3>
+              <div className="flex items-center gap-2 text-[10px] font-bold text-green-500 uppercase tracking-widest">
+                <TrendingUp size={14} /> Tracking Growth
+              </div>
+            </div>
+            <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 space-y-4">
+              <p className="text-[10px] font-black text-gold/60 uppercase tracking-[0.2em]">Net Profit</p>
+              <h3 className="text-3xl font-black text-gold">{formatCurrency(summary[activeTab].profit)}</h3>
+              <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Margin: {summary[activeTab].revenue > 0 ? ((summary[activeTab].profit / summary[activeTab].revenue) * 100).toFixed(1) : 0}%</p>
+            </div>
+            <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 space-y-4">
+              <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Order Count</p>
+              <h3 className="text-3xl font-black text-white">{summary[activeTab].count}</h3>
+              <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Processed Transactions</p>
+            </div>
+          </div>
+
+          {/* Top Selling Items */}
+          <div className="bg-card glass-card p-8 rounded-[2.5rem] border border-white/5">
+            <div className="flex items-center gap-3 mb-8">
+              <TrendingUp className="text-gold" />
+              <h3 className="text-xl font-black uppercase tracking-tighter">Most Frequently Sold Items</h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+              {summary.topItems.map((item: any, idx: number) => (
+                <div key={idx} className="bg-black/40 p-6 rounded-2xl border border-white/5 flex flex-col items-center text-center gap-3">
+                  <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center text-gold font-black text-lg">
+                    {idx + 1}
+                  </div>
+                  <div>
+                    <p className="font-bold text-xs text-white uppercase tracking-wider line-clamp-1">{item.name}</p>
+                    <p className="text-[10px] font-black text-gold/60 uppercase tracking-widest mt-1">{item.totalQuantity} Sold</p>
+                  </div>
+                </div>
+              ))}
+              {summary.topItems.length === 0 && (
+                <p className="col-span-full text-center text-white/20 font-bold uppercase tracking-widest py-4">No data yet</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="pt-12 border-t border-white/5">
+        <h3 className="text-white/40 text-[11px] font-black tracking-[0.4em] uppercase mb-8 flex items-center gap-3">
+           <Receipt size={18} className="text-gold" /> Detailed Sales Ledger
+        </h3>
       </div>
 
       {loading ? (

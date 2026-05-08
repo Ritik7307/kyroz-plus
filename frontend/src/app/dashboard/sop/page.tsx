@@ -71,6 +71,8 @@ function SOPLibraryContent() {
     platesPerPacket: 10
   });
 
+  const [userRole, setUserRole] = useState<string>('');
+
   const searchParams = useSearchParams();
   
   const fetchSops = async () => {
@@ -78,6 +80,12 @@ function SOPLibraryContent() {
     setError(null);
     try {
       const token = localStorage.getItem('token');
+      const userRes = await fetch(`${API_URL}/api/auth/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const userData = await userRes.json();
+      setUserRole(userData.role);
+
       const res = await fetch(`${API_URL}/api/sops`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -178,9 +186,11 @@ function SOPLibraryContent() {
           <p className="text-white/60 text-sm md:text-lg max-w-xl font-medium leading-relaxed italic mx-auto lg:mx-0">"Consistency is the difference between a good kitchen and a great one."</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 relative z-10">
-          <button onClick={() => setIsModalOpen(true)} className="flex items-center justify-center gap-3 px-6 md:px-8 py-3.5 md:py-4 bg-gold text-black rounded-[1.2rem] md:rounded-[1.5rem] text-[10px] md:text-[11px] font-black uppercase tracking-widest hover:scale-[1.05] transition-all shadow-[0_20px_50px_rgba(212,175,55,0.2)]">
-            <Plus size={18} /> Add New SOP
-          </button>
+          {userRole === 'admin' && (
+            <button onClick={() => setIsModalOpen(true)} className="flex items-center justify-center gap-3 px-6 md:px-8 py-3.5 md:py-4 bg-gold text-black rounded-[1.2rem] md:rounded-[1.5rem] text-[10px] md:text-[11px] font-black uppercase tracking-widest hover:scale-[1.05] transition-all shadow-[0_20px_50px_rgba(212,175,55,0.2)]">
+              <Plus size={18} /> Add New SOP
+            </button>
+          )}
         </div>
       </header>
 

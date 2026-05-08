@@ -13,6 +13,7 @@ import {
   Bell,
   QrCode,
   Upload,
+  Phone,
   Loader2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -25,6 +26,8 @@ export default function AccountPage() {
   const [formData, setFormData] = useState({
     name: '',
     shopName: '',
+    phone: '',
+    gstPercentage: 5,
     paymentQrCode: ''
   });
   const [isUploading, setIsUploading] = useState(false);
@@ -44,6 +47,8 @@ export default function AccountPage() {
       setFormData({
         name: data.name || '',
         shopName: data.shopName || '',
+        phone: data.phone || '',
+        gstPercentage: data.gstPercentage || 5,
         paymentQrCode: data.paymentQrCode || ''
       });
     } catch (err) {
@@ -166,6 +171,28 @@ export default function AccountPage() {
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40">
+                    <Phone size={18} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Contact No.</p>
+                    <p className="text-sm font-medium">{user?.phone || 'Not Set'}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40">
+                    <Settings size={18} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Default GST</p>
+                    <p className="text-sm font-medium">{user?.gstPercentage || 5}%</p>
+                  </div>
+                </div>
+              </div>
+
               {user?.paymentQrCode && (
                 <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
                   <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40">
@@ -264,6 +291,26 @@ export default function AccountPage() {
                   type="text" 
                   value={formData.shopName}
                   onChange={(e) => setFormData({...formData, shopName: e.target.value})}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none transition-all"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Contact Number</label>
+                <input 
+                  type="tel" 
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none transition-all"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Default GST Rate (%)</label>
+                <input 
+                  type="number" 
+                  value={formData.gstPercentage}
+                  onChange={(e) => setFormData({...formData, gstPercentage: Number(e.target.value)})}
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold outline-none transition-all"
                 />
               </div>
