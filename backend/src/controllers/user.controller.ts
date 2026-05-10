@@ -37,12 +37,19 @@ export const getMyData = async (req: AuthRequest, res: Response): Promise<void> 
 
 export const addStaff = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { email, password, name, role } = req.body;
+    const { email, password, name, role, permissions } = req.body;
     const managerId = req.user?.userId;
 
     const manager = await User.findById(managerId);
     if (!manager) {
-      res.status(404).json({ error: 'Manager not found' });
+      res.status(404).json({ error: 'Owner not found' });
+      return;
+    }
+
+    // Enforce 3 slot limit (Manager, Cook, Biller)
+    const existingStaffCount = await User.countDocuments({ ownerId: managerId });
+    if (existingStaffCount >= 3) {
+      res.status(400).json({ error: 'Maximum limit of 3 staff slots reached.' });
       return;
     }
 
@@ -58,6 +65,7 @@ export const addStaff = async (req: AuthRequest, res: Response): Promise<void> =
       password: hashedPassword,
       name,
       role,
+      permissions: permissions || [],
       ownerId: managerId,
       shopName: manager.shopName,
       shopAddress: manager.shopAddress,
@@ -82,10 +90,10 @@ export const getStaff = async (req: AuthRequest, res: Response): Promise<void> =
   }
 };
 
-export const updateStaffRole = async (req: AuthRequest, res: Response): Promise<void> => {
+export const updateStaff = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { role } = req.body;
+    const { role, permissions, name, password } = req.body;
     const managerId = req.user?.userId;
 
     const staff = await User.findOne({ _id: id, ownerId: managerId });
@@ -94,11 +102,17 @@ export const updateStaffRole = async (req: AuthRequest, res: Response): Promise<
       return;
     }
 
-    staff.role = role;
+    if (role) staff.role = role;
+    if (permissions) staff.permissions = permissions;
+    if (name) staff.name = name;
+    if (password) {
+      staff.password = await bcrypt.hash(password, 10);
+    }
+
     await staff.save();
-    res.status(200).json({ message: 'Staff role updated', staff });
+    res.status(200).json({ message: 'Staff updated successfully', staff });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update staff role' });
+    res.status(500).json({ error: 'Failed to update staff' });
   }
 };
 

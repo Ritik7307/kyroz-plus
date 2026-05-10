@@ -77,23 +77,47 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
-  const navLinks = [
-    { name: 'Dashboard', path: '/dashboard' },
-    { name: 'POS Terminal', path: '/dashboard/pos' },
-    { name: 'SOP Library', path: '/dashboard/sop' },
-    { name: 'Inventory', path: '/dashboard/inventory' },
-    { name: 'SOP Packets', path: '/dashboard/packets' },
-    { name: 'Sales History', path: '/dashboard/history' },
-    { name: 'KOSA AI', path: '/dashboard/ai' },
-    { name: 'Account', path: '/dashboard/account' },
+  const allNavLinks = [
+    { name: 'Dashboard', path: '/dashboard', id: 'dashboard' },
+    { name: 'POS Terminal', path: '/dashboard/pos', id: 'pos' },
+    { name: 'SOP Library', path: '/dashboard/sop', id: 'sop' },
+    { name: 'Inventory', path: '/dashboard/inventory', id: 'inventory' },
+    { name: 'SOP Packets', path: '/dashboard/packets', id: 'packets' },
+    { name: 'Sales History', path: '/dashboard/history', id: 'history' },
+    { name: 'KOSA AI', path: '/dashboard/ai', id: 'ai' },
+    { name: 'Costing Master', path: '/dashboard/costing', id: 'costing' },
+    { name: 'Manage Team', path: '/dashboard/team', id: 'team', ownerOnly: true },
+    { name: 'Account', path: '/dashboard/account', id: 'account' },
   ];
+
+  const navLinks = allNavLinks.filter(link => {
+    // If Admin, show everything
+    if (user?.role === 'admin') return true;
+    
+    // If Owner (user), show everything except specifically restricted ones
+    if (user?.role === 'user') return true;
+
+    // If Staff, check permissions
+    if (link.ownerOnly) return false;
+    if (user?.permissions && user.permissions.length > 0) {
+      return user.permissions.includes(link.id);
+    }
+
+    // Default for staff with no explicit permissions (show basic)
+    return ['dashboard', 'account'].includes(link.id);
+  });
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col relative">
       <GlobalSearch isOpen={isSearchOpen} setIsOpen={setIsSearchOpen} />
       <ToastContainer toasts={toasts} removeToast={removeToast} />
 
-      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} userRole={user?.role || 'user'} />
+      <Sidebar 
+        isOpen={isSidebarOpen} 
+        setIsOpen={setIsSidebarOpen} 
+        userRole={user?.role || 'user'} 
+        permissions={user?.permissions || []}
+      />
 
       <header className="h-24 border-b border-white/5 bg-background/50 backdrop-blur-xl sticky top-0 z-50 px-4 md:px-8 flex items-center justify-between">
         {/* Left Section: Menu & Logo */}

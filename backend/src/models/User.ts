@@ -10,6 +10,7 @@ export interface IUser extends Document {
   gstPercentage?: number;
   phone?: string;
   role: 'admin' | 'manager' | 'cook' | 'billing' | 'user';
+  permissions: string[]; // List of accessible module IDs
   subscriptionPlan: 'Basic' | 'Pro' | 'Elite' | 'Admin';
   ownerId?: mongoose.Types.ObjectId; // Links staff to their Manager
   otpHash?: string;
@@ -30,6 +31,7 @@ const UserSchema: Schema = new Schema(
     gstNumber: { type: String },
     gstPercentage: { type: Number, default: 5 },
     role: { type: String, enum: ['admin', 'manager', 'cook', 'billing', 'user'], default: 'user' },
+    permissions: { type: [String], default: [] },
     subscriptionPlan: { type: String, enum: ['Basic', 'Pro', 'Elite', 'Admin'], default: 'Basic' },
     ownerId: { type: Schema.Types.ObjectId, ref: 'User' },
     otpHash: { type: String },

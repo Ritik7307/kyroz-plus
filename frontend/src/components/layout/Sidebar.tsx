@@ -22,9 +22,10 @@ interface SidebarProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   userRole?: 'admin' | 'manager' | 'cook' | 'billing' | 'user';
+  permissions?: string[];
 }
 
-export default function Sidebar({ isOpen, setIsOpen, userRole = 'user' }: SidebarProps) {
+export default function Sidebar({ isOpen, setIsOpen, userRole = 'user', permissions = [] }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -32,65 +33,42 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user' }: Sideba
     // If we are in the Admin section, show Admin menu
     if (pathname.startsWith('/admin')) {
       return [
-        { name: 'Admin Dashboard', icon: LayoutDashboard, path: '/admin/dashboard' },
-        { name: 'Member List', icon: Users, path: '/admin/users' },
-        { name: 'Global SOPs', icon: ChefHat, path: '/admin/sops' },
-        { name: 'Member View (Test)', icon: Utensils, path: '/dashboard' },
-        { name: 'System Settings', icon: Settings, path: '/admin/settings' },
+        { name: 'Admin Dashboard', icon: LayoutDashboard, path: '/admin/dashboard', id: 'admin' },
+        { name: 'Member List', icon: Users, path: '/admin/users', id: 'admin' },
+        { name: 'Global SOPs', icon: ChefHat, path: '/admin/sops', id: 'admin' },
+        { name: 'Member View (Test)', icon: Utensils, path: '/dashboard', id: 'admin' },
+        { name: 'System Settings', icon: Settings, path: '/admin/settings', id: 'admin' },
       ];
     }
 
-    // Otherwise, show Member menu based on role
-    switch (userRole) {
-      case 'admin':
-      case 'manager':
-        return [
-          { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-          { name: 'POS Terminal', icon: Calculator, path: '/dashboard/pos' },
-          { name: 'Staff Management', icon: Users, path: '/dashboard/staff' },
-          { name: 'SOP Packets', icon: Utensils, path: '/dashboard/packets' },
-          { name: 'Sales History', icon: Calculator, path: '/dashboard/history' },
-          { name: 'KOSA AI', icon: MessageSquare, path: '/dashboard/ai' },
-          { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
-          { name: 'Inventory', icon: Utensils, path: '/dashboard/inventory' },
-          { name: 'Gravy Master', icon: Utensils, path: '/dashboard/gravy' },
-          { name: 'Costing Master', icon: Calculator, path: '/dashboard/costing' },
-          { name: 'Wastage Master', icon: Trash2, path: '/dashboard/wastage' },
-          { name: 'Account', icon: Users, path: '/dashboard/account' },
-          { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
-        ];
-      case 'cook':
-        return [
-          { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-          { name: 'SOP Packets', icon: Utensils, path: '/dashboard/packets' },
-          { name: 'KOSA AI', icon: MessageSquare, path: '/dashboard/ai' },
-          { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
-          { name: 'Inventory', icon: Utensils, path: '/dashboard/inventory' },
-          { name: 'Wastage Master', icon: Trash2, path: '/dashboard/wastage' },
-          { name: 'Account', icon: Users, path: '/dashboard/account' },
-          { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
-        ];
-      case 'billing':
-        return [
-          { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-          { name: 'POS Terminal', icon: Calculator, path: '/dashboard/pos' },
-          { name: 'SOP Packets', icon: Utensils, path: '/dashboard/packets' },
-          { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
-          { name: 'Account', icon: Users, path: '/dashboard/account' },
-          { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
-        ];
-      default:
-        return [
-          { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-          { name: 'SOP Packets', icon: Utensils, path: '/dashboard/packets' },
-          { name: 'KOSA AI', icon: MessageSquare, path: '/dashboard/ai' },
-          { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
-          { name: 'Sales History', icon: Calculator, path: '/dashboard/history' },
-          { name: 'Membership', icon: Bell, path: '/dashboard/membership' },
-          { name: 'Account', icon: Users, path: '/dashboard/account' },
-          { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
-        ];
-    }
+    const allItems = [
+      { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard', id: 'dashboard' },
+      { name: 'POS Terminal', icon: Calculator, path: '/dashboard/pos', id: 'pos' },
+      { name: 'Manage Team', icon: Users, path: '/dashboard/team', id: 'team', ownerOnly: true },
+      { name: 'SOP Packets', icon: Utensils, path: '/dashboard/packets', id: 'packets' },
+      { name: 'Sales History', icon: Calculator, path: '/dashboard/history', id: 'history' },
+      { name: 'KOSA AI', icon: MessageSquare, path: '/dashboard/ai', id: 'ai' },
+      { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop', id: 'sop' },
+      { name: 'Inventory', icon: Utensils, path: '/dashboard/inventory', id: 'inventory' },
+      { name: 'Costing Master', icon: Calculator, path: '/dashboard/costing', id: 'costing' },
+      { name: 'Wastage Master', icon: Trash2, path: '/dashboard/wastage', id: 'wastage' },
+      { name: 'Account', icon: Users, path: '/dashboard/account', id: 'account' },
+      { name: 'Settings', icon: Settings, path: '/dashboard/settings', id: 'settings' },
+    ];
+
+    return allItems.filter(item => {
+      // Admin/Owner sees everything
+      if (userRole === 'admin' || userRole === 'user') return true;
+
+      // Staff (manager, cook, billing) check permissions
+      if (item.ownerOnly) return false;
+      if (permissions.length > 0) {
+        return permissions.includes(item.id);
+      }
+
+      // Fallback for staff with no permissions
+      return ['dashboard', 'account'].includes(item.id);
+    });
   };
 
   const menuItems = getMenuItems();
