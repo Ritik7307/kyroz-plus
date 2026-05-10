@@ -25,10 +25,10 @@ export const chatWithKosa = async (req: AuthRequest, res: Response): Promise<voi
     }
 
     // Call the newly created RAG Pipeline
-    const { lang } = req.body;
-    const reply = await generateRagResponse(userId, message, lang);
+    const { lang, history, context } = req.body;
+    const { reply, suggestions } = await generateRagResponse(userId, message, lang, history, context);
 
-    res.status(200).json({ reply });
+    res.status(200).json({ reply, suggestions });
   } catch (error: any) {
     console.error('Error in AI Chat:', error);
     res.status(500).json({ error: error.message || 'Failed to communicate with KYROZ KOSA.' });
@@ -108,14 +108,23 @@ export const getKosaStarters = async (req: AuthRequest, res: Response): Promise<
       return;
     }
 
+    const { lang } = req.query;
+
     // Get 3 random unique dish names
     const sops = await Sop.find({ userId }).select('title').limit(20);
     const shuffled = sops.sort(() => 0.5 - Math.random());
-    const starters = shuffled.slice(0, 3).map(s => `How to make ${s.title}?`);
+    const starters = shuffled.slice(0, 3).map(s => {
+      if (lang === 'hi') return `${s.title} कैसे बनाएं?`;
+      return `How to make ${s.title}?`;
+    });
     
     // Default fallback if no SOPs yet
     if (starters.length === 0) {
-      starters.push("How to reduce food waste?", "Tips for kitchen hygiene?", "Standard cooking procedures?");
+      if (lang === 'hi') {
+        starters.push("खाने की बर्बादी कैसे कम करें?", "किचन की सफाई के टिप्स?", "स्टैंडर्ड कुकिंग प्रोसेस क्या है?");
+      } else {
+        starters.push("How to reduce food waste?", "Tips for kitchen hygiene?", "Standard cooking procedures?");
+      }
     }
 
     res.status(200).json({ starters });

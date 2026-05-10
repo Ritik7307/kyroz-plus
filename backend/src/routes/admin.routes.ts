@@ -3,6 +3,7 @@ import { authenticateToken, isAdmin, AuthRequest } from '../middleware/auth.midd
 import { Response } from 'express';
 import User from '../models/User';
 import MasterSop from '../models/MasterSop';
+import Notification from '../models/Notification';
 
 const router = Router();
 
@@ -68,6 +69,27 @@ router.get('/stats', authenticateToken, isAdmin, async (req: AuthRequest, res: R
     });
   } catch (err) {
     res.status(500).json({ error: 'Server error fetching stats' });
+  }
+});
+
+// Push notification to all users (Admin only)
+router.post('/push-notification', authenticateToken, isAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { title, message, type } = req.body;
+    const users = await User.find({ role: { $ne: 'admin' } }); // Push to non-admins
+    
+    const notifications = users.map(user => ({
+      userId: user._id,
+      title,
+      message,
+      type: type || 'info',
+      category: 'admin'
+    }));
+
+    await Notification.insertMany(notifications);
+    res.json({ message: `Notification pushed to ${users.length} users` });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to push notifications' });
   }
 });
 

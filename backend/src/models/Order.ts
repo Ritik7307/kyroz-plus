@@ -38,4 +38,4 @@ const OrderSchema: Schema = new Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-export default mongoose.model<IOrder>('Order', OrderSchema);
+export default mongoose.models.Order || mongoose.model<IOrder>('Order', OrderSchema);

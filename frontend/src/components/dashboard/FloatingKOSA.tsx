@@ -1,7 +1,21 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageSquare, X, Minus, Send, Bot, User as UserIcon, Loader2, Sparkles } from 'lucide-react';
+import { 
+  MessageSquare, 
+  X, 
+  Minus, 
+  Send, 
+  Bot, 
+  User as UserIcon, 
+  Loader2, 
+  Sparkles, 
+  Mic, 
+  MicOff,
+  Volume2,
+  VolumeX,
+  ChevronRight
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_URL } from '@/lib/api';
 
@@ -13,29 +27,69 @@ interface Message {
 export default function FloatingKOSA() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Namaste! I am KOSA, your KYROZ AI assistant. How can I help you in the kitchen today?" }
+    { role: 'assistant', content: "Namaste! I am your SOP Assistant. How can I help you in the kitchen today?" }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const [starters, setStarters] = useState<string[]>([]);
   const [isMuted, setIsMuted] = useState(false);
   const [selectedLang, setSelectedLang] = useState<'en' | 'hi'>('en');
   const scrollRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     fetchStarters();
-  }, []);
+    setupSpeechRecognition();
+  }, [selectedLang]);
 
-  const fetchStarters = async () => {
+  const setupSpeechRecognition = () => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = selectedLang === 'hi' ? 'hi-IN' : 'en-IN';
+
+        recognition.onresult = (event: any) => {
+          const transcript = event.results[0][0].transcript;
+          setInput(transcript);
+          setIsRecording(false);
+        };
+
+        recognition.onerror = () => setIsRecording(false);
+        recognition.onend = () => setIsRecording(false);
+
+        recognitionRef.current = recognition;
+      }
+    }
+  };
+
+  const toggleRecording = () => {
+    if (!recognitionRef.current) {
+      alert("Voice recognition is not supported in this browser.");
+      return;
+    }
+
+    if (isRecording) {
+      recognitionRef.current.stop();
+    } else {
+      recognitionRef.current.start();
+      setIsRecording(true);
+    }
+  };
+
+  const fetchStarters = async (lang: string = selectedLang) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/api/ai/starters`, {
+      const res = await fetch(`${API_URL}/api/ai/starters?lang=${lang}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
       if (data.starters) setStarters(data.starters);
     } catch (e) {
-      console.error("Failed to fetch starters");
+      // Silent catch
     }
   };
 
@@ -48,106 +102,149 @@ export default function FloatingKOSA() {
   const playVoice = (text: string) => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      const cleanText = text.replace(/[*#]/g, '').replace(/\n/g, ' ');
-      const utterance = new SpeechSynthesisUtterance(cleanText);
       
-      const allVoices = window.speechSynthesis.getVoices();
-      let bestVoice = null;
-      
-      if (selectedLang === 'hi') {
-        bestVoice = allVoices.find(v => v.name.includes('Google हिन्दी')) || 
-                    allVoices.find(v => v.name.includes('Hemant')) ||
-                    allVoices.find(v => v.lang.includes('hi-IN'));
-      } else {
-        bestVoice = allVoices.find(v => v.name.includes('Google UK English Female')) || 
-                    allVoices.find(v => v.name.includes('Aria')) ||
-                    allVoices.find(v => v.name.includes('Female'));
-      }
+      const containsHindi = /[\u0900-\u097F]/.test(text);
+      const targetLang = containsHindi ? 'hi' : 'en';
 
-      if (bestVoice) utterance.voice = bestVoice;
-      utterance.lang = selectedLang === 'hi' ? 'hi-IN' : 'en-GB';
-      utterance.rate = 0.95;
-      utterance.pitch = 1.05;
-      window.speechSynthesis.speak(utterance);
+      const utterance = new SpeechSynthesisUtterance(text.replace(/[*#]/g, ''));
+      
+      const setVoice = () => {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length === 0) return;
+
+        let bestVoice = null;
+        if (targetLang === 'hi') {
+          // Comprehensive Hindi Voice Priority (Cross-Platform)
+          bestVoice = 
+            voices.find(v => v.name.includes('Google हिन्दी')) ||
+            voices.find(v => v.name.includes('Microsoft Hemant') || v.name.includes('Microsoft Kalpana')) ||
+            voices.find(v => v.name.includes('Rishi') || v.name.includes('Lekha')) ||
+            voices.find(v => v.name.includes('Natural') && v.lang.startsWith('hi')) ||
+            voices.find(v => v.lang === 'hi-IN' || v.lang.startsWith('hi')) ||
+            voices.find(v => v.name.toLowerCase().includes('hindi'));
+        } else {
+          // Comprehensive English India Voice Priority
+          bestVoice = 
+            voices.find(v => v.lang === 'en-IN' && v.name.includes('Google')) ||
+            voices.find(v => v.name.includes('Microsoft Ravi') || v.name.includes('Microsoft Heera')) ||
+            voices.find(v => v.name.includes('Isha') || v.name.includes('Veena')) ||
+            voices.find(v => v.name.includes('Natural') && v.lang.startsWith('en')) ||
+            voices.find(v => v.lang === 'en-IN') ||
+            voices.find(v => v.lang.startsWith('en'));
+        }
+
+        if (bestVoice) {
+          utterance.voice = bestVoice;
+          utterance.lang = bestVoice.lang;
+        } else {
+          utterance.lang = targetLang === 'hi' ? 'hi-IN' : 'en-IN';
+        }
+
+        utterance.rate = 0.90; // Clarity prosody
+        utterance.pitch = 1.0;
+        window.speechSynthesis.speak(utterance);
+      };
+
+      if (window.speechSynthesis.getVoices().length === 0) {
+        window.speechSynthesis.onvoiceschanged = setVoice;
+      } else {
+        setVoice();
+      }
     }
   };
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+  const handleSend = async (textOverride?: string) => {
+    const userMessage = textOverride || input.trim();
+    if (!userMessage || isLoading) return;
 
-    const userMessage = input.trim();
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
 
     try {
       const token = localStorage.getItem('token');
+      const isInputHindi = /[\u0900-\u097F]/.test(userMessage);
+
       const response = await fetch(`${API_URL}/api/ai/chat`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ message: userMessage, lang: selectedLang })
+        body: JSON.stringify({ 
+          message: userMessage, 
+          lang: isInputHindi ? 'hi' : selectedLang,
+          history: messages.slice(-6),
+          context: window.location.pathname 
+        })
       });
 
       const data = await response.json();
-      const reply = data.reply || data.response;
+      const reply = data.reply || "I am sorry, I couldn't process that.";
       setMessages(prev => [...prev, { role: 'assistant', content: reply }]);
+      if (data.suggestions && data.suggestions.length > 0) {
+        setStarters(data.suggestions);
+      }
       if (!isMuted) playVoice(reply);
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'assistant', content: "Maaf kijiye, connection error ho gaya. Please try again." }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: "There was a connection issue. Please try again." }]);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="fixed bottom-8 right-8 z-[100]">
+    <div className="fixed bottom-8 right-8 z-[100] no-print">
       <AnimatePresence>
         {isOpen ? (
           <motion.div 
-            initial={{ opacity: 0, y: 100, scale: 0.9, transformOrigin: 'bottom right' }}
+            initial={{ opacity: 0, y: 50, scale: 0.95, transformOrigin: 'bottom right' }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 100, scale: 0.9 }}
-            className="w-[400px] h-[600px] bg-card glass-card rounded-2xl shadow-2xl flex flex-col border border-gold/30 overflow-hidden"
+            exit={{ opacity: 0, y: 50, scale: 0.95 }}
+            className="w-[380px] h-[580px] bg-[#111111] rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col border border-white/10 overflow-hidden"
           >
             {/* Header */}
-            <div className="p-4 bg-gold-gradient flex items-center justify-between">
+            <div className="p-5 bg-[#1a1a1a] border-b border-white/5 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-                  <Bot size={18} className="text-gold" />
+                <div className="w-10 h-10 bg-gold-gradient rounded-xl flex items-center justify-center shadow-lg">
+                  <Bot size={20} className="text-black" />
                 </div>
-                <span className="font-bold text-black text-sm tracking-widest uppercase">KOSA AI Assistant</span>
+                <div>
+                  <span className="block font-black text-white text-[10px] tracking-[0.2em] uppercase">SOP Assistant</span>
+                  <span className="flex items-center gap-1.5 text-green-500 text-[8px] font-bold uppercase tracking-widest mt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                    Online & Ready
+                  </span>
+                </div>
               </div>
-              <div className="flex gap-1">
-                <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-black/10 rounded transition-colors text-black">
-                  <Minus size={20} />
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setIsMuted(!isMuted)} 
+                  className={`p-2 rounded-lg transition-all ${isMuted ? 'text-white/20 bg-white/5' : 'text-gold bg-gold/10'}`}
+                >
+                  {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
                 </button>
-                <button onClick={() => setIsMuted(!isMuted)} className="p-1 hover:bg-black/10 rounded transition-colors text-black">
-                  {isMuted ? '🔇' : '🔊'}
-                </button>
-                <div className="flex bg-black/20 rounded-md p-0.5 border border-black/10 ml-1">
-                  <button onClick={() => setSelectedLang('en')} className={`px-2 py-0.5 text-[10px] font-bold rounded ${selectedLang === 'en' ? 'bg-black text-gold' : 'text-black/60'}`}>EN</button>
-                  <button onClick={() => setSelectedLang('hi')} className={`px-2 py-0.5 text-[10px] font-bold rounded ${selectedLang === 'hi' ? 'bg-black text-gold' : 'text-black/60'}`}>हि</button>
+                <div className="flex bg-black rounded-lg p-1 border border-white/5">
+                  <button onClick={() => setSelectedLang('en')} className={`px-2 py-1 text-[8px] font-black rounded-md transition-all ${selectedLang === 'en' ? 'bg-gold text-black' : 'text-white/30'}`}>EN</button>
+                  <button onClick={() => setSelectedLang('hi')} className={`px-2 py-1 text-[8px] font-black rounded-md transition-all ${selectedLang === 'hi' ? 'bg-gold text-black' : 'text-white/30'}`}>हि</button>
                 </div>
-                <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-black/10 rounded transition-colors text-black">
+                <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-white/5 rounded-lg transition-all text-white/40 hover:text-white">
                   <X size={20} />
                 </button>
               </div>
             </div>
 
-            {/* Messages */}
-            <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-black/20">
+            {/* Messages Area */}
+            <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar bg-black/40">
               {messages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] p-3 rounded-2xl flex gap-3 ${
+                  <div className={`max-w-[85%] p-4 rounded-2xl flex gap-3 ${
                     msg.role === 'user' 
-                    ? 'bg-gold text-black rounded-tr-none' 
-                    : 'bg-white/5 border border-white/10 text-white rounded-tl-none'
+                    ? 'bg-gold text-black rounded-tr-none font-bold' 
+                    : 'bg-[#1a1a1a] border border-white/5 text-gray-200 rounded-tl-none'
                   }`}>
                     {msg.role === 'assistant' && <Sparkles size={16} className="text-gold shrink-0 mt-1" />}
-                    <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                    <div className="text-xs whitespace-pre-wrap leading-relaxed">
                       {msg.content}
                     </div>
                   </div>
@@ -155,63 +252,72 @@ export default function FloatingKOSA() {
               ))}
               {isLoading && (
                 <div className="flex justify-start">
-                  <div className="bg-white/5 border border-white/10 p-3 rounded-2xl rounded-tl-none flex items-center gap-2">
+                  <div className="bg-[#1a1a1a] border border-white/5 p-4 rounded-2xl rounded-tl-none flex items-center gap-3">
                     <Loader2 size={16} className="text-gold animate-spin" />
-                    <span className="text-xs text-white/60 font-medium">KOSA is thinking...</span>
+                    <span className="text-[10px] text-white/40 font-black uppercase tracking-widest">KOSA is thinking...</span>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Suggested Questions */}
+            {/* Suggestions */}
             {messages.length < 3 && starters.length > 0 && (
-              <div className="px-4 py-2 flex flex-wrap gap-2 bg-black/20">
+              <div className="px-5 py-3 flex flex-wrap gap-2 bg-[#1a1a1a]/50 border-t border-white/5">
                 {starters.map((s, i) => (
                   <button
                     key={i}
-                    onClick={() => { setInput(s); setTimeout(handleSend, 100); }}
-                    className="px-2 py-1 bg-gold/10 border border-gold/30 text-gold text-[10px] rounded-full hover:bg-gold/20 transition-all"
+                    onClick={() => handleSend(s)}
+                    className="px-3 py-1.5 bg-gold/5 border border-gold/20 text-gold text-[9px] font-bold rounded-full hover:bg-gold/10 transition-all flex items-center gap-1.5"
                   >
-                    {s}
+                    {s} <ChevronRight size={10} />
                   </button>
                 ))}
               </div>
             )}
 
-            {/* Input */}
-            <div className="p-4 bg-black/40 border-t border-white/5">
-              <div className="relative">
+            {/* Input Area */}
+            <div className="p-5 bg-[#1a1a1a] border-t border-white/5">
+              <div className="flex items-center gap-3 bg-black rounded-2xl p-2 border border-white/5">
+                <button 
+                  onClick={toggleRecording}
+                  className={`p-2.5 rounded-xl transition-all ${isRecording ? 'bg-red-500 text-white animate-pulse' : 'bg-white/5 text-white/40 hover:text-gold'}`}
+                >
+                  {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
+                </button>
                 <input 
                   type="text" 
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                  placeholder="Type your kitchen query..."
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 pr-12 focus:outline-none focus:border-gold/50 transition-all text-sm text-white placeholder:text-white/20"
+                  placeholder={isRecording ? "Listening..." : "How do I make..."}
+                  className="flex-1 bg-transparent border-none outline-none py-2 text-xs text-white placeholder:text-white/20"
                 />
                 <button 
-                  onClick={handleSend}
-                  disabled={isLoading}
-                  className="absolute right-2 top-2 p-1.5 bg-gold-gradient rounded-lg text-black hover:scale-110 active:scale-95 transition-all disabled:opacity-50"
+                  onClick={() => handleSend()}
+                  disabled={isLoading || !input.trim()}
+                  className="p-2.5 bg-gold rounded-xl text-black disabled:opacity-30 hover:scale-105 active:scale-95 transition-all"
                 >
                   <Send size={18} />
                 </button>
               </div>
-              <p className="text-[10px] text-center text-white/30 mt-2 uppercase tracking-tighter">Powered by KYROZ Advanced RAG Engine</p>
+              <p className="text-[8px] text-center text-white/20 mt-3 font-black uppercase tracking-[0.3em]">Advanced SOP Intelligence</p>
             </div>
           </motion.div>
         ) : (
           <motion.button 
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(true)}
-            className="w-16 h-16 bg-gold-gradient rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(212,175,55,0.4)] relative group"
+            className="w-16 h-16 bg-gold-gradient rounded-2xl flex items-center justify-center shadow-[0_20px_40px_rgba(212,175,55,0.3)] relative group border border-white/10"
           >
-            <div className="absolute -top-12 right-0 bg-white text-black px-4 py-2 rounded-xl text-xs font-bold opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap shadow-2xl translate-y-2 group-hover:translate-y-0">
-              Need help? Ask KOSA
+            <div className="absolute -top-14 right-0 bg-white text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all shadow-2xl pointer-events-none translate-y-2 group-hover:translate-y-0">
+              Need Help? Ask KOSA
               <div className="absolute -bottom-1 right-6 w-2 h-2 bg-white rotate-45"></div>
             </div>
-            <Sparkles size={30} className="text-black" />
+            <Bot size={28} className="text-black" />
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-[#111111] flex items-center justify-center">
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+            </div>
           </motion.button>
         )}
       </AnimatePresence>

@@ -23,4 +23,4 @@ InventorySchema.virtual('remainingPackets').get(function(this: IInventory) {
   return Math.floor(this.totalPlates / this.platesPerPacket);
 });
 
-export default mongoose.model<IInventory>('Inventory', InventorySchema);
+export default mongoose.models.Inventory || mongoose.model<IInventory>('Inventory', InventorySchema);

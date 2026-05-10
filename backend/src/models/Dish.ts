@@ -20,4 +20,4 @@ const DishSchema: Schema = new Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-export default mongoose.model<IDish>('Dish', DishSchema);
+export default mongoose.models.Dish || mongoose.model<IDish>('Dish', DishSchema);

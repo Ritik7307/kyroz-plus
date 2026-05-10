@@ -9,34 +9,64 @@ const gemini = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.G
 const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
 
 /**
+ * Rephrases a follow-up query to be standalone based on conversation history.
+ * This is critical for "next step", "done", "ab?" to work with RAG.
+ */
+const contextualizeQuery = async (query: string, history: any[]): Promise<string> => {
+  if (history.length === 0) return query;
+
+  // Only contextualize short or ambiguous queries
+  const shortQueries = ['next', 'ab', 'ab?', 'done', 'then', 'then?', 'iske baad', 'ho gaya', 'repeat', 'samjhao', 'explain', 'ruk jao', 'bas', 'रुको', 'बस'];
+  const isShort = query.split(' ').length < 3 || shortQueries.some(q => query.toLowerCase().includes(q));
+  
+  if (!isShort) return query;
+
+  try {
+    const prompt = `
+      History: ${history.slice(-3).map(m => `${m.role}: ${m.content}`).join(' | ')}
+      Query: ${query}
+      
+      Based on the history, rephrase the query to be a specific standalone question for searching an SOP library. 
+      Example: If history is about "Dal Makhani" and query is "next", rephrase to "What is the next step for Dal Makhani recipe?".
+      Return ONLY the rephrased query text.
+    `;
+
+    if (groq) {
+      const res = await groq.chat.completions.create({
+        messages: [{ role: 'system', content: "Rephrase the query for SOP search." }, { role: 'user', content: prompt }],
+        model: 'llama3-8b-8192', 
+        temperature: 0,
+      });
+      return res.choices[0]?.message?.content || query;
+    }
+
+    if (gemini) {
+      const model = gemini.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const res = await model.generateContent(prompt);
+      return res.response.text() || query;
+    }
+  } catch (e) {
+    console.warn("Contextualization failed:", e);
+  }
+  return query;
+};
+
+/**
  * Formats retrieved SOP data into a human-like response in the requested language.
  */
 const formatResponse = (relevantChunks: any[], query: string, lang: string = 'en'): string => {
   const bestMatch = relevantChunks[0];
-  const otherMatch = relevantChunks[1];
-
   const isHi = lang === 'hi';
   
   let response = isHi 
-    ? `नमस्ते! आपके **${bestMatch.dish.toUpperCase()}** (${bestMatch.section}) के SOP के आधार पर, यहाँ जानकारी है:\n\n`
-    : `Namaste! Based on your SOP for **${bestMatch.dish.toUpperCase()}** (${bestMatch.section}), here is what you need:\n\n`;
+    ? `बिलकुल! **${bestMatch.dish.toUpperCase()}** के बारे में ये रही जानकारी:\n\n`
+    : `Sure! Here is what I found for **${bestMatch.dish.toUpperCase()}**:\n\n`;
   
-  if (bestMatch.section.includes('TROUBLESHOOTING')) {
-    response += isHi ? `**समस्या:** ${query}\n` : `**Issue:** ${query}\n`;
-    response += isHi ? `**समाधान:** ${bestMatch.content}\n\n` : `**Fix:** ${bestMatch.content}\n\n`;
-  } else {
-    response += `${bestMatch.content}\n\n`;
-  }
-
-  if (otherMatch && otherMatch.dish === bestMatch.dish && otherMatch.section !== bestMatch.section) {
-    response += isHi 
-      ? `**अतिरिक्त टिप (${otherMatch.section}):**\n${otherMatch.content}\n\n`
-      : `**Additional Tip (${otherMatch.section}):**\n${otherMatch.content}\n\n`;
-  }
+  response += `${bestMatch.content}\n\n`;
 
   response += isHi 
-    ? `आशा है कि यह मदद करेगा! मुझे बताएं कि क्या आपको कुछ और चाहिए।`
-    : `Hope this helps! Let me know if you need anything else.`;
+    ? `उम्मीद है ये काम आएगा। कुछ और पूछना हो तो बताइये!`
+    : `Hope this helps! Let me know if you want to know anything else.`;
     
   return response;
 };
@@ -45,20 +75,14 @@ const formatResponse = (relevantChunks: any[], query: string, lang: string = 'en
  * Fallback logic to retrieve SOP info using keyword search.
  */
 const getFallbackResponse = async (userId: string, query: string, lang: string = 'en'): Promise<string> => {
-  console.log(`Using Text Search Fallback for query (${lang}):`, query);
   let relevantChunks = await searchSopByText(userId, query, 2);
 
   if (relevantChunks.length === 0) {
-    const userSops = await Sop.find({ userId }).limit(20);
+    const userSops = await Sop.find({ userId }).limit(10);
     if (userSops.length > 0) {
       for (const sop of userSops) {
         const content = (lang === 'hi' && sop.contentHi) ? sop.contentHi : (sop.contentEn || sop.content || '');
-        const text = `SOP: ${sop.title}\nGENERAL INFO\n${content}`;
-        try {
-          await processSopText(userId, text);
-        } catch (e) {
-          console.warn(`Failed to sync SOP: ${sop.title}`);
-        }
+        await processSopText(userId, `SOP: ${sop.title}\n${content}`);
       }
       relevantChunks = await searchSopByText(userId, query, 2);
     }
@@ -66,76 +90,152 @@ const getFallbackResponse = async (userId: string, query: string, lang: string =
 
   if (relevantChunks.length === 0) {
     return lang === 'hi' 
-      ? "नमस्ते! मैंने लाइब्रेरी की जाँच की, लेकिन मुझे आपके KYROZ SOP में आपके अनुरोध के लिए कोई सीधा मिलान नहीं मिला। कृपया किसी विशिष्ट डिश या खाना पकाने की प्रक्रिया के बारे में पूछें।"
-      : "Namaste! I checked the library, but I couldn't find a direct match for your request in your KYROZ SOPs. Try asking about a specific dish name or cooking process.";
+      ? "माफ़ कीजिये, मुझे इसके बारे में SOP में जानकारी नहीं मिली।"
+      : "I'm sorry, I couldn't find information about that in the SOP.";
   }
 
   return formatResponse(relevantChunks, query, lang);
 };
 
-export const generateRagResponse = async (userId: string, query: string, lang: string = 'en'): Promise<string> => {
-  // If no AI key is provided, use fallback immediately
+export const generateRagResponse = async (userId: string, query: string, lang: string = 'en', history: any[] = [], context: string = ''): Promise<{ reply: string, suggestions: string[] }> => {
+  const isCostingMode = context && context.includes('costing');
+  console.log("AI Mode:", isCostingMode ? "COSTING" : "SOP", "| Context:", context);
+
   if (!gemini && !groq) {
-    return await getFallbackResponse(userId, query, lang);
+    if (isCostingMode) return { reply: "AI services are currently unavailable. Please check your API keys.", suggestions: [] };
+    const fallback = await getFallbackResponse(userId, query, lang);
+    return { reply: fallback, suggestions: [] };
   }
 
   try {
-    const queryEmbedding = await generateEmbedding(query);
-    const relevantChunks = await retrieveRelevantChunks(userId, queryEmbedding, 3);
-
-    if (relevantChunks.length === 0) {
-      return await getFallbackResponse(userId, query, lang);
+    // 1. Contextualize the query
+    const standaloneQuery = await contextualizeQuery(query, history);
+    
+    // 2. Prepare System Instruction & Context
+    let contextText = '';
+    
+    // Retrieve SOP Context if not just costing mode
+    if (!isCostingMode || query.toLowerCase().includes('recipe') || query.toLowerCase().includes('sop')) {
+      const queryEmbedding = await generateEmbedding(standaloneQuery);
+      const relevantChunks = await retrieveRelevantChunks(userId, queryEmbedding, 8);
+      
+      if (relevantChunks.length > 0) {
+        contextText = relevantChunks.map(chunk => 
+          `[SOP: ${chunk.dish} | Section: ${chunk.section}]\n${chunk.content}\n---`
+        ).join('\n');
+      }
     }
 
-    const contextText = relevantChunks.map(chunk => 
-      `[Dish: ${chunk.dish} | Section: ${chunk.section}]\n${chunk.content}\n---`
-    ).join('\n');
-
     const systemInstruction = `
-      You are KYROZ KOSA, an elite AI restaurant consultant. 
-      You MUST strictly answer questions based ONLY on the provided SOP context chunks below. 
-      If the answer is not in the context, say exactly: "This is not available in KYROZ SOP."
-      Do NOT hallucinate. Do NOT use outside knowledge.
-      
-      Language: ${lang === 'hi' ? 'Hindi (हिन्दी)' : 'English'}.
-      Respond entirely in ${lang === 'hi' ? 'Hindi' : 'English'}.
-      
-      Required Format: Problem, Cause, Solution, SOP Reference, Practical Tip.
-      Context: ${contextText}
-    `;
+You are KYROZ AI Assistant (KOSA).
+You are an advanced multilingual restaurant SOP, cooking, and costing assistant.
 
-    // 1. Try Groq (Llama 3 70B) if available - Usually faster and better at following strict instructions
+You help restaurant owners, chefs, kitchen workers, and staff understand:
+- cooking processes, SOP instructions, recipe steps, and flame control.
+- ingredient quantities, timings, and preparation methods.
+- food safety, costing calculations, and menu pricing.
+
+==================================================
+LANGUAGE & VOICE RULES
+==================================================
+- Detect user language automatically. Support Hindi, English, and Hinglish.
+- If user speaks Hindi: Reply in Hindi. If English: Reply in English. If mixed: Reply in Hinglish.
+- VOICE FRIENDLY: Keep sentences short, sound natural, explain calmly. Avoid large paragraphs and jargon.
+
+==================================================
+BEHAVIOR: KITCHEN TRAINER & COSTING ADVISOR
+==================================================
+- Behave like an experienced kitchen trainer and practical restaurant operations expert.
+- answer naturally, explain clearly, simplify instructions, and guide step-by-step.
+- If user asks about costing: Use restaurant-friendly language. 
+  Suggested Price = Raw Cost × Category Multiplier × Position Modifier.
+  Rounding ends: 49, 59, 69, 79, 89, 99, 119, 149, 179, 199, 249, 299, 349, 399, 499. No awkward prices.
+
+==================================================
+SOP CONTEXT (STRICT ADHERENCE)
+==================================================
+- Answer from SOP context provided below. Never invent instructions.
+- If info is missing, say: "Mujhe SOP me iska exact instruction nahi mila."
+- BE DETAILED: Explain water quantities, flame control (low/medium/high), timings, and technique clearly.
+
+SOP CONTEXT:
+${contextText || 'No specific SOP context found for this query.'}
+
+==================================================
+RECOMMENDATIONS
+==================================================
+Provide 2-3 short, relevant follow-up questions at the end of your response inside a [SUGGESTIONS] block.
+Example if cooking: [SUGGESTIONS] "Next Step?", "Flame control?", "Water quantity?"
+Example if Hindi: [SUGGESTIONS] "अगला स्टेप?", "आंच कितनी रखें?", "पानी कितना डालें?"
+
+==================================================
+CURRENT REQUEST
+==================================================
+User Language Preference: ${lang === 'hi' ? 'Hindi' : 'Hinglish'}
+Context Path: ${context}
+`;
+
+    // 3. Generate response
+    const formattedHistory = history.map(msg => ({
+      role: msg.role === 'user' ? 'user' : 'assistant',
+      content: msg.content
+    }));
+
+    let rawReply = '';
+
     if (groq) {
       try {
         const chatCompletion = await groq.chat.completions.create({
           messages: [
             { role: 'system', content: systemInstruction },
+            ...formattedHistory,
             { role: 'user', content: query }
-          ],
+          ] as any,
           model: 'llama3-70b-8192',
-          temperature: 0.1,
-          max_tokens: 1024,
+          temperature: 0.2,
         });
-        return chatCompletion.choices[0]?.message?.content || "Failed to generate response with Groq.";
-      } catch (groqErr) {
-        console.error("Groq failed, attempting Gemini fallback:", groqErr);
+        rawReply = chatCompletion.choices[0]?.message?.content || "No response generated.";
+      } catch (e) {
+        console.error("Groq error:", e);
       }
     }
 
-    // 2. Fallback to Gemini if Groq is missing or failed
-    if (gemini) {
-      const model = gemini.getGenerativeModel({ model: "gemini-flash-latest" });
-      const result = await model.generateContent({
-        contents: [{ role: 'user', parts: [{ text: query }] }],
-        generationConfig: { temperature: 0.1 },
-        systemInstruction: systemInstruction,
+    if (!rawReply && gemini) {
+      const model = gemini.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const chat = model.startChat({
+        history: history.map(msg => ({
+          role: msg.role === 'user' ? 'user' : 'model',
+          parts: [{ text: msg.content }],
+        })),
       });
-      return result.response.text() || "Failed to generate response with Gemini.";
+
+      const result = await chat.sendMessage(`System Instruction: ${systemInstruction}\n\nUser Question: ${query}`);
+      rawReply = result.response.text();
     }
 
-    return await getFallbackResponse(userId, query, lang);
-  } catch (error: any) {
-    console.error("AI Pipeline failed, falling back to text search:", error);
-    return await getFallbackResponse(userId, query, lang);
+    if (!rawReply) {
+      const fallback = isCostingMode ? "AI failed to respond." : await getFallbackResponse(userId, query, lang);
+      return { reply: fallback, suggestions: [] };
+    }
+
+    // Parse suggestions from [SUGGESTIONS] block
+    let reply = rawReply;
+    let suggestions: string[] = [];
+    const suggestionMatch = rawReply.match(/\[SUGGESTIONS\](.*)$/is);
+    
+    if (suggestionMatch) {
+      reply = rawReply.replace(/\[SUGGESTIONS\].*$/is, '').trim();
+      const suggestionText = suggestionMatch[1];
+      suggestions = suggestionText
+        .split(/[,"\n]/)
+        .map(s => s.trim().replace(/^["']|["']$/g, ''))
+        .filter(s => s.length > 2 && s.length < 50);
+    }
+
+    return { reply, suggestions };
+  } catch (error) {
+    console.error("RAG error:", error);
+    const fallback = isCostingMode ? "AI Error." : await getFallbackResponse(userId, query, lang);
+    return { reply: fallback, suggestions: [] };
   }
 };

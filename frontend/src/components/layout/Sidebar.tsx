@@ -56,6 +56,7 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user' }: Sideba
           { name: 'Gravy Master', icon: Utensils, path: '/dashboard/gravy' },
           { name: 'Costing Master', icon: Calculator, path: '/dashboard/costing' },
           { name: 'Wastage Master', icon: Trash2, path: '/dashboard/wastage' },
+          { name: 'Account', icon: Users, path: '/dashboard/account' },
           { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
         ];
       case 'cook':
@@ -66,6 +67,7 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user' }: Sideba
           { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
           { name: 'Inventory', icon: Utensils, path: '/dashboard/inventory' },
           { name: 'Wastage Master', icon: Trash2, path: '/dashboard/wastage' },
+          { name: 'Account', icon: Users, path: '/dashboard/account' },
           { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
         ];
       case 'billing':
@@ -74,6 +76,7 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user' }: Sideba
           { name: 'POS Terminal', icon: Calculator, path: '/dashboard/pos' },
           { name: 'SOP Packets', icon: Utensils, path: '/dashboard/packets' },
           { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
+          { name: 'Account', icon: Users, path: '/dashboard/account' },
           { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
         ];
       default:
@@ -84,6 +87,7 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user' }: Sideba
           { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop' },
           { name: 'Sales History', icon: Calculator, path: '/dashboard/history' },
           { name: 'Membership', icon: Bell, path: '/dashboard/membership' },
+          { name: 'Account', icon: Users, path: '/dashboard/account' },
           { name: 'Settings', icon: Settings, path: '/dashboard/settings' },
         ];
     }

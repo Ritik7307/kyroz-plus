@@ -6,6 +6,8 @@ import Link from 'next/link';
 import Sidebar from '@/components/layout/Sidebar';
 import { Menu, Bell, User, Plus, Search as SearchIcon, Command } from 'lucide-react';
 import { GlobalSearch, ToastContainer, Toast } from '@/components/dashboard/GlobalSearch';
+import NotificationPanel from '@/components/dashboard/NotificationPanel';
+import FloatingKOSA from '@/components/dashboard/FloatingKOSA';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_URL } from '@/lib/api';
 
@@ -16,6 +18,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [user, setUser] = useState<any>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   useEffect(() => {
@@ -28,6 +32,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [router]);
 
+  const fetchNotifications = async (token: string) => {
+    try {
+      const res = await fetch(`${API_URL}/api/notifications`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          const unread = data.filter((n: any) => !n.isRead).length;
+          setUnreadCount(unread);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch notifications', err);
+    }
+  };
+
   const fetchUser = async (token: string) => {
     try {
       const res = await fetch(`${API_URL}/api/auth/me`, {
@@ -35,6 +56,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       });
       const data = await res.json();
       setUser(data);
+      fetchNotifications(token);
     } catch (err) {
       console.error('Failed to fetch user', err);
     }
@@ -120,9 +142,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <SearchIcon size={18} />
           </button>
           
-          <div className="relative hidden sm:block">
+          <div 
+            className="relative hidden sm:block"
+            onClick={() => setIsNotificationsOpen(true)}
+          >
             <Bell size={18} className="text-white/20 hover:text-gold cursor-pointer transition-colors" />
-            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background animate-pulse"></span>
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background animate-pulse"></span>
+            )}
           </div>
 
           <div className="flex items-center gap-3 bg-white/5 pl-2 pr-4 py-1.5 rounded-xl border border-white/10 hover:border-gold/30 transition-all cursor-pointer group shrink-0">
@@ -140,6 +167,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <main className="flex-1 w-full max-w-7xl mx-auto p-6 md:p-12 relative">
         {children}
       </main>
+
+      <FloatingKOSA />
+      <NotificationPanel 
+        isOpen={isNotificationsOpen} 
+        setIsOpen={setIsNotificationsOpen} 
+        onRefresh={() => {
+          const token = localStorage.getItem('token');
+          if (token) fetchNotifications(token);
+        }}
+      />
 
       {/* --- PREMIUM FOOTER --- */}
       <footer className="w-full border-t border-white/5 bg-black/20 backdrop-blur-md pt-12 md:pt-20 pb-8 md:pb-10 px-6 md:px-12 mt-auto">

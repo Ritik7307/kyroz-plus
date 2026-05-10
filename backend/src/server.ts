@@ -24,6 +24,7 @@ import inventoryRoutes from './routes/inventory.routes';
 import orderRoutes from './routes/order.routes';
 import sopPacketRoutes from './routes/sopPacket.routes';
 import testimonialRoutes from './routes/testimonial.routes';
+import notificationRoutes from './routes/notification.routes';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -63,6 +64,7 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/sop-packets', sopPacketRoutes);
 app.use('/api/testimonials', testimonialRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.get('/api/debug-routes', (req, res) => {
   res.json({ message: 'Routes are active' });
