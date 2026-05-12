@@ -36,47 +36,73 @@ export default function FloatingKOSA() {
   const [isMuted, setIsMuted] = useState(false);
   const [selectedLang, setSelectedLang] = useState<'en' | 'hi'>('en');
   const scrollRef = useRef<HTMLDivElement>(null);
-  const recognitionRef = useRef<any>(null);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
-  useEffect(() => {
-    fetchStarters();
-    setupSpeechRecognition();
-  }, [selectedLang]);
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      audioChunksRef.current = [];
 
-  const setupSpeechRecognition = () => {
-    if (typeof window !== 'undefined') {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = false;
-        recognition.lang = selectedLang === 'hi' ? 'hi-IN' : 'en-IN';
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
 
-        recognition.onresult = (event: any) => {
-          const transcript = event.results[0][0].transcript;
-          setInput(transcript);
-          setIsRecording(false);
-        };
+      recorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        await handleTranscription(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
+      };
 
-        recognition.onerror = () => setIsRecording(false);
-        recognition.onend = () => setIsRecording(false);
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+    } catch (err) {
+      console.error("Recording error:", err);
+      alert("Please allow microphone access.");
+    }
+  };
 
-        recognitionRef.current = recognition;
+  const stopRecording = () => {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const handleTranscription = async (blob: Blob) => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('audio', blob, 'voice.wav');
+      formData.append('lang', selectedLang);
+
+      const res = await fetch(`${API_URL}/api/ai/transcribe`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+
+      const data = await res.json();
+      if (data.transcript) {
+        setInput(data.transcript);
+        // Automatically send the message after transcription for a "voice-to-voice" feel
+        handleSend(data.transcript);
       }
+    } catch (err) {
+      console.error("Transcription error:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const toggleRecording = () => {
-    if (!recognitionRef.current) {
-      alert("Voice recognition is not supported in this browser.");
-      return;
-    }
-
     if (isRecording) {
-      recognitionRef.current.stop();
+      stopRecording();
     } else {
-      recognitionRef.current.start();
-      setIsRecording(true);
+      startRecording();
     }
   };
 
@@ -94,61 +120,71 @@ export default function FloatingKOSA() {
   };
 
   useEffect(() => {
+    fetchStarters();
+  }, [selectedLang]);
+
+  useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
 
-  const playVoice = (text: string) => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      
-      const containsHindi = /[\u0900-\u097F]/.test(text);
-      const targetLang = containsHindi ? 'hi' : 'en';
+  const playVoice = async (text: string) => {
+    if (isMuted) return;
 
-      const utterance = new SpeechSynthesisUtterance(text.replace(/[*#]/g, ''));
-      
-      const setVoice = () => {
-        const voices = window.speechSynthesis.getVoices();
-        if (voices.length === 0) return;
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/api/ai/speak`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ text })
+      });
 
-        let bestVoice = null;
-        if (targetLang === 'hi') {
-          // Comprehensive Hindi Voice Priority (Cross-Platform)
-          bestVoice = 
-            voices.find(v => v.name.includes('Google हिन्दी')) ||
-            voices.find(v => v.name.includes('Microsoft Hemant') || v.name.includes('Microsoft Kalpana')) ||
-            voices.find(v => v.name.includes('Rishi') || v.name.includes('Lekha')) ||
-            voices.find(v => v.name.includes('Natural') && v.lang.startsWith('hi')) ||
-            voices.find(v => v.lang === 'hi-IN' || v.lang.startsWith('hi')) ||
-            voices.find(v => v.name.toLowerCase().includes('hindi'));
+      if (!response.ok) throw new Error('Speech generation failed');
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audio.play();
+    } catch (error) {
+      // Fallback to browser TTS if backend fails or key is missing
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const containsHindi = /[\u0900-\u097F]/.test(text);
+        const targetLang = containsHindi ? 'hi' : 'en';
+        
+        const utterance = new SpeechSynthesisUtterance(text.replace(/[*#]/g, ''));
+        
+        const setVoiceAndPlay = () => {
+          const voices = window.speechSynthesis.getVoices();
+          if (voices.length > 0) {
+            let bestVoice = null;
+            if (targetLang === 'hi') {
+              bestVoice = voices.find(v => v.lang === 'hi-IN' || v.name.includes('Google हिन्दी') || v.name.includes('Hindi'));
+            } else {
+              bestVoice = voices.find(v => v.lang === 'en-IN' || v.lang.startsWith('en'));
+            }
+            
+            if (bestVoice) {
+              utterance.voice = bestVoice;
+              utterance.lang = bestVoice.lang;
+            } else {
+              utterance.lang = targetLang === 'hi' ? 'hi-IN' : 'en-IN';
+            }
+          } else {
+            utterance.lang = targetLang === 'hi' ? 'hi-IN' : 'en-IN';
+          }
+          window.speechSynthesis.speak(utterance);
+        };
+
+        if (window.speechSynthesis.getVoices().length === 0) {
+          window.speechSynthesis.onvoiceschanged = setVoiceAndPlay;
         } else {
-          // Comprehensive English India Voice Priority
-          bestVoice = 
-            voices.find(v => v.lang === 'en-IN' && v.name.includes('Google')) ||
-            voices.find(v => v.name.includes('Microsoft Ravi') || v.name.includes('Microsoft Heera')) ||
-            voices.find(v => v.name.includes('Isha') || v.name.includes('Veena')) ||
-            voices.find(v => v.name.includes('Natural') && v.lang.startsWith('en')) ||
-            voices.find(v => v.lang === 'en-IN') ||
-            voices.find(v => v.lang.startsWith('en'));
+          setVoiceAndPlay();
         }
-
-        if (bestVoice) {
-          utterance.voice = bestVoice;
-          utterance.lang = bestVoice.lang;
-        } else {
-          utterance.lang = targetLang === 'hi' ? 'hi-IN' : 'en-IN';
-        }
-
-        utterance.rate = 0.90; // Clarity prosody
-        utterance.pitch = 1.0;
-        window.speechSynthesis.speak(utterance);
-      };
-
-      if (window.speechSynthesis.getVoices().length === 0) {
-        window.speechSynthesis.onvoiceschanged = setVoice;
-      } else {
-        setVoice();
       }
     }
   };

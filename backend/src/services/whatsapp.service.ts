@@ -10,7 +10,7 @@ const client = (accountSid && authToken) ? twilio(accountSid, authToken) : null;
 export const sendManualStockRequest = async (dishName: string, currentPackets: number) => {
   const message = `Hello Admin, 
 
-This is a polite request from the Kitchen Team. 👨‍🍳
+This is a polite request from the Kitchen Team. 
 We are currently running low on *${dishName}*. 
 
 Current stock: ${currentPackets} packets.

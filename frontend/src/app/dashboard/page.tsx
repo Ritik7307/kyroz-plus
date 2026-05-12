@@ -34,6 +34,7 @@ export default function DashboardPage() {
   const [user, setUser] = React.useState<any>(null);
   const [sops, setSops] = React.useState<any[]>([]);
   const [packets, setPackets] = React.useState<any[]>([]);
+  const [testimonials, setTestimonials] = React.useState<any[]>([]);
   const [dailyProfit, setDailyProfit] = React.useState<number>(0);
   const router = useRouter();
 
@@ -68,6 +69,14 @@ export default function DashboardPage() {
         });
         const packetsData = await packetsRes.json();
         setPackets(packetsData);
+
+        const testimonialsRes = await fetch(`${API_URL}/api/testimonials`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (testimonialsRes.ok) {
+          const testimonialsData = await testimonialsRes.json();
+          setTestimonials(testimonialsData);
+        }
 
         // Fetch daily profit
         try {
@@ -320,6 +329,51 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* --- TESTIMONIALS SECTION --- */}
+        <section className="space-y-6 pt-8 border-t border-white/5">
+          <div className="flex items-center justify-between">
+            <h3 className="text-white/40 text-[11px] font-black tracking-[0.4em] uppercase flex items-center gap-2">
+              <MessageSquare size={16} className="text-gold" /> Member Stories
+            </h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {testimonials.slice(0, 3).map((t: any) => (
+              <motion.div 
+                key={t._id}
+                className="bg-card glass-card p-6 rounded-[2rem] border border-white/5 relative group hover:border-gold/30 transition-all shadow-xl flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-full bg-white/5 overflow-hidden shrink-0 border border-white/10 flex items-center justify-center">
+                      {t.avatarUrl ? (
+                        <img src={t.avatarUrl} alt={t.userName} className="w-full h-full object-cover" />
+                      ) : (
+                        <User size={20} className="text-white/20" />
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-white">{t.userName}</h4>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gold">{t.userRole}</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-white/60 italic leading-relaxed line-clamp-4">"{t.content}"</p>
+                </div>
+                <div className="mt-6 flex gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <span key={i} className={`text-sm ${i < t.rating ? 'text-gold' : 'text-white/10'}`}>★</span>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+            {testimonials.length === 0 && (
+              <div className="col-span-full py-12 text-center bg-white/5 rounded-[2rem] border border-dashed border-white/10">
+                <p className="text-white/20 font-bold uppercase tracking-widest text-xs">No Member Stories available yet.</p>
+              </div>
+            )}
+          </div>
+        </section>
 
       {/* --- KOSA FLOATING AI --- */}
       <FloatingKOSA />

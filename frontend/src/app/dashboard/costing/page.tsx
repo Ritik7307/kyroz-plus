@@ -39,12 +39,10 @@ const noSpinnerStyle = `
 export default function CostingMaster() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [yieldPlates, setYieldPlates] = useState(1);
-  const [sellingPrice, setSellingPrice] = useState(0);
+  const [sellingPrice, setSellingPrice] = useState<number | ''>('');
   const [dishName, setDishName] = useState('New Recipe');
   const [category, setCategory] = useState('Indian Gravy');
   const [positioning, setPositioning] = useState('Standard');
-  const [aiAdvice, setAiAdvice] = useState<string | null>(null);
-  const [isAiLoading, setIsAiLoading] = useState(false);
 
   const [newIng, setNewIng] = useState({
     name: '',
@@ -99,33 +97,9 @@ export default function CostingMaster() {
   };
 
   const suggestedPrice = getPsychologicalPrice(rawSuggested);
-  const foodCostPercentage = sellingPrice > 0 ? (costPerPlate / sellingPrice) * 100 : 0;
-  const profitMargin = sellingPrice - costPerPlate;
-
-  const consultAI = async () => {
-    if (ingredients.length === 0) return;
-    setIsAiLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/api/ai/chat`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ 
-          message: `Calculate pricing for ${dishName}. Raw Cost per plate is ₹${costPerPlate.toFixed(2)}. Category is ${category} and Positioning is ${positioning}.`, 
-          context: '/dashboard/costing' 
-        })
-      });
-      const data = await res.json();
-      setAiAdvice(data.reply);
-    } catch (e) {
-      setAiAdvice("Failed to get AI strategy.");
-    } finally {
-      setIsAiLoading(false);
-    }
-  };
+  const numericSellingPrice = Number(sellingPrice) || 0;
+  const foodCostPercentage = numericSellingPrice > 0 ? (costPerPlate / numericSellingPrice) * 100 : 0;
+  const profitMargin = numericSellingPrice - costPerPlate;
 
   const addIngredient = () => {
     if (!newIng.name || newIng.quantity <= 0) return;
@@ -300,42 +274,6 @@ export default function CostingMaster() {
             </div>
           </div>
 
-          {/* AI Strategy Panel */}
-          {ingredients.length > 0 && (
-            <div className="bg-black/60 rounded-[2.5rem] border border-gold/20 p-8 md:p-12 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-gold/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
-              
-              <div className="flex flex-col md:flex-row items-center justify-between gap-10 relative z-10">
-                <div className="space-y-4 flex-1">
-                  <h3 className="text-2xl font-black text-white tracking-tighter uppercase">KOSA PRICING STRATEGY</h3>
-                  <p className="text-white/40 text-sm font-medium leading-relaxed">
-                    Let our AI pricing master analyze your recipe cost and suggest the most profitable psychological price points for your market.
-                  </p>
-                  
-                  <AnimatePresence>
-                    {aiAdvice && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mt-6 p-6 bg-gold/10 border border-gold/20 rounded-2xl text-gold text-xs leading-loose font-bold whitespace-pre-wrap"
-                      >
-                        {aiAdvice}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-                
-                <button 
-                  onClick={consultAI}
-                  disabled={isAiLoading}
-                  className="px-10 py-5 bg-gold-gradient rounded-2xl text-black font-black uppercase text-[11px] tracking-widest hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shrink-0"
-                >
-                  {isAiLoading ? 'Analyzing...' : 'Consult Pricing Master'}
-                </button>
-              </div>
-            </div>
-          )}
-
           {/* Recipe Settings */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="bg-card glass-card rounded-[2rem] border border-white/5 p-8 space-y-6">
@@ -414,7 +352,8 @@ export default function CostingMaster() {
                   <input 
                     type="number" 
                     value={sellingPrice}
-                    onChange={(e) => setSellingPrice(Number(e.target.value))}
+                    onChange={(e) => setSellingPrice(e.target.value === '' ? '' : Number(e.target.value))}
+                    placeholder="0"
                     className="w-full bg-white/5 border-2 border-gold/30 rounded-2xl p-5 text-4xl font-black text-gold focus:outline-none focus:border-gold text-center"
                   />
                 </div>

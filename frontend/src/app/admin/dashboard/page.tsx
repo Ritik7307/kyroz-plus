@@ -23,6 +23,7 @@ import { API_URL } from '@/lib/api';
 export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [packets, setPackets] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
   const [stats, setStats] = useState<any>(null);
   const router = useRouter();
 
@@ -55,6 +56,11 @@ export default function AdminDashboard() {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setPackets(await packetsRes.json());
+
+        const testimonialsRes = await fetch(`${API_URL}/api/testimonials`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        setTestimonials(await testimonialsRes.json());
       } catch (err) {
         console.error('Admin fetch error:', err);
       }
@@ -254,6 +260,58 @@ export default function AdminDashboard() {
           </div>
 
         </div>
+
+        {/* TESTIMONIALS SECTION AT BOTTOM */}
+        <div className="space-y-6 pt-8 border-t border-white/5">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-black flex items-center gap-3">
+              <MessageSquare size={24} className="text-gold" /> User Testimonials
+            </h3>
+            <button 
+              onClick={() => router.push('/admin/testimonials')}
+              className="text-gold text-[10px] font-black uppercase tracking-widest flex items-center gap-1 hover:underline"
+            >
+              Manage Testimonials <ArrowUpRight size={14} />
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {testimonials.slice(0, 6).map((t: any) => (
+              <motion.div 
+                key={t._id}
+                className="bg-card glass-card p-6 rounded-2xl border border-white/5 relative group hover:border-gold/30 transition-all"
+              >
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-white/5 overflow-hidden shrink-0 border border-white/10">
+                    {t.avatarUrl ? (
+                      <img src={t.avatarUrl} alt={t.userName} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <MessageSquare size={20} className="text-white/20" />
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm text-white">{t.userName}</h4>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-gold">{t.userRole}</p>
+                  </div>
+                </div>
+                <p className="text-sm text-white/60 italic leading-relaxed line-clamp-3">"{t.content}"</p>
+                <div className="mt-4 flex gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <span key={i} className={`text-sm ${i < t.rating ? 'text-gold' : 'text-white/10'}`}>★</span>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+            {testimonials.length === 0 && (
+              <div className="col-span-full p-12 text-center bg-white/5 rounded-2xl border border-dashed border-white/10 text-white/20 text-xs font-bold uppercase tracking-widest">
+                No testimonials available
+              </div>
+            )}
+          </div>
+        </div>
+
       </div>
     </div>
   );

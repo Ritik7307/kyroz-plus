@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { processSopText } from '../services/ai/ingestion.service';
 import { generateRagResponse } from '../services/ai/ragPipeline.service';
+import { transcribeAudio, generateSpeech } from '../services/ai/voice.service';
 import Sop from '../models/Sop';
 import fs from 'fs';
 import path from 'path';
@@ -11,7 +12,7 @@ import mammoth from 'mammoth';
 // RAG Chat Endpoint
 export const chatWithKosa = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { message } = req.body;
+    const { message, lang, history, context } = req.body;
     const userId = req.user?.userId;
 
     if (!message) {
@@ -24,14 +25,35 @@ export const chatWithKosa = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
-    // Call the newly created RAG Pipeline
-    const { lang, history, context } = req.body;
     const { reply, suggestions } = await generateRagResponse(userId, message, lang, history, context);
-
     res.status(200).json({ reply, suggestions });
   } catch (error: any) {
     console.error('Error in AI Chat:', error);
     res.status(500).json({ error: error.message || 'Failed to communicate with KYROZ KOSA.' });
+  }
+};
+
+// Voice Transcription Endpoint
+export const transcribeVoice = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const file = req.file;
+    const { lang } = req.body;
+
+    if (!file) {
+      res.status(400).json({ error: 'Audio file is required' });
+      return;
+    }
+
+    if (!req.user?.userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const transcript = await transcribeAudio(file.buffer, lang);
+    res.status(200).json({ transcript });
+  } catch (error: any) {
+    console.error('Error transcribing voice:', error);
+    res.status(500).json({ error: 'Failed to transcribe audio' });
   }
 };
 
@@ -53,7 +75,6 @@ export const uploadSopFile = async (req: AuthRequest, res: Response): Promise<vo
 
     let extractedText = '';
 
-    // 1. Extract Text based on Mimetype
     if (file.mimetype === 'application/pdf') {
       const data = await pdf(file.buffer);
       extractedText = data.text;
@@ -67,16 +88,13 @@ export const uploadSopFile = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    // 2. Save the file to disk for direct download/viewing
     const fileName = `${Date.now()}-${file.originalname}`;
     const uploadPath = path.join(__dirname, '../../public/uploads/sops', fileName);
     fs.writeFileSync(uploadPath, file.buffer);
     const fileUrl = `/public/uploads/sops/${fileName}`;
 
-    // 3. Pass to the Ingestion Service to Parse, Chunk, Embed, and Save (for AI)
     const { dish, chunksStored } = await processSopText(userId, extractedText);
 
-    // 4. Create a persistent SOP record with the file attachment
     const newSop = new Sop({
       userId,
       title: dish.toUpperCase(),
@@ -110,7 +128,6 @@ export const getKosaStarters = async (req: AuthRequest, res: Response): Promise<
 
     const { lang } = req.query;
 
-    // Get 3 random unique dish names
     const sops = await Sop.find({ userId }).select('title').limit(20);
     const shuffled = sops.sort(() => 0.5 - Math.random());
     const starters = shuffled.slice(0, 3).map(s => {
@@ -118,7 +135,6 @@ export const getKosaStarters = async (req: AuthRequest, res: Response): Promise<
       return `How to make ${s.title}?`;
     });
     
-    // Default fallback if no SOPs yet
     if (starters.length === 0) {
       if (lang === 'hi') {
         starters.push("खाने की बर्बादी कैसे कम करें?", "किचन की सफाई के टिप्स?", "स्टैंडर्ड कुकिंग प्रोसेस क्या है?");
@@ -130,5 +146,29 @@ export const getKosaStarters = async (req: AuthRequest, res: Response): Promise<
     res.status(200).json({ starters });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch starters' });
+  }
+};
+
+// Text-to-Speech Endpoint
+export const speakWithKosa = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { text } = req.body;
+
+    if (!text) {
+      res.status(400).json({ error: 'Text is required' });
+      return;
+    }
+
+    const audioBuffer = await generateSpeech(text);
+    
+    res.set({
+      'Content-Type': 'audio/mpeg',
+      'Content-Length': audioBuffer.length
+    });
+    
+    res.status(200).send(audioBuffer);
+  } catch (error: any) {
+    console.error('Error generating speech:', error);
+    res.status(500).json({ error: 'Failed to generate speech' });
   }
 };

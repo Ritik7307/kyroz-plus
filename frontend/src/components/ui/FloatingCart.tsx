@@ -6,8 +6,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
 
 export default function FloatingCart() {
-  const { cart, totalItems, totalPrice, updateQuantity, removeFromCart } = useCart();
+  const { cart, totalItems, totalPrice, updateQuantity, removeFromCart, clearCart } = useCart();
   const [isOpen, setIsOpen] = useState(false);
+
+  const handleCheckout = () => {
+    if (cart.length === 0) return;
+    
+    const itemsList = cart.map(item => `• ${item.name} (x${item.quantity}) - ₹${item.price * item.quantity}`).join('\n');
+    const message = `Hello Admin, 👨‍🍳\n\nI would like to purchase the following SOP Packets:\n\n*ORDER DETAILS:*\n${itemsList}\n\n*Total Amount: ₹${totalPrice}*\n\nPlease process this request. Thank you!\n\n_Sent via Kyyroz-Plus_`;
+    const encodedMessage = encodeURIComponent(message);
+    window.open(`https://wa.me/917307255940?text=${encodedMessage}`, '_blank');
+    
+    clearCart();
+    setIsOpen(false);
+  };
 
   if (totalItems === 0) return null;
 
@@ -82,7 +94,7 @@ export default function FloatingCart() {
                   <span className="text-sm font-black uppercase tracking-widest text-white/40">Total Amount</span>
                   <span className="text-3xl font-black text-gold">₹{totalPrice}</span>
                 </div>
-                <button className="w-full py-4 bg-gold-gradient text-black font-black text-xs uppercase tracking-widest rounded-xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3">
+                <button onClick={handleCheckout} className="w-full py-4 bg-gold-gradient text-black font-black text-xs uppercase tracking-widest rounded-xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3">
                   CHECKOUT NOW <ArrowRight size={18} />
                 </button>
                 <p className="text-[9px] text-white/20 text-center uppercase tracking-widest font-black">Secure Payment via KYROZ Pay</p>

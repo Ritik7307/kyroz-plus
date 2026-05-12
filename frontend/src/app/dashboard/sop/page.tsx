@@ -2,14 +2,14 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { 
+import {
   FileText,
   RefreshCw,
-  Search,  Plus, 
-  Upload, 
-  Printer, 
-  Languages, 
-  X, 
+  Search, Plus,
+  Upload,
+  Printer,
+  Languages,
+  X,
   ChevronRight,
   ChefHat,
   UtensilsCrossed,
@@ -74,7 +74,7 @@ function SOPLibraryContent() {
   const [userRole, setUserRole] = useState<string>('');
 
   const searchParams = useSearchParams();
-  
+
   const fetchSops = async () => {
     setIsLoading(true);
     setError(null);
@@ -92,7 +92,7 @@ function SOPLibraryContent() {
       if (res.ok) {
         const data = await res.json();
         setSops(data);
-        
+
         // Handle deep linking
         const categoryParam = searchParams.get('category');
         const idParam = searchParams.get('id');
@@ -122,9 +122,9 @@ function SOPLibraryContent() {
       const token = localStorage.getItem('token');
       const res = await fetch(`${API_URL}/api/sops`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(formData)
       });
@@ -142,10 +142,10 @@ function SOPLibraryContent() {
   };
 
   const categories = ['All', 'Dish', 'Gravy', 'Costing', 'Wastage'];
-  
+
   const filteredSops = sops.filter(sop => {
-    const matchesCategory = activeCategory === 'All' || 
-                           (sop.category || '').toLowerCase() === activeCategory.toLowerCase();
+    const matchesCategory = activeCategory === 'All' ||
+      (sop.category || '').toLowerCase() === activeCategory.toLowerCase();
     const matchesSearch = (sop.title || '').toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
@@ -160,7 +160,7 @@ function SOPLibraryContent() {
       const isBullet = trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ') || /^\d+\./.test(trimmedLine);
       const cleanLine = trimmedLine.replace(/^[-*]\s+/, '').replace(/^###\s+/, '');
       const parts = cleanLine.split(/(\bHigh\b|\bMedium\b|\bLow\b|\bOil\b|\bButter\b|\bGhee\b|\*\*[^*]+\*\*)/g);
-      
+
       return (
         <div key={i} className={`mb-3 ${isHeader ? 'mt-10 border-b border-white/10 pb-2 mb-6' : ''} ${isBullet ? 'pl-6 relative' : ''}`}>
           {isBullet && <span className="absolute left-0 text-gold font-bold">{trimmedLine.split(' ')[0]}</span>}
@@ -234,16 +234,16 @@ function SOPLibraryContent() {
               <div className="flex items-center justify-between mb-8 md:mb-10"><h3 className="text-xl md:text-3xl font-black tracking-tighter uppercase">NEW <span className="text-gold">RECIPE</span></h3><button onClick={() => setIsModalOpen(false)} className="p-2 md:p-3 hover:bg-white/10 rounded-xl md:rounded-2xl transition-all"><X size={28} /></button></div>
               <form onSubmit={handleCreateSop} className="space-y-8 md:space-y-12">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
-                  <div className="space-y-3"><label className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-white/40">Recipe Name</label><input type="text" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all" required /></div>
-                  <div className="space-y-3"><label className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-white/40">Category</label><select value={formData.category} onChange={(e: any) => setFormData({...formData, category: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all appearance-none"><option value="Dish">Dish Production</option><option value="Gravy">Base Gravy</option><option value="Costing">Financial Controls</option></select></div>
+                  <div className="space-y-3"><label className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-white/40">Recipe Name</label><input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all" required /></div>
+                  <div className="space-y-3"><label className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-white/40">Category</label><select value={formData.category} onChange={(e: any) => setFormData({ ...formData, category: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all appearance-none"><option value="Dish">Dish Production</option><option value="Gravy">Base Gravy</option><option value="Costing">Financial Controls</option></select></div>
                 </div>
                 <div className="bg-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-white/5 space-y-6">
-                  <div className="flex items-center justify-between"><div className="flex items-center gap-3"><Database className="text-gold" size={20} /><div><h4 className="text-[10px] md:text-sm font-black uppercase tracking-widest">Inventory Connection</h4></div></div><button type="button" onClick={() => setFormData({...formData, isInventoryLinked: !formData.isInventoryLinked})} className={`w-12 md:w-14 h-7 md:h-8 rounded-full transition-all relative ${formData.isInventoryLinked ? 'bg-gold' : 'bg-white/10'}`}><div className={`absolute top-1 w-5 md:w-6 h-5 md:h-6 rounded-full bg-white transition-all ${formData.isInventoryLinked ? 'right-1' : 'left-1'}`} /></button></div>
-                  {formData.isInventoryLinked && <div className="pt-6 border-t border-white/5"><div className="flex items-center gap-6"><div className="flex-1 space-y-3"><label className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-white/40">Plates Per Packet</label><input type="number" value={formData.platesPerPacket} onChange={(e) => setFormData({...formData, platesPerPacket: Number(e.target.value)})} className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm md:text-base font-bold text-gold focus:outline-none focus:border-gold" /></div></div></div>}
+                  <div className="flex items-center justify-between"><div className="flex items-center gap-3"><Database className="text-gold" size={20} /><div><h4 className="text-[10px] md:text-sm font-black uppercase tracking-widest">Inventory Connection</h4></div></div><button type="button" onClick={() => setFormData({ ...formData, isInventoryLinked: !formData.isInventoryLinked })} className={`w-12 md:w-14 h-7 md:h-8 rounded-full transition-all relative ${formData.isInventoryLinked ? 'bg-gold' : 'bg-white/10'}`}><div className={`absolute top-1 w-5 md:w-6 h-5 md:h-6 rounded-full bg-white transition-all ${formData.isInventoryLinked ? 'right-1' : 'left-1'}`} /></button></div>
+                  {formData.isInventoryLinked && <div className="pt-6 border-t border-white/5"><div className="flex items-center gap-6"><div className="flex-1 space-y-3"><label className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-white/40">Plates Per Packet</label><input type="number" value={formData.platesPerPacket} onChange={(e) => setFormData({ ...formData, platesPerPacket: Number(e.target.value) })} className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm md:text-base font-bold text-gold focus:outline-none focus:border-gold" /></div></div></div>}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
-                  <div className="space-y-3"><label className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-gold">English Protocol</label><textarea value={formData.contentEn} onChange={(e) => setFormData({...formData, contentEn: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 text-sm md:text-base font-medium focus:outline-none focus:border-gold h-60 md:h-80 resize-none" /></div>
-                  <div className="space-y-3"><label className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-gold">हिन्दी निर्देशिका</label><textarea value={formData.contentHi} onChange={(e) => setFormData({...formData, contentHi: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 text-sm md:text-base font-medium focus:outline-none focus:border-gold h-60 md:h-80 resize-none" /></div>
+                  <div className="space-y-3"><label className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-gold">English Protocol</label><textarea value={formData.contentEn} onChange={(e) => setFormData({ ...formData, contentEn: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 text-sm md:text-base font-medium focus:outline-none focus:border-gold h-60 md:h-80 resize-none" /></div>
+                  <div className="space-y-3"><label className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-gold">हिन्दी निर्देशिका</label><textarea value={formData.contentHi} onChange={(e) => setFormData({ ...formData, contentHi: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 text-sm md:text-base font-medium focus:outline-none focus:border-gold h-60 md:h-80 resize-none" /></div>
                 </div>
                 <div className="flex justify-end gap-6 pt-6"><button type="submit" className="w-full md:w-auto px-12 md:px-16 py-4 md:py-5 bg-gold text-black rounded-xl md:rounded-2xl font-black uppercase text-[10px] md:text-[11px] tracking-widest shadow-2xl hover:scale-[1.05] transition-all">Save Recipe</button></div>
               </form>
@@ -267,15 +267,111 @@ function SOPLibraryContent() {
 
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          body * { visibility: hidden; }
-          .fixed.inset-0, .fixed.inset-0 * { visibility: visible; }
-          .fixed.inset-0 { position: absolute; left: 0; top: 0; width: 100%; background: white !important; color: black !important; padding: 0 !important; }
-          .bg-\\[\\#111\\] { background: white !important; border: none !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; padding: 40px !important; }
-          .text-gold { color: black !important; border-bottom: 2px solid black !important; }
-          .text-gray-300 { color: #333 !important; }
-          .bg-white\\/5 { display: none !important; }
-          button { display: none !important; }
-          .border-white\\/10 { border-color: #eee !important; }
+          @page { 
+            margin: 1cm;
+            size: portrait;
+          }
+
+          /* --- SELECTIVE HIDING --- */
+          /* Hide global UI */
+          header, footer, aside, nav, .notification-panel, .floating-kosa-btn, button {
+            display: none !important;
+          }
+
+          /* Hide SOP Page Background specifically */
+          /* These selectors target the search bar and the recipe list grid */
+          .max-w-7xl > header,
+          .max-w-7xl > div.flex.flex-col,
+          .max-w-7xl > div.grid,
+          .max-w-7xl > div.mt-12 {
+            display: none !important;
+          }
+
+          /* --- ENSURE MODAL VISIBILITY --- */
+          body {
+            background: white !important;
+            color: black !important;
+            height: auto !important;
+            overflow: visible !important;
+          }
+
+          main {
+            display: block !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+
+          .fixed.inset-0 { 
+            position: static !important;
+            display: block !important; 
+            width: 100% !important; 
+            background: white !important; 
+            padding: 0 !important; 
+            margin: 0 !important;
+            visibility: visible !important;
+          }
+
+          /* Reset Container Border & Padding */
+          .bg-\\[\\#111\\] { 
+            background: white !important; 
+            border: 2pt solid black !important; 
+            width: 100% !important; 
+            padding: 40px !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            display: block !important;
+            visibility: visible !important;
+          }
+
+          /* Master SOP Header */
+          .bg-\\[\\#111\\]::before {
+            content: 'KYROZ-PLUS | MASTER SOP CARD';
+            display: block;
+            text-align: center;
+            font-weight: 900;
+            font-size: 10pt;
+            letter-spacing: 0.2em;
+            padding: 10px;
+            border-bottom: 1.5pt solid black;
+            margin-bottom: 30px;
+          }
+
+          /* Recipe Title */
+          .text-gold { 
+            display: block !important;
+            font-size: 24pt !important;
+            font-weight: 900 !important;
+            color: black !important; 
+            margin-bottom: 20px !important;
+            text-transform: uppercase;
+            visibility: visible !important;
+          }
+
+          /* Content Text */
+          .prose { 
+            color: black !important; 
+            max-width: 100% !important; 
+            visibility: visible !important;
+            display: block !important;
+          }
+
+          .text-gray-300 { 
+            color: black !important; 
+            font-size: 11pt !important;
+            line-height: 1.6 !important; 
+            visibility: visible !important;
+          }
+
+          .font-black.text-lg.text-gold { 
+            color: black !important; 
+            font-size: 14pt !important;
+            margin-top: 20px !important;
+            display: block !important;
+            text-decoration: underline !important;
+          }
+
+          .pl-6 { padding-left: 25px !important; }
+          p { margin-bottom: 10px !important; }
         }
       `}} />
     </div>
