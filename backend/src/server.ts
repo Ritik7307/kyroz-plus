@@ -11,8 +11,11 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import authRoutes from './routes/auth.routes';
+console.log('Loaded auth routes');
 import userRoutes from './routes/user.routes';
+console.log('Loaded user routes');
 import sopRoutes from './routes/sop.routes';
+console.log('Loaded sop routes');
 import aiRoutes from './routes/ai.routes';
 import sessionRoutes from './routes/session.routes';
 import paymentRoutes from './routes/payment.routes';
@@ -25,6 +28,8 @@ import orderRoutes from './routes/order.routes';
 import sopPacketRoutes from './routes/sopPacket.routes';
 import testimonialRoutes from './routes/testimonial.routes';
 import notificationRoutes from './routes/notification.routes';
+import customerRoutes from './routes/customer.routes';
+console.log('All routes imported');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -35,6 +40,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
+console.log('Middleware configured');
 
 // Request Logger for debugging
 app.use((req, res, next) => {
@@ -46,6 +52,7 @@ app.use('/public', express.static('public'));
 
 // MongoDB Connection
 const MONGO_URI = process.env.MONGO_URI || process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/kyroz';
+console.log('Connecting to MongoDB...');
 mongoose.connect(MONGO_URI)
   .then(() => console.log('Connected to MongoDB Atlas'))
   .catch(err => console.error('MongoDB connection error:', err));
@@ -65,6 +72,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/sop-packets', sopPacketRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/customers', customerRoutes);
 
 app.get('/api/debug-routes', (req, res) => {
   res.json({ message: 'Routes are active' });

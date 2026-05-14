@@ -16,30 +16,36 @@ function cosineSimilarity(vecA: number[], vecB: number[]): number {
   return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 }
 
-export const retrieveRelevantChunks = async (userId: string, queryEmbedding: number[], topK: number = 3) => {
-  // Fetch all chunks for this user. 
-  // In a massive scale app, this would use Atlas Vector Search.
-  // For local MongoDB, we do the math in Node.js.
+export const retrieveRelevantChunks = async (userId: string, queryEmbedding: number[], topK: number = 3, rawQuery: string = "") => {
   const allChunks = await SopChunk.find({ userId }).lean<ISopChunk[]>();
+  if (!allChunks || allChunks.length === 0) return [];
 
-  if (!allChunks || allChunks.length === 0) {
-    return [];
-  }
+  const queryLower = rawQuery.toLowerCase();
+  const queryTerms = queryLower.split(/\s+/).filter(t => t.length > 2);
 
-  // Calculate similarity for each chunk
   const scoredChunks = allChunks.map(chunk => {
-    const similarity = cosineSimilarity(queryEmbedding, chunk.embedding);
+    let similarity = cosineSimilarity(queryEmbedding, chunk.embedding);
+    
+    // Dish Name Boost: If the dish name keywords are in the query, boost significantly
+    if (queryLower) {
+      const dishLower = chunk.dish.toLowerCase();
+      // Exact or full substring match
+      if (queryLower.includes(dishLower) || dishLower.includes(queryLower)) {
+        similarity += 0.8; 
+      } else {
+        // Individual keyword matches (e.g. "Mushroom" in query matching "Mushroom Do Pyaza")
+        const dishKeywords = dishLower.split(/\s+/).filter(k => k.length > 2);
+        const matchCount = dishKeywords.filter(keyword => queryLower.includes(keyword)).length;
+        if (matchCount > 0) {
+          similarity += (matchCount * 0.3); // High boost per matching word
+        }
+      }
+    }
+
     return { ...chunk, similarity };
   });
 
-  // Sort by highest similarity
   scoredChunks.sort((a, b) => b.similarity - a.similarity);
-
-  // Return the top K chunks that meet a minimum similarity threshold
-  const THRESHOLD = 0.5; // Adjust based on Gemini embedding tendencies
-  const filteredChunks = scoredChunks.filter(c => c.similarity > THRESHOLD);
-  
-  // Fallback to topK regardless of threshold if no strong match, or just return topK
   return scoredChunks.slice(0, topK);
 };
 
@@ -68,19 +74,24 @@ export const searchSopByText = async (userId: string, query: string, topK: numbe
     console.warn("Text index search failed or not ready:", error);
   }
 
-  // 2. Fallback: Keyword-based Regex Search
-  // We split the clean query into words and search for any of them
+  // 2. Fallback: Keyword-based Regex Search with field prioritization
   const keywords = (cleanQuery || query).split(/\s+/).filter(k => k.length > 2);
   const regexQuery = keywords.length > 0 ? keywords.join('|') : query;
 
-  return await SopChunk.find({
+  const results = await SopChunk.find({
     userId,
     $or: [
       { dish: { $regex: regexQuery, $options: 'i' } },
-      { section: { $regex: regexQuery, $options: 'i' } },
       { content: { $regex: regexQuery, $options: 'i' } }
     ]
-  })
-  .limit(topK)
-  .lean<ISopChunk[]>();
+  }).lean<ISopChunk[]>();
+
+  // Sort results manually to ensure dish matches come first
+  results.sort((a, b) => {
+    const aMatch = new RegExp(regexQuery, 'i').test(a.dish) ? 1 : 0;
+    const bMatch = new RegExp(regexQuery, 'i').test(b.dish) ? 1 : 0;
+    return bMatch - aMatch;
+  });
+
+  return results.slice(0, topK);
 };

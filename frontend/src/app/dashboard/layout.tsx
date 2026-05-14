@@ -86,6 +86,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Sales History', path: '/dashboard/history', id: 'history' },
     { name: 'KOSA AI', path: '/dashboard/ai', id: 'ai' },
     { name: 'Costing Master', path: '/dashboard/costing', id: 'costing' },
+    { name: 'Customers', path: '/dashboard/customers', id: 'customers' },
     { name: 'Manage Team', path: '/dashboard/team', id: 'team', ownerOnly: true },
     { name: 'Account', path: '/dashboard/account', id: 'account' },
   ];
@@ -192,7 +193,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {children}
       </main>
 
-      <FloatingKOSA />
+      {pathname === '/dashboard' && <FloatingKOSA />}
       <NotificationPanel 
         isOpen={isNotificationsOpen} 
         setIsOpen={setIsNotificationsOpen} 

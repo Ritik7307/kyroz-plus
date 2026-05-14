@@ -5,7 +5,9 @@
   "main": "dist/server.js",
   "scripts": {
     "start": "node dist/server.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev:server": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev:ai": "cd python_services && python -m uvicorn main:app --host 0.0.0.0 --port 8000",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:ai\"",
     "build": "tsc"
   },
   "dependencies": {
@@ -41,6 +43,7 @@
     "@types/nodemailer": "^8.0.0",
     "@types/pdf-parse": "^1.1.5",
     "@types/ua-parser-js": "^0.7.39",
+    "concurrently": "^9.2.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.4.5"
   }

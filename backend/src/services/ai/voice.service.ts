@@ -9,27 +9,25 @@ const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPE
 
 /**
  * Transcribes audio buffer using Groq Whisper.
- * Supports Hindi and English.
  */
-export const transcribeAudio = async (audioBuffer: Buffer, lang: string = 'en'): Promise<string> => {
-  if (!groq) {
-    throw new Error('Groq API Key is not configured for voice transcription.');
-  }
+export const transcribeAudio = async (audioBuffer: Buffer, lang: string = 'en', filename: string = 'voice.webm'): Promise<string> => {
+  if (!groq) throw new Error('Groq API Key is missing.');
 
-  const tempFile = path.join(os.tmpdir(), `voice_${Date.now()}.wav`);
+  const extension = path.extname(filename) || '.webm';
+  const tempFile = path.join(os.tmpdir(), `voice_${Date.now()}${extension}`);
   fs.writeFileSync(tempFile, audioBuffer);
 
   try {
     const transcription = await groq.audio.transcriptions.create({
       file: fs.createReadStream(tempFile),
       model: "whisper-large-v3",
-      prompt: "This is a kitchen assistant conversation. Support Hindi, English, and Hinglish names of dishes and ingredients.",
+      language: lang === 'hi' ? 'hi' : 'en',
+      prompt: "This is a kitchen assistant conversation. Recognize Hindi and English dish names.",
       response_format: "text",
     });
-
     return transcription as any;
   } catch (error) {
-    console.error("Whisper Transcription Error:", error);
+    console.error("Whisper Error:", error);
     throw error;
   } finally {
     if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
@@ -37,25 +35,39 @@ export const transcribeAudio = async (audioBuffer: Buffer, lang: string = 'en'):
 };
 
 /**
- * Generates speech from text using OpenAI TTS.
- * This provides the "Proper Hindi" and high-quality voice required.
+ * Generates speech from text.
  */
-export const generateSpeech = async (text: string): Promise<Buffer> => {
-  if (!openai) {
-    throw new Error('OpenAI API Key is not configured for text-to-speech.');
-  }
-
+export const generateSpeech = async (text: string, lang: string = 'auto'): Promise<Buffer> => {
   try {
-    const mp3 = await openai.audio.speech.create({
-      model: "tts-1",
-      voice: "shimmer", // 'shimmer' or 'alloy' work well for helpful assistants
-      input: text,
-    });
+    const formData = new URLSearchParams();
+    formData.append('text', text);
+    formData.append('lang', lang);
 
-    const buffer = Buffer.from(await mp3.arrayBuffer());
-    return buffer;
+    const response = await fetch(`${process.env.AI_CORE_URL || 'http://localhost:8000'}/speak`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData
+    });
+    
+    if (response.ok) {
+      const arrayBuffer = await response.arrayBuffer();
+      return Buffer.from(arrayBuffer);
+    } else {
+      throw new Error(`Python AI Core responded with status ${response.status}`);
+    }
   } catch (error) {
-    console.error("OpenAI TTS Error:", error);
-    throw error;
+    console.warn("Python AI Core TTS failed. Falling back to OpenAI.");
+    
+    if (openai) {
+      try {
+        const mp3 = await openai.audio.speech.create({ model: "tts-1", voice: "alloy", input: text });
+        const arrayBuffer = await mp3.arrayBuffer();
+        return Buffer.from(arrayBuffer);
+      } catch (openaiError) {
+        console.error("OpenAI Fallback failed:", openaiError);
+      }
+    }
+    
+    throw new Error("Both Python TTS and OpenAI TTS fallbacks failed.");
   }
 };

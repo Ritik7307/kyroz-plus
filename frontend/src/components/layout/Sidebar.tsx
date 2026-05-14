@@ -44,6 +44,7 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user', permissi
     const allItems = [
       { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard', id: 'dashboard' },
       { name: 'POS Terminal', icon: Calculator, path: '/dashboard/pos', id: 'pos' },
+      { name: 'Customers', icon: Users, path: '/dashboard/customers', id: 'customers' },
       { name: 'Manage Team', icon: Users, path: '/dashboard/team', id: 'team', ownerOnly: true },
       { name: 'SOP Packets', icon: Utensils, path: '/dashboard/packets', id: 'packets' },
       { name: 'Sales History', icon: Calculator, path: '/dashboard/history', id: 'history' },
