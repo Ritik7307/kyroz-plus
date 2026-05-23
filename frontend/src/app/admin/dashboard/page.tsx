@@ -21,9 +21,9 @@ import { useRouter } from 'next/navigation';
 import { API_URL } from '@/lib/api';
 
 export default function AdminDashboard() {
-  const [users, setUsers] = useState([]);
-  const [packets, setPackets] = useState([]);
-  const [testimonials, setTestimonials] = useState([]);
+  const [users, setUsers] = useState<any[]>([]);
+  const [packets, setPackets] = useState<any[]>([]);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
   const router = useRouter();
 
@@ -50,17 +50,20 @@ export default function AdminDashboard() {
         const usersRes = await fetch(`${API_URL}/api/admin/users`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        setUsers(await usersRes.json());
+        const usersData = await usersRes.json();
+        setUsers(Array.isArray(usersData) ? usersData : []);
 
         const packetsRes = await fetch(`${API_URL}/api/sop-packets`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        setPackets(await packetsRes.json());
+        const packetsData = await packetsRes.json();
+        setPackets(Array.isArray(packetsData) ? packetsData : []);
 
         const testimonialsRes = await fetch(`${API_URL}/api/testimonials`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        setTestimonials(await testimonialsRes.json());
+        const testimonialsData = await testimonialsRes.json();
+        setTestimonials(Array.isArray(testimonialsData) ? testimonialsData : []);
       } catch (err) {
         console.error('Admin fetch error:', err);
       }

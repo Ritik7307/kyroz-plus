@@ -37,7 +37,7 @@ export default function UserSopPacketsPage() {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
-      setPackets(data);
+      setPackets(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to fetch packets', err);
     } finally {

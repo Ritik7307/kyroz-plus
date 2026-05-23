@@ -347,6 +347,17 @@ export default function CostingMaster() {
                   </h2>
                 </div>
 
+                <div className="pt-4 border-t border-white/5 flex justify-between gap-4">
+                  <div className="text-center flex-1">
+                    <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Min Price (2.5x)</p>
+                    <span className="text-lg font-black text-green-500">₹{(costPerPlate * 2.5).toFixed(0)}</span>
+                  </div>
+                  <div className="text-center flex-1 border-l border-white/5">
+                    <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Max Price (5x)</p>
+                    <span className="text-lg font-black text-red-500">₹{(costPerPlate * 5.0).toFixed(0)}</span>
+                  </div>
+                </div>
+
                 <div className="space-y-4 pt-6">
                   <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Actual Selling Price</p>
                   <input 

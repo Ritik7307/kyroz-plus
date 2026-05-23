@@ -6,7 +6,7 @@ import { transcribeAudio, generateSpeech } from '../services/ai/voice.service';
 import Sop from '../models/Sop';
 import fs from 'fs';
 import path from 'path';
-const pdf = require('pdf-parse');
+const { PDFParse } = require('pdf-parse');
 import mammoth from 'mammoth';
 
 export const chatWithKosa = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -58,7 +58,8 @@ export const uploadSopFile = async (req: AuthRequest, res: Response): Promise<vo
 
     let extractedText = '';
     if (file.mimetype === 'application/pdf') {
-      const data = await pdf(file.buffer);
+      const parser = new PDFParse({ data: file.buffer });
+      const data = await parser.getText();
       extractedText = data.text;
     } else if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       const result = await mammoth.extractRawText({ buffer: file.buffer });

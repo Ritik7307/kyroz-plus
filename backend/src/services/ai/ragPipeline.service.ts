@@ -33,6 +33,94 @@ const getSimilarity = (s1: string, s2: string): number => {
   return (longerLength - costs[shorter.length]) / longerLength;
 };
 
+// Correct common phonetic voice-to-text spelling issues
+const correctPhoneticTypos = (query: string): string => {
+  let cleaned = query.toLowerCase();
+
+  // Phrase level mappings
+  const phraseMappings: Record<string, string> = {
+    'lye siddeley': 'rice idli',
+    'lye sidley': 'rice idli',
+    'mini-stries': 'mini size',
+    'mini ministries': 'mini size',
+    'coco chatni': 'coconut chutney',
+    'coco chutney': 'coconut chutney',
+    'cara chutney': 'red kara chutney',
+    'cada chutney': 'red kara chutney',
+    'medu wada': 'medu vada',
+    'mendu wada': 'medu vada',
+    'mendu vada': 'medu vada',
+    'medu wada maker': 'medu vada maker',
+    'alu masala': 'aloo masala',
+    'rawa dosa': 'rava dosa',
+    'rawa dhosa': 'rava dosa',
+    'rava dhosa': 'rava dosa',
+  };
+
+  for (const [typo, correction] of Object.entries(phraseMappings)) {
+    cleaned = cleaned.replace(new RegExp(`\\b${typo}\\b`, 'gi'), correction);
+  }
+
+  // Word level mappings
+  const wordMappings: Record<string, string> = {
+    'siddeley': 'idli',
+    'sidley': 'idli',
+    'idly': 'idli',
+    'idlies': 'idli',
+    'edli': 'idli',
+    'edly': 'idli',
+    'dhosa': 'dosa',
+    'dosha': 'dosa',
+    'tosa': 'dosa',
+    'utappa': 'uttapam',
+    'uttapa': 'uttapam',
+    'utapam': 'uttapam',
+    'uthapam': 'uttapam',
+    'oothapam': 'uttapam',
+    'sambar': 'sambhar',
+    'shambar': 'sambhar',
+    'shambhar': 'sambhar',
+    'sombar': 'sambhar',
+    'wada': 'vada',
+    'bada': 'vada',
+    'vadha': 'vada',
+    'briyani': 'biryani',
+    'birani': 'biryani',
+    'beryani': 'biryani',
+    'chatni': 'chutney',
+    'chutny': 'chutney',
+    'chatney': 'chutney',
+    'mandy': 'mandi',
+    'alu': 'aloo',
+    'rawa': 'rava',
+    'kada': 'kara',
+    'cara': 'kara',
+  };
+
+  const words = cleaned.split(/\s+/);
+  const correctedWords = words.map(w => {
+    const cleanWord = w.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+    if (wordMappings[cleanWord]) {
+      return w.replace(cleanWord, wordMappings[cleanWord]);
+    }
+    return w;
+  });
+
+  return correctedWords.join(' ');
+};
+
+// Clean noise terms from dish titles for matching purposes
+const cleanDishNameForMatching = (name: string): string => {
+  return name.toLowerCase()
+    .replace(/\bsop\b/g, '')
+    .replace(/\binstant\b/g, '')
+    .replace(/\bpremium\b/g, '')
+    .replace(/\bkyroz\b/g, '')
+    .replace(/[()]/g, '')
+    .trim()
+    .replace(/\s+/g, ' ');
+};
+
 const contextualizeQuery = async (userId: string, query: string, history: any[]): Promise<string> => {
   let processedQuery = query;
 
@@ -50,14 +138,25 @@ const contextualizeQuery = async (userId: string, query: string, history: any[])
       // Exact match
       if (queryLower.includes(dishName)) {
         bestDishMatch = d.title;
-        highestScore = 1;
+        highestScore = 1.0;
         break;
+      }
+
+      // Check cleaned dish name overlaps
+      const cleanedDish = cleanDishNameForMatching(d.title);
+      if (cleanedDish && (queryLower.includes(cleanedDish) || cleanedDish.includes(queryLower))) {
+        const score = queryLower.includes(cleanedDish) ? 0.95 : 0.8;
+        if (score > highestScore) {
+          highestScore = score;
+          bestDishMatch = d.title;
+        }
       }
 
       // Check similarity of query against the dish name
       // We check if any sequence of words in the query matches the dish name
       const queryWords = queryLower.split(/\s+/);
-      const dishWordCount = dishName.split(/\s+/).length;
+      const dishWords = dishName.split(/\s+/);
+      const dishWordCount = dishWords.length;
 
       for (let i = 0; i <= queryWords.length - dishWordCount; i++) {
         const querySegment = queryWords.slice(i, i + dishWordCount).join(' ');
@@ -89,7 +188,7 @@ const contextualizeQuery = async (userId: string, query: string, history: any[])
 
 const getFallbackResponse = async (userId: string, query: string, lang: string = 'en'): Promise<string> => {
   try {
-    const relevantChunks = await searchSopByText(userId, query, 1);
+    const relevantChunks = await searchSopByText(userId, query, 1, lang);
     const isHi = lang === 'hi';
 
     if (!relevantChunks || relevantChunks.length === 0) {
@@ -100,10 +199,10 @@ const getFallbackResponse = async (userId: string, query: string, lang: string =
     const queryLower = query.toLowerCase();
     const dishLower = bestMatch.dish.toLowerCase();
 
-    // Strict Match Check for Fallback: Does the query actually mention this dish?
-    const dishWords = dishLower.split(/\s+/).filter(w => w.length > 3);
-    // Use EVERY instead of SOME to ensure all major keywords match, preventing "Lashni Paneer" from matching "Paneer Lababdar"
-    const hasDishMatch = dishWords.every(word => queryLower.includes(word.substring(0, 4))) || queryLower.includes(dishLower);
+    // Check if the query contains any of the core dish keywords
+    const cleanedDish = cleanDishNameForMatching(bestMatch.dish);
+    const dishKeywords = cleanedDish.split(/\s+/).filter(w => w.length > 2);
+    const hasDishMatch = dishKeywords.some(word => queryLower.includes(word)) || queryLower.includes(cleanedDish) || queryLower.includes(dishLower);
 
     if (!hasDishMatch) {
       return isHi
@@ -129,25 +228,101 @@ const detectLanguage = (text: string): 'en' | 'hi' => {
 
 export const generateRagResponse = async (userId: string, query: string, lang: string = 'en', history: any[] = [], context: string = ''): Promise<{ reply: string, suggestions: string[], detectedLang: string }> => {
   try {
-    // Smart Language Logic:
+    // 1. Correct any phonetic typos from voice-to-text transcription
+    const cleanedQuery = correctPhoneticTypos(query);
+
+    // Smart Language Logic using cleaned query:
     // 1. If query has Hindi characters, always respond in Hindi.
     // 2. Otherwise, use the user's selected language (from the toggle).
-    const hasHindi = /[\u0900-\u097F]/.test(query);
+    const hasHindi = /[\u0900-\u097F]/.test(cleanedQuery);
     const targetLang = hasHindi ? 'hi' : (lang === 'hi' ? 'hi' : 'en');
 
-    const standaloneQuery = await contextualizeQuery(userId, query, history);
+    // Predefined general keyword mappings
+    const keywordMappings: Record<string, { enReply: string; hiReply: string; suggestions: string[] }> = {
+      'biryani': {
+        enReply: "We have the standard recipe and costing structure for **Kyroz Shahi Lucknowi Biryani**. Which specific style of Biryani would you like to know about?",
+        hiReply: "हमारे पास **Kyroz Shahi Lucknowi Biryani** की विशेष रेसिपी और कॉस्टिंग स्ट्रक्चर उपलब्ध है। आप कौन सी बिरयानी के बारे में जानना चाहते हैं?",
+        suggestions: ["Chicken Biryani", "Mutton Biryani", "Hyderabadi Biryani", "Veg Biryani"]
+      },
+      'mandi': {
+        enReply: "We have the recipe and costing structure for **Kyroz Indo Arabic White Mandi**. Are you interested in Chicken Mandi or Mutton Mandi?",
+        hiReply: "हमारे पास **Kyroz Indo Arabic White Mandi** की रेसिपी और कॉस्टिंग स्ट्रक्चर उपलब्ध है। आप चिकन मंडी या मटन मंडी के बारे में जानना चाहते हैं?",
+        suggestions: ["Chicken Mandi", "Mutton Mandi", "White Mandi Costing"]
+      },
+      'dosa': {
+        enReply: "We have SOPs and portion recipes for **Masala Dosa** and **Onion Rava Dosa** (available in Small, Regular, and Large sizes). Which one would you like to explore?",
+        hiReply: "हमारे पास **Masala Dosa** और **Onion Rava Dosa** (Small, Regular, Large साइज) की SOP और रेसिपी उपलब्ध हैं। आप कौन से डोसा के बारे में जानना चाहते हैं?",
+        suggestions: ["Regular Masala Dosa", "Onion Rava Dosa", "Dosa Batter Production"]
+      },
+      'idli': {
+        enReply: "We have recipes and portion yield details for **Rice Idli** (available in Mini, Regular, and Large sizes). Would you like to know about Idli Batter or portion yield?",
+        hiReply: "हमारे पास **Rice Idli** (Mini, Regular, Large साइज) की रेसिपी और यील्ड डिटेल्स उपलब्ध हैं। क्या आप इडली बैटर या पोर्शन यील्ड के बारे में जानना चाहते हैं?",
+        suggestions: ["Regular Rice Idli", "Idli Batter Recipe", "Mini Idli Yield"]
+      },
+      'chutney': {
+        enReply: "We have standard recipes for **Coconut Chutney** and **Red Kara Chutney**. Which one would you like to know about?",
+        hiReply: "हमारे पास **Coconut Chutney** और **Red Kara Chutney** की SOPs और रेसिपी उपलब्ध हैं। आप कौन सी चटनी के बारे में जानना चाहते हैं?",
+        suggestions: ["Coconut Chutney", "Red Kara Chutney", "Chutney Cup Costing"]
+      },
+      'vada': {
+        enReply: "We have the recipe and portion details for **Kyroz Medu Vada**. Would you like to know about its portion sizing or batter recipe?",
+        hiReply: "हमारे पास **Kyroz Medu Vada** की रेसिपी और पोर्शन डिटेल्स उपलब्ध हैं। क्या आप इसके पोर्शन साइज या बैटर रेसिपी के बारे में जानना चाहते हैं?",
+        suggestions: ["Medu Vada Portion", "Medu Vada Costing", "Medu Vada Packaging"]
+      },
+      'uttapam': {
+        enReply: "We have the SOP and yield configurations for **Mix Veg Uttapam** (available in Small, Regular, and Large sizes). What details would you like to explore?",
+        hiReply: "हमारे पास **Mix Veg Uttapam** (Small, Regular, Large साइज) की SOP और यील्ड कॉन्फ़िगरेशन उपलब्ध है। आप इसके बारे में क्या जानना चाहते हैं?",
+        suggestions: ["Regular Mix Veg Uttapam", "Uttapam Batter Yield", "Uttapam Accompaniments"]
+      },
+      'sambhar': {
+        enReply: "We have the recipe and portion details for **Premium Sambhar**. Would you like to check its batch yield or standard serving size?",
+        hiReply: "हमारे पास **Premium Sambhar** की रेसिपी और पोर्शन डिटेल्स उपलब्ध हैं। क्या आप इसकी बैच यील्ड या सर्विंग साइज के बारे में जानना चाहते हैं?",
+        suggestions: ["Premium Sambhar Recipe", "Sambhar Portion Sizing", "Sambhar Costing"]
+      }
+    };
+
+    const queryLower = cleanedQuery.toLowerCase();
+    const isHi = targetLang === 'hi';
+
+    // Specific query check to bypass general answers if user asks a specific question
+    const isSpecificQuery = /\b(recipe|ingredient|make|cook|prepare|cost|price|packaging|sop|method|step|how|what|button|batches|portion|plates|kg|gm|ml|chicken|mutton|veg|rava|onion|masala|white|shahi|lucknowi|arabic|batter|stuffing|mini|regular|large|medium|small|size|about|scale|yield|quantity|ratio|water|tadka|tempering|store|storage|troubleshoot|spoilage|yields|plates|pieces|piece|sops|विधि|सामग्री|बनाएं|कैसे|सामग्री|मूल्य|कीमत|चिकन|मटन|वेज|रवा|प्याज़|मसाला|सफेद|शाही|लखनऊ|बैटर|स्टफिंग|साइज|मात्रा|अनुपात|पानी|स्टोर|फ्रिज|तापमान|उबाल|पकाना|परोस)\b/i.test(queryLower);
+
+    if (!isSpecificQuery) {
+      const matchedKey = Object.keys(keywordMappings).find(key => {
+        const words = queryLower.split(/\s+/);
+        return words.some(word => {
+          if (word === key || word === `${key}s` || word === `${key}es`) return true;
+          if (word.length >= 4 && key.length >= 4) {
+            const sim = getSimilarity(word, key);
+            return sim > 0.7;
+          }
+          return false;
+        });
+      });
+
+      if (matchedKey) {
+        const mapping = keywordMappings[matchedKey];
+        return {
+          reply: isHi ? mapping.hiReply : mapping.enReply,
+          suggestions: mapping.suggestions,
+          detectedLang: targetLang
+        };
+      }
+    }
+
+    const standaloneQuery = await contextualizeQuery(userId, cleanedQuery, history);
     let contextText = '';
 
     try {
       if (gemini) {
         const queryEmbedding = await generateEmbedding(standaloneQuery);
-        const relevantChunks = await retrieveRelevantChunks(userId, queryEmbedding, 8, standaloneQuery);
+        const relevantChunks = await retrieveRelevantChunks(userId, queryEmbedding, 8, standaloneQuery, targetLang);
         if (relevantChunks.length > 0) {
           contextText = relevantChunks.map(chunk => `[SOP: ${chunk.dish}]\n${chunk.content}`).join('\n---\n');
         }
       }
     } catch (e) {
-      const textChunks = await searchSopByText(userId, standaloneQuery, 5);
+      const textChunks = await searchSopByText(userId, standaloneQuery, 5, targetLang);
       if (textChunks.length > 0) {
         contextText = textChunks.map(chunk => `[SOP: ${chunk.dish}]\n${chunk.content}`).join('\n---\n');
       }
@@ -161,6 +336,7 @@ STRICT RULES:
 1. LANGUAGE: You MUST respond entirely in ${targetLang === 'hi' ? 'Hindi (हिंदी)' : 'English'}. Translate the context if needed.
 2. SPECIFICITY: Only answer the specific question asked. Do not provide the full recipe unless requested.
 3. SOURCE: Use ONLY the provided SOP CONTEXT. If the answer is not in the context, say you don't know.
+4. PHONETIC/TYPO TOLERANCE: Treat transcription typos like "Lye Siddeley" as "Rice Idli", "mini-stries" as "mini size", "mendu wada" as "medu vada", etc. when matching with the context.
 
 SOP CONTEXT:
 ${contextText || 'No matching SOP found in the library.'}
@@ -168,7 +344,7 @@ ${contextText || 'No matching SOP found in the library.'}
 Provide exactly 3 short follow-up suggestions in a [SUGGESTIONS] block at the end.
 `;
 
-    const cleanHistory = history.filter(m => m.content !== query);
+    const cleanHistory = history.filter(m => m.content !== query && m.content !== cleanedQuery);
 
     let rawReply = '';
 
@@ -183,7 +359,7 @@ Provide exactly 3 short follow-up suggestions in a [SUGGESTIONS] block at the en
           messages: [
             { role: 'system', content: systemInstruction },
             ...formattedHistory,
-            { role: 'user', content: query }
+            { role: 'user', content: cleanedQuery }
           ] as any,
           model: 'llama-3.1-8b-instant',
           temperature: 0.2,
@@ -214,7 +390,7 @@ Provide exactly 3 short follow-up suggestions in a [SUGGESTIONS] block at the en
 
         // If history still ends with model, it's fine as sendMessage adds a user message.
         const chat = model.startChat({ history: geminiHistory });
-        const result = await chat.sendMessage(`System Instructions: ${systemInstruction}\n\nUser Question: ${query}`);
+        const result = await chat.sendMessage(`System Instructions: ${systemInstruction}\n\nUser Question: ${cleanedQuery}`);
         rawReply = result.response.text();
       } catch (e) { console.error("Gemini fail", e); }
     }

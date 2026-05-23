@@ -5,11 +5,14 @@ import Inventory from '../models/Inventory';
 import Dish from '../models/Dish';
 import Order from '../models/Order';
 import Customer from '../models/Customer';
+import Packaging from '../models/Packaging';
+import Notification from '../models/Notification';
 import { sendLowStockAlert } from '../services/whatsapp.service';
+import { deductInventory } from '../services/inventory.service';
 
 export const processCheckout = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { items, customerName, customerPhone, discount, paymentMethod } = req.body; // Array of { dishId, quantity }
+    const { items, customerName, customerPhone, discount, paymentMethod, orderType = 'DineIn' } = req.body; // Array of { dishId, quantity }
     
     if (!items || !Array.isArray(items)) {
       res.status(400).json({ error: 'Invalid items format' });
@@ -45,22 +48,80 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
       const inventory = await Inventory.findOne({ dishId, userId: req.user?.userId }).populate('dishId');
       
       if (inventory) {
-        // Reduce total plates
+        // Reduce total plates (portion tracking for Biryani/Mandi)
         inventory.totalPlates -= quantity;
         await inventory.save();
 
         // Check for low stock
         const remainingPackets = Math.floor(inventory.totalPlates / inventory.platesPerPacket);
         if (remainingPackets <= inventory.lowStockThreshold) {
-          // Prevent spamming alerts (only once every 24 hours or if it drops further)
           const dishName = (inventory.dishId as any).name;
           alerts.push({ dishName, remainingPackets });
-          
-          // Send WhatsApp Alert
           await sendLowStockAlert(dishName, remainingPackets);
+
+          // Pushing database Notification for refilling
+          const existing = await Notification.findOne({
+            userId: req.user?.userId,
+            title: 'Low Stock Alert',
+            message: { $regex: new RegExp(dishName, 'i') },
+            isRead: false
+          });
+          if (!existing && req.user?.userId) {
+            await Notification.create({
+              userId: req.user.userId,
+              title: 'Low Stock Alert',
+              message: `Your stock for ${dishName} is low (${remainingPackets} packets remaining). Please refill.`,
+              type: 'warning',
+              category: 'inventory',
+              isRead: false
+            });
+            console.log(`Created low stock notification for dish ${dishName}`);
+          }
         }
         
         updates.push({ dishId, remainingPlates: inventory.totalPlates });
+      }
+
+      // ALWAYS deduct recipe ingredients from the inventory section at POS billing checkout
+      if (req.user?.userId) {
+        await deductInventory('Dish', dishId, quantity, req.user.userId);
+      }
+    }
+
+    // Auto deduct packaging if takeaway/delivery
+    if (orderType === 'Takeaway' || orderType === 'Delivery') {
+      const getPackagingForDish = (dishName: string): string[] => {
+        const name = dishName.toLowerCase();
+        if (name.includes('masala dosa')) {
+          return ['Dosa Box', 'Butter Paper', 'Spoon', 'Carry Bag', 'Chutney Container', 'Sambhar Container'];
+        } else if (name.includes('rava dosa')) {
+          return ['Dosa Box', 'Butter Paper', 'Chutney Container', 'Carry Bag'];
+        } else if (name.includes('idli')) {
+          return ['Idli Container', 'Chutney Container', 'Sambhar Container', 'Spoon', 'Carry Bag'];
+        } else if (name.includes('vada')) {
+          return ['Vada Box', 'Chutney Container', 'Sambhar Container', 'Carry Bag'];
+        } else if (name.includes('uttapam')) {
+          return ['Uttapam Box', 'Chutney Container', 'Sambhar Container', 'Carry Bag'];
+        } else if (name.includes('biryani') || name.includes('mandi')) {
+          return ['Container', 'Spoon', 'Carry Bag'];
+        }
+        return ['Container', 'Spoon', 'Carry Bag']; // Default fallback
+      };
+
+      for (const item of items) {
+        const dish = await Dish.findById(item.dishId);
+        if (dish) {
+          const packagingNames = getPackagingForDish(dish.name);
+          for (const pkgName of packagingNames) {
+            const pkgItem = await Packaging.findOne({
+              userId: req.user?.userId,
+              name: { $regex: new RegExp(`^${pkgName}$`, 'i') }
+            });
+            if (pkgItem && req.user?.userId) {
+              await deductInventory('Packaging', pkgItem._id, item.quantity, req.user.userId);
+            }
+          }
+        }
       }
     }
 
@@ -77,7 +138,8 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
         customerName,
         customerPhone,
         discount: discount || 0,
-        paymentMethod: paymentMethod || 'Cash'
+        paymentMethod: paymentMethod || 'Cash',
+        orderType
       });
       await order.save();
 

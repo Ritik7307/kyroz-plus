@@ -16,8 +16,14 @@ function cosineSimilarity(vecA: number[], vecB: number[]): number {
   return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 }
 
-export const retrieveRelevantChunks = async (userId: string, queryEmbedding: number[], topK: number = 3, rawQuery: string = "") => {
-  const allChunks = await SopChunk.find({ userId }).lean<ISopChunk[]>();
+export const retrieveRelevantChunks = async (userId: string, queryEmbedding: number[], topK: number = 3, rawQuery: string = "", lang: string = "en") => {
+  let allChunks = await SopChunk.find({ userId, lang }).lean<ISopChunk[]>();
+  
+  // Fallback to English if no chunks exist for the requested language
+  if ((!allChunks || allChunks.length === 0) && lang !== 'en') {
+    allChunks = await SopChunk.find({ userId, lang: 'en' }).lean<ISopChunk[]>();
+  }
+  
   if (!allChunks || allChunks.length === 0) return [];
 
   const queryLower = rawQuery.toLowerCase();
@@ -49,49 +55,61 @@ export const retrieveRelevantChunks = async (userId: string, queryEmbedding: num
   return scoredChunks.slice(0, topK);
 };
 
-export const searchSopByText = async (userId: string, query: string, topK: number = 3) => {
+export const searchSopByText = async (userId: string, query: string, topK: number = 3, lang: string = "en") => {
   // Clean query: remove common question words
   const cleanQuery = query.toLowerCase()
     .replace(/\b(how|to|make|get|the|recipe|for|is|are|a|an)\b/g, '')
     .trim();
 
-  try {
-    // 1. Try MongoDB Text Search (requires text index)
-    // We use the cleaned query for better matching
-    const results = await SopChunk.find(
-      { 
-        userId, 
-        $text: { $search: cleanQuery || query } 
-      },
-      { score: { $meta: "textScore" } }
-    )
-    .sort({ score: { $meta: "textScore" } })
-    .limit(topK)
-    .lean<ISopChunk[]>();
+  const performSearch = async (searchLang: string) => {
+    try {
+      // 1. Try MongoDB Text Search (requires text index)
+      const results = await SopChunk.find(
+        { 
+          userId, 
+          lang: searchLang,
+          $text: { $search: cleanQuery || query } 
+        },
+        { score: { $meta: "textScore" } }
+      )
+      .sort({ score: { $meta: "textScore" } })
+      .limit(topK)
+      .lean<ISopChunk[]>();
 
-    if (results.length > 0) return results;
-  } catch (error) {
-    console.warn("Text index search failed or not ready:", error);
+      if (results.length > 0) return results;
+    } catch (error) {
+      console.warn(`Text index search failed for lang ${searchLang}`);
+    }
+
+    // 2. Fallback: Keyword-based Regex Search with field prioritization
+    const keywords = (cleanQuery || query).split(/\s+/).filter(k => k.length > 2);
+    const regexQuery = keywords.length > 0 ? keywords.join('|') : query;
+
+    const results = await SopChunk.find({
+      userId,
+      lang: searchLang,
+      $or: [
+        { dish: { $regex: regexQuery, $options: 'i' } },
+        { content: { $regex: regexQuery, $options: 'i' } }
+      ]
+    }).lean<ISopChunk[]>();
+
+    // Sort results manually to ensure dish matches come first
+    results.sort((a, b) => {
+      const aMatch = new RegExp(regexQuery, 'i').test(a.dish) ? 1 : 0;
+      const bMatch = new RegExp(regexQuery, 'i').test(b.dish) ? 1 : 0;
+      return bMatch - aMatch;
+    });
+
+    return results.slice(0, topK);
+  };
+
+  let finalResults = await performSearch(lang);
+  
+  // Fallback to English if no results found in the requested language
+  if ((!finalResults || finalResults.length === 0) && lang !== 'en') {
+    finalResults = await performSearch('en');
   }
 
-  // 2. Fallback: Keyword-based Regex Search with field prioritization
-  const keywords = (cleanQuery || query).split(/\s+/).filter(k => k.length > 2);
-  const regexQuery = keywords.length > 0 ? keywords.join('|') : query;
-
-  const results = await SopChunk.find({
-    userId,
-    $or: [
-      { dish: { $regex: regexQuery, $options: 'i' } },
-      { content: { $regex: regexQuery, $options: 'i' } }
-    ]
-  }).lean<ISopChunk[]>();
-
-  // Sort results manually to ensure dish matches come first
-  results.sort((a, b) => {
-    const aMatch = new RegExp(regexQuery, 'i').test(a.dish) ? 1 : 0;
-    const bMatch = new RegExp(regexQuery, 'i').test(b.dish) ? 1 : 0;
-    return bMatch - aMatch;
-  });
-
-  return results.slice(0, topK);
+  return finalResults;
 };

@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation';
 import { API_URL } from '@/lib/api';
 
 export default function TestimonialsPage() {
-  const [testimonials, setTestimonials] = useState([]);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState<any>(null);
   const [formData, setFormData] = useState({
@@ -38,7 +38,7 @@ export default function TestimonialsPage() {
     try {
       const res = await fetch(`${API_URL}/api/testimonials`);
       const data = await res.json();
-      setTestimonials(data);
+      setTestimonials(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to fetch testimonials', err);
     }

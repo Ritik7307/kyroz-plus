@@ -18,7 +18,7 @@ import { API_URL } from '@/lib/api';
 import CustomDropdown from '@/components/ui/CustomDropdown';
 
 export default function SopPacketsPage() {
-  const [packets, setPackets] = useState([]);
+  const [packets, setPackets] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPacket, setEditingPacket] = useState<any>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -42,7 +42,7 @@ export default function SopPacketsPage() {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
-      setPackets(data);
+      setPackets(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to fetch sop packets', err);
     }

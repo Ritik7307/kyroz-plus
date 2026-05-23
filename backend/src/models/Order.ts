@@ -16,6 +16,7 @@ export interface IOrder extends Document {
   customerPhone?: string;
   discount?: number; // percentage
   paymentMethod?: 'Cash' | 'Online';
+  orderType?: 'DineIn' | 'Takeaway' | 'Delivery';
   createdAt: Date;
 }
 
@@ -35,6 +36,7 @@ const OrderSchema: Schema = new Schema({
   customerPhone: { type: String },
   discount: { type: Number, default: 0 },
   paymentMethod: { type: String, enum: ['Cash', 'Online'], default: 'Cash' },
+  orderType: { type: String, enum: ['DineIn', 'Takeaway', 'Delivery'], default: 'DineIn' },
   createdAt: { type: Date, default: Date.now }
 });
 

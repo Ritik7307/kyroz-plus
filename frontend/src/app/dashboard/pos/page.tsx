@@ -58,6 +58,7 @@ export default function POSTerminal() {
   const [discount, setDiscount] = useState<string>(''); // Changed to string for better decimal handling
   const [applyGst, setApplyGst] = useState(true); // GST Toggle
   const [paymentMethod, setPaymentMethod] = useState<'Cash' | 'Online'>('Cash');
+  const [orderType, setOrderType] = useState<'DineIn' | 'Takeaway' | 'Delivery'>('DineIn');
 
   // Management Form State
   const [showAddModal, setShowAddModal] = useState(false);
@@ -110,7 +111,12 @@ export default function POSTerminal() {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
-      setDishes(data);
+      if (Array.isArray(data)) {
+        setDishes(data);
+      } else {
+        console.warn('API did not return an array for dishes. Possibly token expired.');
+        setDishes([]);
+      }
     } catch (err) {
       console.error('Failed to fetch dishes', err);
     } finally {
@@ -278,7 +284,8 @@ export default function POSTerminal() {
           customerName,
           customerPhone,
           discount: parseFloat(discount) || 0,
-          paymentMethod
+          paymentMethod,
+          orderType
         })
       });
       
@@ -425,6 +432,7 @@ export default function POSTerminal() {
           </div>
 
           <div className="border-t border-dashed border-black pt-4 mb-8 text-center">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em]">Order Type: {orderType}</p>
             <p className="text-[10px] font-black uppercase tracking-[0.2em]">Payment Method: {paymentMethod}</p>
           </div>
 
@@ -688,6 +696,36 @@ export default function POSTerminal() {
               </button>
             </div>
 
+            <div className="space-y-1.5 pt-1">
+              <span className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1">Order Type</span>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setOrderType('DineIn')}
+                  className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                    orderType === 'DineIn' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                  }`}
+                >
+                  Dine In
+                </button>
+                <button 
+                  onClick={() => setOrderType('Takeaway')}
+                  className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                    orderType === 'Takeaway' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                  }`}
+                >
+                  Takeaway
+                </button>
+                <button 
+                  onClick={() => setOrderType('Delivery')}
+                  className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                    orderType === 'Delivery' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                  }`}
+                >
+                  Delivery
+                </button>
+              </div>
+            </div>
+
             <div className="flex items-center gap-2">
               <button 
                 onClick={() => setPaymentMethod('Cash')}
@@ -730,6 +768,7 @@ export default function POSTerminal() {
                   setDiscount('');
                   setApplyGst(true);
                   setPaymentMethod('Cash');
+                  setOrderType('DineIn');
                   setCheckoutSuccess(false);
                 }}
                 className="py-3.5 rounded-xl border border-red-500/20 text-red-500 font-bold text-[10px] uppercase tracking-widest hover:bg-red-500/5 transition-all"
@@ -775,6 +814,7 @@ export default function POSTerminal() {
                 setDiscount('');
                 setApplyGst(true);
                 setPaymentMethod('Cash');
+                setOrderType('DineIn');
                 setCheckoutSuccess(false);
                 setIsCartOpen(false);
               } : handleCheckout}
@@ -818,6 +858,17 @@ export default function POSTerminal() {
                   <input type="number" value={editingDish ? editingDish.price : newDish.price} onChange={(e) => editingDish ? setEditingDish({...editingDish, price: Number(e.target.value)}) : setNewDish({...newDish, price: e.target.value})} placeholder="Price" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
                   <input type="number" value={editingDish ? editingDish.ingredientPrice : newDish.ingredientPrice} onChange={(e) => editingDish ? setEditingDish({...editingDish, ingredientPrice: Number(e.target.value)}) : setNewDish({...newDish, ingredientPrice: e.target.value})} placeholder="Cost" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
                 </div>
+                {(() => {
+                  const cost = editingDish ? editingDish.ingredientPrice : Number(newDish.ingredientPrice);
+                  if (cost > 0) {
+                    return (
+                      <p className="text-[10px] text-white/50 italic px-2">
+                        💡 Suggested Selling Price: <span className="text-gold font-bold">₹{Math.round(cost * 2.5)}</span> - <span className="text-gold font-bold">₹{Math.round(cost * 5)}</span> (2.5x - 5x food cost)
+                      </p>
+                    );
+                  }
+                  return null;
+                })()}
                 <button onClick={editingDish ? handleUpdateDish : handleAddDish} className="w-full py-4 bg-gold text-black font-black uppercase rounded-xl">{editingDish ? 'Save Changes' : 'Add Item'}</button>
               </div>
             </motion.div>

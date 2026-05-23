@@ -41,7 +41,7 @@ export default function UserManagementPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setUsers(data);
+        setUsers(Array.isArray(data) ? data : []);
       } else {
         setError(`Failed to fetch users: ${res.status}`);
       }

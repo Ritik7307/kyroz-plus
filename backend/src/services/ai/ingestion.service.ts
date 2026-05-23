@@ -1,7 +1,7 @@
 import SopChunk from '../../models/SopChunk';
 import { generateEmbedding } from './embedding.service';
 
-export const processSopText = async (userId: string, text: string) => {
+export const processSopText = async (userId: string, text: string, language: string = 'en') => {
   // 1. Extract Dish Name
   const dishMatch = text.match(/SOP:\s*(.+)/i);
   if (!dishMatch) {
@@ -9,8 +9,8 @@ export const processSopText = async (userId: string, text: string) => {
   }
   const dish = dishMatch[1].trim().toLowerCase();
 
-  // 2. Delete old chunks for this dish (Update logic: no model retraining)
-  await SopChunk.deleteMany({ userId, dish });
+  // 2. Delete old chunks for this dish and language
+  await SopChunk.deleteMany({ userId, dish, lang: language });
 
   // 3. Define Section Keywords
   const sectionKeywords = [
@@ -88,7 +88,8 @@ export const processSopText = async (userId: string, text: string) => {
         dish: chunk.dish,
         section: chunk.section,
         content: chunk.content,
-        embedding: embedding || [] // Save even if no embedding
+        embedding: embedding || [], // Save even if no embedding
+        lang: language
       });
       
       chunksStored++;
@@ -101,7 +102,8 @@ export const processSopText = async (userId: string, text: string) => {
         dish: chunk.dish,
         section: chunk.section,
         content: chunk.content,
-        embedding: []
+        embedding: [],
+        lang: language
       });
       chunksStored++;
     }

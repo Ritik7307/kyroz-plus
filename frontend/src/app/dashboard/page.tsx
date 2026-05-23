@@ -62,20 +62,20 @@ export default function DashboardPage() {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const sopData = await sopRes.json();
-        setSops(sopData);
+        setSops(Array.isArray(sopData) ? sopData : []);
 
         const packetsRes = await fetch(`${API_URL}/api/sop-packets`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const packetsData = await packetsRes.json();
-        setPackets(packetsData);
+        setPackets(Array.isArray(packetsData) ? packetsData : []);
 
         const testimonialsRes = await fetch(`${API_URL}/api/testimonials`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (testimonialsRes.ok) {
           const testimonialsData = await testimonialsRes.json();
-          setTestimonials(testimonialsData);
+          setTestimonials(Array.isArray(testimonialsData) ? testimonialsData : []);
         }
 
         // Fetch daily profit

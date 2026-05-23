@@ -6,7 +6,7 @@ export interface ISopChunk extends Document {
   section: string;
   content: string;
   embedding: number[];
-  language: string;
+  lang: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -18,7 +18,7 @@ const SopChunkSchema: Schema = new Schema(
     section: { type: String, required: true },
     content: { type: String, required: true },
     embedding: { type: [Number], required: false }, // Optional if Gemini is not used
-    language: { type: String, default: 'en' },
+    lang: { type: String, default: 'en' },
   },
   { timestamps: true }
 );

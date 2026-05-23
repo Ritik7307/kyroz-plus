@@ -32,6 +32,7 @@ const RECORDER_MIME_TYPES = [
 type Message = {
   role: 'user' | 'kosa';
   content: string;
+  suggestions?: string[];
   timestamp?: Date;
 };
 
@@ -388,7 +389,7 @@ export default function AiDashboard() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      setMessages(prev => [...prev, { role: 'kosa', content: data.reply, timestamp: new Date() }]);
+      setMessages(prev => [...prev, { role: 'kosa', content: data.reply, suggestions: data.suggestions, timestamp: new Date() }]);
       
       if (!isMuted) {
         setAssistantState('speaking');
@@ -493,10 +494,26 @@ export default function AiDashboard() {
       {/* Chat Area */}
       <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
         {messages.map((msg, idx) => (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[80%] rounded-[1.8rem] p-5 shadow-2xl ${msg.role === 'user' ? 'bg-gold text-black font-bold' : 'bg-white/5 text-gray-200 border border-white/5'}`}>
-              <div className="text-[13px] whitespace-pre-wrap">{msg.content}</div>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} key={idx} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+            <div className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-[80%] rounded-[1.8rem] p-5 shadow-2xl ${msg.role === 'user' ? 'bg-gold text-black font-bold' : 'bg-white/5 text-gray-200 border border-white/5'}`}>
+                <div className="text-[13px] whitespace-pre-wrap">{msg.content}</div>
+              </div>
             </div>
+            {msg.role === 'kosa' && msg.suggestions && msg.suggestions.length > 0 && idx === messages.length - 1 && (
+              <div className="flex flex-wrap gap-2 mt-3 ml-2 max-w-[80%]">
+                {msg.suggestions.map((suggestion, sIdx) => (
+                  <button
+                    key={sIdx}
+                    onClick={() => handleSend(suggestion)}
+                    disabled={assistantState === 'processing' || assistantState === 'speaking'}
+                    className="px-4 py-2 bg-white/5 hover:bg-gold/20 border border-white/10 hover:border-gold/30 text-white/80 hover:text-gold text-xs rounded-full transition-all shadow-md font-medium"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            )}
           </motion.div>
         ))}
       </div>

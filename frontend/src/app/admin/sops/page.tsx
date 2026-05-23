@@ -16,7 +16,7 @@ import { API_URL } from '@/lib/api';
 import CustomDropdown from '@/components/ui/CustomDropdown';
 
 export default function GlobalSopsPage() {
-  const [sops, setSops] = useState([]);
+  const [sops, setSops] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSop, setEditingSop] = useState<any>(null);
   const [formData, setFormData] = useState({
@@ -38,7 +38,7 @@ export default function GlobalSopsPage() {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
-      setSops(data);
+      setSops(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to fetch master sops', err);
     }
@@ -198,8 +198,10 @@ export default function GlobalSopsPage() {
                     <CustomDropdown 
                       label="Category"
                       options={[
-                        { label: 'Dish', value: 'Dish' },
-                        { label: 'Gravy', value: 'Gravy' },
+                        { label: 'South Indian', value: 'South Indian' },
+                        { label: 'Cafe', value: 'Cafe' },
+                        { label: 'Mandi/Biryani', value: 'Mandi/Biryani' },
+                        { label: 'Chinese', value: 'Chinese' },
                         { label: 'Process', value: 'Process' },
                         { label: 'Rules', value: 'Rules' }
                       ]}

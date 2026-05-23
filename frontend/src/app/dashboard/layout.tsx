@@ -4,7 +4,24 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Sidebar from '@/components/layout/Sidebar';
-import { Menu, Bell, User, Plus, Search as SearchIcon, Command } from 'lucide-react';
+import { 
+  Menu, 
+  Bell, 
+  User, 
+  Plus, 
+  Search as SearchIcon, 
+  Command,
+  LayoutDashboard,
+  Calculator,
+  ChefHat,
+  Utensils,
+  Package,
+  TrendingUp,
+  MessageSquare,
+  IndianRupee,
+  Users,
+  ChevronDown
+} from 'lucide-react';
 import { GlobalSearch, ToastContainer, Toast } from '@/components/dashboard/GlobalSearch';
 import NotificationPanel from '@/components/dashboard/NotificationPanel';
 import FloatingKOSA from '@/components/dashboard/FloatingKOSA';
@@ -21,13 +38,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
       router.push('/login');
     } else {
-      setIsAuthorized(true);
       fetchUser(token);
     }
   }, [router]);
@@ -56,9 +73,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       });
       const data = await res.json();
       setUser(data);
+      setIsAuthorized(true);
       fetchNotifications(token);
     } catch (err) {
       console.error('Failed to fetch user', err);
+      router.push('/login');
     }
   };
 
@@ -78,17 +97,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   const allNavLinks = [
-    { name: 'Dashboard', path: '/dashboard', id: 'dashboard' },
-    { name: 'POS Terminal', path: '/dashboard/pos', id: 'pos' },
-    { name: 'SOP Library', path: '/dashboard/sop', id: 'sop' },
-    { name: 'Inventory', path: '/dashboard/inventory', id: 'inventory' },
-    { name: 'SOP Packets', path: '/dashboard/packets', id: 'packets' },
-    { name: 'Sales History', path: '/dashboard/history', id: 'history' },
-    { name: 'KOSA AI', path: '/dashboard/ai', id: 'ai' },
-    { name: 'Costing Master', path: '/dashboard/costing', id: 'costing' },
-    { name: 'Customers', path: '/dashboard/customers', id: 'customers' },
-    { name: 'Manage Team', path: '/dashboard/team', id: 'team', ownerOnly: true },
-    { name: 'Account', path: '/dashboard/account', id: 'account' },
+    { name: 'Dashboard', path: '/dashboard', id: 'dashboard', icon: LayoutDashboard },
+    { name: 'POS Terminal', path: '/dashboard/pos', id: 'pos', icon: Calculator },
+    { name: 'SOP Library', path: '/dashboard/sop', id: 'sop', icon: ChefHat },
+    { name: 'Inventory', path: '/dashboard/inventory', id: 'inventory', icon: Utensils },
+    { name: 'SOP Packets', path: '/dashboard/packets', id: 'packets', icon: Package },
+    { name: 'Sales History', path: '/dashboard/history', id: 'history', icon: TrendingUp },
+    { name: 'KOSA AI', path: '/dashboard/ai', id: 'ai', icon: MessageSquare },
+    { name: 'Costing Master', path: '/dashboard/costing', id: 'costing', icon: IndianRupee },
+    { name: 'Customers', path: '/dashboard/customers', id: 'customers', icon: Users },
+    { name: 'Manage Team', path: '/dashboard/team', id: 'team', ownerOnly: true, icon: Users },
+    { name: 'Account', path: '/dashboard/account', id: 'account', icon: User },
   ];
 
   const navLinks = allNavLinks.filter(link => {
@@ -107,6 +126,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     // Default for staff with no explicit permissions (show basic)
     return ['dashboard', 'account'].includes(link.id);
   });
+
+  const mainLinks = navLinks.filter((link) => ['dashboard', 'pos', 'costing', 'ai', 'inventory', 'sop'].includes(link.id));
+  const moreLinks = navLinks.filter((link) => !['dashboard', 'pos', 'costing', 'ai', 'inventory', 'sop'].includes(link.id));
+  const isMoreActive = moreLinks.some((link) => pathname === link.path);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col relative">
@@ -142,20 +165,76 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Center Section: Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-8 text-[10px] font-black uppercase tracking-widest mx-4">
-          {navLinks.map((link) => (
-            <Link 
-              key={link.path}
-              href={link.path} 
-              className={`transition-all py-2 border-b-2 whitespace-nowrap ${
-                pathname === link.path 
-                  ? 'text-gold border-gold' 
-                  : 'text-white/20 hover:text-white border-transparent'
-              }`}
+        <nav className="hidden lg:flex items-center gap-6 mx-4">
+          {mainLinks.map((link) => {
+            const Icon = (link as any).icon;
+            const isActive = pathname === link.path;
+            return (
+              <Link 
+                key={link.path}
+                href={link.path} 
+                className={`flex items-center gap-2 transition-all py-2 border-b-2 whitespace-nowrap text-[10px] font-black uppercase tracking-widest ${
+                  isActive 
+                    ? 'text-gold border-gold' 
+                    : 'text-white/20 hover:text-white border-transparent'
+                }`}
+              >
+                {Icon && <Icon size={14} className={isActive ? 'text-gold' : 'text-white/20'} />}
+                <span>{link.name}</span>
+              </Link>
+            );
+          })}
+
+          {moreLinks.length > 0 && (
+            <div 
+              className="relative"
+              onMouseEnter={() => setIsMoreOpen(true)}
+              onMouseLeave={() => setIsMoreOpen(false)}
             >
-              {link.name}
-            </Link>
-          ))}
+              <button 
+                onClick={() => setIsMoreOpen(!isMoreOpen)}
+                className={`flex items-center gap-2 transition-all py-2 border-b-2 whitespace-nowrap text-[10px] font-black uppercase tracking-widest ${
+                  isMoreActive 
+                    ? 'text-gold border-gold' 
+                    : 'text-white/20 hover:text-gold border-transparent'
+                }`}
+              >
+                <span>More</span>
+                <ChevronDown size={12} className={`transition-transform duration-200 ${isMoreOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              <AnimatePresence>
+                {isMoreOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute top-full left-0 mt-3 bg-card glass-card border border-white/10 rounded-2xl p-4 w-56 shadow-2xl z-[70] space-y-1.5"
+                  >
+                    {moreLinks.map((link) => {
+                      const Icon = (link as any).icon;
+                      const isActive = pathname === link.path;
+                      return (
+                        <Link
+                          key={link.path}
+                          href={link.path}
+                          onClick={() => setIsMoreOpen(false)}
+                          className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-[10px] font-black uppercase tracking-widest ${
+                            isActive 
+                              ? 'bg-gold/10 text-gold border border-gold/20' 
+                              : 'text-white/50 hover:text-gold hover:bg-white/5 border border-transparent'
+                          }`}
+                        >
+                          {Icon && <Icon size={14} className={isActive ? 'text-gold' : 'text-white/30'} />}
+                          <span>{link.name}</span>
+                        </Link>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
         </nav>
 
         {/* Right Section: Actions & Profile */}
@@ -167,15 +246,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <SearchIcon size={18} />
           </button>
           
-          <div 
-            className="relative hidden sm:block"
+          <button 
             onClick={() => setIsNotificationsOpen(true)}
+            className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-white/40 hover:text-gold transition-all border border-white/5 relative"
           >
-            <Bell size={18} className="text-white/20 hover:text-gold cursor-pointer transition-colors" />
+            <Bell size={18} />
             {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background animate-pulse"></span>
+              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-background animate-pulse"></span>
             )}
-          </div>
+          </button>
 
           <div className="flex items-center gap-3 bg-white/5 pl-2 pr-4 py-1.5 rounded-xl border border-white/10 hover:border-gold/30 transition-all cursor-pointer group shrink-0">
             <div className="w-8 h-8 rounded-lg bg-gold-gradient flex items-center justify-center text-black font-black text-sm">

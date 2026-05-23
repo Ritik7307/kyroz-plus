@@ -41,7 +41,7 @@ import { API_URL } from '@/lib/api';
 interface Sop {
   _id: string;
   title: string;
-  category: 'Dish' | 'Gravy' | 'Costing' | 'Wastage' | 'Discipline';
+  category: string;
   contentEn?: string;
   contentHi?: string;
   content?: string;
@@ -91,7 +91,7 @@ function SOPLibraryContent() {
       });
       if (res.ok) {
         const data = await res.json();
-        setSops(data);
+        setSops(Array.isArray(data) ? data : []);
 
         // Handle deep linking
         const categoryParam = searchParams.get('category');
@@ -141,7 +141,7 @@ function SOPLibraryContent() {
     }
   };
 
-  const categories = ['All', 'Dish', 'Gravy', 'Costing', 'Wastage'];
+  const categories = ['All', 'South Indian', 'Cafe', 'Mandi/Biryani', 'Chinese'];
 
   const filteredSops = sops.filter(sop => {
     const matchesCategory = activeCategory === 'All' ||
@@ -235,7 +235,7 @@ function SOPLibraryContent() {
               <form onSubmit={handleCreateSop} className="space-y-8 md:space-y-12">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
                   <div className="space-y-3"><label className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-white/40">Recipe Name</label><input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all" required /></div>
-                  <div className="space-y-3"><label className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-white/40">Category</label><select value={formData.category} onChange={(e: any) => setFormData({ ...formData, category: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all appearance-none"><option value="Dish">Dish Production</option><option value="Gravy">Base Gravy</option><option value="Costing">Financial Controls</option></select></div>
+                  <div className="space-y-3"><label className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-white/40">Category</label><select value={formData.category} onChange={(e: any) => setFormData({ ...formData, category: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all appearance-none"><option value="South Indian">South Indian</option><option value="Cafe">Cafe</option><option value="Mandi/Biryani">Mandi/Biryani</option><option value="Chinese">Chinese</option><option value="Discipline">Discipline</option></select></div>
                 </div>
                 <div className="bg-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-white/5 space-y-6">
                   <div className="flex items-center justify-between"><div className="flex items-center gap-3"><Database className="text-gold" size={20} /><div><h4 className="text-[10px] md:text-sm font-black uppercase tracking-widest">Inventory Connection</h4></div></div><button type="button" onClick={() => setFormData({ ...formData, isInventoryLinked: !formData.isInventoryLinked })} className={`w-12 md:w-14 h-7 md:h-8 rounded-full transition-all relative ${formData.isInventoryLinked ? 'bg-gold' : 'bg-white/10'}`}><div className={`absolute top-1 w-5 md:w-6 h-5 md:h-6 rounded-full bg-white transition-all ${formData.isInventoryLinked ? 'right-1' : 'left-1'}`} /></button></div>
