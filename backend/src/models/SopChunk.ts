@@ -26,4 +26,7 @@ const SopChunkSchema: Schema = new Schema(
 // Add text index for searching without embeddings
 SopChunkSchema.index({ dish: 'text', section: 'text', content: 'text' });
 
+// Add compound index for user and language searches
+SopChunkSchema.index({ userId: 1, lang: 1 });
+
 export default mongoose.models.SopChunk || mongoose.model<ISopChunk>('SopChunk', SopChunkSchema);

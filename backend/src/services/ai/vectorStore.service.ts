@@ -30,7 +30,10 @@ export const retrieveRelevantChunks = async (userId: string, queryEmbedding: num
   const queryTerms = queryLower.split(/\s+/).filter(t => t.length > 2);
 
   const scoredChunks = allChunks.map(chunk => {
-    let similarity = cosineSimilarity(queryEmbedding, chunk.embedding);
+    let similarity = 0;
+    if (queryEmbedding && queryEmbedding.length > 0 && chunk.embedding && chunk.embedding.length > 0) {
+      similarity = cosineSimilarity(queryEmbedding, chunk.embedding);
+    }
     
     // Dish Name Boost: If the dish name keywords are in the query, boost significantly
     if (queryLower) {

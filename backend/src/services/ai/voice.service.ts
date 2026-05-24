@@ -5,7 +5,9 @@ import path from 'path';
 import os from 'os';
 
 const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
-const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
+const openai = process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'YOUR_OPENAI_KEY_HERE'
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null;
 
 /**
  * Transcribes audio buffer using Groq Whisper.
@@ -38,25 +40,39 @@ export const transcribeAudio = async (audioBuffer: Buffer, lang: string = 'en', 
  * Generates speech from text.
  */
 export const generateSpeech = async (text: string, lang: string = 'auto'): Promise<Buffer> => {
+  const hasAiCore = !!process.env.AI_CORE_URL || process.env.NODE_ENV !== 'production';
+  const hasOpenAi = !!openai;
+
+  if (!hasAiCore && !hasOpenAi) {
+    throw new Error("No Text-to-Speech engines configured (missing AI_CORE_URL and valid OPENAI_API_KEY).");
+  }
+
   try {
     const formData = new URLSearchParams();
     formData.append('text', text);
     formData.append('lang', lang);
 
-    const response = await fetch(`${process.env.AI_CORE_URL || 'http://localhost:8000'}/speak`, {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+    const response = await fetch(`${process.env.AI_CORE_URL || 'http://127.0.0.1:8000'}/speak`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: formData
+      body: formData,
+      signal: controller.signal
     });
     
+    clearTimeout(timeoutId);
+
     if (response.ok) {
       const arrayBuffer = await response.arrayBuffer();
       return Buffer.from(arrayBuffer);
     } else {
       throw new Error(`Python AI Core responded with status ${response.status}`);
     }
-  } catch (error) {
-    console.warn("Python AI Core TTS failed. Falling back to OpenAI.");
+  } catch (error: any) {
+    const isAbort = error.name === 'AbortError';
+    console.warn(isAbort ? "Python AI Core TTS connection timed out." : "Python AI Core TTS failed. Falling back to OpenAI if available.");
     
     if (openai) {
       try {
@@ -68,6 +84,6 @@ export const generateSpeech = async (text: string, lang: string = 'auto'): Promi
       }
     }
     
-    throw new Error("Both Python TTS and OpenAI TTS fallbacks failed.");
+    throw new Error("Both Python TTS and OpenAI TTS fallbacks failed or are unconfigured.");
   }
 };

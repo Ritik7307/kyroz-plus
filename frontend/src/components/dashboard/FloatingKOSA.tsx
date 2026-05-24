@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, Mic, MicOff, X, Volume2, VolumeX, Send, Loader2, Sparkles, Minimize2, Maximize2, FileUp } from 'lucide-react';
+import { Bot, Mic, MicOff, X, Volume2, VolumeX, Send, Loader2, Sparkles, Minimize2, Maximize2, FileUp, Square } from 'lucide-react';
 
 import { API_URL } from '@/lib/api';
 
@@ -92,6 +92,8 @@ export default function FloatingKOSA() {
   const isStoppingRef = useRef(false);
   const recordingMimeTypeRef = useRef('audio/webm');
   const activeAudioUrlRef = useRef<string | null>(null);
+  const activeAudioRef = useRef<HTMLAudioElement | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -129,6 +131,31 @@ export default function FloatingKOSA() {
     hasSpeechRef.current = false;
     canStopRecordingRef.current = false;
     isStoppingRef.current = false;
+  };
+
+  const stopRequest = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setAssistantState('idle');
+    setVoiceHint('Request cancelled.');
+    setTimeout(() => {
+      setVoiceHint('Tap the mic and speak in Hindi, English, or both.');
+    }, 2000);
+  };
+
+  const stopSpeaking = () => {
+    if (activeAudioRef.current) {
+      activeAudioRef.current.pause();
+      activeAudioRef.current.currentTime = 0;
+      activeAudioRef.current = null;
+    }
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    setAssistantState('idle');
+    setVoiceHint('Tap the mic and speak in Hindi, English, or both.');
   };
 
   const stopRecording = () => {
@@ -313,8 +340,15 @@ export default function FloatingKOSA() {
   };
 
   const handleTranscription = async (blob: Blob, attempt = 1) => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
+
     setAssistantState('processing');
     setVoiceHint('Processing...');
+    setErrorMessage('');
     try {
       const formData = new FormData();
       formData.append('audio', blob, `voice.${audioExtensionFromMime(blob.type)}`);
@@ -326,7 +360,8 @@ export default function FloatingKOSA() {
         headers: { 
           'Authorization': `Bearer ${token}`
         },
-        body: formData
+        body: formData,
+        signal
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || data.error || 'Transcription failed');
@@ -335,7 +370,8 @@ export default function FloatingKOSA() {
       } else {
         throw new Error('No speech detected');
       }
-    } catch (err) {
+    } catch (err: any) {
+      if (err.name === 'AbortError') return;
       if (attempt < 2) {
         setVoiceHint('Retrying transcription...');
         await handleTranscription(blob, attempt + 1);
@@ -344,17 +380,28 @@ export default function FloatingKOSA() {
       setErrorMessage(err instanceof Error ? err.message : 'Could not transcribe audio.');
       setVoiceHint('Please try again.');
       setAssistantState('idle');
+    } finally {
+      if (abortControllerRef.current?.signal === signal) {
+        abortControllerRef.current = null;
+      }
     }
   };
 
   const handleSend = async (text?: string) => {
     const query = text || inputText;
-    if (!query.trim() || assistantState === 'processing') return;
+    if (!query.trim()) return;
+
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
 
     setInputText('');
     setMessages(prev => [...prev, { role: 'user', content: query, timestamp: new Date() }]);
     setAssistantState('processing');
     setVoiceHint('Processing...');
+    setErrorMessage('');
 
     try {
       const token = localStorage.getItem('token');
@@ -368,7 +415,8 @@ export default function FloatingKOSA() {
           message: query, 
           lang: selectedLang,
           history: messages.slice(-5).map(m => ({ role: m.role, content: m.content }))
-        })
+        }),
+        signal
       });
 
       const data = await res.json();
@@ -379,14 +427,14 @@ export default function FloatingKOSA() {
       if (!isMuted) {
         setAssistantState('speaking');
         setVoiceHint('Speaking...');
-        const token = localStorage.getItem('token');
         const speakRes = await fetch(`${AI_CORE_URL}/speak`, {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ text: data.reply, lang: data.detectedLang || selectedLang })
+          body: JSON.stringify({ text: data.reply, lang: data.detectedLang || selectedLang }),
+          signal
         });
         
         if (speakRes.ok) {
@@ -394,6 +442,7 @@ export default function FloatingKOSA() {
           if (activeAudioUrlRef.current) URL.revokeObjectURL(activeAudioUrlRef.current);
           activeAudioUrlRef.current = URL.createObjectURL(audioBlob);
           const audio = new Audio(activeAudioUrlRef.current);
+          activeAudioRef.current = audio;
           audio.onended = () => {
             setAssistantState('idle');
             setVoiceHint('Tap the mic and speak in Hindi, English, or both.');
@@ -406,17 +455,65 @@ export default function FloatingKOSA() {
         } else {
           // Final Fallback: Browser Web Speech API
           console.warn("Backend TTS failed, falling back to browser speech API");
+          setAssistantState('speaking');
           const utterance = new SpeechSynthesisUtterance(data.reply);
-          utterance.lang = selectedLang === 'hi' ? 'hi-IN' : 'en-US';
+          const actualLang = data.detectedLang || selectedLang;
+          utterance.lang = actualLang === 'hi' ? 'hi-IN' : 'en-US';
+
+          if (typeof window !== 'undefined' && window.speechSynthesis) {
+            window.speechSynthesis.cancel(); // cancel any active speech
+            const voices = window.speechSynthesis.getVoices();
+            const targetLangStr = actualLang === 'hi' ? 'hi' : 'en';
+            
+            // Filter voices by target language
+            const langVoices = voices.filter(v => v.lang.toLowerCase().startsWith(targetLangStr));
+            
+            // Prioritize female / natural neural voices (known female voice names & key qualities)
+            const femaleKeywords = ['swara', 'jenny', 'zira', 'heera', 'kalpana', 'samantha', 'google', 'female', 'natural', 'online', 'premium'];
+            
+            langVoices.sort((a, b) => {
+              const nameA = a.name.toLowerCase();
+              const nameB = b.name.toLowerCase();
+              let scoreA = 0;
+              let scoreB = 0;
+              
+              for (const kw of femaleKeywords) {
+                if (nameA.includes(kw)) scoreA++;
+                if (nameB.includes(kw)) scoreB++;
+              }
+              
+              return scoreB - scoreA;
+            });
+
+            if (langVoices.length > 0) {
+              utterance.voice = langVoices[0];
+            }
+          }
+
+          utterance.onend = () => {
+            setAssistantState('idle');
+            setVoiceHint('Tap the mic and speak in Hindi, English, or both.');
+          };
+          utterance.onerror = () => {
+            setAssistantState('idle');
+          };
           window.speechSynthesis.speak(utterance);
-          setAssistantState('idle');
         }
       } else {
         setAssistantState('idle');
+        setVoiceHint('Tap the mic and speak in Hindi, English, or both.');
       }
-    } catch (err) {
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        console.log('Request aborted by user');
+        return;
+      }
       setErrorMessage(err instanceof Error ? err.message : 'KOSA failed to respond.');
       setAssistantState('idle');
+    } finally {
+      if (abortControllerRef.current?.signal === signal) {
+        abortControllerRef.current = null;
+      }
     }
   };
 
@@ -530,13 +627,21 @@ export default function FloatingKOSA() {
 
                   <div className="flex items-center gap-3 bg-white/5 p-2 rounded-[1.8rem] border border-white/10 focus-within:border-gold/30 transition-all">
                     <button
-                      onClick={() => assistantState === 'listening' ? stopRecording() : startRecording()}
-                      disabled={assistantState === 'processing' || assistantState === 'speaking'}
-                      className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all disabled:opacity-30 ${
-                        assistantState === 'listening' ? 'bg-red-500 text-white animate-pulse' : 'bg-gold/10 text-gold hover:bg-gold hover:text-black'
+                      onClick={() => {
+                        if (assistantState === 'speaking') stopSpeaking();
+                        else if (assistantState === 'processing') stopRequest();
+                        else if (assistantState === 'listening') stopRecording();
+                        else startRecording();
+                      }}
+                      className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
+                        assistantState === 'listening' ? 'bg-red-500 text-white animate-pulse' : 
+                        (assistantState === 'processing' || assistantState === 'speaking') ? 'bg-red-500 hover:bg-red-600 text-white' : 
+                        'bg-gold/10 text-gold hover:bg-gold hover:text-black'
                       }`}
                     >
-                      {assistantState === 'listening' ? <MicOff size={20} /> : <Mic size={20} />}
+                      {assistantState === 'listening' ? <MicOff size={20} /> : 
+                       (assistantState === 'processing' || assistantState === 'speaking') ? <Square size={20} className="fill-current text-white" /> : 
+                       <Mic size={20} />}
                     </button>
                     
                     <input

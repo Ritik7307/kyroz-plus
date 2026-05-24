@@ -105,6 +105,7 @@ export default function AiDashboard() {
   const recordingMimeTypeRef = useRef('audio/webm');
   const activeAudioUrlRef = useRef<string | null>(null);
   const activeAudioRef = useRef<HTMLAudioElement | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -155,11 +156,26 @@ export default function AiDashboard() {
     recorder.stop();
   };
 
+  const stopRequest = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setAssistantState('idle');
+    setVoiceHint('Request cancelled.');
+    setTimeout(() => {
+      setVoiceHint('Tap the mic and speak in Hindi, English, or both.');
+    }, 2000);
+  };
+
   const stopSpeaking = () => {
     if (activeAudioRef.current) {
       activeAudioRef.current.pause();
       activeAudioRef.current.currentTime = 0;
       activeAudioRef.current = null;
+    }
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
     }
     setAssistantState('idle');
     setVoiceHint('Tap the mic and speak in Hindi, English, or both.');
@@ -332,8 +348,15 @@ export default function AiDashboard() {
   };
 
   const handleTranscription = async (blob: Blob, attempt = 1) => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
+
     setAssistantState('processing');
     setVoiceHint('Processing...');
+    setErrorMessage('');
     try {
       const formData = new FormData();
       formData.append('audio', blob, `voice.${audioExtensionFromMime(blob.type)}`);
@@ -345,13 +368,15 @@ export default function AiDashboard() {
         headers: { 
           'Authorization': `Bearer ${token}`
         },
-        body: formData 
+        body: formData,
+        signal
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || data.error || 'Transcription failed');
       if (data.transcript) handleSend(data.transcript);
       else throw new Error('No speech detected');
-    } catch (err) {
+    } catch (err: any) {
+      if (err.name === 'AbortError') return;
       if (attempt < 2) {
         setVoiceHint('Retrying transcription...');
         await handleTranscription(blob, attempt + 1);
@@ -360,17 +385,28 @@ export default function AiDashboard() {
       setErrorMessage(err instanceof Error ? err.message : 'Could not transcribe audio.');
       setVoiceHint('Please try again.');
       setAssistantState('idle');
+    } finally {
+      if (abortControllerRef.current?.signal === signal) {
+        abortControllerRef.current = null;
+      }
     }
   };
 
   const handleSend = async (textOverride?: string) => {
     const userQuery = textOverride || input.trim();
-    if (!userQuery || assistantState === 'processing') return;
+    if (!userQuery) return;
+
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
 
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: userQuery, timestamp: new Date() }]);
     setAssistantState('processing');
     setVoiceHint('Processing...');
+    setErrorMessage('');
 
     try {
       const token = localStorage.getItem('token');
@@ -384,7 +420,8 @@ export default function AiDashboard() {
           message: userQuery, 
           lang: selectedLang,
           history: messages.slice(-5).map(m => ({ role: m.role, content: m.content }))
-        }) 
+        }),
+        signal 
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -394,14 +431,14 @@ export default function AiDashboard() {
       if (!isMuted) {
         setAssistantState('speaking');
         setVoiceHint('Speaking...');
-        const token = localStorage.getItem('token');
         const speakRes = await fetch(`${AI_CORE_URL}/speak`, { 
           method: 'POST', 
           headers: { 
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ text: data.reply, lang: data.detectedLang || selectedLang }) 
+          body: JSON.stringify({ text: data.reply, lang: data.detectedLang || selectedLang }),
+          signal
         });
         if (speakRes.ok) {
           const audioBlob = await speakRes.blob();
@@ -421,19 +458,67 @@ export default function AiDashboard() {
         } else {
           // Final Fallback: Browser Web Speech API
           console.warn("Backend TTS failed, falling back to browser speech API");
+          setAssistantState('speaking');
           const utterance = new SpeechSynthesisUtterance(data.reply);
-          utterance.lang = selectedLang === 'hi' ? 'hi-IN' : 'en-US';
+          const actualLang = data.detectedLang || selectedLang;
+          utterance.lang = actualLang === 'hi' ? 'hi-IN' : 'en-US';
+
+          if (typeof window !== 'undefined' && window.speechSynthesis) {
+            window.speechSynthesis.cancel(); // cancel any active speech
+            const voices = window.speechSynthesis.getVoices();
+            const targetLangStr = actualLang === 'hi' ? 'hi' : 'en';
+            
+            // Filter voices by target language
+            const langVoices = voices.filter(v => v.lang.toLowerCase().startsWith(targetLangStr));
+            
+            // Prioritize female / natural neural voices (known female voice names & key qualities)
+            const femaleKeywords = ['swara', 'jenny', 'zira', 'heera', 'kalpana', 'samantha', 'google', 'female', 'natural', 'online', 'premium'];
+            
+            langVoices.sort((a, b) => {
+              const nameA = a.name.toLowerCase();
+              const nameB = b.name.toLowerCase();
+              let scoreA = 0;
+              let scoreB = 0;
+              
+              for (const kw of femaleKeywords) {
+                if (nameA.includes(kw)) scoreA++;
+                if (nameB.includes(kw)) scoreB++;
+              }
+              
+              return scoreB - scoreA;
+            });
+
+            if (langVoices.length > 0) {
+              utterance.voice = langVoices[0];
+            }
+          }
+
+          utterance.onend = () => {
+            setAssistantState('idle');
+            setVoiceHint('Tap the mic and speak in Hindi, English, or both.');
+          };
+          utterance.onerror = () => {
+            setAssistantState('idle');
+          };
           window.speechSynthesis.speak(utterance);
-          setAssistantState('idle');
         }
       } else {
         setAssistantState('idle');
+        setVoiceHint('Tap the mic and speak in Hindi, English, or both.');
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        console.log('Request aborted by user');
+        return;
+      }
       const message = error instanceof Error ? error.message : 'KOSA failed to respond.';
       setMessages(prev => [...prev, { role: 'kosa', content: `Error: ${message}` }]);
       setErrorMessage(message);
       setAssistantState('idle');
+    } finally {
+      if (abortControllerRef.current?.signal === signal) {
+        abortControllerRef.current = null;
+      }
     }
   };
 
@@ -535,13 +620,18 @@ export default function AiDashboard() {
           <button
             onClick={() => {
               if (assistantState === 'speaking') stopSpeaking();
+              else if (assistantState === 'processing') stopRequest();
               else if (assistantState === 'listening') stopRecording();
               else startRecording();
             }}
-            disabled={assistantState === 'processing'}
-            className={`w-14 h-14 flex items-center justify-center rounded-2xl transition-all disabled:opacity-30 ${assistantState === 'listening' ? 'bg-red-500 animate-pulse' : 'bg-white/5'}`}
+            className={`w-14 h-14 flex items-center justify-center rounded-2xl transition-all ${
+              assistantState === 'listening' ? 'bg-red-500 animate-pulse text-white' : 
+              (assistantState === 'processing' || assistantState === 'speaking') ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-white/5'
+            }`}
           >
-            {assistantState === 'listening' ? <MicOff size={24} /> : assistantState === 'speaking' ? <Square size={24} className="fill-current text-red-500" /> : <Mic size={24} />}
+            {assistantState === 'listening' ? <MicOff size={24} /> : 
+             (assistantState === 'processing' || assistantState === 'speaking') ? <Square size={24} className="fill-current text-white" /> : 
+             <Mic size={24} />}
           </button>
 
           <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder="Type here..." className="flex-1 bg-transparent border-none outline-none text-white text-sm" />

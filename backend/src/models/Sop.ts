@@ -33,4 +33,6 @@ const SopSchema: Schema = new Schema(
   { timestamps: true }
 );
 
+SopSchema.index({ userId: 1 });
+
 export default mongoose.models.Sop || mongoose.model<ISop>('Sop', SopSchema);

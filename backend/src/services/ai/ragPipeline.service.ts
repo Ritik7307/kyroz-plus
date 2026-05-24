@@ -328,20 +328,28 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
       }
     }
 
+    const languageRule = targetLang === 'hi'
+      ? `1. LANGUAGE: You MUST respond entirely in proper, grammatically correct, professional Hindi using the Devanagari script (हिंदी देवनागरी). Do NOT write in Hinglish or write Hindi words in English/Latin letters (Roman script). Do NOT use English letters/words in the response (e.g. write "रेसिपी", "सामग्री", "विधि", "फ़्रीज़र" instead of "recipe", "ingredients", "method", "freezer"). Translate all context details into clear, natural, and correct Hindi sentences.`
+      : `1. LANGUAGE: You MUST respond entirely in professional English.`;
+
+    const suggestionsInstruction = targetLang === 'hi'
+      ? `Provide exactly 3 short follow-up suggestions in Hindi (हिंदी) in a [SUGGESTIONS] block at the end.`
+      : `Provide exactly 3 short follow-up suggestions in a [SUGGESTIONS] block at the end.`;
+
     const systemInstruction = `
 You are KOSA, a professional kitchen assistant for Kyroz Plus.
 Your goal is to answer questions about recipes (SOPs) from the provided context.
 
 STRICT RULES:
-1. LANGUAGE: You MUST respond entirely in ${targetLang === 'hi' ? 'Hindi (हिंदी)' : 'English'}. Translate the context if needed.
+${languageRule}
 2. SPECIFICITY: Only answer the specific question asked. Do not provide the full recipe unless requested.
 3. SOURCE: Use ONLY the provided SOP CONTEXT. If the answer is not in the context, say you don't know.
 4. PHONETIC/TYPO TOLERANCE: Treat transcription typos like "Lye Siddeley" as "Rice Idli", "mini-stries" as "mini size", "mendu wada" as "medu vada", etc. when matching with the context.
 
 SOP CONTEXT:
-${contextText || 'No matching SOP found in the library.'}
+${contextText || (targetLang === 'hi' ? 'लाइब्रेरी में कोई मिलान SOP नहीं मिला।' : 'No matching SOP found in the library.')}
 
-Provide exactly 3 short follow-up suggestions in a [SUGGESTIONS] block at the end.
+${suggestionsInstruction}
 `;
 
     const cleanHistory = history.filter(m => m.content !== query && m.content !== cleanedQuery);
@@ -361,7 +369,7 @@ Provide exactly 3 short follow-up suggestions in a [SUGGESTIONS] block at the en
             ...formattedHistory,
             { role: 'user', content: cleanedQuery }
           ] as any,
-          model: 'llama-3.1-8b-instant',
+          model: 'llama-3.3-70b-versatile',
           temperature: 0.2,
           max_tokens: 512, // Reduce max tokens to speed up output
         });
