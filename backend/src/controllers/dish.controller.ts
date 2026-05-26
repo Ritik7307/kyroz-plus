@@ -1,12 +1,18 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import Dish from '../models/Dish';
+import { seedBlueprints } from '../services/blueprintSeeder.service';
 
 export const getDishes = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const dishes = await Dish.find({ userId: req.user?.userId });
+    const userId = req.user?.userId;
+    if (userId) {
+      await seedBlueprints(userId);
+    }
+    const dishes = await Dish.find({ userId });
     res.status(200).json(dishes);
   } catch (error) {
+    console.error('getDishes error:', error);
     res.status(500).json({ error: 'Failed to fetch dishes' });
   }
 };

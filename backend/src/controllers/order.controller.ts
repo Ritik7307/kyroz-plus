@@ -88,38 +88,23 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
       }
     }
 
-    // Auto deduct packaging if takeaway/delivery
-    if (orderType === 'Takeaway' || orderType === 'Delivery') {
-      const getPackagingForDish = (dishName: string): string[] => {
-        const name = dishName.toLowerCase();
-        if (name.includes('masala dosa')) {
-          return ['Dosa Box', 'Butter Paper', 'Spoon', 'Carry Bag', 'Chutney Container', 'Sambhar Container'];
-        } else if (name.includes('rava dosa')) {
-          return ['Dosa Box', 'Butter Paper', 'Chutney Container', 'Carry Bag'];
-        } else if (name.includes('idli')) {
-          return ['Idli Container', 'Chutney Container', 'Sambhar Container', 'Spoon', 'Carry Bag'];
-        } else if (name.includes('vada')) {
-          return ['Vada Box', 'Chutney Container', 'Sambhar Container', 'Carry Bag'];
-        } else if (name.includes('uttapam')) {
-          return ['Uttapam Box', 'Chutney Container', 'Sambhar Container', 'Carry Bag'];
-        } else if (name.includes('biryani') || name.includes('mandi')) {
-          return ['Container', 'Spoon', 'Carry Bag'];
+    // Auto deduct packaging based on Dish's packagingLogic
+    for (const item of items) {
+      const dish = await Dish.findById(item.dishId);
+      if (dish && dish.packagingLogic) {
+        let packagingIdsToDeduct: mongoose.Types.ObjectId[] = [];
+        
+        if (orderType === 'Takeaway' && dish.packagingLogic.takeaway) {
+          packagingIdsToDeduct = dish.packagingLogic.takeaway;
+        } else if (orderType === 'Delivery' && dish.packagingLogic.delivery) {
+          packagingIdsToDeduct = dish.packagingLogic.delivery;
+        } else if (orderType === 'DineIn' && dish.packagingLogic.dineIn) {
+          packagingIdsToDeduct = dish.packagingLogic.dineIn;
         }
-        return ['Container', 'Spoon', 'Carry Bag']; // Default fallback
-      };
 
-      for (const item of items) {
-        const dish = await Dish.findById(item.dishId);
-        if (dish) {
-          const packagingNames = getPackagingForDish(dish.name);
-          for (const pkgName of packagingNames) {
-            const pkgItem = await Packaging.findOne({
-              userId: req.user?.userId,
-              name: { $regex: new RegExp(`^${pkgName}$`, 'i') }
-            });
-            if (pkgItem && req.user?.userId) {
-              await deductInventory('Packaging', pkgItem._id, item.quantity, req.user.userId);
-            }
+        for (const pkgId of packagingIdsToDeduct) {
+          if (req.user?.userId) {
+            await deductInventory('Packaging', pkgId, item.quantity, req.user.userId);
           }
         }
       }

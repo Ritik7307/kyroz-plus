@@ -7,10 +7,12 @@ import SemiFinishedGood from '../models/SemiFinishedGood';
 import Premix from '../models/Premix';
 import Packaging from '../models/Packaging';
 import Recipe from '../models/Recipe';
+import Wastage from '../models/Wastage';
 import { sendManualStockRequest } from '../services/whatsapp.service';
 import { parseInventoryDocument } from '../services/inventoryParser.service';
 import mammoth from 'mammoth';
-import { seedAllKyrozRestaurantData, deductInventory } from '../services/inventory.service';
+import { deductInventory } from '../services/inventory.service';
+import { seedBlueprints } from '../services/blueprintSeeder.service';
 const { PDFParse } = require('pdf-parse');
 
 export const getInventory = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -21,8 +23,8 @@ export const getInventory = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
-    // Auto seed all Kyroz restaurant data if not present
-    await seedAllKyrozRestaurantData(userId);
+    // Auto seed blueprints
+    await seedBlueprints(userId);
 
     const inventory = await Inventory.find({ userId }).populate('dishId');
     const rawMaterials = await RawMaterial.find({ userId });
@@ -139,6 +141,39 @@ export const updateStock = async (req: AuthRequest, res: Response): Promise<void
       return;
     }
 
+    let oldStock = 0;
+    let costPerUnit = 0;
+    let conversionFactor = 1;
+    let purchasePrice = 0;
+
+    // Find the item first to get its current stock before updating
+    if (model === 'RawMaterial') {
+      const item = await RawMaterial.findOne({ _id: id, userId });
+      if (item) {
+        oldStock = item.currentStock || 0;
+        conversionFactor = item.conversionFactor || 1;
+        purchasePrice = item.costPerPurchaseUnit || 0;
+        costPerUnit = purchasePrice / conversionFactor;
+      }
+    } else if (model === 'SemiFinishedGood') {
+      const item = await SemiFinishedGood.findOne({ _id: id, userId });
+      if (item) {
+        oldStock = item.currentStock || 0;
+        costPerUnit = item.costPerUnit || 0;
+      }
+    } else if (model === 'Premix') {
+      const item = await Premix.findOne({ _id: id, userId });
+      if (item) {
+        oldStock = item.currentStock || 0;
+      }
+    } else if (model === 'Packaging') {
+      const item = await Packaging.findOne({ _id: id, userId });
+      if (item) {
+        oldStock = item.currentStock || 0;
+        costPerUnit = item.costPerUnit || 0;
+      }
+    }
+
     let updatedItem = null;
     if (model === 'RawMaterial') {
       updatedItem = await RawMaterial.findOneAndUpdate({ _id: id, userId }, { currentStock }, { new: true });
@@ -158,8 +193,26 @@ export const updateStock = async (req: AuthRequest, res: Response): Promise<void
       return;
     }
 
+    // If new stock is less than old stock, log the difference as wastage (overuse / audit loss)
+    const newStock = Number(currentStock);
+    if (newStock < oldStock && (model === 'RawMaterial' || model === 'SemiFinishedGood' || model === 'Packaging')) {
+      const diff = oldStock - newStock;
+      const costLost = costPerUnit * diff;
+
+      await Wastage.create({
+        itemModel: model,
+        itemId: id,
+        quantity: diff,
+        reason: 'Inventory Audit Variance (Overuse)',
+        costLost,
+        userId
+      });
+      console.log(`Auto logged audit wastage of ${diff} for item ${id} (Loss: ₹${costLost.toFixed(2)})`);
+    }
+
     res.status(200).json(updatedItem);
   } catch (error) {
+    console.error('Update stock error:', error);
     res.status(500).json({ error: 'Failed to update stock' });
   }
 };

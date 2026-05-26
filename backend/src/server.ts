@@ -29,6 +29,8 @@ import sopPacketRoutes from './routes/sopPacket.routes';
 import testimonialRoutes from './routes/testimonial.routes';
 import notificationRoutes from './routes/notification.routes';
 import customerRoutes from './routes/customer.routes';
+import wastageRoutes from './routes/wastage.routes';
+import costingRoutes from './routes/costing.routes';
 console.log('All routes imported');
 
 const app = express();
@@ -73,6 +75,8 @@ app.use('/api/sop-packets', sopPacketRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/customers', customerRoutes);
+app.use('/api/wastage', wastageRoutes);
+app.use('/api/costing', costingRoutes);
 
 app.get('/api/debug-routes', (req, res) => {
   res.json({ message: 'Routes are active' });

@@ -6,6 +6,11 @@ export interface IDish extends Document {
   ingredientPrice: number;
   category: string;
   imageUrl?: string;
+  packagingLogic?: {
+    dineIn: mongoose.Types.ObjectId[];
+    takeaway: mongoose.Types.ObjectId[];
+    delivery: mongoose.Types.ObjectId[];
+  };
   userId: mongoose.Types.ObjectId;
   createdAt: Date;
 }
@@ -16,6 +21,11 @@ const DishSchema: Schema = new Schema({
   ingredientPrice: { type: Number, default: 0 },
   category: { type: String, required: true, default: 'General' },
   imageUrl: { type: String },
+  packagingLogic: {
+    dineIn: [{ type: Schema.Types.ObjectId, ref: 'Packaging' }],
+    takeaway: [{ type: Schema.Types.ObjectId, ref: 'Packaging' }],
+    delivery: [{ type: Schema.Types.ObjectId, ref: 'Packaging' }]
+  },
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   createdAt: { type: Date, default: Date.now }
 });
