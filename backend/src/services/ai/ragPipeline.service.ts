@@ -3,6 +3,9 @@ import Groq from 'groq-sdk';
 import { generateEmbedding } from './embedding.service';
 import { retrieveRelevantChunks, searchSopByText } from './vectorStore.service';
 import Sop from '../../models/Sop';
+import SopChunk from '../../models/SopChunk';
+import { processSopText } from './ingestion.service';
+import { syncMasterSopsForUser } from '../sop.service';
 
 const gemini = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
 const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
@@ -228,6 +231,34 @@ const detectLanguage = (text: string): 'en' | 'hi' => {
 
 export const generateRagResponse = async (userId: string, query: string, lang: string = 'en', history: any[] = [], context: string = ''): Promise<{ reply: string, suggestions: string[], detectedLang: string }> => {
   try {
+    // Ensure the user has chunks in the database. If they don't, perform an auto-sync.
+    try {
+      const chunkCount = await SopChunk.countDocuments({ userId });
+      if (chunkCount === 0) {
+        console.log(`No SOP chunks found for user ${userId}. Running auto-sync...`);
+        await syncMasterSopsForUser(userId);
+        const sops = await Sop.find({ userId }).lean();
+        for (const sop of sops) {
+          if (!sop.title) continue;
+          try {
+            if (sop.contentEn) {
+              const contentEn = `SOP: ${sop.title}\n\n${sop.contentEn}`;
+              await processSopText(userId, contentEn, 'en');
+            }
+            if (sop.contentHi) {
+              const contentHi = `SOP: ${sop.title}\n\n${sop.contentHi}`;
+              await processSopText(userId, contentHi, 'hi');
+            }
+          } catch (e: any) {
+            console.error(`Auto-sync failed for ${sop.title}:`, e.message);
+          }
+        }
+        console.log(`Auto-sync complete for user ${userId}.`);
+      }
+    } catch (err: any) {
+      console.error("Auto-sync check failed:", err.message);
+    }
+
     // 1. Correct any phonetic typos from voice-to-text transcription
     const cleanedQuery = correctPhoneticTypos(query);
 
