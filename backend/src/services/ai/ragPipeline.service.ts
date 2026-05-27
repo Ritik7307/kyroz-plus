@@ -4,6 +4,7 @@ import { generateEmbedding } from './embedding.service';
 import { retrieveRelevantChunks, searchSopByText } from './vectorStore.service';
 import Sop from '../../models/Sop';
 import SopChunk from '../../models/SopChunk';
+import MasterSop from '../../models/MasterSop';
 import { processSopText } from './ingestion.service';
 import { syncMasterSopsForUser } from '../sop.service';
 
@@ -231,15 +232,21 @@ const detectLanguage = (text: string): 'en' | 'hi' => {
 
 export const generateRagResponse = async (userId: string, query: string, lang: string = 'en', history: any[] = [], context: string = ''): Promise<{ reply: string, suggestions: string[], detectedLang: string }> => {
   try {
-    // Ensure the user has chunks in the database. If they don't, perform an auto-sync.
+    // Ensure all master SOPs are chunked and indexed for this user
     try {
-      const chunkCount = await SopChunk.countDocuments({ userId });
-      if (chunkCount === 0) {
-        console.log(`No SOP chunks found for user ${userId}. Running auto-sync...`);
+      const masterSops = await MasterSop.find({}).lean();
+      const userChunksDishes = await SopChunk.distinct('dish', { userId });
+      const userChunksDishesSet = new Set(userChunksDishes.map(d => d.toLowerCase()));
+      
+      const missingMasterSops = masterSops.filter(m => !userChunksDishesSet.has(m.title.toLowerCase()));
+      
+      if (missingMasterSops.length > 0) {
+        console.log(`User ${userId} is missing ${missingMasterSops.length} master SOPs in vector store. Syncing...`);
+        // Sync them to user's Sop collection first
         await syncMasterSopsForUser(userId);
-        const sops = await Sop.find({ userId }).lean();
-        for (const sop of sops) {
-          if (!sop.title) continue;
+        
+        // Chunk and save the missing ones
+        for (const sop of missingMasterSops) {
           try {
             if (sop.contentEn) {
               const contentEn = `SOP: ${sop.title}\n\n${sop.contentEn}`;
@@ -250,7 +257,7 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
               await processSopText(userId, contentHi, 'hi');
             }
           } catch (e: any) {
-            console.error(`Auto-sync failed for ${sop.title}:`, e.message);
+            console.error(`Auto-sync failed for missing master SOP ${sop.title}:`, e.message);
           }
         }
         console.log(`Auto-sync complete for user ${userId}.`);
