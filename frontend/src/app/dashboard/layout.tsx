@@ -62,7 +62,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }
       }
     } catch (err) {
-      console.error('Failed to fetch notifications', err);
+      console.error('Failed to fetch notifications:', err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -71,12 +71,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       const res = await fetch(`${API_URL}/api/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      if (!res.ok) {
+        throw new Error('Unauthorized');
+      }
       const data = await res.json();
       setUser(data);
       setIsAuthorized(true);
       fetchNotifications(token);
     } catch (err) {
-      console.error('Failed to fetch user', err);
+      console.error('Failed to fetch user:', err instanceof Error ? err.message : String(err));
+      localStorage.removeItem('token');
       router.push('/login');
     }
   };
