@@ -16,3 +16,5 @@ redis
 aioredis
 langchain-huggingface
 langchain-text-splitters
+pymongo
+dnspython

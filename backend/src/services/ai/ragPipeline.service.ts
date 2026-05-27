@@ -337,7 +337,7 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
       : `Provide exactly 3 short follow-up suggestions in a [SUGGESTIONS] block at the end.`;
 
     const systemInstruction = `
-You are KOSA, a professional kitchen assistant for Kyroz Plus.
+You are Chef, a professional kitchen assistant for Kyroz Plus.
 Your goal is to answer questions about recipes (SOPs) from the provided context.
 
 STRICT RULES:

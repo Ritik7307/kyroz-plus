@@ -73,7 +73,7 @@ export default function AiDashboard() {
   const [messages, setMessages] = useState<Message[]>([
     { 
       role: 'kosa', 
-      content: 'Namaste! I am KOSA (Production Core). I am now powered by a high-performance RAG pipeline. How can I help you in the kitchen today?',
+      content: 'Namaste! I am Chef (Production Core). I am now powered by a high-performance RAG pipeline. How can I help you in the kitchen today?',
       timestamp: new Date()
     }
   ]);
@@ -511,7 +511,7 @@ export default function AiDashboard() {
         console.log('Request aborted by user');
         return;
       }
-      const message = error instanceof Error ? error.message : 'KOSA failed to respond.';
+      const message = error instanceof Error ? error.message : 'Chef failed to respond.';
       setMessages(prev => [...prev, { role: 'kosa', content: `Error: ${message}` }]);
       setErrorMessage(message);
       setAssistantState('idle');
@@ -558,7 +558,7 @@ export default function AiDashboard() {
             )}
           </div>
           <div>
-            <h2 className="text-white font-black text-lg tracking-tight uppercase">KOSA CORE</h2>
+            <h2 className="text-white font-black text-lg tracking-tight uppercase">CHEF CORE</h2>
             <p className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em]">
               {assistantState === 'idle' ? 'Idle' : assistantState === 'listening' ? 'Listening...' : assistantState === 'processing' ? 'Processing...' : 'Speaking...'}
             </p>

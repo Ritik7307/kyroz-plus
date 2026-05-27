@@ -22,6 +22,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.on_event("startup")
+def startup_event():
+    print("FastAPI startup: Syncing SOPs from MongoDB...")
+    try:
+        rag_engine.sync_sops_from_mongo()
+        print("FastAPI startup: SOP sync complete.")
+    except Exception as e:
+        print(f"FastAPI startup: Failed to sync SOPs from MongoDB on startup: {e}")
+
+
 # Clients
 groq_client = groq.Groq(api_key=os.getenv("GROQ_API_KEY"))
 redis_client = redis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379"))

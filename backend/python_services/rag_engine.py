@@ -6,8 +6,16 @@ from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv
+from pymongo import MongoClient
+from langchain_core.documents import Document
 
 load_dotenv()
+if not os.getenv("MONGO_URI"):
+    from pathlib import Path
+    parent_env = Path(__file__).resolve().parent.parent / '.env'
+    if parent_env.exists():
+        load_dotenv(dotenv_path=parent_env)
+
 
 class KosaRAG:
     def __init__(self):
@@ -40,6 +48,92 @@ class KosaRAG:
         # Save locally
         self.vector_db.save_local("faiss_index")
 
+    def sync_sops_from_mongo(self):
+        mongo_uri = os.getenv("MONGO_URI") or os.getenv("MONGO_URL") or "mongodb://127.0.0.1:27017/kyroz"
+        print("Connecting to MongoDB for SOP sync...")
+        client = MongoClient(mongo_uri)
+        try:
+            try:
+                db = client.get_default_database()
+            except Exception:
+                db = client["test"]
+            
+            print(f"Using database: {db.name}")
+            
+            sops_col = db["sops"]
+            mastersops_col = db["mastersops"]
+            
+            all_sops = list(sops_col.find({}))
+            all_mastersops = list(mastersops_col.find({}))
+            
+            print(f"Retrieved {len(all_sops)} user SOPs and {len(all_mastersops)} master SOPs.")
+            
+            seen_titles = set()
+            documents_to_index = []
+            
+            for doc in all_sops + all_mastersops:
+                title = doc.get("title")
+                if not title:
+                    continue
+                
+                title_key = title.strip().lower()
+                if title_key in seen_titles:
+                    continue
+                seen_titles.add(title_key)
+                
+                content_parts = []
+                content_parts.append(f"TITLE: {title}")
+                
+                category = doc.get("category")
+                if category:
+                    content_parts.append(f"CATEGORY: {category}")
+                    
+                content_en = doc.get("contentEn")
+                if content_en:
+                    content_parts.append(f"CONTENT (EN):\n{content_en}")
+                    
+                content_hi = doc.get("contentHi")
+                if content_hi:
+                    content_parts.append(f"CONTENT (HI):\n{content_hi}")
+                    
+                content_legacy = doc.get("content")
+                if content_legacy:
+                    content_parts.append(f"CONTENT:\n{content_legacy}")
+                    
+                full_text = "\n".join(content_parts)
+                
+                metadata = {
+                    "source": "mongodb",
+                    "title": title,
+                    "category": category or "General"
+                }
+                
+                documents_to_index.append((full_text, metadata))
+                
+            if not documents_to_index:
+                print("No SOP documents found in MongoDB to index.")
+                return
+            
+            print(f"Deduplicated and prepared {len(documents_to_index)} unique SOP documents for indexing.")
+            
+            chunks = []
+            for text, meta in documents_to_index:
+                split_texts = self.text_splitter.split_text(text)
+                for chunk_text in split_texts:
+                    chunks.append(Document(page_content=chunk_text, metadata=meta))
+            
+            print(f"Split documents into {len(chunks)} chunks.")
+            
+            self.vector_db = FAISS.from_documents(chunks, self.embeddings)
+            self.vector_db.save_local("faiss_index")
+            print("Successfully built and saved FAISS index from MongoDB.")
+            
+        except Exception as e:
+            print(f"Error syncing SOPs from MongoDB: {e}")
+            raise e
+        finally:
+            client.close()
+
     def query(self, user_query: str, lang: str = "en"):
         if self.vector_db is None:
             if os.path.exists("faiss_index"):
@@ -59,7 +153,7 @@ Query: {user_query}"""
         docs = self.vector_db.similarity_search(translated_query, k=5)
         context = "\n\n".join([doc.page_content for doc in docs])
         
-        prompt = f"""You are a helpful kitchen assistant (KOSA). 
+        prompt = f"""You are a helpful kitchen assistant (Chef). 
 Use the following context to answer the user's query in {lang}. The user's query may be in Hinglish, English, or Hindi.
 IMPORTANT: If answering in Hindi, you MUST use the Devanagari script (हिन्दी), NOT the Urdu script.
 If the user asks in Hinglish (Roman Hindi), reply in the language specified by '{lang}'.
@@ -77,3 +171,4 @@ Answer:"""
 
 # Singleton instance
 rag_engine = KosaRAG()
+
