@@ -107,7 +107,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Inventory', path: '/dashboard/inventory', id: 'inventory', icon: Utensils },
     { name: 'SOP Packets', path: '/dashboard/packets', id: 'packets', icon: Package },
     { name: 'Sales History', path: '/dashboard/history', id: 'history', icon: TrendingUp },
-    { name: 'KOSA AI', path: '/dashboard/ai', id: 'ai', icon: MessageSquare },
+    { name: 'Chef', path: '/dashboard/ai', id: 'ai', icon: MessageSquare },
     { name: 'Costing Master', path: '/dashboard/costing', id: 'costing', icon: IndianRupee },
     { name: 'Customers', path: '/dashboard/customers', id: 'customers', icon: Users },
     { name: 'Manage Team', path: '/dashboard/team', id: 'team', ownerOnly: true, icon: Users },

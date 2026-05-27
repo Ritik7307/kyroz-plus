@@ -12,7 +12,7 @@ import redis.asyncio as redis
 
 load_dotenv()
 
-app = FastAPI(title="KOSA AI Core")
+app = FastAPI(title="Chef Core")
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,7 +28,7 @@ redis_client = redis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379"))
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "KOSA AI Core"}
+    return {"status": "ok", "service": "Chef Core"}
 
 @app.post("/upload-docs")
 async def upload_docs(file: UploadFile = File(...)):

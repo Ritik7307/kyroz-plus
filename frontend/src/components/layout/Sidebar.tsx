@@ -48,7 +48,7 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user', permissi
       { name: 'Manage Team', icon: Users, path: '/dashboard/team', id: 'team', ownerOnly: true },
       { name: 'SOP Packets', icon: Utensils, path: '/dashboard/packets', id: 'packets' },
       { name: 'Sales History', icon: Calculator, path: '/dashboard/history', id: 'history' },
-      { name: 'KOSA AI', icon: MessageSquare, path: '/dashboard/ai', id: 'ai' },
+      { name: 'Chef', icon: MessageSquare, path: '/dashboard/ai', id: 'ai' },
       { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop', id: 'sop' },
       { name: 'Inventory', icon: Utensils, path: '/dashboard/inventory', id: 'inventory' },
       { name: 'Costing Master', icon: Calculator, path: '/dashboard/costing', id: 'costing' },

@@ -270,7 +270,7 @@ return (
             <div className="flex items-center gap-2 text-xs text-white/60 font-medium">
               <ChevronRight size={14} className={user?.subscriptionPlan === 'Elite' || user?.role === 'admin' ? 'text-gold' : 'text-white/20'} />
               <span className={user?.subscriptionPlan === 'Elite' || user?.role === 'admin' ? 'text-white/60' : 'text-white/20'}>
-                KOSA AI Support 24/7
+                Chef Support 24/7
               </span>
             </div>
             <div className="flex items-center gap-2 text-xs text-white/60 font-medium">

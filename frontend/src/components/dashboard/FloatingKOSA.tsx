@@ -65,7 +65,7 @@ export default function FloatingKOSA() {
   const [isMinimized, setIsMinimized] = useState(false);
   const [assistantState, setAssistantState] = useState<AssistantState>('idle');
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Namaste! I am KOSA (Production Edition). I can read your PDFs and speak fluently in Hindi & English. How can I assist?", timestamp: new Date() }
+    { role: 'assistant', content: "Namaste! I am Chef (Production Edition). I can read your PDFs and speak fluently in Hindi & English. How can I assist?", timestamp: new Date() }
   ]);
   const [inputText, setInputText] = useState('');
   const [isMuted, setIsMuted] = useState(false);
@@ -508,7 +508,7 @@ export default function FloatingKOSA() {
         console.log('Request aborted by user');
         return;
       }
-      setErrorMessage(err instanceof Error ? err.message : 'KOSA failed to respond.');
+      setErrorMessage(err instanceof Error ? err.message : 'Chef failed to respond.');
       setAssistantState('idle');
     } finally {
       if (abortControllerRef.current?.signal === signal) {
@@ -567,7 +567,7 @@ export default function FloatingKOSA() {
                   )}
                 </div>
                 <div>
-                  <h3 className="text-white text-sm font-black tracking-tight uppercase">KOSA PRO</h3>
+                  <h3 className="text-white text-sm font-black tracking-tight uppercase">CHEF PRO</h3>
                   <p className="text-[9px] text-white/40 font-bold tracking-widest uppercase">
                     {assistantState === 'idle' ? 'Idle' : assistantState === 'listening' ? 'Listening...' : assistantState === 'processing' ? 'Processing...' : 'Speaking...'}
                   </p>
@@ -649,7 +649,7 @@ export default function FloatingKOSA() {
                       value={inputText}
                       onChange={(e) => setInputText(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                      placeholder="Ask KOSA or upload docs..."
+                      placeholder="Ask Chef or upload docs..."
                       className="flex-1 bg-transparent border-none outline-none text-white text-sm placeholder-white/20"
                     />
 

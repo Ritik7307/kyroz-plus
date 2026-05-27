@@ -32,7 +32,7 @@ const MODULES = [
   { id: 'pos', name: 'POS Terminal', icon: Monitor },
   { id: 'sop', name: 'SOP Library', icon: ChefHat },
   { id: 'inventory', name: 'Inventory Management', icon: Calculator },
-  { id: 'ai', name: 'KOSA AI Assistant', icon: Users },
+  { id: 'ai', name: 'Chef Assistant', icon: Users },
   { id: 'costing', name: 'Costing Master', icon: Settings },
 ];
 
