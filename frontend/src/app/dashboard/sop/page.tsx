@@ -8,6 +8,7 @@ import {
   Search, Plus,
   Upload,
   Printer,
+  Download,
   Languages,
   X,
   ChevronRight,
@@ -256,9 +257,57 @@ function SOPLibraryContent() {
         {viewingSop && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 bg-black/95 backdrop-blur-md">
             <motion.div className="bg-[#111] border border-white/10 rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 w-full max-w-4xl max-h-[90vh] overflow-y-auto custom-scrollbar">
-              <div className="flex justify-between items-center mb-6 md:mb-8"><h2 className="text-xl md:text-3xl font-black uppercase tracking-tighter text-gold leading-tight pr-4">{viewingSop.title}</h2><div className="flex gap-2"><button onClick={() => window.print()} className="p-2.5 md:p-3 bg-white/5 hover:bg-white/10 rounded-xl text-white/60 hover:text-gold transition-all flex items-center gap-2"><Printer size={18} /><span className="text-[9px] font-black uppercase tracking-widest hidden sm:block">PDF</span></button><button onClick={() => setViewingSop(null)} className="p-2.5 md:p-3 hover:bg-white/10 rounded-xl text-white/40"><X size={20} /></button></div></div>
-              <div className="space-y-6 md:space-y-8"><div className="flex gap-3 md:gap-4"><button onClick={() => setLanguage('EN')} className={`px-5 md:px-6 py-2 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest ${language === 'EN' ? 'bg-gold text-black' : 'bg-white/5 text-white/40'}`}>English</button><button onClick={() => setLanguage('HI')} className={`px-5 md:px-6 py-2 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest ${language === 'HI' ? 'bg-gold text-black' : 'bg-white/5 text-white/40'}`}>Hindi</button></div>
-                <div className="prose prose-invert max-w-none prose-sm md:prose-base">{renderContentWithHighlights(language === 'EN' ? viewingSop.contentEn || '' : viewingSop.contentHi || '')}</div>
+              <div className="flex justify-between items-center mb-6 md:mb-8">
+                <h2 className="text-xl md:text-3xl font-black uppercase tracking-tighter text-gold leading-tight pr-4">
+                  {viewingSop.title}
+                </h2>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => window.print()} 
+                    className="p-2.5 md:p-3 bg-gold text-black hover:bg-gold/90 rounded-xl transition-all flex items-center gap-2"
+                  >
+                    <Download size={18} />
+                    <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">Download PDF</span>
+                  </button>
+                  <button 
+                    onClick={() => setViewingSop(null)} 
+                    className="p-2.5 md:p-3 hover:bg-white/10 rounded-xl text-white/40"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+              <div className="space-y-6 md:space-y-8">
+                {/* On-screen language tabs (hidden during print) */}
+                <div className="flex gap-3 md:gap-4 no-print">
+                  <button onClick={() => setLanguage('EN')} className={`px-5 md:px-6 py-2 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest ${language === 'EN' ? 'bg-gold text-black' : 'bg-white/5 text-white/40'}`}>English</button>
+                  <button onClick={() => setLanguage('HI')} className={`px-5 md:px-6 py-2 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest ${language === 'HI' ? 'bg-gold text-black' : 'bg-white/5 text-white/40'}`}>Hindi</button>
+                </div>
+
+                {/* On-screen content view (hidden during print) */}
+                <div className="prose prose-invert max-w-none prose-sm md:prose-base no-print">
+                  {renderContentWithHighlights(language === 'EN' ? viewingSop.contentEn || '' : viewingSop.contentHi || '')}
+                </div>
+
+                {/* Print-only content view (prints both English and Hindi protocols) */}
+                <div className="hidden print:block space-y-10 text-black">
+                  {viewingSop.contentEn && (
+                    <div className="space-y-4">
+                      <h3 className="text-xl font-black border-b-2 border-black pb-2 uppercase tracking-wide">English Protocol</h3>
+                      <div className="prose max-w-none">
+                        {renderContentWithHighlights(viewingSop.contentEn)}
+                      </div>
+                    </div>
+                  )}
+                  {viewingSop.contentHi && (
+                    <div className="space-y-4 mt-8 pt-8 border-t border-dashed border-black/30">
+                      <h3 className="text-xl font-black border-b-2 border-black pb-2 uppercase tracking-wide">हिन्दी निर्देशिका</h3>
+                      <div className="prose max-w-none">
+                        {renderContentWithHighlights(viewingSop.contentHi)}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </motion.div>
           </div>
@@ -273,13 +322,12 @@ function SOPLibraryContent() {
           }
 
           /* --- SELECTIVE HIDING --- */
-          /* Hide global UI */
-          header, footer, aside, nav, .notification-panel, .floating-kosa-btn, button {
+          /* Hide global UI & buttons */
+          header, footer, aside, nav, .notification-panel, .floating-kosa-btn, button, .no-print {
             display: none !important;
           }
 
           /* Hide SOP Page Background specifically */
-          /* These selectors target the search bar and the recipe list grid */
           .max-w-7xl > header,
           .max-w-7xl > div.flex.flex-col,
           .max-w-7xl > div.grid,
@@ -287,8 +335,8 @@ function SOPLibraryContent() {
             display: none !important;
           }
 
-          /* --- ENSURE MODAL VISIBILITY --- */
-          body {
+          /* --- ENSURE MODAL VISIBILITY & NO CUTOFFS --- */
+          body, main, #__next, .max-w-7xl {
             background: white !important;
             color: black !important;
             height: auto !important;
@@ -309,10 +357,13 @@ function SOPLibraryContent() {
             padding: 0 !important; 
             margin: 0 !important;
             visibility: visible !important;
+            overflow: visible !important;
+            max-height: none !important;
+            height: auto !important;
           }
 
           /* Reset Container Border & Padding */
-          .bg-\\[\\#111\\] { 
+          .bg-\\[\\#111\\], .custom-scrollbar, .overflow-y-auto { 
             background: white !important; 
             border: 2pt solid black !important; 
             width: 100% !important; 
@@ -321,6 +372,9 @@ function SOPLibraryContent() {
             box-shadow: none !important;
             display: block !important;
             visibility: visible !important;
+            overflow: visible !important;
+            max-height: none !important;
+            height: auto !important;
           }
 
           /* Master SOP Header */
@@ -368,6 +422,17 @@ function SOPLibraryContent() {
             margin-top: 20px !important;
             display: block !important;
             text-decoration: underline !important;
+          }
+
+          /* Highlights in print */
+          span.bg-white\\/5 {
+            background-color: #f3f4f6 !important;
+            color: black !important;
+            border: 1px solid #d1d5db !important;
+            padding: 2px 4px !important;
+            border-radius: 4px !important;
+            text-decoration: underline !important;
+            display: inline-block !important;
           }
 
           .pl-6 { padding-left: 25px !important; }
