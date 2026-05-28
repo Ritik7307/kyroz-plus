@@ -73,7 +73,8 @@ const getMicErrorMessage = (error: unknown) => {
 const cleanSpeechText = (text: string): string => {
   if (!text) return '';
   return text
-    .replace(/\*\*|__|\*|_|~~|`|#+/g, '')
+    .replace(/[\*#`_\~\+•▪◦●○]/g, '')
+    .replace(/(?:^|\n)\s*[-–—]\s*/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 };

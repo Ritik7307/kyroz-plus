@@ -47,9 +47,10 @@ export const generateSpeech = async (text: string, lang: string = 'auto'): Promi
     throw new Error("No Text-to-Speech engines configured (missing AI_CORE_URL and valid OPENAI_API_KEY).");
   }
 
-  // Clean markdown before sending to any TTS engine
+  // Clean markdown and bullet markers before sending to any TTS engine
   const cleanedText = text
-    .replace(/\*\*|__|\*|_|~~|`|#+/g, '')
+    .replace(/[\*#`_\~\+•▪◦●○]/g, '')
+    .replace(/(?:^|\n)\s*[-–—]\s*/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 

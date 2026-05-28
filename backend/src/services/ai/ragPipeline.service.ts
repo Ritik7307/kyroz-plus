@@ -125,13 +125,37 @@ const cleanDishNameForMatching = (name: string): string => {
     .replace(/\s+/g, ' ');
 };
 
+const translateToEnglish = async (query: string): Promise<string> => {
+  if (!groq) return query;
+  try {
+    const completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: 'Translate the kitchen query to English. Correct any spelling errors, transcription typos, or phonetics (e.g. "बिर्यानी" to "Biryani", "लक्नदी" to "Lucknowi", "Lye Siddeley" to "Rice Idli"). Reply ONLY with the plain English translation, nothing else.'
+        },
+        { role: 'user', content: query }
+      ],
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.1,
+      max_tokens: 30,
+    });
+    return completion.choices[0]?.message?.content?.trim() || query;
+  } catch (e) {
+    console.error("Translation error in RAG:", e);
+    return query;
+  }
+};
+
 const contextualizeQuery = async (userId: string, query: string, history: any[]): Promise<string> => {
-  let processedQuery = query;
+  // If the query contains Devanagari or is Hinglish, translate to English for database matching
+  const englishQuery = await translateToEnglish(query);
+  let processedQuery = englishQuery;
 
   // 1. Dish Name Auto-Correction (Fuzzy Matching)
   try {
     const dishes = await Sop.find({ userId }).select('title').lean();
-    const queryLower = query.toLowerCase();
+    const queryLower = englishQuery.toLowerCase();
 
     let bestDishMatch = null;
     let highestScore = 0;
@@ -157,7 +181,6 @@ const contextualizeQuery = async (userId: string, query: string, history: any[])
       }
 
       // Check similarity of query against the dish name
-      // We check if any sequence of words in the query matches the dish name
       const queryWords = queryLower.split(/\s+/);
       const dishWords = dishName.split(/\s+/);
       const dishWordCount = dishWords.length;
@@ -181,13 +204,13 @@ const contextualizeQuery = async (userId: string, query: string, history: any[])
       }
     }
 
-    // If similarity is above 65%, auto-correct the query
+    // If similarity is above 65%, auto-correct the query to the official title
     if (highestScore > 0.65 && bestDishMatch) {
-      processedQuery = bestDishMatch; // Auto-replace with official name
+      processedQuery = bestDishMatch;
     }
   } catch (e) { console.error("Fuzzy Match Error:", e); }
 
-  return processedQuery; // Skip the slow LLM rephrasing to save massive latency
+  return processedQuery;
 };
 
 const getFallbackResponse = async (userId: string, query: string, lang: string = 'en'): Promise<string> => {
@@ -196,7 +219,7 @@ const getFallbackResponse = async (userId: string, query: string, lang: string =
     const isHi = lang === 'hi';
 
     if (!relevantChunks || relevantChunks.length === 0) {
-      return isHi ? "माफ़ कीजिये, मुझे इसके बारे में SOP में जानकारी नहीं मिली।" : "I'm sorry, I couldn't find that in the SOP library.";
+      return isHi ? "मेरे पास SOP लाइब्रेरी में यह रेसिपी नहीं है।" : "I do not have this recipe in my SOP library.";
     }
 
     const bestMatch = relevantChunks[0];
@@ -209,9 +232,7 @@ const getFallbackResponse = async (userId: string, query: string, lang: string =
     const hasDishMatch = dishKeywords.some(word => queryLower.includes(word)) || queryLower.includes(cleanedDish) || queryLower.includes(dishLower);
 
     if (!hasDishMatch) {
-      return isHi
-        ? `मुझे आपकी लाइब्रेरी में यह रेसिपी नहीं मिली। क्या आप **${bestMatch.dish.toUpperCase()}** के बारे में जानना चाहते थे?`
-        : `I couldn't find that recipe. Did you mean **${bestMatch.dish.toUpperCase()}**?`;
+      return isHi ? "मेरे पास SOP लाइब्रेरी में यह रेसिपी नहीं है।" : "I do not have this recipe in my SOP library.";
     }
 
     const baseReply = isHi
@@ -386,7 +407,7 @@ Your goal is to answer questions about recipes (SOPs) from the provided context.
 STRICT RULES:
 ${languageRule}
 2. SPECIFICITY: Only answer the specific question asked. Do not provide the full recipe unless requested.
-3. SOURCE: Use ONLY the provided SOP CONTEXT. If the answer is not in the context, say you don't know.
+3. SOURCE: Use ONLY the provided SOP CONTEXT. Do NOT use your own database or general training knowledge to answer recipe or kitchen questions. If the requested recipe, dish, or operational step is NOT explicitly detailed in the provided SOP CONTEXT, you MUST strictly respond with: "I do not have this recipe in my SOP library." (or in Hindi: "मेरे पास SOP लाइब्रेरी में यह रेसिपी नहीं है।") and absolutely nothing else. Never list general ingredients, instructions, or suggestions for dishes that are missing from the SOP CONTEXT.
 4. PHONETIC/TYPO TOLERANCE: Treat transcription typos like "Lye Siddeley" as "Rice Idli", "mini-stries" as "mini size", "mendu wada" as "medu vada", etc. when matching with the context.
 
 SOP CONTEXT:

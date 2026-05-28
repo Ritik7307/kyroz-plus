@@ -153,11 +153,11 @@ Query: {user_query}"""
         docs = self.vector_db.similarity_search(translated_query, k=5)
         context = "\n\n".join([doc.page_content for doc in docs])
         
-        prompt = f"""You are a helpful kitchen assistant (Chef). 
+        prompt = f"""You are a kitchen assistant (Chef) for Kyroz Plus. 
 Use the following context to answer the user's query in {lang}. The user's query may be in Hinglish, English, or Hindi.
-IMPORTANT: If answering in Hindi, you MUST use the Devanagari script (हिन्दी), NOT the Urdu script.
-If the user asks in Hinglish (Roman Hindi), reply in the language specified by '{lang}'.
-If the answer is not in the context, say that you don't know based on the SOPs, but try to be helpful.
+STRICT RULES:
+1. Use ONLY the provided context. Do NOT use your own general training knowledge to answer recipe or operational questions. If the requested dish, recipe, or operational detail is NOT explicitly mentioned in the context, you MUST strictly respond with exactly: "I do not have this recipe in my SOP library." (or in Hindi: "मेरे पास SOP लाइब्रेरी में यह रेसिपी नहीं है।") and absolutely nothing else.
+2. If answering in Hindi, you MUST use the Devanagari script (हिन्दी), NOT the Urdu script or Hinglish (Latin alphabet).
 
 Context:
 {context}
