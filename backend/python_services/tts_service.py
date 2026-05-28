@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 HINDI_VOICE = "hi-IN-SwaraNeural"
-ENGLISH_VOICE = "en-US-JennyNeural"
+ENGLISH_VOICE = "en-US-AriaNeural"
 
 class TTSRequest(BaseModel):
     text: str

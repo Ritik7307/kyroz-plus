@@ -70,7 +70,7 @@ const getMicErrorMessage = (error: unknown) => {
   return 'Microphone could not start in this browser.';
 };
 
-const cleanSpeechText = (text: string): string => {
+const cleanSpeechText = (text: string, forceLang?: 'en' | 'hi'): string => {
   if (!text) return '';
   return text
     .replace(/[\*#`_\~\+•▪◦●○]/g, '')
@@ -441,7 +441,7 @@ export default function AiDashboard() {
       if (!isMuted) {
         setAssistantState('speaking');
         setVoiceHint('Speaking...');
-        const cleanText = cleanSpeechText(data.reply);
+        const cleanText = cleanSpeechText(data.reply, data.detectedLang || selectedLang);
         const speakRes = await fetch(`${AI_CORE_URL}/speak`, { 
           method: 'POST', 
           headers: { 
@@ -468,22 +468,35 @@ export default function AiDashboard() {
           await audio.play();
         } else {
           // Final Fallback: Browser Web Speech API
-          console.warn("Backend TTS failed, falling back to browser speech API");
+          console.warn("Backend TTS failed, status:", speakRes.status);
           setAssistantState('speaking');
-          const utterance = new SpeechSynthesisUtterance(cleanText);
           const actualLang = data.detectedLang || selectedLang;
-          utterance.lang = actualLang === 'hi' ? 'hi-IN' : 'en-US';
 
           if (typeof window !== 'undefined' && window.speechSynthesis) {
             window.speechSynthesis.cancel(); // cancel any active speech
-            const voices = window.speechSynthesis.getVoices();
+            
+            let voices = window.speechSynthesis.getVoices();
+            if (voices.length === 0) {
+              await new Promise<void>(resolve => {
+                const onVoicesChanged = () => {
+                  voices = window.speechSynthesis.getVoices();
+                  window.speechSynthesis.removeEventListener('voiceschanged', onVoicesChanged);
+                  resolve();
+                };
+                window.speechSynthesis.addEventListener('voiceschanged', onVoicesChanged);
+                setTimeout(() => resolve(), 2000);
+              });
+            }
+
             const targetLangStr = actualLang === 'hi' ? 'hi' : 'en';
             
             // Filter voices by target language
             const langVoices = voices.filter(v => v.lang.toLowerCase().startsWith(targetLangStr));
             
-            // Prioritize female / natural neural voices (known female voice names & key qualities)
-            const femaleKeywords = ['swara', 'jenny', 'zira', 'heera', 'kalpana', 'samantha', 'google', 'female', 'natural', 'online', 'premium'];
+            // Prioritize female and penalize male voices to ensure 100% female voice selection
+            const femaleKeywords = ['swara', 'aria', 'jenny', 'zira', 'heera', 'kalpana', 'samantha', 'google', 'female', 'girl', 'woman', 'lady', 'aunt'];
+            const maleKeywords = ['madhur', 'hemant', 'ravi', 'david', 'mark', 'george', 'james', 'richard', 'stefan', 'male', 'boy', 'man', 'guy', 'gentleman'];
+            const premiumKeywords = ['natural', 'online', 'premium', 'neural'];
             
             langVoices.sort((a, b) => {
               const nameA = a.name.toLowerCase();
@@ -492,26 +505,59 @@ export default function AiDashboard() {
               let scoreB = 0;
               
               for (const kw of femaleKeywords) {
-                if (nameA.includes(kw)) scoreA++;
-                if (nameB.includes(kw)) scoreB++;
+                if (nameA.includes(kw)) scoreA += 100;
+              }
+              for (const kw of maleKeywords) {
+                if (nameA.includes(kw)) scoreA -= 100;
+              }
+              for (const kw of premiumKeywords) {
+                if (nameA.includes(kw)) scoreA += 1;
+              }
+              
+              for (const kw of femaleKeywords) {
+                if (nameB.includes(kw)) scoreB += 100;
+              }
+              for (const kw of maleKeywords) {
+                if (nameB.includes(kw)) scoreB -= 100;
+              }
+              for (const kw of premiumKeywords) {
+                if (nameB.includes(kw)) scoreB += 1;
               }
               
               return scoreB - scoreA;
             });
 
-            if (langVoices.length > 0) {
-              utterance.voice = langVoices[0];
-            }
-          }
+            const selectedVoice = langVoices.length > 0 ? langVoices[0] : null;
 
-          utterance.onend = () => {
+            // Split cleaned text into sentences to prevent browser synthesis freezes on long text
+            const sentences = cleanText.split(/(?<=[.?!।])\s+/).filter(s => s.trim().length > 0);
+            
+            if (sentences.length > 0) {
+              sentences.forEach((sentence, index) => {
+                const utterance = new SpeechSynthesisUtterance(sentence);
+                utterance.lang = actualLang === 'hi' ? 'hi-IN' : 'en-US';
+                if (selectedVoice) {
+                  utterance.voice = selectedVoice;
+                }
+                
+                if (index === sentences.length - 1) {
+                  utterance.onend = () => {
+                    setAssistantState('idle');
+                    setVoiceHint('Tap the mic and speak in Hindi, English, or both.');
+                  };
+                  utterance.onerror = () => {
+                    setAssistantState('idle');
+                  };
+                }
+                
+                window.speechSynthesis.speak(utterance);
+              });
+            } else {
+              setAssistantState('idle');
+            }
+          } else {
             setAssistantState('idle');
-            setVoiceHint('Tap the mic and speak in Hindi, English, or both.');
-          };
-          utterance.onerror = () => {
-            setAssistantState('idle');
-          };
-          window.speechSynthesis.speak(utterance);
+          }
         }
       } else {
         setAssistantState('idle');

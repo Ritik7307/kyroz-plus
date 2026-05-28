@@ -6,7 +6,6 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, UploadFile, File, F
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import groq
-from rag_engine import rag_engine
 from tts_service import synthesize_speech, detect_language
 import redis.asyncio as redis
 
@@ -24,12 +23,12 @@ app.add_middleware(
 
 @app.on_event("startup")
 def startup_event():
-    print("FastAPI startup: Syncing SOPs from MongoDB...")
-    try:
-        rag_engine.sync_sops_from_mongo()
-        print("FastAPI startup: SOP sync complete.")
-    except Exception as e:
-        print(f"FastAPI startup: Failed to sync SOPs from MongoDB on startup: {e}")
+    print("FastAPI startup: Syncing SOPs from MongoDB disabled for instant startup.")
+    # try:
+    #     rag_engine.sync_sops_from_mongo()
+    #     print("FastAPI startup: SOP sync complete.")
+    # except Exception as e:
+    #     print(f"FastAPI startup: Failed to sync SOPs from MongoDB on startup: {e}")
 
 
 # Clients
@@ -49,6 +48,7 @@ async def upload_docs(file: UploadFile = File(...)):
     try:
         temp_file.write(await file.read())
         temp_file.close()
+        from rag_engine import rag_engine
         rag_engine.load_document(temp_path)
         return {"message": f"Document {file.filename} processed and indexed."}
     except Exception as e:
@@ -65,6 +65,7 @@ async def chat(message: str = Form(...), lang: str = Form("en")):
             raise HTTPException(status_code=400, detail="Message is required")
 
         # Get response from RAG
+        from rag_engine import rag_engine
         response_text = rag_engine.query(message, lang=lang)
         
         return {

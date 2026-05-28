@@ -13,8 +13,8 @@ class VoiceEngine:
             self.speech_config = speechsdk.SpeechConfig(subscription=self.speech_key, region=self.speech_region)
             # Default voices
             self.voices = {
-                "en": "en-US-AndrewNeural",
-                "hi": "hi-IN-MadhurNeural"
+                "en": "en-US-AriaNeural",
+                "hi": "hi-IN-SwaraNeural"
             }
         else:
             self.speech_config = None

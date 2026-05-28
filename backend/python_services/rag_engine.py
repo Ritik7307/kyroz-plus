@@ -19,16 +19,26 @@ if not os.getenv("MONGO_URI"):
 
 class KosaRAG:
     def __init__(self):
-        self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        self.embeddings = None
         self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
         self.vector_db = None
-        self.llm = ChatGroq(
-            groq_api_key=os.getenv("GROQ_API_KEY"),
-            model_name="llama-3.3-70b-versatile",
-            temperature=0.3
-        )
+        self.llm = None
+
+    def _init_embeddings(self):
+        if self.embeddings is None:
+            print("Initializing HuggingFaceEmbeddings...")
+            self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+
+    def _init_llm(self):
+        if self.llm is None:
+            self.llm = ChatGroq(
+                groq_api_key=os.getenv("GROQ_API_KEY"),
+                model_name="llama-3.3-70b-versatile",
+                temperature=0.3
+            )
 
     def load_document(self, file_path: str):
+        self._init_embeddings()
         ext = os.path.splitext(file_path)[1].lower()
         if ext == ".pdf":
             loader = PyPDFLoader(file_path)
@@ -49,6 +59,7 @@ class KosaRAG:
         self.vector_db.save_local("faiss_index")
 
     def sync_sops_from_mongo(self):
+        self._init_embeddings()
         mongo_uri = os.getenv("MONGO_URI") or os.getenv("MONGO_URL") or "mongodb://127.0.0.1:27017/kyroz"
         print("Connecting to MongoDB for SOP sync...")
         client = MongoClient(mongo_uri)
@@ -135,6 +146,8 @@ class KosaRAG:
             client.close()
 
     def query(self, user_query: str, lang: str = "en"):
+        self._init_embeddings()
+        self._init_llm()
         if self.vector_db is None:
             if os.path.exists("faiss_index"):
                 self.vector_db = FAISS.load_local("faiss_index", self.embeddings, allow_dangerous_deserialization=True)
