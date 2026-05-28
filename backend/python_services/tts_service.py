@@ -19,7 +19,10 @@ class TTSRequest(BaseModel):
     text: str
 
 def clean_tts_text(text: str) -> str:
-    clean_text = re.sub(r'[*#`_~]', '', text or '')
+    if not text:
+        return ""
+    # Strip markdown bold, italic, strike, and headers
+    clean_text = re.sub(r'\*\*|__|\*|_|~~|`|#+', '', text)
     clean_text = re.sub(r'\s+', ' ', clean_text).strip()
     return clean_text
 

@@ -47,9 +47,15 @@ export const generateSpeech = async (text: string, lang: string = 'auto'): Promi
     throw new Error("No Text-to-Speech engines configured (missing AI_CORE_URL and valid OPENAI_API_KEY).");
   }
 
+  // Clean markdown before sending to any TTS engine
+  const cleanedText = text
+    .replace(/\*\*|__|\*|_|~~|`|#+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
   try {
     const formData = new URLSearchParams();
-    formData.append('text', text);
+    formData.append('text', cleanedText);
     formData.append('lang', lang);
 
     const controller = new AbortController();
@@ -76,7 +82,7 @@ export const generateSpeech = async (text: string, lang: string = 'auto'): Promi
     
     if (openai) {
       try {
-        const mp3 = await openai.audio.speech.create({ model: "tts-1", voice: "alloy", input: text });
+        const mp3 = await openai.audio.speech.create({ model: "tts-1", voice: "alloy", input: cleanedText });
         const arrayBuffer = await mp3.arrayBuffer();
         return Buffer.from(arrayBuffer);
       } catch (openaiError) {

@@ -69,6 +69,14 @@ const getMicErrorMessage = (error: unknown) => {
   return 'Microphone could not start in this browser.';
 };
 
+const cleanSpeechText = (text: string): string => {
+  if (!text) return '';
+  return text
+    .replace(/\*\*|__|\*|_|~~|`|#+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
 export default function AiDashboard() {
   const [messages, setMessages] = useState<Message[]>([
     { 
@@ -431,13 +439,14 @@ export default function AiDashboard() {
       if (!isMuted) {
         setAssistantState('speaking');
         setVoiceHint('Speaking...');
+        const cleanText = cleanSpeechText(data.reply);
         const speakRes = await fetch(`${AI_CORE_URL}/speak`, { 
           method: 'POST', 
           headers: { 
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ text: data.reply, lang: data.detectedLang || selectedLang }),
+          body: JSON.stringify({ text: cleanText, lang: data.detectedLang || selectedLang }),
           signal
         });
         if (speakRes.ok) {
@@ -459,7 +468,7 @@ export default function AiDashboard() {
           // Final Fallback: Browser Web Speech API
           console.warn("Backend TTS failed, falling back to browser speech API");
           setAssistantState('speaking');
-          const utterance = new SpeechSynthesisUtterance(data.reply);
+          const utterance = new SpeechSynthesisUtterance(cleanText);
           const actualLang = data.detectedLang || selectedLang;
           utterance.lang = actualLang === 'hi' ? 'hi-IN' : 'en-US';
 
