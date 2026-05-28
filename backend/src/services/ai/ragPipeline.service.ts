@@ -842,6 +842,24 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
       return { reply, suggestions: ["Instant Dosa SOP", "Dosa Batter Setup"], detectedLang: targetLang };
     }
 
+    // C. Burnt Biryani or Rice
+    if ((normalizedQueryForCheck.includes('biryani') || normalizedQueryForCheck.includes('बिरियानी') || normalizedQueryForCheck.includes('बिरयानी') || normalizedQueryForCheck.includes('rice') || normalizedQueryForCheck.includes('चावल')) && 
+        (normalizedQueryForCheck.includes('जल') || normalizedQueryForCheck.includes('burnt') || normalizedQueryForCheck.includes('jala') || normalizedQueryForCheck.includes('jalna'))) {
+      const reply = isHiLanguage 
+        ? "अगर आपकी बिरयानी या चावल नीचे से जल गए हैं, तो ये तुरंत उपाय करें:\n\n1. **बर्तन को तुरंत आंच से उतारें**: बर्तन को आंच से हटाएं और उसे एक गीले तौलिये (Wet Towel) पर रख दें। इससे पकने की प्रक्रिया तुरंत रुक जाएगी।\n2. **चावल खुरचें नहीं**: ऊपर के सही और खिले हुए चावल को सावधानी से दूसरे साफ बर्तन में निकाल लें। नीचे के जले हुए हिस्से को बिल्कुल न छुएं।\n3. **जले की महक दूर करें**: नए बर्तन में निकाले गए चावल के बीच में एक ब्रेड का टुकड़ा या कटे हुए कच्चे प्याज के टुकड़े रख दें और ढक दें। यह 10-15 मिनट में जले हुए की महक सोख लेगा।"
+        : "If your Biryani or Rice is burnt at the bottom, follow these immediate rescue steps:\n\n1. **Remove from Heat**: Immediately take the pot off the stove and place it on a damp towel to stop the cooking process.\n2. **Do Not Scrape**: Carefully scoop out the good rice from the top into a fresh container. Do not scrape the bottom at all.\n3. **Remove Burnt Odor**: Place a slice of bread or chopped raw onions on top of the rescued rice in the new container and cover it. It will absorb the burnt smell in 10-15 minutes.";
+      return { reply, suggestions: ["Biryani Preparation SOP", "Kitchen Troubleshooting"], detectedLang: targetLang };
+    }
+
+    // D. Watery or Soggy Biryani/Rice
+    if ((normalizedQueryForCheck.includes('biryani') || normalizedQueryForCheck.includes('बिरियानी') || normalizedQueryForCheck.includes('बिरयानी') || normalizedQueryForCheck.includes('rice') || normalizedQueryForCheck.includes('चावल')) && 
+        (normalizedQueryForCheck.includes('पानी') || normalizedQueryForCheck.includes('water') || normalizedQueryForCheck.includes('gila') || normalizedQueryForCheck.includes('soggy') || normalizedQueryForCheck.includes('chipchipa') || normalizedQueryForCheck.includes('गीला'))) {
+      const reply = isHiLanguage 
+        ? "अगर आपकी बिरयानी या चावल में पानी ज्यादा हो गया है (गीले/चिपचिपे हो गए हैं), तो उसे ठीक करने के तरीके:\n\n1. **पंखे के नीचे सुखाएं**: चावल को तुरंत एक बड़ी खुली ट्रे या थाली में फैला लें और पंखे के नीचे 10-15 मिनट के लिए रख दें। इससे अतिरिक्त नमी उड़ जाएगी।\n2. **दम देने की तकनीक**: बर्तन के मुंह पर एक साफ, सूखा सूती कपड़ा कसकर बांध दें और ऊपर से ढक्कन लगा दें। 5 मिनट तक बहुत ही धीमी आंच पर दम दें। कपड़ा सारा अतिरिक्त पानी सोख लेगा।\n3. **ब्रेड का इस्तेमाल**: चावल के ऊपर ब्रेड के 2-3 स्लाइस रख दें और ढक दें। ब्रेड अतिरिक्त नमी सोख लेगी।"
+        : "If your Biryani or rice has become too watery or soggy, try these fixes:\n\n1. **Air Dry**: Immediately spread the rice on a large open tray or wide plate and place it under a fan for 10-15 minutes to let excess moisture evaporate.\n2. **Cloth Dum Technique**: Place a clean, dry cotton cloth tightly over the mouth of the pot and put the lid on. Simmer on very low heat for 5 minutes. The cloth will absorb the excess steam and moisture.\n3. **Bread Hack**: Place 2-3 slices of bread on top of the rice and cover it. The bread acts as a sponge for extra moisture.";
+      return { reply, suggestions: ["Biryani Preparation SOP", "Perfect Rice Cooking"], detectedLang: targetLang };
+    }
+
 
 
     // Predefined general keyword mappings
