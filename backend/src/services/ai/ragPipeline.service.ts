@@ -269,11 +269,13 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
     // 1. Correct any phonetic typos from voice-to-text transcription
     const cleanedQuery = correctPhoneticTypos(query);
 
-    // Smart Language Logic using cleaned query:
-    // 1. If query has Hindi characters, always respond in Hindi.
-    // 2. Otherwise, use the user's selected language (from the toggle).
+    // Smart Language Logic:
+    // 1. If the user explicitly selected 'en' or 'hi', respect their choice.
+    // 2. If 'lang' is not specified or set to 'auto', fallback to auto-detection from the query.
     const hasHindi = /[\u0900-\u097F]/.test(cleanedQuery);
-    const targetLang = hasHindi ? 'hi' : (lang === 'hi' ? 'hi' : 'en');
+    const targetLang = (lang === 'en' || lang === 'hi')
+      ? lang
+      : (hasHindi ? 'hi' : 'en');
 
     // Predefined general keyword mappings
     const keywordMappings: Record<string, { enReply: string; hiReply: string; suggestions: string[] }> = {
