@@ -248,8 +248,8 @@ export default function HistoryPage() {
                               exit={{ height: 0, opacity: 0 }}
                               className="border-t border-white/5 bg-black/40"
                             >
-                              <div className="p-6">
-                                <h4 className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-4">Itemized Bill</h4>
+                              <div className="p-6 space-y-4">
+                                <h4 className="text-[10px] font-black text-white/40 uppercase tracking-widest">Itemized Bill</h4>
                                 <div className="space-y-3">
                                   {order.items.map((item: any, i: number) => (
                                     <div key={i} className="flex items-center justify-between bg-white/5 rounded-xl p-4">
@@ -276,6 +276,35 @@ export default function HistoryPage() {
                                       </div>
                                     </div>
                                   ))}
+                                </div>
+                                
+                                {/* Order Metadata Summary */}
+                                <div className="pt-4 border-t border-white/5 flex flex-wrap gap-x-8 gap-y-3 text-[10px] text-white/60 font-bold uppercase tracking-wider">
+                                  {order.tableNumber && (
+                                    <div>
+                                      <span className="text-white/30">Table:</span> <span className="text-gold">{order.tableNumber}</span>
+                                    </div>
+                                  )}
+                                  <div>
+                                    <span className="text-white/30">Type:</span> <span className="text-white">{order.orderType || 'DineIn'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-white/30">Payment:</span> <span className="text-white">{order.paymentMethod || 'Cash'}</span>
+                                  </div>
+                                  {order.additionalCharge > 0 && (
+                                    <div>
+                                      <span className="text-white/30">Add. Charge:</span> <span className="text-white">₹{order.additionalCharge}</span>
+                                    </div>
+                                  )}
+                                  {(order.discountValue > 0 || order.discount > 0) && (
+                                    <div>
+                                      <span className="text-white/30">Discount:</span> <span className="text-red-400">
+                                        {order.discountType === 'flat' ? '₹' : ''}
+                                        {order.discountValue || order.discount}
+                                        {(!order.discountType || order.discountType === 'percentage') ? '%' : ''}
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             </motion.div>

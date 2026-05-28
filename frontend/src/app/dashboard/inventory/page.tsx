@@ -398,13 +398,13 @@ export default function InventoryPage() {
 
   return (
     <div className="space-y-10 pb-20">
-      <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-card glass-card p-10 rounded-[2.5rem] border border-white/5 relative overflow-hidden">
+      <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-card glass-card p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-white/5 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 rounded-full -mr-32 -mt-32 blur-[100px]"></div>
         <div className="relative z-10">
-          <h2 className="text-4xl font-black tracking-tighter uppercase">Inventory <span className="text-gold">&</span> Stock</h2>
+          <h2 className="text-3xl md:text-4xl font-black tracking-tighter uppercase">Inventory <span className="text-gold">&</span> Stock</h2>
           <p className="text-white/40 text-xs font-black uppercase tracking-[0.2em] mt-2">Manage your kitchen supplies, raw materials and portion recipes.</p>
         </div>
-        <div className="flex flex-wrap gap-4 relative z-10">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4 relative z-10 w-full lg:w-auto">
           <input 
             type="file" 
             ref={fileInputRef} 
@@ -415,20 +415,20 @@ export default function InventoryPage() {
           <button 
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="bg-white/5 border border-white/10 hover:border-gold hover:text-gold text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-3 shadow-xl disabled:opacity-50"
+            className="bg-white/5 border border-white/10 hover:border-gold hover:text-gold text-white px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-xl disabled:opacity-50 w-full sm:w-auto"
           >
             {uploading ? <Loader2 className="animate-spin" size={18} /> : <FileUp size={18} />}
             Upload Recipes / SOP
           </button>
           <button 
             onClick={() => setShowPurchaseModal(true)}
-            className="bg-gold text-black px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.05] transition-all flex items-center gap-3 shadow-xl"
+            className="bg-gold text-black px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.05] transition-all flex items-center justify-center gap-3 shadow-xl w-full sm:w-auto"
           >
             <Plus size={18} /> Purchase Entry
           </button>
           <button 
             onClick={() => setShowProductionModal(true)}
-            className="bg-white/5 border border-white/10 hover:border-gold hover:text-gold text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-3 shadow-xl"
+            className="bg-white/5 border border-white/10 hover:border-gold hover:text-gold text-white px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-xl w-full sm:w-auto"
           >
             <Plus size={18} /> Production Entry
           </button>
@@ -855,9 +855,9 @@ export default function InventoryPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-card border border-white/10 rounded-[3rem] p-10 w-full max-w-lg relative z-10"
+              className="bg-card border border-white/10 rounded-2xl sm:rounded-[3rem] p-6 sm:p-10 w-full max-w-lg relative z-10"
             >
-              <h3 className="text-3xl font-black uppercase tracking-tighter mb-8 flex items-center gap-4 text-white">
+              <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter mb-8 flex items-center gap-4 text-white">
                 <Package className="text-gold" size={32} /> Update Stock
               </h3>
               
@@ -919,9 +919,9 @@ export default function InventoryPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-card border border-white/10 rounded-[3rem] p-10 w-full max-w-2xl relative z-10"
+              className="bg-card border border-white/10 rounded-2xl sm:rounded-[3rem] p-6 sm:p-10 w-full max-w-2xl relative z-10"
             >
-              <h3 className="text-3xl font-black uppercase tracking-tighter mb-4 text-white">
+              <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter mb-4 text-white">
                 Recipe Structure
               </h3>
               <p className="text-gold text-sm font-black uppercase tracking-wider mb-6">{viewingRecipe.name}</p>
@@ -961,9 +961,9 @@ export default function InventoryPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-card border border-white/10 rounded-[3rem] p-10 w-full max-w-lg relative z-10"
+              className="bg-card border border-white/10 rounded-2xl sm:rounded-[3rem] p-6 sm:p-10 w-full max-w-lg relative z-10"
             >
-              <h3 className="text-3xl font-black uppercase tracking-tighter mb-8 flex items-center gap-4 text-white">
+              <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter mb-8 flex items-center gap-4 text-white">
                 <ShoppingCart className="text-gold" size={32} /> Purchase Entry
               </h3>
               
@@ -1030,9 +1030,9 @@ export default function InventoryPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-card border border-white/10 rounded-[3rem] p-10 w-full max-w-lg relative z-10"
+              className="bg-card border border-white/10 rounded-2xl sm:rounded-[3rem] p-6 sm:p-10 w-full max-w-lg relative z-10"
             >
-              <h3 className="text-3xl font-black uppercase tracking-tighter mb-8 flex items-center gap-4 text-white">
+              <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter mb-8 flex items-center gap-4 text-white">
                 <ChefHat className="text-gold" size={32} /> Production Entry
               </h3>
               

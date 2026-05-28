@@ -14,7 +14,11 @@ export interface IOrder extends Document {
   totalProfit: number;
   customerName?: string;
   customerPhone?: string;
-  discount?: number; // percentage
+  discount?: number; // legacy percentage
+  discountType?: 'percentage' | 'flat';
+  discountValue?: number;
+  additionalCharge?: number;
+  tableNumber?: string;
   paymentMethod?: 'Cash' | 'Online';
   orderType?: 'DineIn' | 'Takeaway' | 'Delivery';
   createdAt: Date;
@@ -35,6 +39,10 @@ const OrderSchema: Schema = new Schema({
   customerName: { type: String },
   customerPhone: { type: String },
   discount: { type: Number, default: 0 },
+  discountType: { type: String, enum: ['percentage', 'flat'], default: 'percentage' },
+  discountValue: { type: Number, default: 0 },
+  additionalCharge: { type: Number, default: 0 },
+  tableNumber: { type: String },
   paymentMethod: { type: String, enum: ['Cash', 'Online'], default: 'Cash' },
   orderType: { type: String, enum: ['DineIn', 'Takeaway', 'Delivery'], default: 'DineIn' },
   createdAt: { type: Date, default: Date.now }

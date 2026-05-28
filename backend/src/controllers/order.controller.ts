@@ -12,7 +12,18 @@ import { deductInventory } from '../services/inventory.service';
 
 export const processCheckout = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { items, customerName, customerPhone, discount, paymentMethod, orderType = 'DineIn' } = req.body; // Array of { dishId, quantity }
+    const { 
+      items, 
+      customerName, 
+      customerPhone, 
+      discount, 
+      discountType = 'percentage', 
+      discountValue, 
+      additionalCharge = 0, 
+      tableNumber, 
+      paymentMethod, 
+      orderType = 'DineIn' 
+    } = req.body; // Array of { dishId, quantity }
     
     if (!items || !Array.isArray(items)) {
       res.status(400).json({ error: 'Invalid items format' });
@@ -111,18 +122,30 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
     }
 
     if (orderItems.length > 0) {
-      // Apply discount to total revenue and profit (simplified)
-      const discountAmount = totalRevenue * ((discount || 0) / 100);
-      const discountedRevenue = totalRevenue - discountAmount;
+      // Calculate discount amount based on type
+      let discountAmount = 0;
+      const dValue = discountValue !== undefined ? discountValue : (discount || 0);
+      if (discountType === 'flat') {
+        discountAmount = dValue;
+      } else {
+        discountAmount = totalRevenue * (dValue / 100);
+      }
+
+      const charge = additionalCharge || 0;
+      const discountedRevenue = totalRevenue - discountAmount + charge;
       
       const order = new Order({
         userId: req.user?.userId,
         items: orderItems,
         totalRevenue: discountedRevenue,
-        totalProfit: totalProfit - discountAmount, // Profit reduces by discount amount
+        totalProfit: totalProfit - discountAmount + charge, // Profit increases by charges, reduces by discount
         customerName,
         customerPhone,
-        discount: discount || 0,
+        discount: discountType === 'percentage' ? dValue : 0, // Legacy support for % discount
+        discountType,
+        discountValue: dValue,
+        additionalCharge: charge,
+        tableNumber,
         paymentMethod: paymentMethod || 'Cash',
         orderType
       });

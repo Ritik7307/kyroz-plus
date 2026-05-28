@@ -150,7 +150,7 @@ export default function StaffManagement() {
           <p className="text-white/40 text-sm font-bold uppercase tracking-widest mt-1">Manage your team and their access levels</p>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
           <div className="relative w-full md:w-80">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
             <input 
@@ -164,7 +164,7 @@ export default function StaffManagement() {
           
           <button 
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-gold hover:bg-gold/90 text-black px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all transform hover:scale-105"
+            className="flex items-center justify-center gap-2 bg-gold hover:bg-gold/90 text-black px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all transform hover:scale-105"
           >
             <Plus size={18} /> Add Staff
           </button>
@@ -249,7 +249,7 @@ export default function StaffManagement() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg bg-[#111111] border border-white/10 rounded-[2.5rem] shadow-2xl p-10"
+              className="relative w-full max-w-lg bg-[#111111] border border-white/10 rounded-2xl sm:rounded-[2.5rem] shadow-2xl p-6 sm:p-10"
             >
               <div className="flex items-center justify-between mb-8">
                 <div>
