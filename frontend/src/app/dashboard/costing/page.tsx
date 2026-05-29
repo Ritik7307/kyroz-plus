@@ -360,8 +360,10 @@ export default function CostingMaster() {
                       }`}
                     >
                       <div className="flex items-center gap-6">
-                        <div className="w-14 h-14 bg-white/5 rounded-2xl flex flex-col items-center justify-center border border-white/5">
-                          <span className="text-[14px] font-black text-white">{ing.quantity}</span>
+                        <div className="min-w-[3.5rem] px-2 h-14 bg-white/5 rounded-2xl flex flex-col items-center justify-center border border-white/5 shrink-0">
+                          <span className="text-[14px] font-black text-white">
+                            {typeof ing.quantity === 'number' ? parseFloat(ing.quantity.toFixed(3)) : ing.quantity}
+                          </span>
                           <span className="text-[8px] font-black text-white/30 uppercase tracking-widest">{ing.unit}</span>
                         </div>
                         <div>

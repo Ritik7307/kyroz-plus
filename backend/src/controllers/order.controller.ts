@@ -8,7 +8,7 @@ import Customer from '../models/Customer';
 import Packaging from '../models/Packaging';
 import Notification from '../models/Notification';
 import { sendLowStockAlert } from '../services/whatsapp.service';
-import { deductInventory } from '../services/inventory.service';
+import { deductInventory, calculateDishCost } from '../services/inventory.service';
 
 export const processCheckout = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -42,7 +42,7 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
       const dish = await Dish.findById(dishId);
       if (dish) {
         const price = dish.price || 0;
-        const ingredientPrice = dish.ingredientPrice || 0;
+        const ingredientPrice = await calculateDishCost(dishId, req.user?.userId || '');
         
         orderItems.push({
           dishId,

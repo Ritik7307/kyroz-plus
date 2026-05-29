@@ -85,15 +85,16 @@ const getRecipeDetailsRecursive = async (
       if (sfgRecipe) {
         let subDetails: any[] = [];
         let batchCost = 0;
+        const yieldQty = sfgRecipe.operationalYield || sfg.batchYield || 1;
         
         for (const ing of sfgRecipe.ingredients) {
-          const resolved = await getRecipeDetailsRecursive(ing.itemModel, ing.itemId, ing.quantity, userId, name);
+          const scaledSubQty = ing.quantity * (quantityNeeded / yieldQty);
+          const resolved = await getRecipeDetailsRecursive(ing.itemModel, ing.itemId, scaledSubQty, userId, name);
           subDetails = subDetails.concat(resolved);
           const subUnitCost = resolved.length > 0 ? resolved[0].unitCost : 0;
           batchCost += subUnitCost * ing.quantity;
         }
 
-        const yieldQty = sfgRecipe.operationalYield || sfg.batchYield || 1;
         unitCost = batchCost / yieldQty;
         purchasePrice = unitCost;
 
@@ -173,8 +174,10 @@ export const getDishCosting = async (req: AuthRequest, res: Response): Promise<v
     let ingredientsCostDetails: any[] = [];
 
     if (recipe) {
+      const dishYield = recipe.operationalYield || recipe.targetYield || 1;
       for (const ingredient of recipe.ingredients) {
-        const resolved = await getRecipeDetailsRecursive(ingredient.itemModel, ingredient.itemId, ingredient.quantity, userId);
+        const scaledQty = ingredient.quantity / dishYield;
+        const resolved = await getRecipeDetailsRecursive(ingredient.itemModel, ingredient.itemId, scaledQty, userId);
         ingredientsCostDetails = ingredientsCostDetails.concat(resolved);
         
         const topLevelCost = resolved.length > 0 ? resolved[0].totalCost : 0;

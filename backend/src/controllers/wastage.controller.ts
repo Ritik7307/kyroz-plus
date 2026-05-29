@@ -4,6 +4,7 @@ import Wastage from '../models/Wastage';
 import RawMaterial from '../models/RawMaterial';
 import SemiFinishedGood from '../models/SemiFinishedGood';
 import Packaging from '../models/Packaging';
+import { getIngredientUnitCost } from '../services/inventory.service';
 
 export const logWastage = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -29,7 +30,8 @@ export const logWastage = async (req: AuthRequest, res: Response): Promise<void>
     } else if (itemModel === 'SemiFinishedGood') {
       targetItem = await SemiFinishedGood.findOne({ _id: itemId, userId });
       if (targetItem) {
-        costLost = targetItem.costPerUnit * quantity;
+        const dynamicCost = await getIngredientUnitCost('SemiFinishedGood', itemId, userId);
+        costLost = dynamicCost * quantity;
         targetItem.currentStock -= quantity;
         await targetItem.save();
       }

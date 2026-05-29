@@ -155,7 +155,7 @@ export default function DashboardPage() {
               <div className="flex gap-4 relative z-10 w-full lg:w-auto">
                 {(user?.role === 'manager' || user?.role === 'user') && (
                   <div className="bg-black/40 p-4 px-6 rounded-2xl border border-white/10 hidden sm:block">
-                    <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Daily Profit</p>
+                    <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Daily Gross Profit</p>
                     <div className="flex items-center gap-3">
                       <span className="text-xl font-black text-white">{formatCurrency(dailyProfit)}</span>
                       <TrendingUp size={14} className="text-green-500" />

@@ -111,7 +111,7 @@ export default function HistoryPage() {
               </div>
             </div>
             <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 space-y-4">
-              <p className="text-[10px] font-black text-gold/60 uppercase tracking-[0.2em]">Net Profit</p>
+              <p className="text-[10px] font-black text-gold/60 uppercase tracking-[0.2em]">Gross Profit</p>
               <h3 className="text-3xl font-black text-gold">{formatCurrency(summary[activeTab].profit)}</h3>
               <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Margin: {summary[activeTab].revenue > 0 ? ((summary[activeTab].profit / summary[activeTab].revenue) * 100).toFixed(1) : 0}%</p>
             </div>
@@ -187,7 +187,7 @@ export default function HistoryPage() {
                       <p className="text-white font-bold">{formatCurrency(dailyRevenue)}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[9px] font-black text-gold/60 uppercase tracking-widest">Daily Profit</p>
+                      <p className="text-[9px] font-black text-gold/60 uppercase tracking-widest">Daily Gross Profit</p>
                       <p className="text-gold font-black flex items-center gap-1">
                         {formatCurrency(dailyProfit)} <TrendingUp size={14} />
                       </p>
@@ -230,7 +230,7 @@ export default function HistoryPage() {
                               <p className="text-white font-bold">{formatCurrency(order.totalRevenue)}</p>
                             </div>
                             <div className="text-right">
-                              <p className="text-[9px] text-gold/60 uppercase tracking-widest">Profit</p>
+                              <p className="text-[9px] text-gold/60 uppercase tracking-widest">Gross Profit</p>
                               <p className="text-gold font-black">{formatCurrency(order.totalProfit)}</p>
                             </div>
                             <div className="text-white/20 group-hover:text-white transition-colors">
@@ -271,7 +271,7 @@ export default function HistoryPage() {
                                           {formatCurrency(item.price * item.quantity)}
                                         </p>
                                         <p className="text-[9px] text-green-500/80 uppercase tracking-widest mt-0.5">
-                                          +{formatCurrency((item.price - item.ingredientPrice) * item.quantity)} Profit
+                                          +{formatCurrency((item.price - item.ingredientPrice) * item.quantity)} Gross Profit
                                         </p>
                                       </div>
                                     </div>

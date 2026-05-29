@@ -501,3 +501,58 @@ export const seedAllKyrozRestaurantData = async (userId: string | mongoose.Types
   }
 };
 
+export const getIngredientUnitCost = async (
+  itemModel: string,
+  itemId: mongoose.Types.ObjectId | string,
+  userId: mongoose.Types.ObjectId | string
+): Promise<number> => {
+  if (itemModel === 'RawMaterial') {
+    const rm = await RawMaterial.findOne({ _id: itemId, userId });
+    if (!rm) return 0;
+    const factor = rm.conversionFactor || 1;
+    return (rm.costPerPurchaseUnit || 0) / factor;
+  } else if (itemModel === 'SemiFinishedGood') {
+    const sfg = await SemiFinishedGood.findOne({ _id: itemId, userId });
+    if (!sfg) return 0;
+
+    const recipe = await Recipe.findOne({ targetModel: 'SemiFinishedGood', targetId: itemId, userId });
+    if (recipe) {
+      let totalCost = 0;
+      for (const ing of recipe.ingredients) {
+        const cost = await getIngredientUnitCost(ing.itemModel, ing.itemId, userId);
+        totalCost += cost * ing.quantity;
+      }
+      const yieldQty = recipe.operationalYield || sfg.batchYield || 1;
+      return totalCost / yieldQty;
+    }
+    return sfg.costPerUnit || 0;
+  } else if (itemModel === 'Packaging') {
+    const pkg = await Packaging.findOne({ _id: itemId, userId });
+    return pkg ? (pkg.costPerUnit || 0) : 0;
+  }
+  return 0;
+};
+
+export const calculateDishCost = async (
+  dishId: mongoose.Types.ObjectId | string,
+  userId: mongoose.Types.ObjectId | string
+): Promise<number> => {
+  const dish = await Dish.findOne({ _id: dishId, userId });
+  if (!dish) return 0;
+
+  const recipe = await Recipe.findOne({ targetModel: 'Dish', targetId: dishId, userId });
+  if (!recipe) {
+    return dish.ingredientPrice || 0;
+  }
+
+  let totalFoodCost = 0;
+  for (const ingredient of recipe.ingredients) {
+    const cost = await getIngredientUnitCost(ingredient.itemModel, ingredient.itemId, userId);
+    totalFoodCost += cost * ingredient.quantity;
+  }
+
+  const yieldQty = recipe.operationalYield || recipe.targetYield || 1;
+  return totalFoodCost / yieldQty;
+};
+
+
