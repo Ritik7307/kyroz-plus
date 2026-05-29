@@ -117,6 +117,8 @@ export default function POSTerminal() {
   const [kotStatus, setKotStatus] = useState<'None' | 'Pending' | 'Preparing' | 'Ready' | 'Served'>('None');
   const [kotId, setKotId] = useState<string>('');
   const [isSendingKot, setIsSendingKot] = useState(false);
+  const [printType, setPrintType] = useState<'bill' | 'kot' | null>(null);
+  const [printingKot, setPrintingKot] = useState<any | null>(null);
 
   // Table Billing State
   const [activeTable, setActiveTable] = useState<string>('quick');
@@ -487,6 +489,7 @@ export default function POSTerminal() {
       
       if (res.ok) {
         setShowQrModal(false);
+        setPrintType('bill');
         // Trigger printing
         setTimeout(() => {
           window.print();
@@ -609,12 +612,18 @@ export default function POSTerminal() {
       if (res.ok) {
         setKotStatus('Pending');
         setKotId(data.kot?._id || '');
+        setPrintingKot(data.kot);
+        setPrintType('kot');
         // Mark all items as sent in state
         setCart(prev => prev.map(item => ({
           ...item,
           sentQty: item.quantity
         })));
-        alert(`KOT #${data.kot?.kotNumber || ''} sent to kitchen for new items!`);
+        
+        // Trigger automatic printing of the KOT ticket
+        setTimeout(() => {
+          window.print();
+        }, 300);
       } else {
         alert(data.error || 'Failed to send KOT');
       }
@@ -1082,99 +1091,163 @@ export default function POSTerminal() {
       
       {/* PRINT RECEIPT - MOVED TO TOP FOR BETTER SELECTIVITY */}
       <div className="receipt-container hidden print:block">
-        <div className="max-w-[80mm] mx-auto font-mono text-xs text-black p-6 bg-white">
-          {/* Header section - All Centered like screenshot */}
-          <div className="text-center mb-6 space-y-1">
-            <h1 className="text-2xl font-black uppercase tracking-tight">{userShopName}</h1>
-            <p className="text-[10px] font-bold">Receipt / Bill</p>
-            <p className="text-[10px]">{new Date().toLocaleString()}</p>
-            
-            {/* Customer Details - Centered as well for clean look */}
-            {(customerName || customerPhone) && (
-              <div className="pt-2 border-t border-black/10 mt-2">
-                {customerName && <p className="font-black uppercase tracking-tighter text-[11px]">{customerName}</p>}
-                {customerPhone && <p className="text-[10px]">{customerPhone}</p>}
-              </div>
-            )}
-          </div>
+        {printType === 'kot' && printingKot ? (
+          <div className="max-w-[80mm] mx-auto font-mono text-xs text-black p-6 bg-white">
+            <div className="text-center border-b-2 border-black pb-2 mb-3">
+              <h1 className="text-xl font-black uppercase tracking-tight text-center">KITCHEN ORDER TICKET</h1>
+              <p className="text-sm font-bold uppercase tracking-widest text-black mt-1">KOT #{printingKot.kotNumber}</p>
+              <p className="text-[10px] mt-0.5">{new Date(printingKot.createdAt).toLocaleString()}</p>
+            </div>
 
-          <div className="border-t-2 border-b-2 border-black py-2 mb-4">
-            <table className="w-full text-[11px]">
+            <div className="border-b border-black pb-2 mb-3 space-y-1">
+              <div className="flex justify-between text-xs font-black">
+                <span>SOURCE:</span>
+                <span>{printingKot.tableNumber}</span>
+              </div>
+              <div className="flex justify-between text-[10px]">
+                <span>ORDER TYPE:</span>
+                <span className="font-bold uppercase">{printingKot.orderType}</span>
+              </div>
+            </div>
+
+            <table className="w-full text-xs mb-4">
               <thead>
-                <tr className="text-left border-b border-black">
-                  <th className="pb-1 font-black">Item</th>
-                  <th className="pb-1 text-center font-black">Qty</th>
-                  <th className="pb-1 text-right font-black">Amt</th>
+                <tr className="border-b border-black text-left font-black">
+                  <th className="pb-1">Item Name</th>
+                  <th className="pb-1 text-right">Qty</th>
                 </tr>
               </thead>
-              <tbody>
-                {cart.map((item, idx) => (
-                  <tr key={idx} className="border-b border-black/5 last:border-0">
-                    <td className="py-2 pr-2 leading-tight">{item.dish.name}</td>
-                    <td className="py-2 text-center">{item.quantity}</td>
-                    <td className="py-2 text-right font-bold">₹{item.dish.price * item.quantity}</td>
+              <tbody className="divide-y divide-black/10">
+                {printingKot.items.map((item: any, idx: number) => (
+                  <tr key={idx}>
+                    <td className="py-2 pr-2 leading-tight">
+                      <span className="font-bold">{item.dishId?.name || 'Unknown Dish'}</span>
+                      {item.note && (
+                        <div className="text-[10px] italic mt-0.5 font-bold">
+                          * Note: {item.note}
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-2 text-right font-black text-sm">x{item.quantity}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
 
-          <div className="space-y-1.5 mb-6">
-            {activeTable !== 'quick' && (
-              <div className="flex justify-between items-center text-[11px] font-black border-b border-black/10 pb-1 mb-2">
-                <span className="uppercase tracking-widest">TABLE:</span>
-                <span>{TABLES.find(t => t.id === activeTable)?.name}</span>
+            {printingKot.packaging && printingKot.packaging.length > 0 && (
+              <div className="border-t border-black pt-2 mt-2">
+                <p className="text-[10px] font-black uppercase tracking-widest mb-1.5">Packaging Items Needed:</p>
+                <div className="space-y-1 text-[10px] font-bold">
+                  {printingKot.packaging.map((pkg: any, idx: number) => (
+                    <div key={idx} className="flex justify-between">
+                      <span>[ ] {pkg.name}</span>
+                      <span>x{pkg.quantity}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
-            <div className="flex justify-between items-center text-[11px]">
-              <span className="font-bold uppercase tracking-widest">Subtotal:</span>
-              <span className="font-bold">₹{total}</span>
+
+            <div className="border-t border-dashed border-black pt-3 mt-6 text-center text-[9px] opacity-60">
+              <p className="uppercase tracking-[0.2em]">SOP & Prep Checklist Printed</p>
+              <p className="uppercase tracking-[0.3em] font-black mt-0.5 text-[8px]">Powered by KYROZ</p>
             </div>
-            {discountAmount > 0 && (
-              <div className="flex justify-between items-center text-[11px] text-red-600">
-                <span className="font-bold uppercase tracking-widest">Discount ({discountType === 'flat' ? '₹' : ''}{discount}{discountType === 'percentage' ? '%' : ''}):</span>
-                <span className="font-bold">-₹{Math.round(discountAmount)}</span>
-              </div>
-            )}
-            {applyGst && (
+          </div>
+        ) : (
+          <div className="max-w-[80mm] mx-auto font-mono text-xs text-black p-6 bg-white">
+            {/* Header section - All Centered like screenshot */}
+            <div className="text-center mb-6 space-y-1">
+              <h1 className="text-2xl font-black uppercase tracking-tight">{userShopName}</h1>
+              <p className="text-[10px] font-bold">Receipt / Bill</p>
+              <p className="text-[10px]">{new Date().toLocaleString()}</p>
+              
+              {/* Customer Details - Centered as well for clean look */}
+              {(customerName || customerPhone) && (
+                <div className="pt-2 border-t border-black/10 mt-2">
+                  {customerName && <p className="font-black uppercase tracking-tighter text-[11px]">{customerName}</p>}
+                  {customerPhone && <p className="text-[10px]">{customerPhone}</p>}
+                </div>
+              )}
+            </div>
+
+            <div className="border-t-2 border-b-2 border-black py-2 mb-4">
+              <table className="w-full text-[11px]">
+                <thead>
+                  <tr className="text-left border-b border-black">
+                    <th className="pb-1 font-black">Item</th>
+                    <th className="pb-1 text-center font-black">Qty</th>
+                    <th className="pb-1 text-right font-black">Amt</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cart.map((item, idx) => (
+                    <tr key={idx} className="border-b border-black/5 last:border-0">
+                      <td className="py-2 pr-2 leading-tight">{item.dish.name}</td>
+                      <td className="py-2 text-center">{item.quantity}</td>
+                      <td className="py-2 text-right font-bold">₹{item.dish.price * item.quantity}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="space-y-1.5 mb-6">
+              {activeTable !== 'quick' && (
+                <div className="flex justify-between items-center text-[11px] font-black border-b border-black/10 pb-1 mb-2">
+                  <span className="uppercase tracking-widest">TABLE:</span>
+                  <span>{TABLES.find(t => t.id === activeTable)?.name}</span>
+                </div>
+              )}
               <div className="flex justify-between items-center text-[11px]">
-                <span className="font-bold uppercase tracking-widest">Taxes ({userGstRate}%):</span>
-                <span className="font-bold">₹{Math.round(gstAmount)}</span>
+                <span className="font-bold uppercase tracking-widest">Subtotal:</span>
+                <span className="font-bold">₹{total}</span>
               </div>
-            )}
-            {parsedAdditionalCharge > 0 && (
-              <div className="flex justify-between items-center text-[11px]">
-                <span className="font-bold uppercase tracking-widest">Add. Charge:</span>
-                <span className="font-bold">₹{parsedAdditionalCharge}</span>
-              </div>
-            )}
-            <div className="border-t border-black pt-2 mt-2">
-              <div className="flex justify-between items-center text-lg font-black tracking-tight">
-                <span>TOTAL:</span>
-                <span>₹{grandTotal}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t border-dashed border-black pt-4 mb-8 text-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em]">Order Type: {orderType}</p>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em]">Payment Method: {paymentMethod}</p>
-          </div>
-
-          {userQrCode && (
-            <div className="flex flex-col items-center mb-8">
-              <p className="text-[8px] uppercase tracking-widest mb-3 font-bold opacity-60">Scan to Pay Online</p>
-              <div className="border-4 border-black p-2 rounded-2xl">
-                <img src={userQrCode} alt="QR Code" className="w-32 h-32" />
+              {discountAmount > 0 && (
+                <div className="flex justify-between items-center text-[11px] text-red-600">
+                  <span className="font-bold uppercase tracking-widest">Discount ({discountType === 'flat' ? '₹' : ''}{discount}{discountType === 'percentage' ? '%' : ''}):</span>
+                  <span className="font-bold">-₹{Math.round(discountAmount)}</span>
+                </div>
+              )}
+              {applyGst && (
+                <div className="flex justify-between items-center text-[11px]">
+                  <span className="font-bold uppercase tracking-widest">Taxes ({userGstRate}%):</span>
+                  <span className="font-bold">₹{Math.round(gstAmount)}</span>
+                </div>
+              )}
+              {parsedAdditionalCharge > 0 && (
+                <div className="flex justify-between items-center text-[11px]">
+                  <span className="font-bold uppercase tracking-widest">Add. Charge:</span>
+                  <span className="font-bold">₹{parsedAdditionalCharge}</span>
+                </div>
+              )}
+              <div className="border-t border-black pt-2 mt-2">
+                <div className="flex justify-between items-center text-lg font-black tracking-tight">
+                  <span>TOTAL:</span>
+                  <span>₹{grandTotal}</span>
+                </div>
               </div>
             </div>
-          )}
 
-          <div className="text-center text-[10px] space-y-1 opacity-60 font-bold">
-            <p className="uppercase tracking-widest">Thank you for visiting!</p>
-            <p className="uppercase tracking-[0.3em] text-[8px]">Powered by KYROZ</p>
+            <div className="border-t border-dashed border-black pt-4 mb-8 text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em]">Order Type: {orderType}</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em]">Payment Method: {paymentMethod}</p>
+            </div>
+
+            {userQrCode && (
+              <div className="flex flex-col items-center mb-8">
+                <p className="text-[8px] uppercase tracking-widest mb-3 font-bold opacity-60">Scan to Pay Online</p>
+                <div className="border-4 border-black p-2 rounded-2xl">
+                  <img src={userQrCode} alt="QR Code" className="w-32 h-32" />
+                </div>
+              </div>
+            )}
+
+            <div className="text-center text-[10px] space-y-1 opacity-60 font-bold">
+              <p className="uppercase tracking-widest">Thank you for visiting!</p>
+              <p className="uppercase tracking-[0.3em] text-[8px]">Powered by KYROZ</p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8 no-print items-start w-full">
