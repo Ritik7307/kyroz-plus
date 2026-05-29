@@ -20,7 +20,9 @@ import {
   DollarSign,
   Upload,
   MessageCircle,
-  Share2
+  Share2,
+  Package,
+  ChefHat
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_URL } from '@/lib/api';
@@ -44,7 +46,7 @@ interface Dish {
 }
 
 interface TableSession {
-  cart: { dish: Dish; quantity: number }[];
+  cart: { dish: Dish; quantity: number; note?: string }[];
   customerName: string;
   customerPhone: string;
   discount: string;
@@ -53,6 +55,8 @@ interface TableSession {
   applyGst: boolean;
   paymentMethod: 'Cash' | 'Online';
   orderType: 'DineIn' | 'Takeaway' | 'Delivery';
+  kotStatus?: 'None' | 'Pending' | 'Preparing' | 'Ready' | 'Served';
+  kotId?: string;
 }
 
 const TABLES = [
@@ -77,11 +81,13 @@ const defaultSession = (tableId: string): TableSession => ({
   applyGst: true,
   paymentMethod: 'Cash',
   orderType: tableId === 'quick' ? 'Takeaway' : 'DineIn',
+  kotStatus: 'None',
+  kotId: '',
 });
 
 export default function POSTerminal() {
   const [dishes, setDishes] = useState<Dish[]>([]);
-  const [cart, setCart] = useState<{ dish: Dish, quantity: number }[]>([]);
+  const [cart, setCart] = useState<{ dish: Dish, quantity: number, note?: string, sentQty?: number }[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [isManagementMode, setIsManagementMode] = useState(false);
@@ -106,6 +112,11 @@ export default function POSTerminal() {
   const [applyGst, setApplyGst] = useState(true); // GST Toggle
   const [paymentMethod, setPaymentMethod] = useState<'Cash' | 'Online'>('Cash');
   const [orderType, setOrderType] = useState<'DineIn' | 'Takeaway' | 'Delivery'>('DineIn');
+
+  // KOT State
+  const [kotStatus, setKotStatus] = useState<'None' | 'Pending' | 'Preparing' | 'Ready' | 'Served'>('None');
+  const [kotId, setKotId] = useState<string>('');
+  const [isSendingKot, setIsSendingKot] = useState(false);
 
   // Table Billing State
   const [activeTable, setActiveTable] = useState<string>('quick');
@@ -172,6 +183,8 @@ export default function POSTerminal() {
     setApplyGst(activeSession.applyGst !== undefined ? activeSession.applyGst : true);
     setPaymentMethod(activeSession.paymentMethod || 'Cash');
     setOrderType(activeSession.orderType || (savedActiveTable === 'quick' ? 'Takeaway' : 'DineIn'));
+    setKotStatus(activeSession.kotStatus || 'None');
+    setKotId(activeSession.kotId || '');
     
     setTimeout(() => {
       isSwitchingTable.current = false;
@@ -192,6 +205,8 @@ export default function POSTerminal() {
       applyGst,
       paymentMethod,
       orderType,
+      kotStatus,
+      kotId,
     };
     
     setTableSessions(prev => {
@@ -202,7 +217,7 @@ export default function POSTerminal() {
       localStorage.setItem('pos_table_sessions', JSON.stringify(updated));
       return updated;
     });
-  }, [cart, customerName, customerPhone, discount, discountType, additionalCharge, applyGst, paymentMethod, orderType]);
+  }, [cart, customerName, customerPhone, discount, discountType, additionalCharge, applyGst, paymentMethod, orderType, kotStatus, kotId]);
 
   const switchTable = (targetTableId: string) => {
     isSwitchingTable.current = true;
@@ -218,6 +233,8 @@ export default function POSTerminal() {
       applyGst,
       paymentMethod,
       orderType,
+      kotStatus,
+      kotId,
     };
     
     const updatedSessions: Record<string, TableSession> = {
@@ -238,6 +255,8 @@ export default function POSTerminal() {
     setApplyGst(targetSession.applyGst !== undefined ? targetSession.applyGst : true);
     setPaymentMethod(targetSession.paymentMethod || 'Cash');
     setOrderType(targetSession.orderType || (targetTableId === 'quick' ? 'Takeaway' : 'DineIn'));
+    setKotStatus(targetSession.kotStatus || 'None');
+    setKotId(targetSession.kotId || '');
     
     setActiveTable(targetTableId);
     localStorage.setItem('pos_active_table', targetTableId);
@@ -389,7 +408,7 @@ export default function POSTerminal() {
       if (existing) {
         return prev.map(item => item.dish._id === dish._id ? { ...item, quantity: item.quantity + 1 } : item);
       }
-      return [...prev, { dish, quantity: 1 }];
+      return [...prev, { dish, quantity: 1, sentQty: 0 }];
     });
     setCheckoutSuccess(false); // Reset success if new items added
   };
@@ -398,7 +417,8 @@ export default function POSTerminal() {
     setCart(prev => prev.map(item => {
       if (item.dish._id === id) {
         const newQty = Math.max(0, item.quantity + delta);
-        return { ...item, quantity: newQty };
+        const newSentQty = Math.min(item.sentQty || 0, newQty);
+        return { ...item, quantity: newQty, sentQty: newSentQty };
       }
       return item;
     }).filter(item => item.quantity > 0));
@@ -472,6 +492,8 @@ export default function POSTerminal() {
           window.print();
           setIsProcessingCheckout(false);
           setCheckoutSuccess(true);
+          setKotStatus('None');
+          setKotId('');
         }, 300);
       } else {
         alert('Failed to process order.');
@@ -480,6 +502,127 @@ export default function POSTerminal() {
     } catch (err) {
       console.error('Checkout error', err);
       setIsProcessingCheckout(false);
+    }
+  };
+
+  // Poll active KOT status
+  useEffect(() => {
+    if (!kotId || kotId === '') return;
+    
+    let active = true;
+    const pollKotStatus = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch(`${API_URL}/api/kots`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const activeKots = await res.json();
+          if (Array.isArray(activeKots)) {
+            const currentKot = activeKots.find((k: any) => k._id === kotId);
+            if (currentKot && active) {
+              setKotStatus(currentKot.status);
+            } else if (!currentKot && active) {
+              // If not active, check history to see if it became Served/Cancelled
+              const histRes = await fetch(`${API_URL}/api/kots/history`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+              });
+              if (histRes.ok) {
+                const historyKots = await histRes.json();
+                const matched = historyKots.find((k: any) => k._id === kotId);
+                if (matched && active) {
+                  setKotStatus(matched.status);
+                }
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error polling KOT status:', err);
+      }
+    };
+    
+    pollKotStatus();
+    const interval = setInterval(pollKotStatus, 8000);
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
+  }, [kotId]);
+
+  const getRequiredPackaging = () => {
+    const packagingMap: { [name: string]: number } = {};
+    cart.forEach(item => {
+      const logic = (item.dish as any).packagingLogic;
+      if (logic) {
+        let pkgs = [];
+        if (orderType === 'Takeaway') pkgs = logic.takeaway || [];
+        else if (orderType === 'Delivery') pkgs = logic.delivery || [];
+        else if (orderType === 'DineIn') pkgs = logic.dineIn || [];
+        
+        pkgs.forEach((pkg: any) => {
+          if (pkg && pkg.name) {
+            packagingMap[pkg.name] = (packagingMap[pkg.name] || 0) + item.quantity;
+          }
+        });
+      }
+    });
+    return Object.keys(packagingMap).map(name => ({ name, quantity: packagingMap[name] }));
+  };
+
+  const handleSendKot = async () => {
+    // Filter out items that have unsent quantities
+    const unsentItems = cart.map(item => {
+      const unsentQty = item.quantity - (item.sentQty || 0);
+      return {
+        dish: item.dish,
+        quantity: unsentQty,
+        note: item.note || ''
+      };
+    }).filter(item => item.quantity > 0);
+
+    if (unsentItems.length === 0) {
+      alert("No new items to send to kitchen.");
+      return;
+    }
+    
+    setIsSendingKot(true);
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch(`${API_URL}/api/kots`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          items: unsentItems.map(item => ({
+            dishId: item.dish._id,
+            quantity: item.quantity,
+            note: item.note
+          })),
+          tableNumber: activeTable === 'quick' ? 'Quick Bill' : TABLES.find(t => t.id === activeTable)?.name || activeTable,
+          orderType: orderType
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setKotStatus('Pending');
+        setKotId(data.kot?._id || '');
+        // Mark all items as sent in state
+        setCart(prev => prev.map(item => ({
+          ...item,
+          sentQty: item.quantity
+        })));
+        alert(`KOT #${data.kot?.kotNumber || ''} sent to kitchen for new items!`);
+      } else {
+        alert(data.error || 'Failed to send KOT');
+      }
+    } catch (err) {
+      console.error('Send KOT Error:', err);
+      alert('Failed to send KOT');
+    } finally {
+      setIsSendingKot(false);
     }
   };
 
@@ -518,16 +661,47 @@ export default function POSTerminal() {
                 exit={{ opacity: 0, x: -20 }}
                 className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/5"
               >
-                <div className="flex-1">
+                <div className="flex-1 pr-2">
                   <h4 className="font-bold text-xs">{item.dish.name}</h4>
                   <p className="text-[10px] text-white/40">₹{item.dish.price} x {item.quantity}</p>
+                  
+                  {/* Sent vs Unsent badges */}
+                  {item.sentQty && item.sentQty > 0 ? (
+                    <div className="flex items-center gap-1.5 mt-1.5">
+                      <span className="text-[8px] bg-green-500/10 border border-green-500/20 text-green-400 px-1.5 py-0.5 rounded font-black uppercase">
+                        {item.sentQty} Sent
+                      </span>
+                      {item.quantity - item.sentQty > 0 && (
+                        <span className="text-[8px] bg-blue-500/10 border border-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded font-black uppercase animate-pulse">
+                          {item.quantity - item.sentQty} Unsent
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-center mt-1.5">
+                      <span className="text-[8px] bg-blue-500/10 border border-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded font-black uppercase">
+                        Unsent (New)
+                      </span>
+                    </div>
+                  )}
+
+                  <input
+                    type="text"
+                    placeholder="Add Note (e.g. less spicy)"
+                    value={item.note || ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setCart(prev => prev.map(i => i.dish._id === item.dish._id ? { ...i, note: val } : i));
+                    }}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-2 py-1 mt-1.5 text-[9px] text-white/60 focus:outline-none focus:border-gold/30"
+                  />
                 </div>
-                <div className="flex items-center gap-2 bg-black/40 rounded-xl p-1 border border-white/5">
+                <div className="flex items-center gap-2 bg-black/40 rounded-xl p-1 border border-white/5 shrink-0">
                   <button onClick={() => updateQuantity(item.dish._id, -1)} className="text-white/40 hover:text-white"><Minus size={12} /></button>
                   <span className="text-xs font-bold min-w-[16px] text-center">{item.quantity}</span>
                   <button onClick={() => updateQuantity(item.dish._id, 1)} className="text-gold hover:text-gold/80"><Plus size={12} /></button>
                 </div>
-                <div className="ml-3 font-black text-xs w-14 text-right">₹{item.dish.price * item.quantity}</div>
+                <div className="ml-3 font-black text-xs w-14 text-right shrink-0">₹{item.dish.price * item.quantity}</div>
               </motion.div>
             ))}
           </AnimatePresence>
@@ -694,6 +868,51 @@ export default function POSTerminal() {
             </div>
           </div>
 
+          {/* Packaging Preview Section */}
+          {(() => {
+            const requiredPackaging = getRequiredPackaging();
+            if (requiredPackaging.length === 0) return null;
+            return (
+              <div className="bg-white/5 p-4 rounded-2xl border border-white/5 space-y-2.5">
+                <div className="flex items-center gap-2 text-white/40 uppercase tracking-widest text-[9px] font-black">
+                  <Package size={12} className="text-gold" /> Auto-Selected Packaging
+                </div>
+                <div className="grid grid-cols-1 gap-1.5">
+                  {requiredPackaging.map((pkg, idx) => (
+                    <div key={idx} className="flex justify-between items-center text-[10px] font-bold text-white/80">
+                      <span>{pkg.name}</span>
+                      <span className="text-gold font-black bg-gold/10 px-1.5 py-0.5 rounded border border-gold/10">x{pkg.quantity}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* KOT Status Badge */}
+          {kotStatus !== 'None' && (
+            <div className="bg-gold/5 border border-gold/25 p-4 rounded-2xl flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className={`w-2.5 h-2.5 rounded-full ${
+                  kotStatus === 'Ready' 
+                    ? 'bg-green-500' 
+                    : kotStatus === 'Preparing' 
+                      ? 'bg-orange-500' 
+                      : 'bg-blue-500 animate-pulse'
+                }`} />
+                <div className="text-left">
+                  <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">KOT Pipeline</p>
+                  <p className="text-xs font-black text-gold uppercase mt-0.5">{kotStatus}</p>
+                </div>
+              </div>
+              {kotStatus === 'Ready' && (
+                <span className="text-[9px] bg-green-500 text-black px-2.5 py-1 rounded-full font-black animate-bounce tracking-wider">
+                  READY TO SERVE
+                </span>
+              )}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 gap-3">
             <div className="grid grid-cols-2 gap-3">
               <button 
@@ -708,6 +927,8 @@ export default function POSTerminal() {
                   setPaymentMethod('Cash');
                   setOrderType('DineIn');
                   setCheckoutSuccess(false);
+                  setKotStatus('None');
+                  setKotId('');
                 }}
                 className="py-3.5 rounded-xl border border-red-500/20 text-red-500 font-bold text-[10px] uppercase tracking-widest hover:bg-red-500/5 transition-all"
               >
@@ -721,6 +942,34 @@ export default function POSTerminal() {
                 <MessageCircle size={14} /> WhatsApp
               </button>
             </div>
+
+            {/* Send KOT Button */}
+            {!checkoutSuccess && (() => {
+              const hasUnsentItems = cart.some(item => item.quantity - (item.sentQty || 0) > 0);
+              return (
+                <button 
+                  onClick={handleSendKot}
+                  disabled={cart.length === 0 || isSendingKot || !hasUnsentItems}
+                  className={`w-full py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all border flex items-center justify-center gap-2 ${
+                    !hasUnsentItems && cart.length > 0
+                      ? 'bg-green-500/10 border-green-500/20 text-green-500 cursor-not-allowed'
+                      : 'bg-white/5 border-gold/30 text-gold hover:bg-gold hover:text-black hover:border-gold hover:scale-[1.01]'
+                  }`}
+                >
+                  {isSendingKot ? (
+                    'Sending to Kitchen...'
+                  ) : !hasUnsentItems && cart.length > 0 ? (
+                    <span>KOT Sent to Kitchen ✔</span>
+                  ) : (
+                    <>
+                      <ChefHat size={16} />
+                      <span>Send KOT to Kitchen</span>
+                    </>
+                  )}
+                </button>
+              );
+            })()}
+
             {userQrCode && (
               <div className="flex flex-col items-center p-4 bg-white/5 rounded-2xl border border-white/10 mb-4">
                 <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-3">Shop Payment QR</p>
@@ -756,6 +1005,8 @@ export default function POSTerminal() {
                 setPaymentMethod('Cash');
                 setOrderType('DineIn');
                 setCheckoutSuccess(false);
+                setKotStatus('None');
+                setKotId('');
                 if (isDrawer) setIsCartOpen(false);
               } : handleCheckout}
               disabled={cart.length === 0}
@@ -982,6 +1233,7 @@ export default function POSTerminal() {
                     const session = tableSessions[t.id];
                     const hasItems = session && session.cart && session.cart.length > 0;
                     const isActive = activeTable === t.id;
+                    const tableKotStatus = session && session.kotStatus;
                     
                     const tableSubtotal = hasItems 
                       ? session.cart.reduce((sum, item) => sum + (item.dish.price * item.quantity), 0)
@@ -1000,6 +1252,15 @@ export default function POSTerminal() {
                         }`}
                       >
                         <span>{t.name}</span>
+                        {tableKotStatus && tableKotStatus !== 'None' && (
+                          <span className={`w-2 h-2 rounded-full ${
+                            tableKotStatus === 'Ready' 
+                              ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' 
+                              : tableKotStatus === 'Preparing' 
+                                ? 'bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.5)]' 
+                                : 'bg-blue-500 animate-pulse'
+                          }`} title={`KOT: ${tableKotStatus}`} />
+                        )}
                         {hasItems && (
                           <span className={`text-[8px] px-1.5 py-0.5 rounded-md font-bold ${isActive ? 'bg-black text-gold' : 'bg-red-500 text-white'}`}>
                             ₹{tableSubtotal}

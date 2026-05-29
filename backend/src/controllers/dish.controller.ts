@@ -9,7 +9,10 @@ export const getDishes = async (req: AuthRequest, res: Response): Promise<void> 
     if (userId) {
       await seedBlueprints(userId);
     }
-    const dishes = await Dish.find({ userId });
+    const dishes = await Dish.find({ userId })
+      .populate('packagingLogic.dineIn')
+      .populate('packagingLogic.takeaway')
+      .populate('packagingLogic.delivery');
     res.status(200).json(dishes);
   } catch (error) {
     console.error('getDishes error:', error);

@@ -1,0 +1,43 @@
+import mongoose, { Schema, Document } from 'mongoose';
+
+export interface IKotItem {
+  dishId: mongoose.Types.ObjectId;
+  quantity: number;
+  note?: string;
+}
+
+export interface IKot extends Document {
+  userId: mongoose.Types.ObjectId;
+  kotNumber: number;
+  tableNumber: string;
+  orderType: 'DineIn' | 'Takeaway' | 'Delivery';
+  items: IKotItem[];
+  status: 'Pending' | 'Preparing' | 'Ready' | 'Served' | 'Cancelled';
+  packaging: { name: string; quantity: number }[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const KotItemSchema = new Schema({
+  dishId: { type: Schema.Types.ObjectId, ref: 'Dish', required: true },
+  quantity: { type: Number, required: true },
+  note: { type: String, default: '' }
+});
+
+const KotSchema = new Schema({
+  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  kotNumber: { type: Number, required: true },
+  tableNumber: { type: String, default: 'Quick Bill' },
+  orderType: { type: String, enum: ['DineIn', 'Takeaway', 'Delivery'], default: 'DineIn' },
+  items: { type: [KotItemSchema], required: true },
+  status: { type: String, enum: ['Pending', 'Preparing', 'Ready', 'Served', 'Cancelled'], default: 'Pending' },
+  packaging: [{
+    name: { type: String, required: true },
+    quantity: { type: Number, required: true }
+  }]
+}, { timestamps: true });
+
+// Ensure unique kotNumber per user session/account
+KotSchema.index({ userId: 1, kotNumber: 1 }, { unique: true });
+
+export default mongoose.models.Kot || mongoose.model<IKot>('Kot', KotSchema);

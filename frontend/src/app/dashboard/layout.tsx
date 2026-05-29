@@ -20,7 +20,8 @@ import {
   MessageSquare,
   IndianRupee,
   Users,
-  ChevronDown
+  ChevronDown,
+  ClipboardList
 } from 'lucide-react';
 import { GlobalSearch, ToastContainer, Toast } from '@/components/dashboard/GlobalSearch';
 import NotificationPanel from '@/components/dashboard/NotificationPanel';
@@ -103,6 +104,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const allNavLinks = [
     { name: 'Dashboard', path: '/dashboard', id: 'dashboard', icon: LayoutDashboard },
     { name: 'POS Terminal', path: '/dashboard/pos', id: 'pos', icon: Calculator },
+    { name: 'KOT Display', path: '/dashboard/kot', id: 'kot', icon: ClipboardList },
     { name: 'SOP Library', path: '/dashboard/sop', id: 'sop', icon: ChefHat },
     { name: 'Inventory', path: '/dashboard/inventory', id: 'inventory', icon: Utensils },
     { name: 'SOP Packets', path: '/dashboard/packets', id: 'packets', icon: Package },
@@ -131,8 +133,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return ['dashboard', 'account'].includes(link.id);
   });
 
-  const mainLinks = navLinks.filter((link) => ['dashboard', 'pos', 'costing', 'ai', 'inventory', 'sop'].includes(link.id));
-  const moreLinks = navLinks.filter((link) => !['dashboard', 'pos', 'costing', 'ai', 'inventory', 'sop'].includes(link.id));
+  const mainLinks = navLinks.filter((link) => ['dashboard', 'pos', 'kot', 'inventory', 'sop', 'ai', 'costing'].includes(link.id));
+  const moreLinks = navLinks.filter((link) => !['dashboard', 'pos', 'kot', 'inventory', 'sop', 'ai', 'costing'].includes(link.id));
   const isMoreActive = moreLinks.some((link) => pathname === link.path);
 
   return (

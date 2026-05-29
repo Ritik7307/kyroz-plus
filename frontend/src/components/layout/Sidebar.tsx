@@ -13,7 +13,8 @@ import {
   X,
   Menu,
   Bell,
-  Utensils
+  Utensils,
+  ClipboardList
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -44,6 +45,7 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user', permissi
     const allItems = [
       { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard', id: 'dashboard' },
       { name: 'POS Terminal', icon: Calculator, path: '/dashboard/pos', id: 'pos' },
+      { name: 'KOT Display', icon: ClipboardList, path: '/dashboard/kot', id: 'kot' },
       { name: 'Customers', icon: Users, path: '/dashboard/customers', id: 'customers' },
       { name: 'Manage Team', icon: Users, path: '/dashboard/team', id: 'team', ownerOnly: true },
       { name: 'SOP Packets', icon: Utensils, path: '/dashboard/packets', id: 'packets' },
