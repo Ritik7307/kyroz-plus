@@ -21,7 +21,8 @@ import {
   IndianRupee,
   Users,
   ChevronDown,
-  ClipboardList
+  ClipboardList,
+  Lock
 } from 'lucide-react';
 import { GlobalSearch, ToastContainer, Toast } from '@/components/dashboard/GlobalSearch';
 import NotificationPanel from '@/components/dashboard/NotificationPanel';
@@ -136,6 +137,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const mainLinks = navLinks.filter((link) => ['dashboard', 'pos', 'kot', 'inventory', 'sop', 'ai', 'costing'].includes(link.id));
   const moreLinks = navLinks.filter((link) => !['dashboard', 'pos', 'kot', 'inventory', 'sop', 'ai', 'costing'].includes(link.id));
   const isMoreActive = moreLinks.some((link) => pathname === link.path);
+
+  const isRestrictedPath = pathname !== '/dashboard' && pathname !== '/dashboard/account' && pathname !== '/dashboard/membership';
+  const isLocked = user?.role !== 'admin' && (user?.plan === 'Basic' || !user?.plan) && isRestrictedPath;
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col relative">
@@ -275,7 +279,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </header>
 
       <main className="flex-1 w-full max-w-7xl mx-auto p-6 md:p-12 relative">
-        {children}
+        <div className="relative w-full h-full">
+          {children}
+          {isLocked && (
+            <div className="absolute inset-0 z-[60] flex items-center justify-center backdrop-blur-sm bg-black/60 rounded-3xl">
+              <div className="bg-[#111111] border border-[#333333] p-8 md:p-12 rounded-3xl text-center max-w-lg shadow-2xl shadow-black">
+                <div className="w-16 h-16 bg-gradient-to-tr from-[#d4af37] to-[#f9e596] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#d4af37]/20">
+                  <Lock size={32} className="text-black" />
+                </div>
+                <h3 className="text-3xl font-black text-white mb-4 tracking-tight">Feature Locked</h3>
+                <p className="text-gray-400 mb-8 font-medium leading-relaxed">
+                  You need an active premium subscription to access this feature. Upgrade your plan to unlock the full power of KYROZ KOSA.
+                </p>
+                <Link 
+                  href="/dashboard/membership"
+                  className="inline-block w-full py-4 rounded-xl font-bold transition-all shadow-lg bg-[#d4af37] hover:bg-[#c5a028] text-black shadow-[#d4af37]/20 hover:shadow-[#d4af37]/40 uppercase tracking-widest text-sm"
+                >
+                  Upgrade to Premium
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
       </main>
 
       {pathname === '/dashboard' && <FloatingKOSA />}

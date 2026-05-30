@@ -143,7 +143,7 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
     
     try {
       await resend.emails.send({
-        from: `KYROZ Security <onboarding@resend.dev>`,
+        from: `KYROZ Security <no-reply@kyrozplus.com>`,
         to: email,
         subject: 'Your KYROZ Login Code',
         html: `
