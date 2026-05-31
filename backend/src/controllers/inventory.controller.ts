@@ -29,12 +29,21 @@ export const getInventory = async (req: AuthRequest, res: Response): Promise<voi
       await seedBlueprints(userId);
     }
 
-    const inventory = await Inventory.find({ userId }).populate('dishId');
-    const rawMaterials = await RawMaterial.find({ userId });
-    const semiFinishedGoods = await SemiFinishedGood.find({ userId });
-    const premixes = await Premix.find({ userId });
-    const packaging = await Packaging.find({ userId });
-    const recipes = await Recipe.find({ userId });
+    const [
+      inventory,
+      rawMaterials,
+      semiFinishedGoods,
+      premixes,
+      packaging,
+      recipes
+    ] = await Promise.all([
+      Inventory.find({ userId }).populate('dishId'),
+      RawMaterial.find({ userId }),
+      SemiFinishedGood.find({ userId }),
+      Premix.find({ userId }),
+      Packaging.find({ userId }),
+      Recipe.find({ userId })
+    ]);
 
     res.status(200).json({
       dishes: inventory,
