@@ -21,7 +21,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendOtp = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password, name, phone, shopName, shopAddress, gstNumber } = req.body;
+    const { email, password, name, phone, shopName, shopAddress, gstNumber, isSignup } = req.body;
 
     if (!email) {
       res.status(400).json({ error: 'Email is required' });
@@ -114,6 +114,20 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
         });
         return;
       }
+    }
+
+    // Signup vs Login separation
+    const existingUser = await User.findOne({ email });
+
+    if (!isSignup && !existingUser) {
+      // Trying to login but user doesn't exist
+      res.status(404).json({ error: 'Account not found. Please sign up first.' });
+      return;
+    }
+
+    if (isSignup && existingUser && existingUser.name) {
+      // Allow them to proceed to verify, but maybe they should just log in. 
+      // It will just overwrite OTP, which is fine.
     }
 
     // Generate 6-digit OTP

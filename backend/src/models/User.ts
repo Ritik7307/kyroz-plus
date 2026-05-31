@@ -11,7 +11,7 @@ export interface IUser extends Document {
   phone?: string;
   role: 'admin' | 'manager' | 'cook' | 'billing' | 'user';
   permissions: string[]; // List of accessible module IDs
-  subscriptionPlan: 'Basic' | 'Pro' | 'Elite' | 'Admin';
+  subscriptionPlan: 'None' | 'Basic' | 'Pro' | 'Elite' | 'Admin';
   selectedSopCategory?: string;
   ownerId?: mongoose.Types.ObjectId; // Links staff to their Manager
   otpHash?: string;
@@ -33,7 +33,7 @@ const UserSchema: Schema = new Schema(
     gstPercentage: { type: Number, default: 5 },
     role: { type: String, enum: ['admin', 'manager', 'cook', 'billing', 'user'], default: 'user' },
     permissions: { type: [String], default: [] },
-    subscriptionPlan: { type: String, enum: ['Basic', 'Pro', 'Elite', 'Admin'], default: 'Basic' },
+    subscriptionPlan: { type: String, enum: ['None', 'Basic', 'Pro', 'Elite', 'Admin'], default: 'None' },
     selectedSopCategory: { type: String },
     ownerId: { type: Schema.Types.ObjectId, ref: 'User' },
     otpHash: { type: String },

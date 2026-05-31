@@ -127,32 +127,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     // If Staff, check permissions
     if (link.ownerOnly) return false;
     if (user?.permissions && user.permissions.length > 0) {
-      return user.permissions.includes(link.id);
+      return user.permissions.includes(link.id) || link.id === 'account';
     }
 
-    // Default for staff with no explicit permissions (show basic)
-    return ['dashboard', 'account'].includes(link.id);
+    // Default for staff with no explicit permissions
+    return ['account'].includes(link.id);
   });
 
   const mainLinks = navLinks.filter((link) => ['dashboard', 'pos', 'kot', 'inventory', 'sop', 'ai', 'costing'].includes(link.id));
   const moreLinks = navLinks.filter((link) => !['dashboard', 'pos', 'kot', 'inventory', 'sop', 'ai', 'costing'].includes(link.id));
   const isMoreActive = moreLinks.some((link) => pathname === link.path);
 
-  const currentPlan = user?.plan || user?.subscriptionPlan || 'Basic';
+  const currentPlan = user?.plan || user?.subscriptionPlan || 'None';
   
   let isLocked = false;
-  if (user?.role !== 'admin') {
+  if (user?.role === 'user') { // Only apply locks to the owner, staff bypass this (their access is dictated by owner's plan theoretically, or they just do their job)
+    const isMembershipRoute = pathname.startsWith('/dashboard/membership');
+    const isAccountRoute = pathname.startsWith('/dashboard/account');
     const isAiRoute = pathname.startsWith('/dashboard/ai');
     const isCostingRoute = pathname.startsWith('/dashboard/costing');
-    
     const isWastageRoute = pathname.startsWith('/dashboard/wastage');
     
-    if (currentPlan === 'Basic') {
+    if (currentPlan === 'None') {
+      if (!isMembershipRoute && !isAccountRoute) isLocked = true;
+    } else if (currentPlan === 'Basic') {
       // Basic plan doesn't have AI, Costing, or Wastage
       if (isAiRoute || isCostingRoute || isWastageRoute) isLocked = true;
     }
     // Pro and Elite have access to everything
-    // Elite has access to everything
   }
 
   return (
