@@ -23,8 +23,11 @@ export const getInventory = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
-    // Auto seed blueprints
-    await seedBlueprints(userId);
+    // Only run the massive blueprint seeder if the user has absolutely no dishes.
+    const existingDishesCount = await Dish.countDocuments({ userId });
+    if (existingDishesCount === 0) {
+      await seedBlueprints(userId);
+    }
 
     const inventory = await Inventory.find({ userId }).populate('dishId');
     const rawMaterials = await RawMaterial.find({ userId });

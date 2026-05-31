@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Utensils, Search, Image as ImageIcon, CheckCircle, ChevronRight, User, Phone } from 'lucide-react';
 import { API_URL } from '@/lib/api';
@@ -13,7 +13,8 @@ interface Dish {
   imageUrl?: string;
 }
 
-export default function DigitalMenu({ params }: { params: { shopId: string } }) {
+export default function DigitalMenu({ params }: { params: Promise<{ shopId: string }> }) {
+  const resolvedParams = use(params);
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -59,7 +60,7 @@ export default function DigitalMenu({ params }: { params: { shopId: string } }) 
   const fetchDishes = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/dishes/public/${params.shopId}`);
+      const res = await fetch(`${API_URL}/api/dishes/public/${resolvedParams.shopId}`);
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data)) {
