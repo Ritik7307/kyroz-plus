@@ -829,34 +829,13 @@ export default function POSTerminal() {
         </div>
 
         {/* Checkout Form */}
-        <div className={`p-6 bg-black/40 border-t border-white/5 space-y-4 shrink-0 overflow-y-auto custom-scrollbar transition-all duration-300 ${showAdvancedOptions ? 'max-h-[70%] lg:max-h-[70%]' : 'max-h-[50%] lg:max-h-[50%]'}`}>
-          {/* Customer Details - Always Visible */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <input 
-                type="text" 
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                placeholder="Customer Name"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-gold/50 placeholder:text-white/30"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <input 
-                type="tel" 
-                value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
-                placeholder="Phone No."
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-gold/50 placeholder:text-white/30"
-              />
-            </div>
-          </div>
-
+        <div className={`p-4 sm:p-6 bg-black/40 border-t border-white/5 space-y-3 sm:space-y-4 shrink-0 overflow-y-auto custom-scrollbar transition-all duration-300 ${showAdvancedOptions ? 'max-h-[85%] lg:max-h-[80%]' : 'max-h-[35%] lg:max-h-[30%]'}`}>
+          
           <button 
             onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
             className="w-full flex items-center justify-between text-[10px] font-black text-white/40 uppercase tracking-widest hover:text-white transition-colors py-1"
           >
-            <span>Discount & Tax Details</span>
+            <span>More Checkout Options</span>
             <ChevronRight className={`transform transition-transform ${showAdvancedOptions ? 'rotate-90' : ''}`} size={14} />
           </button>
 
@@ -866,10 +845,31 @@ export default function POSTerminal() {
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                className="space-y-4 overflow-hidden"
+                className="space-y-4 overflow-hidden pt-1"
               >
+                {/* Customer Details */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <input 
+                      type="text" 
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      placeholder="Customer Name"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-gold/50 placeholder:text-white/30"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <input 
+                      type="tel" 
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      placeholder="Phone No."
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-gold/50 placeholder:text-white/30"
+                    />
+                  </div>
+                </div>
 
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center pt-2 border-t border-white/5">
                   <div className="flex items-center gap-2">
                     <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">Discount</span>
                     <div className="flex rounded-md overflow-hidden border border-white/10 bg-white/5 text-[9px] font-black">
@@ -919,7 +919,7 @@ export default function POSTerminal() {
                   />
                 </div>
 
-                <div className="flex justify-between items-center pb-2">
+                <div className="flex justify-between items-center">
                   <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">Apply GST ({userGstRate}%)</span>
                   <button 
                     onClick={() => setApplyGst(!applyGst)}
@@ -928,64 +928,58 @@ export default function POSTerminal() {
                     <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${applyGst ? 'right-1' : 'left-1'}`} />
                   </button>
                 </div>
+
+                <div className="space-y-1.5 pt-2 border-t border-white/5">
+                  <span className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1">Order Type</span>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => setOrderType('DineIn')}
+                      className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                        orderType === 'DineIn' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                      }`}
+                    >
+                      Dine In
+                    </button>
+                    <button 
+                      onClick={() => setOrderType('Takeaway')}
+                      className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                        orderType === 'Takeaway' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                      }`}
+                    >
+                      Takeaway
+                    </button>
+                    <button 
+                      onClick={() => setOrderType('Delivery')}
+                      className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                        orderType === 'Delivery' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                      }`}
+                    >
+                      Delivery
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pb-2">
+                  <button 
+                    onClick={() => setPaymentMethod('Cash')}
+                    className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                      paymentMethod === 'Cash' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                    }`}
+                  >
+                    Cash
+                  </button>
+                  <button 
+                    onClick={() => setPaymentMethod('Online')}
+                    className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                      paymentMethod === 'Online' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                    }`}
+                  >
+                    Online
+                  </button>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
-
-          <div className="space-y-4 pt-2 border-t border-white/5">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-white/40 uppercase font-black tracking-widest">Subtotal</span>
-              <span className="font-bold text-white">₹{total}</span>
-            </div>
-
-            <div className="space-y-1.5 pt-1">
-              <span className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1">Order Type</span>
-              <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => setOrderType('DineIn')}
-                  className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-                    orderType === 'DineIn' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
-                  }`}
-                >
-                  Dine In
-                </button>
-                <button 
-                  onClick={() => setOrderType('Takeaway')}
-                  className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-                    orderType === 'Takeaway' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
-                  }`}
-                >
-                  Takeaway
-                </button>
-                <button 
-                  onClick={() => setOrderType('Delivery')}
-                  className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-                    orderType === 'Delivery' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
-                  }`}
-                >
-                  Delivery
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={() => setPaymentMethod('Cash')}
-                className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  paymentMethod === 'Cash' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
-                }`}
-              >
-                Cash
-              </button>
-              <button 
-                onClick={() => setPaymentMethod('Online')}
-                className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  paymentMethod === 'Online' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
-                }`}
-              >
-                Online
-              </button>
-            </div>
 
             <div className="flex justify-between items-end pt-2 border-t border-white/5">
               <span className="text-sm font-black uppercase tracking-widest">Grand Total</span>
@@ -998,7 +992,6 @@ export default function POSTerminal() {
                 </span>
               </div>
             </div>
-          </div>
 
           {/* Packaging Preview Section */}
           {(() => {
