@@ -36,6 +36,7 @@ export default function DashboardPage() {
   const [packets, setPackets] = React.useState<any[]>([]);
   const [testimonials, setTestimonials] = React.useState<any[]>([]);
   const [dailyProfit, setDailyProfit] = React.useState<number>(0);
+  const [dailyRevenue, setDailyRevenue] = React.useState<number>(0);
   const router = useRouter();
 
   React.useEffect(() => {
@@ -86,6 +87,7 @@ export default function DashboardPage() {
           if (profitRes.ok) {
             const profitData = await profitRes.json();
             setDailyProfit(profitData.dailyProfit || 0);
+            setDailyRevenue(profitData.dailyRevenue || 0);
           }
         } catch (e) {
           console.error("Failed to fetch daily profit", e);
@@ -154,11 +156,20 @@ export default function DashboardPage() {
               
               <div className="flex gap-4 relative z-10 w-full lg:w-auto">
                 {(user?.role === 'manager' || user?.role === 'user') && (
-                  <div className="bg-black/40 p-4 px-6 rounded-2xl border border-white/10 hidden sm:block">
-                    <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Daily Gross Profit</p>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl font-black text-white">{formatCurrency(dailyProfit)}</span>
-                      <TrendingUp size={14} className="text-green-500" />
+                  <div className="flex gap-4">
+                    <div className="bg-black/40 p-4 px-6 rounded-2xl border border-white/10 hidden sm:block">
+                      <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Today's Sale</p>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl font-black text-white">{formatCurrency(dailyRevenue)}</span>
+                        <Activity size={14} className="text-blue-500" />
+                      </div>
+                    </div>
+                    <div className="bg-black/40 p-4 px-6 rounded-2xl border border-white/10 hidden sm:block">
+                      <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Daily Gross Profit</p>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl font-black text-white">{formatCurrency(dailyProfit)}</span>
+                        <TrendingUp size={14} className="text-green-500" />
+                      </div>
                     </div>
                   </div>
                 )}
