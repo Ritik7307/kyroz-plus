@@ -604,7 +604,7 @@ export default function AiDashboard() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-6rem)] sm:h-[calc(100vh-8rem)] bg-[#0A0A0A] rounded-2xl sm:rounded-[2.5rem] border border-white/5 overflow-hidden relative shadow-2xl">
+    <div className="flex flex-col h-[calc(100dvh-128px)] md:h-[calc(100dvh-160px)] bg-[#0A0A0A] rounded-2xl sm:rounded-[2.5rem] border border-white/5 overflow-hidden relative shadow-2xl">
       {/* Header */}
       <div className="px-4 py-3 sm:px-8 sm:py-6 border-b border-white/5 flex items-center justify-between bg-black/40 backdrop-blur-xl">
         <div className="flex items-center gap-2 sm:gap-5">
