@@ -31,7 +31,7 @@ export default function MembershipPage() {
     }
   }, []);
 
-  const handleUpgrade = async (plan: 'Pro' | 'Elite') => {
+  const handleUpgrade = async (plan: 'Basic' | 'Pro' | 'Elite') => {
     setIsLoading(plan);
     try {
       const token = localStorage.getItem('token');
@@ -142,7 +142,8 @@ export default function MembershipPage() {
             <h3 className="text-2xl font-bold text-white mb-2">Basic</h3>
             <p className="text-gray-500 text-sm">Perfect for getting started.</p>
             <div className="mt-6 flex items-baseline gap-2">
-              <span className="text-4xl font-extrabold text-white">Free</span>
+              <span className="text-4xl font-extrabold text-white">₹999</span>
+              <span className="text-gray-500">/mo</span>
             </div>
           </div>
           
@@ -151,21 +152,29 @@ export default function MembershipPage() {
               <span className="text-green-500">✓</span> 1 Device Login
             </li>
             <li className="flex items-center gap-3 text-gray-300">
-              <span className="text-green-500">✓</span> Basic SOP Creation
+              <span className="text-green-500">✓</span> 1 SOP Category
+            </li>
+            <li className="flex items-center gap-3 text-gray-300">
+              <span className="text-green-500">✓</span> Inventory Management
+            </li>
+            <li className="flex items-center gap-3 text-gray-500">
+              <span className="text-gray-600">✕</span> Costing & Wastage Master
             </li>
             <li className="flex items-center gap-3 text-gray-500">
               <span className="text-gray-600">✕</span> AI Integration
             </li>
-            <li className="flex items-center gap-3 text-gray-500">
-              <span className="text-gray-600">✕</span> Costing Tools
-            </li>
           </ul>
 
           <button 
-            disabled={true}
-            className="w-full py-4 rounded-xl font-bold transition-colors bg-[#222222] text-gray-400 cursor-not-allowed"
+            onClick={() => handleUpgrade('Basic')}
+            disabled={isLoading !== null || currentPlan === 'Basic' || currentPlan === 'Pro' || currentPlan === 'Elite'}
+            className={`w-full py-4 rounded-xl font-bold transition-colors ${
+              currentPlan === 'Basic' || currentPlan === 'Pro' || currentPlan === 'Elite' 
+              ? 'bg-[#222222] text-gray-400 cursor-not-allowed border border-[#333333]'
+              : 'bg-white hover:bg-gray-200 text-black'
+            }`}
           >
-            {currentPlan === 'Basic' ? 'Current Plan' : 'Free Tier'}
+            {isLoading === 'Basic' ? 'Processing...' : (currentPlan === 'Basic' ? 'Current Plan' : (currentPlan === 'Pro' || currentPlan === 'Elite' ? 'Included in Higher Plan' : 'Buy Basic'))}
           </button>
         </div>
 
@@ -178,14 +187,14 @@ export default function MembershipPage() {
             <h3 className="text-2xl font-bold text-[#d4af37] mb-2">Pro</h3>
             <p className="text-gray-400 text-sm">For growing restaurants.</p>
             <div className="mt-6 flex items-baseline gap-2">
-              <span className="text-4xl font-extrabold text-white">₹999</span>
+              <span className="text-4xl font-extrabold text-white">₹1999</span>
               <span className="text-gray-500">/mo</span>
             </div>
           </div>
           
           <ul className="space-y-4 mb-8 flex-1">
             <li className="flex items-center gap-3 text-gray-300">
-              <span className="text-[#d4af37]">✓</span> 2 Device Logins
+              <span className="text-[#d4af37]">✓</span> 1 Device Login
             </li>
             <li className="flex items-center gap-3 text-gray-300">
               <span className="text-[#d4af37]">✓</span> Unlimited SOPs
@@ -193,8 +202,8 @@ export default function MembershipPage() {
             <li className="flex items-center gap-3 text-gray-300">
               <span className="text-[#d4af37]">✓</span> Costing & Margin Tools
             </li>
-            <li className="flex items-center gap-3 text-gray-500">
-              <span className="text-gray-600">✕</span> KYROZ KOSA (AI)
+            <li className="flex items-center gap-3 text-gray-300">
+              <span className="text-[#d4af37]">✓</span> Full KYROZ KOSA (AI) Access
             </li>
           </ul>
 
@@ -224,13 +233,13 @@ export default function MembershipPage() {
           
           <ul className="space-y-4 mb-8 flex-1">
             <li className="flex items-center gap-3 text-gray-300">
-              <span className="text-green-500">✓</span> 3 Device Logins
+              <span className="text-green-500">✓</span> 4 Device Logins
             </li>
             <li className="flex items-center gap-3 text-gray-300">
               <span className="text-green-500">✓</span> Everything in Pro
             </li>
             <li className="flex items-center gap-3 text-gray-300 font-bold text-[#d4af37]">
-              <span className="text-[#d4af37]">✓</span> Full KYROZ KOSA (AI) Access
+              <span className="text-[#d4af37]">✓</span> Priority Support
             </li>
             <li className="flex items-center gap-3 text-gray-300">
               <span className="text-green-500">✓</span> Scaling Strategies

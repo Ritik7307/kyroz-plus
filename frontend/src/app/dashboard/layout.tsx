@@ -145,13 +145,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const isAiRoute = pathname.startsWith('/dashboard/ai');
     const isCostingRoute = pathname.startsWith('/dashboard/costing');
     
+    const isWastageRoute = pathname.startsWith('/dashboard/wastage');
+    
     if (currentPlan === 'Basic') {
-      // Basic plan doesn't have AI or Costing
-      if (isAiRoute || isCostingRoute) isLocked = true;
-    } else if (currentPlan === 'Pro') {
-      // Pro plan has Costing but no AI
-      if (isAiRoute) isLocked = true;
+      // Basic plan doesn't have AI, Costing, or Wastage
+      if (isAiRoute || isCostingRoute || isWastageRoute) isLocked = true;
     }
+    // Pro and Elite have access to everything
     // Elite has access to everything
   }
 

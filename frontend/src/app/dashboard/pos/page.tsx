@@ -311,11 +311,69 @@ export default function POSTerminal() {
     if (!file) return;
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append('image', file);
-
-    const token = localStorage.getItem('token');
+    
     try {
+      // Client-side image compression
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      
+      const compressedFile: File = await new Promise((resolve) => {
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          let width = img.width;
+          let height = img.height;
+          const MAX_SIZE = 800; // compress to max 800px
+
+          if (width > height) {
+            if (width > MAX_SIZE) {
+              height *= MAX_SIZE / width;
+              width = MAX_SIZE;
+            }
+          } else {
+            if (height > MAX_SIZE) {
+              width *= MAX_SIZE / height;
+              height = MAX_SIZE;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob(
+              (blob) => {
+                if (blob) {
+                  const newFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+                    type: 'image/jpeg',
+                    lastModified: Date.now(),
+                  });
+                  resolve(newFile);
+                } else {
+                  resolve(file); // fallback
+                }
+              },
+              'image/jpeg',
+              0.65 // 65% quality for aggressive size reduction
+            );
+          } else {
+            resolve(file); // fallback
+          }
+          URL.revokeObjectURL(objectUrl);
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          resolve(file); // fallback
+        };
+        img.src = objectUrl;
+      });
+
+      const formData = new FormData();
+      formData.append('image', compressedFile);
+
+      const token = localStorage.getItem('token');
       const res = await fetch(`${API_URL}/api/upload`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },

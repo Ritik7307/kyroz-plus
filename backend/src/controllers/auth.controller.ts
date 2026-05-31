@@ -12,8 +12,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'kyroz_super_secret_key_123';
 
 const PLAN_LIMITS = {
   'Basic': 1,
-  'Pro': 2,
-  'Elite': 3,
+  'Pro': 1,
+  'Elite': 4,
   'Admin': 999
 };
 
@@ -285,7 +285,7 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
 
 export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, phone, shopName, shopAddress, gstNumber, gstPercentage, paymentQrCode } = req.body;
+    const { name, phone, shopName, shopAddress, gstNumber, gstPercentage, paymentQrCode, selectedSopCategory } = req.body;
     
     const user = await User.findById(req.user?.userId);
     if (!user) {
@@ -300,6 +300,7 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
     if (gstNumber) user.gstNumber = gstNumber;
     if (gstPercentage !== undefined) user.gstPercentage = gstPercentage;
     if (paymentQrCode !== undefined) user.paymentQrCode = paymentQrCode;
+    if (selectedSopCategory !== undefined) user.selectedSopCategory = selectedSopCategory;
 
     await user.save();
     res.status(200).json({ message: 'Profile updated successfully', user });

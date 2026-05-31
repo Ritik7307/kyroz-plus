@@ -73,6 +73,10 @@ function SOPLibraryContent() {
   });
 
   const [userRole, setUserRole] = useState<string>('');
+  const [userPlan, setUserPlan] = useState<string>('Basic');
+  const [selectedSopCategory, setSelectedSopCategory] = useState<string | null>(null);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [isUpdatingCategory, setIsUpdatingCategory] = useState(false);
 
   const searchParams = useSearchParams();
 
@@ -86,6 +90,15 @@ function SOPLibraryContent() {
       });
       const userData = await userRes.json();
       setUserRole(userData.role);
+      const plan = userData.plan || userData.subscriptionPlan || 'Basic';
+      setUserPlan(plan);
+      setSelectedSopCategory(userData.selectedSopCategory || null);
+
+      if (plan === 'Basic' && userData.role !== 'admin' && !userData.selectedSopCategory) {
+        setShowCategoryModal(true);
+      } else if (plan === 'Basic' && userData.role !== 'admin' && userData.selectedSopCategory) {
+        setActiveCategory(userData.selectedSopCategory);
+      }
 
       const res = await fetch(`${API_URL}/api/sops`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -143,6 +156,37 @@ function SOPLibraryContent() {
   };
 
   const categories = ['All', 'South Indian', 'Cafe', 'Mandi/Biryani', 'Chinese'];
+  
+  const displayedCategories = (userPlan === 'Basic' && userRole !== 'admin' && selectedSopCategory) 
+    ? [selectedSopCategory]
+    : categories;
+
+  const handleSelectCategory = async (cat: string) => {
+    setIsUpdatingCategory(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/auth/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ selectedSopCategory: cat })
+      });
+      if (res.ok) {
+        setSelectedSopCategory(cat);
+        setActiveCategory(cat);
+        setShowCategoryModal(false);
+      } else {
+        alert('Failed to save category choice');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error saving category');
+    } finally {
+      setIsUpdatingCategory(false);
+    }
+  };
 
   const filteredSops = sops.filter(sop => {
     const matchesCategory = activeCategory === 'All' ||
@@ -201,8 +245,14 @@ function SOPLibraryContent() {
           <input type="text" placeholder="Search recipes..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-[1.2rem] md:rounded-[1.5rem] py-3.5 md:py-4 pl-14 md:pl-16 pr-6 text-sm text-white focus:outline-none transition-all" />
         </div>
         <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 w-full lg:w-auto custom-scrollbar">
-          {categories.map(cat => (
-            <button key={cat} onClick={() => setActiveCategory(cat)} className={`px-6 md:px-8 py-2.5 md:py-3 rounded-xl md:rounded-2xl text-[9px] md:text-[11px] font-black uppercase tracking-widest transition-all border shrink-0 ${activeCategory === cat ? 'bg-gold/20 border-gold text-gold shadow-gold/10' : 'bg-white/5 border-white/5 text-white/40 hover:text-white hover:bg-white/10'}`}>{cat}</button>
+          {displayedCategories.map(cat => (
+            <button key={cat} onClick={() => {
+              if (userPlan === 'Basic' && userRole !== 'admin' && cat !== selectedSopCategory) {
+                // If they somehow click another category, prevent it
+                return;
+              }
+              setActiveCategory(cat);
+            }} className={`px-6 md:px-8 py-2.5 md:py-3 rounded-xl md:rounded-2xl text-[9px] md:text-[11px] font-black uppercase tracking-widest transition-all border shrink-0 ${activeCategory === cat ? 'bg-gold/20 border-gold text-gold shadow-gold/10' : 'bg-white/5 border-white/5 text-white/40 hover:text-white hover:bg-white/10'}`}>{cat}</button>
           ))}
         </div>
       </div>
@@ -227,6 +277,33 @@ function SOPLibraryContent() {
           ))}
         </div>
       )}
+
+      <AnimatePresence>
+        {showCategoryModal && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/95 backdrop-blur-2xl">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-card w-full max-w-lg rounded-[2rem] p-8 md:p-12 border border-gold/30 shadow-[0_0_50px_rgba(212,175,55,0.15)] text-center">
+              <div className="w-16 h-16 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <ChefHat className="text-gold" size={32} />
+              </div>
+              <h3 className="text-2xl font-black tracking-tighter uppercase mb-4 text-white">Select Your <span className="text-gold">SOP Category</span></h3>
+              <p className="text-white/60 text-sm mb-8 font-medium">Your Basic plan includes access to one SOP category. Please select it carefully, as this choice is permanent for the Basic plan.</p>
+              
+              <div className="grid grid-cols-2 gap-4 mb-8">
+                {categories.filter(c => c !== 'All').map(cat => (
+                  <button 
+                    key={cat}
+                    disabled={isUpdatingCategory}
+                    onClick={() => handleSelectCategory(cat)}
+                    className="p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-gold/10 hover:border-gold/30 text-white font-bold transition-all text-sm uppercase tracking-wider disabled:opacity-50"
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {isModalOpen && (

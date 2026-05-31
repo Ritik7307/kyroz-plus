@@ -8,7 +8,8 @@ import User from '../models/User';
 const JWT_SECRET = process.env.JWT_SECRET || 'kyroz_super_secret_key_123';
 
 const PLAN_PRICES = {
-  'Pro': 999 * 100, // ₹999 (in paise)
+  'Basic': 999 * 100, // ₹999 (in paise)
+  'Pro': 1999 * 100, // ₹1999 (in paise)
   'Elite': 2999 * 100 // ₹2999 (in paise)
 };
 
@@ -35,7 +36,7 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
       return;
     }
 
-    if (plan !== 'Pro' && plan !== 'Elite') {
+    if (plan !== 'Basic' && plan !== 'Pro' && plan !== 'Elite') {
       res.status(400).json({ error: 'Invalid plan selected' });
       return;
     }
