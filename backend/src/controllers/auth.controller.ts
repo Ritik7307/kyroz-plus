@@ -142,7 +142,8 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
     console.log(`[AUTH] Generating OTP for ${email}: ${plainOtp}`);
     
     try {
-      await resend.emails.send({
+      // Send email asynchronously without awaiting to reduce latency
+      resend.emails.send({
         from: `KYROZ Security <no-reply@kyrozplus.com>`,
         to: email,
         subject: 'Your KYROZ Login Code',
@@ -153,13 +154,18 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
             <p>Enter this code to verify your identity. Valid for 5 minutes.</p>
           </div>
         `
+      })
+      .then(() => {
+        console.log(`✅ [RESEND] OTP sent to ${email}`);
+      })
+      .catch((resendErr: any) => {
+        console.error('❌ [RESEND] Error:', resendErr);
       });
       
-      console.log(`✅ [RESEND] OTP sent to ${email}`);
       res.status(200).json({ message: 'OTP sent successfully' });
-    } catch (resendErr: any) {
-      console.error('❌ [RESEND] Error:', resendErr);
-      res.status(500).json({ error: 'Email Sending Failed', details: resendErr.message });
+    } catch (err: any) {
+      console.error('❌ [RESEND] Setup Error:', err);
+      res.status(500).json({ error: 'Email Sending Failed', details: err.message });
     }
   } catch (error: any) {
     console.error('❌ [AUTH] Error:', error);

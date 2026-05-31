@@ -138,8 +138,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const moreLinks = navLinks.filter((link) => !['dashboard', 'pos', 'kot', 'inventory', 'sop', 'ai', 'costing'].includes(link.id));
   const isMoreActive = moreLinks.some((link) => pathname === link.path);
 
-  const isRestrictedPath = pathname !== '/dashboard' && pathname !== '/dashboard/account' && pathname !== '/dashboard/membership';
-  const isLocked = user?.role !== 'admin' && (user?.plan === 'Basic' || !user?.plan) && isRestrictedPath;
+  const currentPlan = user?.plan || user?.subscriptionPlan || 'Basic';
+  
+  let isLocked = false;
+  if (user?.role !== 'admin') {
+    const isAiRoute = pathname.startsWith('/dashboard/ai');
+    const isCostingRoute = pathname.startsWith('/dashboard/costing');
+    
+    if (currentPlan === 'Basic') {
+      // Basic plan doesn't have AI or Costing
+      if (isAiRoute || isCostingRoute) isLocked = true;
+    } else if (currentPlan === 'Pro') {
+      // Pro plan has Costing but no AI
+      if (isAiRoute) isLocked = true;
+    }
+    // Elite has access to everything
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col relative">
