@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   ShoppingCart, 
   Plus, 
@@ -59,7 +59,7 @@ interface TableSession {
   kotId?: string;
 }
 
-const TABLES = [
+const INITIAL_TABLES = [
   { id: 'quick', name: 'Quick Bill' },
   { id: 'T1', name: 'Table 1' },
   { id: 'T2', name: 'Table 2' },
@@ -100,8 +100,10 @@ export default function POSTerminal() {
   const [userShopName, setUserShopName] = useState<string>('KYROZ POS');
   const [userGstRate, setUserGstRate] = useState<number>(5);
   const [showQrModal, setShowQrModal] = useState(false);
+  const [showShareMenuModal, setShowShareMenuModal] = useState(false);
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
 
   // Customer & Payment State
   const [customerName, setCustomerName] = useState('');
@@ -121,17 +123,10 @@ export default function POSTerminal() {
   const [printingKot, setPrintingKot] = useState<any | null>(null);
 
   // Table Billing State
+  const [tables, setTables] = useState<{id: string, name: string}[]>(INITIAL_TABLES);
   const [activeTable, setActiveTable] = useState<string>('quick');
   const [tableSessions, setTableSessions] = useState<Record<string, TableSession>>({
     quick: defaultSession('quick'),
-    T1: defaultSession('T1'),
-    T2: defaultSession('T2'),
-    T3: defaultSession('T3'),
-    T4: defaultSession('T4'),
-    T5: defaultSession('T5'),
-    T6: defaultSession('T6'),
-    T7: defaultSession('T7'),
-    T8: defaultSession('T8'),
   });
 
   const isSwitchingTable = useRef(false);
@@ -142,25 +137,73 @@ export default function POSTerminal() {
   const [editingDish, setEditingDish] = useState<Dish | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const handleAddTable = () => {
+    const tableName = prompt('Enter table name (e.g., VIP 1):');
+    if (!tableName) return;
+    const newId = 'T' + Date.now();
+    const newTables = [...tables, { id: newId, name: tableName }];
+    setTables(newTables);
+    localStorage.setItem('pos_custom_tables', JSON.stringify(newTables));
+    
+    setTableSessions(prev => {
+      const updated = { ...prev, [newId]: defaultSession(newId) };
+      localStorage.setItem('pos_table_sessions', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleRemoveLastTable = () => {
+    if (tables.length <= 1) return;
+    const lastTable = tables[tables.length - 1];
+    if (!confirm(`Are you sure you want to remove ${lastTable.name}? Any active order will be lost.`)) return;
+    
+    const newTables = tables.slice(0, -1);
+    setTables(newTables);
+    localStorage.setItem('pos_custom_tables', JSON.stringify(newTables));
+    
+    if (activeTable === lastTable.id) {
+      switchTable('quick');
+    }
+  };
+
+  const handleRemoveTable = (tableId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (tableId === 'quick') return;
+    if (!confirm('Are you sure you want to remove this table? Any active order will be lost.')) return;
+    
+    const newTables = tables.filter(t => t.id !== tableId);
+    setTables(newTables);
+    localStorage.setItem('pos_custom_tables', JSON.stringify(newTables));
+    
+    if (activeTable === tableId) {
+      switchTable('quick');
+    }
+  };
+
   useEffect(() => {
     fetchDishes();
     fetchUser();
     
+    // Load custom tables
+    const savedCustomTables = localStorage.getItem('pos_custom_tables');
+    let loadedTables = INITIAL_TABLES;
+    if (savedCustomTables) {
+      try {
+        loadedTables = JSON.parse(savedCustomTables);
+        setTables(loadedTables);
+      } catch (e) {
+        console.error('Failed to load custom tables', e);
+      }
+    }
+
     // Load table sessions from localStorage
     const savedSessions = localStorage.getItem('pos_table_sessions');
     const savedActiveTable = localStorage.getItem('pos_active_table') || 'quick';
     
-    let loadedSessions: Record<string, TableSession> = {
-      quick: defaultSession('quick'),
-      T1: defaultSession('T1'),
-      T2: defaultSession('T2'),
-      T3: defaultSession('T3'),
-      T4: defaultSession('T4'),
-      T5: defaultSession('T5'),
-      T6: defaultSession('T6'),
-      T7: defaultSession('T7'),
-      T8: defaultSession('T8'),
-    };
+    let loadedSessions: Record<string, TableSession> = {};
+    loadedTables.forEach(t => {
+      loadedSessions[t.id] = defaultSession(t.id);
+    });
 
     if (savedSessions) {
       try {
@@ -502,12 +545,16 @@ export default function POSTerminal() {
   const parsedAdditionalCharge = parseFloat(additionalCharge) || 0;
   const grandTotal = Math.round(afterDiscount + gstAmount + parsedAdditionalCharge);
 
-  const categories = ['All', ...Array.from(new Set(dishes.map(d => d.category)))];
+  const categories = useMemo(() => {
+    return ['All', ...Array.from(new Set(dishes.map(d => d.category)))];
+  }, [dishes]);
 
-  const filteredDishes = dishes.filter(d => 
-    (activeCategory === 'All' || d.category === activeCategory) &&
-    d.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredDishes = useMemo(() => {
+    return dishes.filter(d => 
+      (activeCategory === 'All' || d.category === activeCategory) &&
+      d.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [dishes, activeCategory, searchQuery]);
 
   const isManager = ['admin', 'manager', 'user'].includes(userRole);
 
@@ -539,7 +586,7 @@ export default function POSTerminal() {
           discountType,
           discountValue: parsedDiscount,
           additionalCharge: parsedAdditionalCharge,
-          tableNumber: activeTable === 'quick' ? '' : TABLES.find(t => t.id === activeTable)?.name || '',
+          tableNumber: activeTable === 'quick' ? '' : tables.find(t => t.id === activeTable)?.name || '',
           paymentMethod,
           orderType
         })
@@ -662,7 +709,7 @@ export default function POSTerminal() {
             quantity: item.quantity,
             note: item.note
           })),
-          tableNumber: activeTable === 'quick' ? 'Quick Bill' : TABLES.find(t => t.id === activeTable)?.name || activeTable,
+          tableNumber: activeTable === 'quick' ? 'Quick Bill' : tables.find(t => t.id === activeTable)?.name || activeTable,
           orderType: orderType
         })
       });
@@ -782,95 +829,114 @@ export default function POSTerminal() {
         </div>
 
         {/* Checkout Form */}
-        <div className="p-6 bg-black/40 border-t border-white/5 space-y-6 shrink-0 overflow-y-auto max-h-[60%] lg:max-h-[50%] custom-scrollbar">
-          {/* Customer Details */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1">Customer Name</label>
-              <input 
-                type="text" 
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                placeholder="Name"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-gold/50"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1">Phone No.</label>
-              <input 
-                type="tel" 
-                value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
-                placeholder="9999999999"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-gold/50"
-              />
-            </div>
-          </div>
+        <div className={`p-6 bg-black/40 border-t border-white/5 space-y-4 shrink-0 overflow-y-auto custom-scrollbar transition-all duration-300 ${showAdvancedOptions ? 'max-h-[70%] lg:max-h-[70%]' : 'max-h-[50%] lg:max-h-[40%]'}`}>
+          <button 
+            onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+            className="w-full flex items-center justify-between text-[10px] font-black text-white/40 uppercase tracking-widest hover:text-white transition-colors py-1"
+          >
+            <span>Customer & Discount Details</span>
+            <ChevronRight className={`transform transition-transform ${showAdvancedOptions ? 'rotate-90' : ''}`} size={14} />
+          </button>
 
-          <div className="space-y-4">
+          <AnimatePresence>
+            {showAdvancedOptions && (
+              <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="space-y-4 overflow-hidden"
+              >
+                {/* Customer Details */}
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1">Customer Name</label>
+                    <input 
+                      type="text" 
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      placeholder="Name"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-gold/50"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1">Phone No.</label>
+                    <input 
+                      type="tel" 
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      placeholder="9999999999"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-gold/50"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">Discount</span>
+                    <div className="flex rounded-md overflow-hidden border border-white/10 bg-white/5 text-[9px] font-black">
+                      <button 
+                        onClick={() => setDiscountType('percentage')} 
+                        type="button"
+                        className={`px-1.5 py-0.5 transition-colors ${discountType === 'percentage' ? 'bg-gold text-black' : 'text-white/40'}`}
+                      >
+                        %
+                      </button>
+                      <button 
+                        onClick={() => setDiscountType('flat')} 
+                        type="button"
+                        className={`px-1.5 py-0.5 transition-colors ${discountType === 'flat' ? 'bg-gold text-black' : 'text-white/40'}`}
+                      >
+                        ₹
+                      </button>
+                    </div>
+                  </div>
+                  <input 
+                    type="text" 
+                    value={discount}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '' || /^\d*\.?\d*$/.test(val)) {
+                        setDiscount(val);
+                      }
+                    }}
+                    placeholder="0"
+                    className="w-16 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-right text-gold font-bold focus:outline-none"
+                  />
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">Add. Charge (₹)</span>
+                  <input 
+                    type="text" 
+                    value={additionalCharge}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '' || /^\d*\.?\d*$/.test(val)) {
+                        setAdditionalCharge(val);
+                      }
+                    }}
+                    placeholder="0"
+                    className="w-16 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-right text-white font-bold focus:outline-none"
+                  />
+                </div>
+
+                <div className="flex justify-between items-center pb-2">
+                  <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">Apply GST ({userGstRate}%)</span>
+                  <button 
+                    onClick={() => setApplyGst(!applyGst)}
+                    className={`w-12 h-6 rounded-full transition-all relative ${applyGst ? 'bg-gold' : 'bg-white/10'}`}
+                  >
+                    <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${applyGst ? 'right-1' : 'left-1'}`} />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <div className="space-y-4 pt-2 border-t border-white/5">
             <div className="flex justify-between items-center text-xs">
               <span className="text-white/40 uppercase font-black tracking-widest">Subtotal</span>
               <span className="font-bold text-white">₹{total}</span>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">Discount</span>
-                <div className="flex rounded-md overflow-hidden border border-white/10 bg-white/5 text-[9px] font-black">
-                  <button 
-                    onClick={() => setDiscountType('percentage')} 
-                    type="button"
-                    className={`px-1.5 py-0.5 transition-colors ${discountType === 'percentage' ? 'bg-gold text-black' : 'text-white/40'}`}
-                  >
-                    %
-                  </button>
-                  <button 
-                    onClick={() => setDiscountType('flat')} 
-                    type="button"
-                    className={`px-1.5 py-0.5 transition-colors ${discountType === 'flat' ? 'bg-gold text-black' : 'text-white/40'}`}
-                  >
-                    ₹
-                  </button>
-                </div>
-              </div>
-              <input 
-                type="text" 
-                value={discount}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === '' || /^\d*\.?\d*$/.test(val)) {
-                    setDiscount(val);
-                  }
-                }}
-                placeholder="0"
-                className="w-16 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-right text-gold font-bold focus:outline-none"
-              />
-            </div>
-
-            <div className="flex justify-between items-center">
-              <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">Add. Charge (₹)</span>
-              <input 
-                type="text" 
-                value={additionalCharge}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === '' || /^\d*\.?\d*$/.test(val)) {
-                    setAdditionalCharge(val);
-                  }
-                }}
-                placeholder="0"
-                className="w-16 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-right text-white font-bold focus:outline-none"
-              />
-            </div>
-
-            <div className="flex justify-between items-center">
-              <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">Apply GST ({userGstRate}%)</span>
-              <button 
-                onClick={() => setApplyGst(!applyGst)}
-                className={`w-12 h-6 rounded-full transition-all relative ${applyGst ? 'bg-gold' : 'bg-white/10'}`}
-              >
-                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${applyGst ? 'right-1' : 'left-1'}`} />
-              </button>
             </div>
 
             <div className="space-y-1.5 pt-1">
@@ -1253,7 +1319,7 @@ export default function POSTerminal() {
               {activeTable !== 'quick' && (
                 <div className="flex justify-between items-center text-[11px] font-black border-b border-black/10 pb-1 mb-2">
                   <span className="uppercase tracking-widest">TABLE:</span>
-                  <span>{TABLES.find(t => t.id === activeTable)?.name}</span>
+                  <span>{tables.find(t => t.id === activeTable)?.name}</span>
                 </div>
               )}
               <div className="flex justify-between items-center text-[11px]">
@@ -1343,14 +1409,22 @@ export default function POSTerminal() {
                   />
                 </div>
                 {isManager && (
-                  <button 
-                    onClick={() => setIsManagementMode(!isManagementMode)}
-                    className={`p-2.5 md:p-3 rounded-xl border transition-all flex items-center gap-2 text-[9px] md:text-[10px] font-black uppercase tracking-widest shrink-0 ${
-                      isManagementMode ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
-                    }`}
-                  >
-                    <Settings size={16} /> {isManagementMode ? 'Exit' : 'Manage'}
-                  </button>
+                  <>
+                    <button 
+                      onClick={() => setShowShareMenuModal(true)}
+                      className="p-2.5 md:p-3 rounded-xl border border-white/10 bg-white/5 text-white/70 hover:text-white transition-all flex items-center gap-2 text-[9px] md:text-[10px] font-black uppercase tracking-widest shrink-0"
+                    >
+                      <Share2 size={16} /> Share Menu
+                    </button>
+                    <button 
+                      onClick={() => setIsManagementMode(!isManagementMode)}
+                      className={`p-2.5 md:p-3 rounded-xl border transition-all flex items-center gap-2 text-[9px] md:text-[10px] font-black uppercase tracking-widest shrink-0 ${
+                        isManagementMode ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                      }`}
+                    >
+                      <Settings size={16} /> {isManagementMode ? 'Exit' : 'Manage'}
+                    </button>
+                  </>
                 )}
               </div>
             </div>
@@ -1358,9 +1432,28 @@ export default function POSTerminal() {
             {/* Tables Bar */}
             {!isManagementMode && (
               <div className="border-b border-white/5 pb-4 space-y-2">
-                <label className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1">TABLE SELECTION (BILLING SESSION)</label>
+                <div className="flex justify-between items-center">
+                  <label className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1">TABLE SELECTION (BILLING SESSION)</label>
+                  {isManager && (
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={handleAddTable}
+                        className="text-[9px] font-black text-gold uppercase tracking-widest hover:text-white transition-colors flex items-center gap-1"
+                      >
+                        <Plus size={10} /> Add Table
+                      </button>
+                      <button 
+                        onClick={handleRemoveLastTable}
+                        disabled={tables.length <= 1}
+                        className="text-[9px] font-black text-red-500 uppercase tracking-widest hover:text-red-400 transition-colors flex items-center gap-1 disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <Minus size={10} /> Remove Table
+                      </button>
+                    </div>
+                  )}
+                </div>
                 <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                  {TABLES.map(t => {
+                  {tables.map(t => {
                     const session = tableSessions[t.id];
                     const hasItems = session && session.cart && session.cart.length > 0;
                     const isActive = activeTable === t.id;
@@ -1374,7 +1467,7 @@ export default function POSTerminal() {
                       <button
                         key={t.id}
                         onClick={() => switchTable(t.id)}
-                        className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border flex items-center gap-2 relative ${
+                        className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border flex items-center gap-2 relative group ${
                           isActive
                             ? 'bg-gold text-black border-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]'
                             : hasItems
@@ -1486,7 +1579,7 @@ export default function POSTerminal() {
         </div>
 
         {/* Right Column: Permanent Sidebar Cart on Desktop */}
-        <div className="hidden lg:flex w-96 shrink-0 bg-card glass-card border border-white/10 rounded-[2.5rem] flex-col overflow-hidden h-[calc(100vh-12rem)] sticky top-28 shadow-xl">
+        <div className="hidden lg:flex w-[450px] shrink-0 bg-card glass-card border border-white/10 rounded-[2.5rem] flex-col overflow-hidden h-[calc(100vh-12rem)] sticky top-28 shadow-xl">
           {renderCartContent(false)}
         </div>
       </div>
@@ -1575,6 +1668,56 @@ export default function POSTerminal() {
                   Payment Received
                 </button>
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Share Menu Modal */}
+      <AnimatePresence>
+        {showShareMenuModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowShareMenuModal(false)} />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative bg-card glass-card border border-white/10 p-8 rounded-3xl w-full max-w-sm flex flex-col items-center text-center"
+            >
+              <button 
+                onClick={() => setShowShareMenuModal(false)}
+                className="absolute top-4 right-4 text-white/40 hover:text-white transition-colors"
+              >
+                <X size={20} />
+              </button>
+              
+              <div className="w-16 h-16 bg-gold-gradient rounded-2xl flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(212,175,55,0.3)]">
+                <Utensils size={32} className="text-black" />
+              </div>
+              <h2 className="text-xl font-black uppercase tracking-tight mb-2">Digital Menu</h2>
+              <p className="text-xs text-white/60 mb-8 font-bold">Ask customers to scan this QR code to view your live digital menu.</p>
+              
+              <div className="bg-white p-4 rounded-3xl mb-6 shadow-xl">
+                {user ? (
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(window.location.origin + '/menu/' + user._id)}`} 
+                    alt="Digital Menu QR" 
+                    className="w-48 h-48"
+                  />
+                ) : (
+                  <div className="w-48 h-48 flex items-center justify-center text-black font-bold">Loading...</div>
+                )}
+              </div>
+              
+              <button 
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.origin + '/menu/' + user._id);
+                  alert('Menu link copied to clipboard!');
+                }}
+                className="text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition-colors border border-gold/30 px-4 py-2 rounded-xl bg-gold/5"
+              >
+                Copy Link
+              </button>
             </motion.div>
           </div>
         )}

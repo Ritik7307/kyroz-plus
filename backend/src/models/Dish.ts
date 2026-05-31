@@ -26,7 +26,7 @@ const DishSchema: Schema = new Schema({
     takeaway: [{ type: Schema.Types.ObjectId, ref: 'Packaging' }],
     delivery: [{ type: Schema.Types.ObjectId, ref: 'Packaging' }]
   },
-  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   createdAt: { type: Date, default: Date.now }
 });
 

@@ -197,13 +197,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Link 
                 key={link.path}
                 href={link.path} 
-                className={`flex items-center gap-2 transition-all py-2 border-b-2 whitespace-nowrap text-[10px] font-black uppercase tracking-widest ${
+                className={`flex items-center gap-2 transition-all py-2 border-b-2 whitespace-nowrap text-xs font-black uppercase tracking-widest ${
                   isActive 
                     ? 'text-gold border-gold' 
                     : 'text-white/20 hover:text-white border-transparent'
                 }`}
               >
-                {Icon && <Icon size={14} className={isActive ? 'text-gold' : 'text-white/20'} />}
+                {Icon && <Icon size={16} className={isActive ? 'text-gold' : 'text-white/20'} />}
                 <span>{link.name}</span>
               </Link>
             );
@@ -217,14 +217,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             >
               <button 
                 onClick={() => setIsMoreOpen(!isMoreOpen)}
-                className={`flex items-center gap-2 transition-all py-2 border-b-2 whitespace-nowrap text-[10px] font-black uppercase tracking-widest ${
+                className={`flex items-center gap-2 transition-all py-2 border-b-2 whitespace-nowrap text-xs font-black uppercase tracking-widest ${
                   isMoreActive 
                     ? 'text-gold border-gold' 
                     : 'text-white/20 hover:text-gold border-transparent'
                 }`}
               >
                 <span>More</span>
-                <ChevronDown size={12} className={`transition-transform duration-200 ${isMoreOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown size={14} className={`transition-transform duration-200 ${isMoreOpen ? 'rotate-180' : ''}`} />
               </button>
 
               <AnimatePresence>
@@ -243,13 +243,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           key={link.path}
                           href={link.path}
                           onClick={() => setIsMoreOpen(false)}
-                          className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-[10px] font-black uppercase tracking-widest ${
+                          className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-xs font-black uppercase tracking-widest ${
                             isActive 
                               ? 'bg-gold/10 text-gold border border-gold/20' 
                               : 'text-white/50 hover:text-gold hover:bg-white/5 border border-transparent'
                           }`}
                         >
-                          {Icon && <Icon size={14} className={isActive ? 'text-gold' : 'text-white/30'} />}
+                          {Icon && <Icon size={16} className={isActive ? 'text-gold' : 'text-white/30'} />}
                           <span>{link.name}</span>
                         </Link>
                       );
@@ -292,7 +292,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </header>
 
-      <main className="flex-1 w-full max-w-7xl mx-auto p-6 md:p-12 relative">
+      <main className={`flex-1 w-full mx-auto relative ${pathname === '/dashboard/pos' ? 'max-w-[1800px] px-4 md:px-8 py-6' : 'max-w-7xl p-6 md:p-12'}`}>
         <div className="relative w-full h-full">
           {children}
           {isLocked && (
