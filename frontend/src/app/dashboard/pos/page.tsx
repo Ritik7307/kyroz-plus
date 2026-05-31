@@ -829,12 +829,34 @@ export default function POSTerminal() {
         </div>
 
         {/* Checkout Form */}
-        <div className={`p-6 bg-black/40 border-t border-white/5 space-y-4 shrink-0 overflow-y-auto custom-scrollbar transition-all duration-300 ${showAdvancedOptions ? 'max-h-[70%] lg:max-h-[70%]' : 'max-h-[50%] lg:max-h-[40%]'}`}>
+        <div className={`p-6 bg-black/40 border-t border-white/5 space-y-4 shrink-0 overflow-y-auto custom-scrollbar transition-all duration-300 ${showAdvancedOptions ? 'max-h-[70%] lg:max-h-[70%]' : 'max-h-[50%] lg:max-h-[50%]'}`}>
+          {/* Customer Details - Always Visible */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <input 
+                type="text" 
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                placeholder="Customer Name"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-gold/50 placeholder:text-white/30"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <input 
+                type="tel" 
+                value={customerPhone}
+                onChange={(e) => setCustomerPhone(e.target.value)}
+                placeholder="Phone No."
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-gold/50 placeholder:text-white/30"
+              />
+            </div>
+          </div>
+
           <button 
             onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
             className="w-full flex items-center justify-between text-[10px] font-black text-white/40 uppercase tracking-widest hover:text-white transition-colors py-1"
           >
-            <span>Customer & Discount Details</span>
+            <span>Discount & Tax Details</span>
             <ChevronRight className={`transform transition-transform ${showAdvancedOptions ? 'rotate-90' : ''}`} size={14} />
           </button>
 
@@ -846,29 +868,6 @@ export default function POSTerminal() {
                 exit={{ height: 0, opacity: 0 }}
                 className="space-y-4 overflow-hidden"
               >
-                {/* Customer Details */}
-                <div className="grid grid-cols-2 gap-3 pt-2">
-                  <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1">Customer Name</label>
-                    <input 
-                      type="text" 
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      placeholder="Name"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-gold/50"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1">Phone No.</label>
-                    <input 
-                      type="tel" 
-                      value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value)}
-                      placeholder="9999999999"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-gold/50"
-                    />
-                  </div>
-                </div>
 
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
@@ -1076,90 +1075,88 @@ export default function POSTerminal() {
               </button>
             </div>
 
-            {/* Send KOT Button */}
-            {!checkoutSuccess && (() => {
-              const hasUnsentItems = cart.some(item => item.quantity - (item.sentQty || 0) > 0);
-              return (
+            {/* Checkout & KOT Actions */}
+            {!checkoutSuccess ? (
+              <div className="flex gap-3 items-center w-full">
+                {(() => {
+                  const hasUnsentItems = cart.some(item => item.quantity - (item.sentQty || 0) > 0);
+                  return (
+                    <button 
+                      onClick={handleSendKot}
+                      disabled={cart.length === 0 || isSendingKot || !hasUnsentItems}
+                      className={`flex-1 py-3.5 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all border flex items-center justify-center gap-2 ${
+                        !hasUnsentItems && cart.length > 0
+                          ? 'bg-green-500/10 border-green-500/20 text-green-500 cursor-not-allowed'
+                          : 'bg-white/5 border-gold/30 text-gold hover:bg-gold hover:text-black hover:border-gold hover:scale-[1.01]'
+                      }`}
+                    >
+                      {isSendingKot ? 'Sending...' : !hasUnsentItems && cart.length > 0 ? '✔ Sent' : <><ChefHat size={14} /> Send KOT</>}
+                    </button>
+                  );
+                })()}
+
                 <button 
-                  onClick={handleSendKot}
-                  disabled={cart.length === 0 || isSendingKot || !hasUnsentItems}
-                  className={`w-full py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all border flex items-center justify-center gap-2 ${
-                    !hasUnsentItems && cart.length > 0
-                      ? 'bg-green-500/10 border-green-500/20 text-green-500 cursor-not-allowed'
-                      : 'bg-white/5 border-gold/30 text-gold hover:bg-gold hover:text-black hover:border-gold hover:scale-[1.01]'
-                  }`}
+                  onClick={handleCheckout}
+                  disabled={cart.length === 0}
+                  className="flex-1 py-3.5 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all shadow-xl disabled:opacity-50 bg-gold text-black hover:scale-[1.02] active:scale-95"
                 >
-                  {isSendingKot ? (
-                    'Sending to Kitchen...'
-                  ) : !hasUnsentItems && cart.length > 0 ? (
-                    <span>KOT Sent to Kitchen ✔</span>
-                  ) : (
-                    <>
-                      <ChefHat size={16} />
-                      <span>Send KOT to Kitchen</span>
-                    </>
-                  )}
+                  Checkout
                 </button>
-              );
-            })()}
+              </div>
+            ) : (
+              <>
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-green-500/10 border border-green-500/30 p-4 rounded-2xl flex items-center gap-3 mb-4"
+                >
+                  <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white shrink-0">
+                    <CheckCircle size={16} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-green-500 uppercase tracking-widest">Order Processed Successfully</p>
+                    <p className="text-[9px] text-green-500/60 font-bold">Receipt printed & data saved.</p>
+                  </div>
+                </motion.div>
+
+                <button 
+                  onClick={() => {
+                    setCart([]);
+                    setCustomerName('');
+                    setCustomerPhone('');
+                    setDiscount('');
+                    setDiscountType('percentage');
+                    setAdditionalCharge('');
+                    setApplyGst(true);
+                    setPaymentMethod('Cash');
+                    setOrderType('DineIn');
+                    setCheckoutSuccess(false);
+                    setKotStatus('None');
+                    setKotId('');
+                    if (isDrawer) setIsCartOpen(false);
+                  }}
+                  className="w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-xl bg-white/10 text-white border border-white/10 hover:bg-white/20 mb-3"
+                >
+                  Start New Order
+                </button>
+
+                <button 
+                  onClick={() => setCheckoutSuccess(false)}
+                  className="w-full py-3 rounded-xl border border-white/5 text-white/40 font-bold text-[10px] uppercase tracking-widest hover:text-white hover:bg-white/5 transition-all"
+                >
+                  Add More Items / Edit
+                </button>
+              </>
+            )}
 
             {userQrCode && (
-              <div className="flex flex-col items-center p-4 bg-white/5 rounded-2xl border border-white/10 mb-4">
+              <div className="flex flex-col items-center p-4 bg-white/5 rounded-2xl border border-white/10 mt-4 mb-4">
                 <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-3">Shop Payment QR</p>
                 <img src={userQrCode} alt="Payment QR" className="w-24 h-24 object-contain rounded-lg" />
               </div>
             )}
 
-            {checkoutSuccess && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-green-500/10 border border-green-500/30 p-4 rounded-2xl flex items-center gap-3 mb-4"
-              >
-                <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white shrink-0">
-                  <CheckCircle size={16} />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-green-500 uppercase tracking-widest">Order Processed Successfully</p>
-                  <p className="text-[9px] text-green-500/60 font-bold">Receipt printed & data saved.</p>
-                </div>
-              </motion.div>
-            )}
 
-            <button 
-              onClick={checkoutSuccess ? () => {
-                setCart([]);
-                setCustomerName('');
-                setCustomerPhone('');
-                setDiscount('');
-                setDiscountType('percentage');
-                setAdditionalCharge('');
-                setApplyGst(true);
-                setPaymentMethod('Cash');
-                setOrderType('DineIn');
-                setCheckoutSuccess(false);
-                setKotStatus('None');
-                setKotId('');
-                if (isDrawer) setIsCartOpen(false);
-              } : handleCheckout}
-              disabled={cart.length === 0}
-              className={`w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-xl disabled:opacity-50 ${
-                checkoutSuccess 
-                ? 'bg-white/10 text-white border border-white/10 hover:bg-white/20 mb-3' 
-                : 'bg-gold text-black hover:scale-[1.02] active:scale-95'
-              }`}
-            >
-              {checkoutSuccess ? 'Start New Order' : 'Confirm Checkout'}
-            </button>
-
-            {checkoutSuccess && (
-              <button 
-                onClick={() => setCheckoutSuccess(false)}
-                className="w-full py-3 rounded-xl border border-white/5 text-white/40 font-bold text-[10px] uppercase tracking-widest hover:text-white hover:bg-white/5 transition-all"
-              >
-                Add More Items / Edit
-              </button>
-            )}
           </div>
         </div>
       </div>
