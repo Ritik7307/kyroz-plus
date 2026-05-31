@@ -165,7 +165,7 @@ function SOPLibraryContent() {
     setIsUpdatingCategory(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/api/auth/profile`, {
+      const res = await fetch(`${API_URL}/api/auth/update-profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
