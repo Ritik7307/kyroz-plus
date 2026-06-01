@@ -23,9 +23,9 @@ export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(false);
   
   const [pricing, setPricing] = useState({
-    basic: { price: 999, discount: 0 },
-    pro: { price: 2999, discount: 0 },
-    elite: { price: 4999, discount: 0 }
+    basic: { price: 999, discount: 0, finalPrice: 999 },
+    pro: { price: 2999, discount: 0, finalPrice: 2999 },
+    elite: { price: 4999, discount: 0, finalPrice: 4999 }
   });
 
   React.useEffect(() => {
@@ -133,16 +133,23 @@ export default function AdminSettingsPage() {
                     return (
                       <div key={planKey} className="bg-white/5 border border-white/10 rounded-2xl p-6">
                         <h4 className="text-lg font-black text-white uppercase tracking-widest mb-4">{planKey} Plan</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                           <div className="space-y-3">
                             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Base Price (₹)</label>
                             <input 
                               type="number"
                               value={plan.price === 0 && !String(plan.price).includes('0') ? '' : plan.price}
-                              onChange={(e) => setPricing(prev => ({
-                                ...prev,
-                                [planKey]: { ...prev[planKey as keyof typeof pricing], price: e.target.value === '' ? '' as any : Number(e.target.value) }
-                              }))}
+                              onChange={(e) => {
+                                const newPrice = e.target.value === '' ? '' as any : Number(e.target.value);
+                                setPricing(prev => ({
+                                  ...prev,
+                                  [planKey]: { 
+                                    ...prev[planKey as keyof typeof pricing], 
+                                    price: newPrice,
+                                    finalPrice: Math.round(newPrice * (1 - plan.discount / 100))
+                                  }
+                                }))
+                              }}
                               className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm font-bold text-white focus:outline-none focus:border-gold transition-all"
                             />
                           </div>
@@ -153,19 +160,33 @@ export default function AdminSettingsPage() {
                               min="0"
                               max="100"
                               value={plan.discount === 0 && !String(plan.discount).includes('0') ? '' : plan.discount}
-                              onChange={(e) => setPricing(prev => ({
-                                ...prev,
-                                [planKey]: { ...prev[planKey as keyof typeof pricing], discount: e.target.value === '' ? '' as any : Number(e.target.value) }
-                              }))}
+                              onChange={(e) => {
+                                const newDiscount = e.target.value === '' ? '' as any : Number(e.target.value);
+                                setPricing(prev => ({
+                                  ...prev,
+                                  [planKey]: { 
+                                    ...prev[planKey as keyof typeof pricing], 
+                                    discount: newDiscount,
+                                    finalPrice: Math.round(plan.price * (1 - newDiscount / 100))
+                                  }
+                                }))
+                              }}
                               className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm font-bold text-white focus:outline-none focus:border-gold transition-all"
                             />
                           </div>
-                        </div>
-                        {plan.discount > 0 && (
-                          <div className="mt-4 text-xs font-bold text-green-500 uppercase tracking-widest">
-                            Final Price: ₹{Math.round(plan.price * (1 - plan.discount / 100))}
+                          <div className="space-y-3">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Final Price (₹)</label>
+                            <input 
+                              type="number"
+                              value={plan.finalPrice === undefined ? Math.round(plan.price * (1 - plan.discount / 100)) : (plan.finalPrice === 0 && !String(plan.finalPrice).includes('0') ? '' : plan.finalPrice)}
+                              onChange={(e) => setPricing(prev => ({
+                                ...prev,
+                                [planKey]: { ...prev[planKey as keyof typeof pricing], finalPrice: e.target.value === '' ? '' as any : Number(e.target.value) }
+                              }))}
+                              className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm font-bold text-green-400 focus:outline-none focus:border-gold transition-all"
+                            />
                           </div>
-                        )}
+                        </div>
                       </div>
                     );
                   })}

@@ -21,7 +21,10 @@ async function getPricingConfig() {
 export default async function Home() {
   const pricing = await getPricingConfig();
   
-  const getFinalPrice = (price: number, discount: number) => Math.round(price * (1 - discount / 100));
+  const getFinalPrice = (plan: any) => {
+    if (plan.finalPrice !== undefined) return plan.finalPrice;
+    return Math.round(plan.price * (1 - plan.discount / 100));
+  };
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-[#d4af37] selection:text-black">
@@ -160,7 +163,7 @@ export default async function Home() {
                 {pricing.basic.discount > 0 ? (
                   <>
                     <span className="text-2xl font-bold text-gray-500 line-through">₹{pricing.basic.price}</span>
-                    <span className="text-4xl font-extrabold text-white">₹{getFinalPrice(pricing.basic.price, pricing.basic.discount)}</span>
+                    <span className="text-4xl font-extrabold text-white">₹{getFinalPrice(pricing.basic)}</span>
                   </>
                 ) : (
                   <span className="text-4xl font-extrabold text-white">₹{pricing.basic.price}</span>
@@ -194,7 +197,7 @@ export default async function Home() {
                 {pricing.pro.discount > 0 ? (
                   <>
                     <span className="text-2xl font-bold text-gray-500 line-through">₹{pricing.pro.price}</span>
-                    <span className="text-5xl font-extrabold text-[#d4af37]">₹{getFinalPrice(pricing.pro.price, pricing.pro.discount)}</span>
+                    <span className="text-5xl font-extrabold text-[#d4af37]">₹{getFinalPrice(pricing.pro)}</span>
                   </>
                 ) : (
                   <span className="text-5xl font-extrabold text-[#d4af37]">₹{pricing.pro.price}</span>
@@ -230,7 +233,7 @@ export default async function Home() {
                 {pricing.elite.discount > 0 ? (
                   <>
                     <span className="text-2xl font-bold text-gray-500 line-through">₹{pricing.elite.price}</span>
-                    <span className="text-4xl font-extrabold text-white">₹{getFinalPrice(pricing.elite.price, pricing.elite.discount)}</span>
+                    <span className="text-4xl font-extrabold text-white">₹{getFinalPrice(pricing.elite)}</span>
                   </>
                 ) : (
                   <span className="text-4xl font-extrabold text-white">₹{pricing.elite.price}</span>
