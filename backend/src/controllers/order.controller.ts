@@ -4,6 +4,7 @@ import { AuthRequest } from '../middleware/auth.middleware';
 import Inventory from '../models/Inventory';
 import Dish from '../models/Dish';
 import Order from '../models/Order';
+import User from '../models/User';
 import Customer from '../models/Customer';
 import Packaging from '../models/Packaging';
 import Notification from '../models/Notification';
@@ -269,5 +270,52 @@ export const getSalesSummary = async (req: AuthRequest, res: Response): Promise<
   } catch (error) {
     console.error('Sales Summary Error:', error);
     res.status(500).json({ error: 'Failed to fetch sales summary' });
+  }
+};
+
+export const getEliteAnalytics = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const ownerId = req.user?.userId;
+
+    const owner = await User.findById(ownerId);
+    if (!owner || owner.subscriptionPlan !== 'Elite') {
+      res.status(403).json({ error: 'Only Elite members can access this' });
+      return;
+    }
+
+    // Find all location IDs
+    const locations = await User.find({ ownerId, isLocation: true });
+    const locationIds = locations.map(l => l._id);
+
+    const now = new Date();
+    const startOfDay = new Date(new Date(now).setHours(0, 0, 0, 0));
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const [daily, monthly, locationBreakdown] = await Promise.all([
+      Order.aggregate([
+        { $match: { userId: { $in: locationIds }, createdAt: { $gte: startOfDay } } },
+        { $group: { _id: null, revenue: { $sum: "$totalRevenue" }, profit: { $sum: "$totalProfit" }, count: { $sum: 1 } } }
+      ]),
+      Order.aggregate([
+        { $match: { userId: { $in: locationIds }, createdAt: { $gte: startOfMonth } } },
+        { $group: { _id: null, revenue: { $sum: "$totalRevenue" }, profit: { $sum: "$totalProfit" }, count: { $sum: 1 } } }
+      ]),
+      Order.aggregate([
+        { $match: { userId: { $in: locationIds }, createdAt: { $gte: startOfMonth } } },
+        { $group: { _id: "$userId", revenue: { $sum: "$totalRevenue" }, profit: { $sum: "$totalProfit" }, count: { $sum: 1 } } },
+        { $lookup: { from: 'users', localField: '_id', foreignField: '_id', as: 'location' } },
+        { $unwind: "$location" },
+        { $project: { name: "$location.shopName", revenue: 1, profit: 1, count: 1 } }
+      ])
+    ]);
+
+    res.status(200).json({
+      daily: daily[0] || { revenue: 0, profit: 0, count: 0 },
+      monthly: monthly[0] || { revenue: 0, profit: 0, count: 0 },
+      locationBreakdown
+    });
+  } catch (error) {
+    console.error('Elite Analytics Error:', error);
+    res.status(500).json({ error: 'Failed to fetch elite analytics' });
   }
 };

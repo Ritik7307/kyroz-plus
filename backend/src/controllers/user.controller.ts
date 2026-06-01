@@ -2,6 +2,9 @@ import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import User from '../models/User';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'kyroz_super_secret_key_123';
 
 export const getMyData = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -130,5 +133,91 @@ export const deleteStaff = async (req: AuthRequest, res: Response): Promise<void
     res.status(200).json({ message: 'Staff member removed successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to remove staff member' });
+  }
+};
+
+export const createLocation = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { name, email, password, shopAddress, gstNumber } = req.body;
+    const ownerId = req.user?.userId;
+
+    const owner = await User.findById(ownerId);
+    if (!owner || owner.subscriptionPlan !== 'Elite') {
+      res.status(403).json({ error: 'Only Elite members can create locations' });
+      return;
+    }
+
+    const existingLocations = await User.countDocuments({ ownerId, isLocation: true });
+    if (existingLocations >= 4) {
+      res.status(400).json({ error: 'Maximum limit of 4 locations reached' });
+      return;
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      res.status(400).json({ error: 'Email already exists' });
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newLocation = new User({
+      email,
+      password: hashedPassword,
+      name,
+      shopName: name,
+      shopAddress,
+      gstNumber,
+      role: 'manager',
+      subscriptionPlan: 'Elite',
+      ownerId,
+      isLocation: true
+    });
+
+    await newLocation.save();
+    res.status(201).json({ message: 'Location created successfully', location: newLocation });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create location' });
+  }
+};
+
+export const getLocations = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const ownerId = req.user?.userId;
+    const locations = await User.find({ ownerId, isLocation: true }).select('-password -otpHash');
+    res.status(200).json(locations);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch locations' });
+  }
+};
+
+export const impersonateLocation = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { locationId } = req.body;
+    const ownerId = req.user?.userId;
+
+    const owner = await User.findById(ownerId);
+    if (!owner || owner.subscriptionPlan !== 'Elite') {
+      res.status(403).json({ error: 'Only Elite members can impersonate locations' });
+      return;
+    }
+
+    const location = await User.findOne({ _id: locationId, ownerId, isLocation: true });
+    if (!location) {
+      res.status(404).json({ error: 'Location not found or unauthorized' });
+      return;
+    }
+
+    const impersonationToken = jwt.sign(
+      { userId: location._id, role: location.role, plan: location.subscriptionPlan, isImpersonated: true }, 
+      JWT_SECRET, 
+      { expiresIn: '7d' }
+    );
+
+    res.status(200).json({ 
+      token: impersonationToken,
+      location: { id: location._id, name: location.shopName }
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to impersonate location' });
   }
 };

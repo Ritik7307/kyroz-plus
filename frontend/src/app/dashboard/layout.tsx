@@ -41,6 +41,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [unreadCount, setUnreadCount] = useState(0);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [impersonationData, setImpersonationData] = useState<{ token: string, locationName: string } | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -48,6 +49,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       router.push('/login');
     } else {
       fetchUser(token);
+    }
+    
+    // Check impersonation status
+    const eliteToken = localStorage.getItem('eliteToken');
+    const locationName = localStorage.getItem('impersonatedLocation');
+    if (eliteToken && locationName) {
+      setImpersonationData({ token: eliteToken, locationName });
     }
   }, [router]);
 
@@ -89,6 +97,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const removeToast = (id: string) => {
     setToasts(prev => prev.filter(t => t.id !== id));
+  };
+
+  const handleReturnToMaster = () => {
+    if (impersonationData?.token) {
+      localStorage.setItem('token', impersonationData.token);
+      localStorage.removeItem('eliteToken');
+      localStorage.removeItem('impersonatedLocation');
+      window.location.href = '/dashboard/elite';
+    }
   };
 
   if (!isAuthorized) {
@@ -134,8 +151,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return ['account'].includes(link.id);
   });
 
-  const mainLinks = navLinks.filter((link) => ['dashboard', 'pos', 'kot', 'inventory', 'sop', 'ai', 'costing'].includes(link.id));
-  const moreLinks = navLinks.filter((link) => !['dashboard', 'pos', 'kot', 'inventory', 'sop', 'ai', 'costing'].includes(link.id));
+  // Inject Elite Master Dashboard Link for Elite owners not currently impersonating
+  if (user?.role === 'user' && user?.plan === 'Elite' && !localStorage.getItem('impersonatedLocation')) {
+    navLinks.unshift({ name: 'Master Dashboard', path: '/dashboard/elite', id: 'elite', icon: LayoutDashboard });
+  }
+
+  const mainLinks = navLinks.filter((link) => ['dashboard', 'pos', 'kot', 'inventory', 'sop', 'ai', 'costing', 'elite'].includes(link.id));
+  const moreLinks = navLinks.filter((link) => !['dashboard', 'pos', 'kot', 'inventory', 'sop', 'ai', 'costing', 'elite'].includes(link.id));
   const isMoreActive = moreLinks.some((link) => pathname === link.path);
 
   const currentPlan = user?.plan || user?.subscriptionPlan || 'None';
@@ -161,6 +183,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen bg-background text-foreground flex flex-col relative">
       <GlobalSearch isOpen={isSearchOpen} setIsOpen={setIsSearchOpen} />
       <ToastContainer toasts={toasts} removeToast={removeToast} />
+
+      {impersonationData && (
+        <div className="bg-gold text-black py-2 px-4 text-center text-xs font-black uppercase tracking-widest flex items-center justify-center gap-4 z-[60] relative">
+          <span>Viewing as: {impersonationData.locationName}</span>
+          <button 
+            onClick={handleReturnToMaster}
+            className="bg-black text-white px-4 py-1 rounded-full hover:bg-black/80 transition-colors"
+          >
+            Return to Master Dashboard
+          </button>
+        </div>
+      )}
 
       <Sidebar 
         isOpen={isSidebarOpen} 

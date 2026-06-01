@@ -17,6 +17,7 @@ export interface IUser extends Document {
   otpHash?: string;
   otpExpiresAt?: Date;
   paymentQrCode?: string;
+  isLocation?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,7 +39,8 @@ const UserSchema: Schema = new Schema(
     ownerId: { type: Schema.Types.ObjectId, ref: 'User' },
     otpHash: { type: String },
     otpExpiresAt: { type: Date },
-    paymentQrCode: { type: String }
+    paymentQrCode: { type: String },
+    isLocation: { type: Boolean, default: false }
   },
   { timestamps: true }
 );
