@@ -153,11 +153,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const currentPlan = user?.plan || user?.subscriptionPlan || 'None';
 
-  // Inject Elite Master Dashboard Link for Elite owners not currently impersonating
-  if (currentPlan === 'Elite' && !localStorage.getItem('impersonatedLocation')) {
-    navLinks.unshift({ name: 'Master Dashboard', path: '/dashboard/elite', id: 'elite', icon: LayoutDashboard });
-  }
-
   const mainLinks = navLinks.filter((link) => ['dashboard', 'pos', 'kot', 'inventory', 'sop', 'ai', 'costing', 'elite'].includes(link.id));
   const moreLinks = navLinks.filter((link) => !['dashboard', 'pos', 'kot', 'inventory', 'sop', 'ai', 'costing', 'elite'].includes(link.id));
   const isMoreActive = moreLinks.some((link) => pathname === link.path);
