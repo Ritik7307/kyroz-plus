@@ -287,6 +287,15 @@ return (
           >
             {user?.subscriptionPlan === 'Elite' || user?.role === 'admin' ? 'Manage Subscription' : 'Upgrade Your Plan'}
           </button>
+
+          {(user?.subscriptionPlan === 'Elite' || user?.role === 'admin') && !localStorage.getItem('impersonatedLocation') && (
+            <button 
+              onClick={() => router.push('/dashboard/elite')}
+              className="w-full mt-4 py-4 bg-black border border-gold/30 rounded-2xl text-gold font-bold text-xs uppercase tracking-widest hover:bg-gold/10 transition-all shadow-xl shadow-gold/5"
+            >
+              Open Master Dashboard
+            </button>
+          )}
         </div>
 
         <div className="bg-card glass-card p-6 rounded-3xl border border-white/5 space-y-4">
