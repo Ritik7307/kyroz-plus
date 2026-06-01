@@ -16,6 +16,7 @@ interface Dish {
 export default function DigitalMenu({ params }: { params: Promise<{ shopId: string }> }) {
   const resolvedParams = use(params);
   const [dishes, setDishes] = useState<Dish[]>([]);
+  const [shopName, setShopName] = useState('Digital Menu');
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
@@ -63,7 +64,11 @@ export default function DigitalMenu({ params }: { params: Promise<{ shopId: stri
       const res = await fetch(`${API_URL}/api/dishes/public/${resolvedParams.shopId}`);
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data)) {
+        // Handle new API response structure { shopName, dishes } or fallback to legacy array
+        if (data && data.dishes && Array.isArray(data.dishes)) {
+          setDishes(data.dishes);
+          if (data.shopName) setShopName(data.shopName);
+        } else if (Array.isArray(data)) {
           setDishes(data);
         }
       }
@@ -89,7 +94,7 @@ export default function DigitalMenu({ params }: { params: Promise<{ shopId: stri
             <div className="w-16 h-16 bg-gold-gradient rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(212,175,55,0.3)]">
               <Utensils size={32} className="text-black" />
             </div>
-            <h1 className="text-2xl font-black uppercase tracking-tight text-white mb-2">Digital Menu</h1>
+            <h1 className="text-2xl font-black uppercase tracking-tight text-white mb-2">{shopName}</h1>
             <p className="text-white/40 text-sm font-bold">Please enter your details to view the menu</p>
           </div>
 
@@ -157,7 +162,7 @@ export default function DigitalMenu({ params }: { params: Promise<{ shopId: stri
               <div className="w-8 h-8 bg-gold rounded-lg flex items-center justify-center text-black">
                 <Utensils size={18} />
               </div>
-              Digital Menu
+              {shopName}
             </h1>
             <div className="text-right">
               <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Welcome</p>

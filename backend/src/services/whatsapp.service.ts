@@ -47,3 +47,30 @@ export const sendWhatsAppMessage = async (message: string) => {
     throw error;
   }
 };
+
+export const sendCustomerFeedbackWhatsApp = async (phone: string, customerName: string, shopName: string) => {
+  if (!client) {
+    console.log(`[Twilio Mock] Feedback message would be sent to ${phone}:`);
+    console.log(`Hello ${customerName || 'there'}! Thank you for dining with us at ${shopName}. We'd love your feedback! Please click here: https://yourdomain.com/feedback`);
+    return;
+  }
+
+  try {
+    // Basic phone formatting to add + if missing (assuming India +91 as default if 10 digits)
+    let formattedPhone = phone.replace(/\D/g, '');
+    if (formattedPhone.length === 10) formattedPhone = `91${formattedPhone}`;
+    if (!formattedPhone.startsWith('+')) formattedPhone = `+${formattedPhone}`;
+
+    const message = `Hello ${customerName || 'there'}! 🍽️\n\nThank you for dining with us at ${shopName}.\nWe hope you enjoyed your meal!\n\nPlease take a minute to share your feedback with us: https://forms.gle/kyroz-feedback-form\n\nHope to see you again soon!`;
+
+    const response = await client.messages.create({
+      body: message,
+      from: `whatsapp:${twilioNumber}`,
+      to: `whatsapp:${formattedPhone}`
+    });
+    console.log(`[WhatsApp] Feedback message sent to ${formattedPhone}. SID: ${response.sid}`);
+    return response;
+  } catch (error) {
+    console.error(`[WhatsApp] Failed to send feedback message to ${phone}:`, error);
+  }
+};

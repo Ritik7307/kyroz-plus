@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import Dish from '../models/Dish';
+import User from '../models/User';
 import { seedBlueprints } from '../services/blueprintSeeder.service';
 
 export const getDishes = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -94,10 +95,15 @@ export const getPublicDishes = async (req: Request, res: Response): Promise<void
       .populate('packagingLogic.takeaway')
       .populate('packagingLogic.delivery');
       
+    const user = await User.findById(userId);
+    
     // Cache the response to prevent DB overload (60 seconds locally, 120 on CDN)
     res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120');
     
-    res.status(200).json(dishes);
+    res.status(200).json({
+      shopName: user?.shopName || 'Digital Menu',
+      dishes
+    });
   } catch (error) {
     console.error('getPublicDishes error:', error);
     res.status(500).json({ error: 'Failed to fetch public menu' });

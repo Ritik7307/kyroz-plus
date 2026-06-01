@@ -1,3 +1,4 @@
+
 import mongoose from 'mongoose';
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
@@ -8,28 +9,28 @@ import User from '../models/User';
 import Customer from '../models/Customer';
 import Packaging from '../models/Packaging';
 import Notification from '../models/Notification';
-import { sendLowStockAlert } from '../services/whatsapp.service';
+import { sendLowStockAlert, sendCustomerFeedbackWhatsApp } from '../services/whatsapp.service';
 import { deductInventory, calculateDishCost } from '../services/inventory.service';
 
 export const processCheckout = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { 
-      items, 
-      customerName, 
-      customerPhone, 
-      discount, 
-      discountType = 'percentage', 
-      discountValue, 
-      additionalCharge = 0, 
-      tableNumber, 
-      paymentMethod, 
-      orderType = 'DineIn' 
+    const {
+      items,
+      customerName,
+      customerPhone,
+      discount,
+      discountType = 'percentage',
+      discountValue,
+      additionalCharge = 0,
+      tableNumber,
+      paymentMethod,
+      orderType = 'DineIn'
     } = req.body; // Array of { dishId, quantity }
-    
+
     if (!items || !Array.isArray(items)) {
       res.status(400).json({ error: 'Invalid items format' });
       return;
-    }
+    } 
 
     const updates = [];
     const alerts = [];
@@ -39,26 +40,26 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
 
     for (const item of items) {
       const { dishId, quantity } = item;
-      
+
       const dish = await Dish.findById(dishId);
       if (dish) {
         const price = dish.price || 0;
         const ingredientPrice = await calculateDishCost(dishId, req.user?.userId || '');
-        
+
         orderItems.push({
           dishId,
           quantity,
           price,
           ingredientPrice
         });
-        
+
         totalRevenue += price * quantity;
         totalProfit += (price - ingredientPrice) * quantity;
       }
-      
+
       // Find inventory for this dish
       const inventory = await Inventory.findOne({ dishId, userId: req.user?.userId }).populate('dishId');
-      
+
       if (inventory) {
         // Reduce total plates (portion tracking for Biryani/Mandi)
         inventory.totalPlates -= quantity;
@@ -90,7 +91,7 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
             console.log(`Created low stock notification for dish ${dishName}`);
           }
         }
-        
+
         updates.push({ dishId, remainingPlates: inventory.totalPlates });
       }
 
@@ -105,7 +106,7 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
       const dish = await Dish.findById(item.dishId);
       if (dish && dish.packagingLogic) {
         let packagingIdsToDeduct: mongoose.Types.ObjectId[] = [];
-        
+
         if (orderType === 'Takeaway' && dish.packagingLogic.takeaway) {
           packagingIdsToDeduct = dish.packagingLogic.takeaway;
         } else if (orderType === 'Delivery' && dish.packagingLogic.delivery) {
@@ -134,7 +135,7 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
 
       const charge = additionalCharge || 0;
       const discountedRevenue = totalRevenue - discountAmount + charge;
-      
+
       const order = new Order({
         userId: req.user?.userId,
         items: orderItems,
@@ -160,12 +161,20 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
           { upsert: true, new: true }
         );
       }
+
+      // Auto-send WhatsApp Feedback if phone is provided
+      if (customerPhone) {
+        // Run in background without blocking response
+        const user = await User.findById(req.user?.userId);
+        const shopName = user?.shopName || 'our restaurant';
+        sendCustomerFeedbackWhatsApp(customerPhone, customerName || '', shopName).catch(err => console.error('Feedback send error:', err));
+      }
     }
 
-    res.status(200).json({ 
-      message: 'Checkout successful and inventory updated', 
+    res.status(200).json({
+      message: 'Checkout successful and inventory updated',
       updates,
-      alerts 
+      alerts
     });
   } catch (error) {
     console.error('Checkout Error:', error);
@@ -177,15 +186,15 @@ export const getDailyProfit = async (req: AuthRequest, res: Response): Promise<v
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const orders = await Order.find({
       userId: req.user?.userId,
       createdAt: { $gte: today }
     });
-    
+
     const dailyProfit = orders.reduce((sum, order) => sum + order.totalProfit, 0);
     const dailyRevenue = orders.reduce((sum, order) => sum + order.totalRevenue, 0);
-    
+
     res.status(200).json({ dailyProfit, dailyRevenue });
   } catch (error) {
     console.error('Daily Profit Error:', error);
@@ -210,7 +219,7 @@ export const getSalesSummary = async (req: AuthRequest, res: Response): Promise<
   try {
     const userId = new mongoose.Types.ObjectId(req.user?.userId);
     const now = new Date();
-    
+
     const startOfDay = new Date(new Date(now).setHours(0, 0, 0, 0));
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const startOfYear = new Date(now.getFullYear(), 0, 1);
@@ -234,18 +243,20 @@ export const getSalesSummary = async (req: AuthRequest, res: Response): Promise<
     const itemAnalytics = await Order.aggregate([
       { $match: { userId } },
       { $unwind: "$items" },
-      { $group: { 
-          _id: "$items.dishId", 
+      {
+        $group: {
+          _id: "$items.dishId",
           totalQuantity: { $sum: "$items.quantity" },
           totalRevenue: { $sum: { $multiply: ["$items.price", "$items.quantity"] } },
           totalCost: { $sum: { $multiply: ["$items.ingredientPrice", "$items.quantity"] } },
           totalProfit: { $sum: { $multiply: [{ $subtract: ["$items.price", "$items.ingredientPrice"] }, "$items.quantity"] } }
-        } 
+        }
       },
       { $lookup: { from: 'dishes', localField: '_id', foreignField: '_id', as: 'dish' } },
       { $unwind: "$dish" },
-      { $project: { 
-          name: "$dish.name", 
+      {
+        $project: {
+          name: "$dish.name",
           totalQuantity: 1,
           totalRevenue: 1,
           totalCost: 1,
@@ -257,7 +268,7 @@ export const getSalesSummary = async (req: AuthRequest, res: Response): Promise<
               0
             ]
           }
-        } 
+        }
       }
     ]);
 
