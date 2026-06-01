@@ -21,6 +21,7 @@ export default function HistoryPage() {
   const [loading, setLoading] = useState(true);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'daily' | 'monthly' | 'yearly'>('daily');
+  const [itemFilter, setItemFilter] = useState<'quantity' | 'revenue' | 'margin'>('quantity');
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -122,27 +123,62 @@ export default function HistoryPage() {
             </div>
           </div>
 
-          {/* Top Selling Items */}
+          {/* Top Selling Items & Item Analytics */}
           <div className="bg-card glass-card p-8 rounded-[2.5rem] border border-white/5">
-            <div className="flex items-center gap-3 mb-8">
-              <TrendingUp className="text-gold" />
-              <h3 className="text-xl font-black uppercase tracking-tighter">Most Frequently Sold Items</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+              <div className="flex items-center gap-3">
+                <TrendingUp className="text-gold" />
+                <h3 className="text-xl font-black uppercase tracking-tighter">Item Analytics</h3>
+              </div>
+              <div className="flex bg-white/5 rounded-xl overflow-hidden p-1 gap-1">
+                <button 
+                  onClick={() => setItemFilter('quantity')}
+                  className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${itemFilter === 'quantity' ? 'bg-gold text-black' : 'text-white/40 hover:text-white'}`}
+                >
+                  Most Sold
+                </button>
+                <button 
+                  onClick={() => setItemFilter('revenue')}
+                  className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${itemFilter === 'revenue' ? 'bg-gold text-black' : 'text-white/40 hover:text-white'}`}
+                >
+                  High Revenue
+                </button>
+                <button 
+                  onClick={() => setItemFilter('margin')}
+                  className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${itemFilter === 'margin' ? 'bg-gold text-black' : 'text-white/40 hover:text-white'}`}
+                >
+                  High Margin
+                </button>
+              </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-              {summary.topItems.map((item: any, idx: number) => (
-                <div key={idx} className="bg-black/40 p-6 rounded-2xl border border-white/5 flex flex-col items-center text-center gap-3">
-                  <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center text-gold font-black text-lg">
-                    {idx + 1}
+              {(() => {
+                const items = summary.itemAnalytics || summary.topItems || []; // Support fallback if backend hasn't restarted
+                const sortedItems = [...items].sort((a, b) => {
+                  if (itemFilter === 'quantity') return (b.totalQuantity || 0) - (a.totalQuantity || 0);
+                  if (itemFilter === 'revenue') return (b.totalRevenue || 0) - (a.totalRevenue || 0);
+                  if (itemFilter === 'margin') return (b.profitMargin || 0) - (a.profitMargin || 0);
+                  return 0;
+                }).slice(0, 5);
+
+                if (sortedItems.length === 0) {
+                  return <p className="col-span-full text-center text-white/20 font-bold uppercase tracking-widest py-4">No data yet</p>;
+                }
+
+                return sortedItems.map((item: any, idx: number) => (
+                  <div key={idx} className="bg-black/40 p-6 rounded-2xl border border-white/5 flex flex-col items-center text-center gap-3">
+                    <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center text-gold font-black text-lg">
+                      {idx + 1}
+                    </div>
+                    <div className="w-full">
+                      <p className="font-bold text-xs text-white uppercase tracking-wider line-clamp-1" title={item.name}>{item.name}</p>
+                      {itemFilter === 'quantity' && <p className="text-[10px] font-black text-gold/60 uppercase tracking-widest mt-1">{item.totalQuantity} Sold</p>}
+                      {itemFilter === 'revenue' && <p className="text-[10px] font-black text-green-500 uppercase tracking-widest mt-1">{formatCurrency(item.totalRevenue)}</p>}
+                      {itemFilter === 'margin' && <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mt-1">{item.profitMargin?.toFixed(1) || 0}% Margin</p>}
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-xs text-white uppercase tracking-wider line-clamp-1">{item.name}</p>
-                    <p className="text-[10px] font-black text-gold/60 uppercase tracking-widest mt-1">{item.totalQuantity} Sold</p>
-                  </div>
-                </div>
-              ))}
-              {summary.topItems.length === 0 && (
-                <p className="col-span-full text-center text-white/20 font-bold uppercase tracking-widest py-4">No data yet</p>
-              )}
+                ));
+              })()}
             </div>
           </div>
         </div>

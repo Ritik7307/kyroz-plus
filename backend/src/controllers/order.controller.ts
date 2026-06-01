@@ -229,23 +229,42 @@ export const getSalesSummary = async (req: AuthRequest, res: Response): Promise<
       ])
     ]);
 
-    // Top selling items (overall)
-    const topItems = await Order.aggregate([
+    // Comprehensive Item Analytics
+    const itemAnalytics = await Order.aggregate([
       { $match: { userId } },
       { $unwind: "$items" },
-      { $group: { _id: "$items.dishId", totalQuantity: { $sum: "$items.quantity" } } },
-      { $sort: { totalQuantity: -1 } },
-      { $limit: 5 },
+      { $group: { 
+          _id: "$items.dishId", 
+          totalQuantity: { $sum: "$items.quantity" },
+          totalRevenue: { $sum: { $multiply: ["$items.price", "$items.quantity"] } },
+          totalCost: { $sum: { $multiply: ["$items.ingredientPrice", "$items.quantity"] } },
+          totalProfit: { $sum: { $multiply: [{ $subtract: ["$items.price", "$items.ingredientPrice"] }, "$items.quantity"] } }
+        } 
+      },
       { $lookup: { from: 'dishes', localField: '_id', foreignField: '_id', as: 'dish' } },
       { $unwind: "$dish" },
-      { $project: { name: "$dish.name", totalQuantity: 1 } }
+      { $project: { 
+          name: "$dish.name", 
+          totalQuantity: 1,
+          totalRevenue: 1,
+          totalCost: 1,
+          totalProfit: 1,
+          profitMargin: {
+            $cond: [
+              { $gt: ["$totalRevenue", 0] },
+              { $multiply: [{ $divide: ["$totalProfit", "$totalRevenue"] }, 100] },
+              0
+            ]
+          }
+        } 
+      }
     ]);
 
     res.status(200).json({
       daily: daily[0] || { revenue: 0, profit: 0, count: 0 },
       monthly: monthly[0] || { revenue: 0, profit: 0, count: 0 },
       yearly: yearly[0] || { revenue: 0, profit: 0, count: 0 },
-      topItems
+      itemAnalytics
     });
   } catch (error) {
     console.error('Sales Summary Error:', error);

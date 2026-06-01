@@ -4,6 +4,7 @@ import { Response } from 'express';
 import User from '../models/User';
 import MasterSop from '../models/MasterSop';
 import Notification from '../models/Notification';
+import GlobalSetting from '../models/GlobalSetting';
 
 const router = Router();
 
@@ -90,6 +91,37 @@ router.post('/push-notification', authenticateToken, isAdmin, async (req: AuthRe
     res.json({ message: `Notification pushed to ${users.length} users` });
   } catch (err) {
     res.status(500).json({ error: 'Failed to push notifications' });
+  }
+});
+
+// Get global settings (specifically pricing) - PUBLIC ROUTE (for main website)
+router.get('/settings/:key', async (req: Response | any, res: Response) => {
+  try {
+    const setting = await GlobalSetting.findOne({ key: req.params.key });
+    if (!setting) {
+      return res.status(404).json({ error: 'Setting not found' });
+    }
+    res.json(setting.value);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch global setting' });
+  }
+});
+
+// Update global settings - ADMIN ONLY
+router.put('/settings/:key', authenticateToken, isAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { key } = req.params;
+    const { value } = req.body;
+
+    const setting = await GlobalSetting.findOneAndUpdate(
+      { key },
+      { value, updatedAt: new Date() },
+      { upsert: true, new: true }
+    );
+    
+    res.json({ message: 'Settings updated successfully', setting: setting.value });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update global setting' });
   }
 });
 

@@ -1,6 +1,28 @@
 import Link from 'next/link';
+import { API_URL } from '@/lib/api';
 
-export default function Home() {
+async function getPricingConfig() {
+  try {
+    const res = await fetch(`${API_URL}/api/admin/settings/pricing`, { next: { revalidate: 60 } });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.error('Failed to fetch pricing config:', err);
+  }
+  // Fallback default pricing
+  return {
+    basic: { price: 999, discount: 0 },
+    pro: { price: 2999, discount: 0 },
+    elite: { price: 4999, discount: 0 }
+  };
+}
+
+export default async function Home() {
+  const pricing = await getPricingConfig();
+  
+  const getFinalPrice = (price: number, discount: number) => Math.round(price * (1 - discount / 100));
+
   return (
     <div className="min-h-screen bg-black text-white selection:bg-[#d4af37] selection:text-black">
       {/* Navigation */}
@@ -128,9 +150,21 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto text-left">
             {/* Basic Plan */}
             <div className="bg-[#111] border border-[#222] rounded-3xl p-8 hover:border-[#444] transition flex flex-col">
-              <h3 className="text-xl font-bold text-white mb-2">Basic</h3>
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-extrabold">₹999</span>
+              <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                Basic
+                {pricing.basic.discount > 0 && (
+                  <span className="bg-green-500/20 text-green-400 text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{pricing.basic.discount}% OFF</span>
+                )}
+              </h3>
+              <div className="flex items-baseline gap-2 mb-6">
+                {pricing.basic.discount > 0 ? (
+                  <>
+                    <span className="text-2xl font-bold text-gray-500 line-through">₹{pricing.basic.price}</span>
+                    <span className="text-4xl font-extrabold text-white">₹{getFinalPrice(pricing.basic.price, pricing.basic.discount)}</span>
+                  </>
+                ) : (
+                  <span className="text-4xl font-extrabold text-white">₹{pricing.basic.price}</span>
+                )}
                 <span className="text-gray-500">/mo</span>
               </div>
               <ul className="space-y-4 mb-8 flex-1">
@@ -150,9 +184,21 @@ export default function Home() {
             {/* Pro Plan */}
             <div className="bg-gradient-to-b from-[#1a1505] to-[#111] border border-[#d4af37]/50 rounded-3xl p-8 relative transform md:-translate-y-4 shadow-[0_10px_40px_rgba(212,175,55,0.15)] flex flex-col">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#d4af37] text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Most Popular</div>
-              <h3 className="text-xl font-bold text-[#d4af37] mb-2">Pro</h3>
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-5xl font-extrabold">₹2999</span>
+              <h3 className="text-xl font-bold text-[#d4af37] mb-2 flex items-center gap-2">
+                Pro
+                {pricing.pro.discount > 0 && (
+                  <span className="bg-green-500/20 text-green-400 text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{pricing.pro.discount}% OFF</span>
+                )}
+              </h3>
+              <div className="flex items-baseline gap-2 mb-6">
+                {pricing.pro.discount > 0 ? (
+                  <>
+                    <span className="text-2xl font-bold text-gray-500 line-through">₹{pricing.pro.price}</span>
+                    <span className="text-5xl font-extrabold text-[#d4af37]">₹{getFinalPrice(pricing.pro.price, pricing.pro.discount)}</span>
+                  </>
+                ) : (
+                  <span className="text-5xl font-extrabold text-[#d4af37]">₹{pricing.pro.price}</span>
+                )}
                 <span className="text-gray-500">/mo</span>
               </div>
               <ul className="space-y-4 mb-8 flex-1">
@@ -174,9 +220,21 @@ export default function Home() {
 
             {/* Elite Plan */}
             <div className="bg-[#111] border border-[#222] rounded-3xl p-8 hover:border-[#444] transition flex flex-col">
-              <h3 className="text-xl font-bold text-white mb-2">Elite</h3>
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-extrabold">₹4999</span>
+              <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                Elite
+                {pricing.elite.discount > 0 && (
+                  <span className="bg-green-500/20 text-green-400 text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{pricing.elite.discount}% OFF</span>
+                )}
+              </h3>
+              <div className="flex items-baseline gap-2 mb-6">
+                {pricing.elite.discount > 0 ? (
+                  <>
+                    <span className="text-2xl font-bold text-gray-500 line-through">₹{pricing.elite.price}</span>
+                    <span className="text-4xl font-extrabold text-white">₹{getFinalPrice(pricing.elite.price, pricing.elite.discount)}</span>
+                  </>
+                ) : (
+                  <span className="text-4xl font-extrabold text-white">₹{pricing.elite.price}</span>
+                )}
                 <span className="text-gray-500">/mo</span>
               </div>
               <ul className="space-y-4 mb-8 flex-1">

@@ -16,6 +16,7 @@ interface Customer {
 }
 
 type SortType = 'recent' | 'frequent' | 'spending';
+type FilterType = 'all' | 'frequent' | 'occasional' | 'new';
 
 export default function CustomersPage() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export default function CustomersPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortType>('recent');
+  const [filterBy, setFilterBy] = useState<FilterType>('all');
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -58,6 +60,14 @@ export default function CustomersPage() {
         c.name?.toLowerCase().includes(q) || 
         c.phone?.includes(q)
       );
+    }
+
+    if (filterBy === 'frequent') {
+      result = result.filter(c => c.totalVisits > 2);
+    } else if (filterBy === 'occasional') {
+      result = result.filter(c => c.totalVisits === 2);
+    } else if (filterBy === 'new') {
+      result = result.filter(c => c.totalVisits === 1);
     }
 
     result.sort((a, b) => {
@@ -97,43 +107,59 @@ export default function CustomersPage() {
 
       <div className="flex flex-col lg:flex-row gap-6 justify-between items-start lg:items-center bg-card glass-card p-6 rounded-3xl border border-white/5">
         
-        {/* Search */}
-        <div className="relative w-full lg:w-96">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
-          <input
-            type="text"
-            placeholder="Search by name or phone..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-gold/50 transition-all font-bold tracking-widest uppercase"
-          />
+        {/* Search & Segments */}
+        <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto flex-1">
+          <div className="relative w-full sm:w-80 shrink-0">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+            <input
+              type="text"
+              placeholder="Search by name or phone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-gold/50 transition-all font-bold tracking-widest uppercase"
+            />
+          </div>
+
+          <div className="flex bg-white/5 border border-white/10 rounded-2xl p-1 overflow-x-auto scrollbar-hide">
+            {(['all', 'frequent', 'occasional', 'new'] as const).map(f => (
+              <button
+                key={f}
+                onClick={() => setFilterBy(f)}
+                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                  filterBy === f ? 'bg-gold text-black shadow-lg shadow-gold/20' : 'text-white/40 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {f === 'frequent' ? '> 2 Visits' : f === 'occasional' ? '2 Visits' : f === 'new' ? '1 Visit' : 'All'}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Filters */}
+        {/* Sort */}
         <div className="flex gap-2 w-full lg:w-auto overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
           <button
             onClick={() => setSortBy('recent')}
-            className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
-              sortBy === 'recent' ? 'bg-gold text-black shadow-lg shadow-gold/20' : 'bg-white/5 text-white/40 hover:text-white hover:bg-white/10'
+            className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
+              sortBy === 'recent' ? 'bg-white/10 text-white border border-white/20' : 'bg-white/5 text-white/40 hover:text-white border border-transparent hover:border-white/10'
             }`}
           >
-            <Clock size={14} /> Recent Visitors
+            <Clock size={14} /> Recent
           </button>
           <button
             onClick={() => setSortBy('frequent')}
-            className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
-              sortBy === 'frequent' ? 'bg-gold text-black shadow-lg shadow-gold/20' : 'bg-white/5 text-white/40 hover:text-white hover:bg-white/10'
+            className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
+              sortBy === 'frequent' ? 'bg-white/10 text-white border border-white/20' : 'bg-white/5 text-white/40 hover:text-white border border-transparent hover:border-white/10'
             }`}
           >
-            <Users size={14} /> Frequently Visited
+            <Users size={14} /> Freq. Sort
           </button>
           <button
             onClick={() => setSortBy('spending')}
-            className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
-              sortBy === 'spending' ? 'bg-gold text-black shadow-lg shadow-gold/20' : 'bg-white/5 text-white/40 hover:text-white hover:bg-white/10'
+            className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
+              sortBy === 'spending' ? 'bg-white/10 text-white border border-white/20' : 'bg-white/5 text-white/40 hover:text-white border border-transparent hover:border-white/10'
             }`}
           >
-            <TrendingUp size={14} /> Highest Spending
+            <TrendingUp size={14} /> Highest Spend
           </button>
         </div>
       </div>

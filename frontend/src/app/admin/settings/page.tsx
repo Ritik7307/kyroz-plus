@@ -16,10 +16,63 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+import { API_URL } from '@/lib/api';
+
 export default function AdminSettingsPage() {
-  const [activeTab, setActiveTab] = useState('General');
+  const [activeTab, setActiveTab] = useState('Pricing');
+  const [loading, setLoading] = useState(false);
+  
+  const [pricing, setPricing] = useState({
+    basic: { price: 999, discount: 0 },
+    pro: { price: 2999, discount: 0 },
+    elite: { price: 4999, discount: 0 }
+  });
+
+  React.useEffect(() => {
+    fetch(`${API_URL}/api/admin/settings/pricing`)
+      .then(res => {
+        if (!res.ok) {
+          if (res.status === 404) return null; // Setting not saved yet
+          throw new Error('Network response was not ok');
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (data && data.basic) {
+          setPricing(data);
+        }
+      })
+      .catch(err => console.error('Failed to load pricing:', err));
+  }, []);
+
+  const handleSavePricing = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/admin/settings/pricing`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ value: pricing })
+      });
+      if (res.ok) {
+        alert('Pricing updated successfully!');
+      } else {
+        const errText = await res.text();
+        alert(`Failed to update pricing. Status: ${res.status}. Error: ${errText}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error updating pricing');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const settingsTabs = [
+    { name: 'Pricing', icon: Database },
     { name: 'General', icon: Settings },
     { name: 'Security', icon: Shield },
     { name: 'Infrastructure', icon: Server },
@@ -73,55 +126,112 @@ export default function AdminSettingsPage() {
                 </button>
               </div>
 
-              {/* MOCK SETTINGS FOR DEMO */}
-              <div className="space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Platform Mode</label>
-                    <select className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm font-bold focus:outline-none focus:border-gold transition-all">
-                      <option>Production (Stable)</option>
-                      <option>Maintenance Mode</option>
-                      <option>Development (Sandbox)</option>
-                    </select>
+              {activeTab === 'Pricing' && (
+                <div className="space-y-8">
+                  {['basic', 'pro', 'elite'].map((planKey) => {
+                    const plan = pricing[planKey as keyof typeof pricing];
+                    return (
+                      <div key={planKey} className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                        <h4 className="text-lg font-black text-white uppercase tracking-widest mb-4">{planKey} Plan</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-3">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Base Price (₹)</label>
+                            <input 
+                              type="number"
+                              value={plan.price === 0 && !String(plan.price).includes('0') ? '' : plan.price}
+                              onChange={(e) => setPricing(prev => ({
+                                ...prev,
+                                [planKey]: { ...prev[planKey as keyof typeof pricing], price: e.target.value === '' ? '' as any : Number(e.target.value) }
+                              }))}
+                              className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm font-bold text-white focus:outline-none focus:border-gold transition-all"
+                            />
+                          </div>
+                          <div className="space-y-3">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Discount (%)</label>
+                            <input 
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={plan.discount === 0 && !String(plan.discount).includes('0') ? '' : plan.discount}
+                              onChange={(e) => setPricing(prev => ({
+                                ...prev,
+                                [planKey]: { ...prev[planKey as keyof typeof pricing], discount: e.target.value === '' ? '' as any : Number(e.target.value) }
+                              }))}
+                              className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm font-bold text-white focus:outline-none focus:border-gold transition-all"
+                            />
+                          </div>
+                        </div>
+                        {plan.discount > 0 && (
+                          <div className="mt-4 text-xs font-bold text-green-500 uppercase tracking-widest">
+                            Final Price: ₹{Math.round(plan.price * (1 - plan.discount / 100))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                  <div className="pt-6 border-t border-white/5 flex justify-end">
+                    <button 
+                      onClick={handleSavePricing}
+                      disabled={loading}
+                      className="px-12 py-4 bg-gold-gradient text-black rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-2xl shadow-gold/20 flex items-center gap-3 hover:scale-105 transition-all disabled:opacity-50"
+                    >
+                      <Save size={18} /> {loading ? 'Saving...' : 'Update Pricing'}
+                    </button>
                   </div>
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Global API Cache</label>
-                    <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl p-4">
-                      <div className="flex-1 text-sm font-bold">Enabled (Redis 7.0)</div>
-                      <div className="w-12 h-6 bg-gold rounded-full relative">
-                        <div className="absolute right-1 top-1 w-4 h-4 bg-black rounded-full"></div>
+                </div>
+              )}
+
+              {/* MOCK SETTINGS FOR DEMO */}
+              {activeTab !== 'Pricing' && (
+                <div className="space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Platform Mode</label>
+                      <select className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm font-bold focus:outline-none focus:border-gold transition-all text-white">
+                        <option>Production (Stable)</option>
+                        <option>Maintenance Mode</option>
+                        <option>Development (Sandbox)</option>
+                      </select>
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Global API Cache</label>
+                      <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl p-4">
+                        <div className="flex-1 text-sm font-bold">Enabled (Redis 7.0)</div>
+                        <div className="w-12 h-6 bg-gold rounded-full relative">
+                          <div className="absolute right-1 top-1 w-4 h-4 bg-black rounded-full"></div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Master Security Level</label>
-                  <div className="grid grid-cols-3 gap-4">
-                    {['Standard', 'High', 'Maximum'].map((level) => (
-                      <button 
-                        key={level}
-                        className={`py-4 rounded-2xl border text-[10px] font-black uppercase tracking-widest transition-all ${
-                          level === 'High' 
-                          ? 'bg-gold/10 border-gold text-gold' 
-                          : 'bg-white/5 border-white/5 text-white/40 hover:bg-white/10'
-                        }`}
-                      >
-                        {level}
-                      </button>
-                    ))}
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Master Security Level</label>
+                    <div className="grid grid-cols-3 gap-4">
+                      {['Standard', 'High', 'Maximum'].map((level) => (
+                        <button 
+                          key={level}
+                          className={`py-4 rounded-2xl border text-[10px] font-black uppercase tracking-widest transition-all ${
+                            level === 'High' 
+                            ? 'bg-gold/10 border-gold text-gold' 
+                            : 'bg-white/5 border-white/5 text-white/40 hover:bg-white/10'
+                          }`}
+                        >
+                          {level}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="pt-10 border-t border-white/5 flex justify-end gap-6">
+                    <button className="px-10 py-4 text-white/20 font-black uppercase text-[11px] tracking-widest hover:text-white transition-all">
+                      Reset Changes
+                    </button>
+                    <button className="px-16 py-4 bg-gold-gradient text-black rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-2xl shadow-gold/20 flex items-center gap-3 hover:scale-105 transition-all">
+                      <Save size={18} /> Update Core
+                    </button>
                   </div>
                 </div>
-
-                <div className="pt-10 border-t border-white/5 flex justify-end gap-6">
-                  <button className="px-10 py-4 text-white/20 font-black uppercase text-[11px] tracking-widest hover:text-white transition-all">
-                    Reset Changes
-                  </button>
-                  <button className="px-16 py-4 bg-gold-gradient text-black rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-2xl shadow-gold/20 flex items-center gap-3 hover:scale-105 transition-all">
-                    <Save size={18} /> Update Core
-                  </button>
-                </div>
-              </div>
+              )}
 
               {/* Status Footer */}
               <div className="pt-12 flex items-center gap-8 text-[9px] font-black uppercase tracking-[0.2em] text-white/20">
