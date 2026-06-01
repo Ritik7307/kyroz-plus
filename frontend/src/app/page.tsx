@@ -3,7 +3,7 @@ import { API_URL } from '@/lib/api';
 
 async function getPricingConfig() {
   try {
-    const res = await fetch(`${API_URL}/api/admin/settings/pricing`, { next: { revalidate: 60 } });
+    const res = await fetch(`${API_URL}/api/admin/settings/pricing`, { cache: 'no-store' });
     if (res.ok) {
       return await res.json();
     }
