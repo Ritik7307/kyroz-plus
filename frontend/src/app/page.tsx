@@ -20,7 +20,7 @@ async function getPricingConfig() {
 
 export default async function Home() {
   const pricing = await getPricingConfig();
-  
+
   const getFinalPrice = (plan: any) => {
     if (plan.finalPrice !== undefined) return plan.finalPrice;
     return Math.round(plan.price * (1 - plan.discount / 100));
@@ -100,7 +100,7 @@ export default async function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center gap-16">
             <div className="flex-1">
-              <h2 className="text-3xl md:text-5xl font-bold mb-6">Meet KYROZ KOSA. <br/><span className="text-[#d4af37]">Your AI Consultant.</span></h2>
+              <h2 className="text-3xl md:text-5xl font-bold mb-6">Meet KYROZ KOSA. <br /><span className="text-[#d4af37]">Your AI Consultant.</span></h2>
               <p className="text-gray-400 text-lg mb-8 leading-relaxed">
                 Stop guessing. Ask KYROZ. Our RAG-powered AI ingests your specific SOPs, recipes, and costing files to give you precise, actionable answers instantly.
               </p>
@@ -149,7 +149,7 @@ export default async function Home() {
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-4">Simple, transparent pricing.</h2>
           <p className="text-gray-400 mb-16 text-lg">Scale your restaurant operations without breaking the bank.</p>
-          
+
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto text-left">
             {/* Basic Plan */}
             <div className="bg-[#111] border border-[#222] rounded-3xl p-8 hover:border-[#444] transition flex flex-col">
