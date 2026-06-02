@@ -479,7 +479,7 @@ export default function POSTerminal() {
 
   const handleAddIngredient = (item: any) => {
     if (recipeIngredients.find(i => i.itemId === item._id)) return;
-    const costPerUnit = item.costPerUnit || (item.costPerPurchaseUnit ? item.costPerPurchaseUnit / (item.conversionFactor || 1)) : 0;
+    const costPerUnit = item.costPerUnit || (item.costPerPurchaseUnit ? (item.costPerPurchaseUnit / (item.conversionFactor || 1)) : 0);
     setRecipeIngredients([...recipeIngredients, {
       itemModel: item.model,
       itemId: item._id,
