@@ -1103,34 +1103,25 @@ export default function POSTerminal() {
           )}
 
           <div className="grid grid-cols-1 gap-3">
-            <div className="grid grid-cols-2 gap-3">
-              <button 
-                onClick={() => {
-                  setCart([]);
-                  setCustomerName('');
-                  setCustomerPhone('');
-                  setDiscount('');
-                  setDiscountType('percentage');
-                  setAdditionalCharge('');
-                  setApplyGst(true);
-                  setPaymentMethod('Cash');
-                  setOrderType('DineIn');
-                  setCheckoutSuccess(false);
-                  setKotStatus('None');
-                  setKotId('');
-                }}
-                className="py-3.5 rounded-xl border border-red-500/20 text-red-500 font-bold text-[10px] uppercase tracking-widest hover:bg-red-500/5 transition-all"
-              >
-                Clear
-              </button>
-              <button 
-                onClick={() => shareOrderOnWhatsApp()}
-                disabled={cart.length === 0}
-                className="py-3.5 rounded-xl bg-green-500/10 border border-green-500/20 text-green-500 font-bold text-[10px] uppercase tracking-widest hover:bg-green-500/20 transition-all flex items-center justify-center gap-2"
-              >
-                <MessageCircle size={14} /> WhatsApp
-              </button>
-            </div>
+            <button 
+              onClick={() => {
+                setCart([]);
+                setCustomerName('');
+                setCustomerPhone('');
+                setDiscount('');
+                setDiscountType('percentage');
+                setAdditionalCharge('');
+                setApplyGst(true);
+                setPaymentMethod('Cash');
+                setOrderType('DineIn');
+                setCheckoutSuccess(false);
+                setKotStatus('None');
+                setKotId('');
+              }}
+              className="w-full py-3.5 rounded-xl border border-red-500/20 text-red-500 font-bold text-[10px] uppercase tracking-widest hover:bg-red-500/5 transition-all"
+            >
+              Clear
+            </button>
 
             {/* Checkout & KOT Actions */}
             {!checkoutSuccess ? (
