@@ -477,62 +477,48 @@ export default function POSTerminal() {
     }
   };
 
-  const handleAddIngredient = (item: any) => {
-    if (recipeIngredients.find(i => i.itemId === item._id)) return;
-    const costPerUnit = item.costPerUnit || (item.costPerPurchaseUnit ? (item.costPerPurchaseUnit / (item.conversionFactor || 1)) : 0);
-    setRecipeIngredients([...recipeIngredients, {
-      itemModel: item.model,
-      itemId: item._id,
-      name: item.name,
-      quantity: 1,
-      unit: item.unit || 'unit',
-      costPerUnit
-    }]);
-    recalculateIngredientCost([...recipeIngredients, { itemModel: item.model, itemId: item._id, name: item.name, quantity: 1, unit: item.unit || 'unit', costPerUnit }]);
-  };
-
-  const handleRemoveIngredient = (itemId: string) => {
-    const updated = recipeIngredients.filter(i => i.itemId !== itemId);
-    setRecipeIngredients(updated);
-    recalculateIngredientCost(updated);
-  };
-
-  const handleIngredientQuantityChange = (itemId: string, quantity: number) => {
-    const updated = recipeIngredients.map(i => i.itemId === itemId ? { ...i, quantity } : i);
-    setRecipeIngredients(updated);
-    recalculateIngredientCost(updated);
-  };
-
-  const recalculateIngredientCost = (ingredients: any[]) => {
-    const totalCost = ingredients.reduce((sum, item) => sum + (item.quantity * item.costPerUnit), 0);
-    setNewDish(prev => ({ ...prev, ingredientPrice: totalCost.toString() }));
-  };
-
   const handleAddDish = async () => {
     const token = localStorage.getItem('token');
     try {
+      let currentImageUrl = newDish.imageUrl;
+      if (fileInputRef.current?.files?.[0]) {
+        const formData = new FormData();
+        formData.append('image', fileInputRef.current.files[0]);
+        const uploadRes = await fetch(`${API_URL}/api/upload`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData
+        });
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          currentImageUrl = uploadData.imageUrl;
+        }
+      }
+
+      const payload = {
+        dishDetails: {
+          name: newDish.name,
+          price: Number(newDish.price) || 0,
+          ingredientPrice: Number(newDish.ingredientPrice) || 0,
+          category: newDish.category || 'Main Course',
+          imageUrl: currentImageUrl,
+          allowedWastagePercentage: 0
+        },
+        recipeDetails: { ingredients: [] },
+        inventoryDetails: {
+          platesPerPacket: Number(advancedSetupData.platesPerPacket) || 10,
+          totalPlates: Number(advancedSetupData.totalPlates) || 0,
+          lowStockThreshold: Number(advancedSetupData.lowStockThreshold) || 5
+        }
+      };
+
       const res = await fetch(`${API_URL}/api/dishes/advanced-setup`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ 
-          dishDetails: {
-            name: newDish.name,
-            price: Number(newDish.price) || 0,
-            ingredientPrice: Number(newDish.ingredientPrice) || 0,
-            category: newDish.category || 'Main Course',
-            imageUrl: newDish.imageUrl,
-            allowedWastagePercentage: Number(advancedSetupData.allowedWastagePercentage) || 0
-          },
-          recipeDetails: { ingredients: recipeIngredients.map(i => ({ itemModel: i.itemModel, itemId: i.itemId, quantity: i.quantity })) },
-          inventoryDetails: {
-            platesPerPacket: Number(advancedSetupData.platesPerPacket) || 10,
-            totalPlates: Number(advancedSetupData.totalPlates) || 0,
-            lowStockThreshold: Number(advancedSetupData.lowStockThreshold) || 5
-          }
-        })
+        body: JSON.stringify(payload)
       });
       if (res.ok) {
         setShowAddModal(false);
@@ -1754,55 +1740,11 @@ export default function POSTerminal() {
                     )}
 
                     {setupStep === 2 && (
-                      <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                      <div className="space-y-4">
                         <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3">
-                          <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold block">Build Recipe</label>
-                          <select 
-                            onChange={(e) => {
-                              const item = availableIngredients.find(i => i._id === e.target.value);
-                              if (item) handleAddIngredient(item);
-                              e.target.value = '';
-                            }}
-                            className="w-full bg-black/40 p-3 rounded-lg border border-white/10 text-sm"
-                            defaultValue=""
-                          >
-                            <option value="" disabled>+ Add Ingredient</option>
-                            {availableIngredients.map(item => (
-                              <option key={item._id} value={item._id}>{item.name} ({item.model})</option>
-                            ))}
-                          </select>
-
-                          {recipeIngredients.length > 0 && (
-                            <div className="space-y-2 mt-4">
-                              {recipeIngredients.map(ing => (
-                                <div key={ing.itemId} className="flex items-center gap-2 bg-black/40 p-2 rounded border border-white/5">
-                                  <span className="text-xs flex-1 truncate">{ing.name}</span>
-                                  <input 
-                                    type="number" 
-                                    value={ing.quantity || ''}
-                                    onChange={(e) => handleIngredientQuantityChange(ing.itemId, Number(e.target.value))}
-                                    className="w-16 bg-white/5 border border-white/10 rounded px-2 py-1 text-xs text-center"
-                                    placeholder="Qty"
-                                  />
-                                  <span className="text-[10px] text-white/40 w-8">{ing.unit}</span>
-                                  <span className="text-xs text-gold font-bold w-12 text-right">₹{(ing.quantity * ing.costPerUnit).toFixed(1)}</span>
-                                  <button onClick={() => handleRemoveIngredient(ing.itemId)} className="text-red-500 hover:text-red-400 p-1"><X size={12} /></button>
-                                </div>
-                              ))}
-                              <div className="flex justify-between items-center pt-2 border-t border-white/10 mt-2">
-                                <span className="text-[10px] uppercase text-white/50 font-bold">Total Cost</span>
-                                <span className="text-sm font-black text-gold">₹{Number(newDish.ingredientPrice || 0).toFixed(2)}</span>
-                              </div>
-                            </div>
-                          )}
-                          {recipeIngredients.length === 0 && (
-                            <p className="text-[9px] text-white/40 text-center py-2">No ingredients added yet.</p>
-                          )}
-                        </div>
-
-                        <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3">
-                          <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold block">Allowable Wastage (%)</label>
-                          <input type="number" value={advancedSetupData.allowedWastagePercentage} onChange={(e) => setAdvancedSetupData({...advancedSetupData, allowedWastagePercentage: Number(e.target.value)})} placeholder="e.g. 5" className="w-full bg-black/40 p-3 rounded-lg border border-white/10" />
+                          <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold block">Estimated Dish Cost (₹)</label>
+                          <input type="number" value={newDish.ingredientPrice} onChange={(e) => setNewDish({...newDish, ingredientPrice: e.target.value})} placeholder="Costing Amount *" className="w-full bg-black/40 p-3 rounded-lg border border-white/10" />
+                          <p className="text-[9px] text-white/40">You can add specific ingredients later in the Costing Master.</p>
                         </div>
                         <div className="flex gap-4">
                           <button onClick={() => setSetupStep(1)} className="w-1/3 py-4 bg-white/5 text-white font-black uppercase rounded-xl hover:bg-white/10">Back</button>
