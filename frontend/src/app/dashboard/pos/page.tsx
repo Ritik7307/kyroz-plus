@@ -559,7 +559,7 @@ export default function POSTerminal() {
 
   const isManager = ['admin', 'manager', 'user'].includes(userRole);
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     if (cart.length === 0) return;
 
     if (paymentMethod === 'Online' && userQrCode && !showQrModal) {
@@ -567,55 +567,46 @@ export default function POSTerminal() {
       return;
     }
 
+    // Zero Latency Checkout: Generate bill no locally and print immediately
+    const generatedBillNo = Math.floor(100000 + Math.random() * 900000).toString();
+    setPrintedBillNo(generatedBillNo);
+    setShowQrModal(false);
+    setPrintType('bill');
     setIsProcessingCheckout(true);
-    const token = localStorage.getItem('token');
-    try {
-      const res = await fetch(`${API_URL}/api/orders/checkout`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
-        },
-        body: JSON.stringify({
-          items: cart.map(item => ({
-            dishId: item.dish._id,
-            quantity: item.quantity
-          })),
-          customerName,
-          customerPhone,
-          discount: discountType === 'percentage' ? parsedDiscount : 0, // legacy
-          discountType,
-          discountValue: parsedDiscount,
-          additionalCharge: parsedAdditionalCharge,
-          tableNumber: activeTable === 'quick' ? '' : tables.find(t => t.id === activeTable)?.name || '',
-          paymentMethod,
-          orderType
-        })
-      });
-      
-      if (res.ok) {
-        const data = await res.json();
-        if (data.order && data.order._id) {
-          setPrintedBillNo(data.order._id.slice(-6).toUpperCase());
-        }
-        setShowQrModal(false);
-        setPrintType('bill');
-        // Trigger printing
-        setTimeout(() => {
-          window.print();
-          setIsProcessingCheckout(false);
-          setCheckoutSuccess(true);
-          setKotStatus('None');
-          setKotId('');
-        }, 300);
-      } else {
-        alert('Failed to process order.');
-        setIsProcessingCheckout(false);
-      }
-    } catch (err) {
-      console.error('Checkout error', err);
+
+    // Trigger printing after a brief delay for React to render the bill DOM
+    setTimeout(() => {
+      window.print();
       setIsProcessingCheckout(false);
-    }
+      setCheckoutSuccess(true);
+      setKotStatus('None');
+      setKotId('');
+    }, 100);
+
+    // Process the checkout in the background
+    const token = localStorage.getItem('token');
+    fetch(`${API_URL}/api/orders/checkout`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` 
+      },
+      body: JSON.stringify({
+        items: cart.map(item => ({
+          dishId: item.dish._id,
+          quantity: item.quantity
+        })),
+        customerName,
+        customerPhone,
+        discount: discountType === 'percentage' ? parsedDiscount : 0,
+        discountType,
+        discountValue: parsedDiscount,
+        additionalCharge: parsedAdditionalCharge,
+        tableNumber: activeTable === 'quick' ? '' : tables.find(t => t.id === activeTable)?.name || '',
+        paymentMethod,
+        orderType
+      })
+    }).catch(err => console.error('Background checkout error', err));
   };
 
   // Poll active KOT status
