@@ -651,6 +651,12 @@ export default function POSTerminal() {
       // Since browsers don't tell us if the user clicked Print or Cancel,
       // we ask them if it was successful before finalizing the order.
       if (window.confirm("Did the bill print successfully? Click OK to complete the order, or Cancel to go back and edit the cart.")) {
+        
+        // Auto-send WhatsApp message if customer phone is provided
+        if (customerPhone && customerPhone.length >= 10) {
+          shareOrderOnWhatsApp(tempBillNo);
+        }
+        
         setCheckoutSuccess(true);
         setCart([]);
         
@@ -806,7 +812,7 @@ export default function POSTerminal() {
     }
   };
 
-  const shareOrderOnWhatsApp = () => {
+  const shareOrderOnWhatsApp = (billNumberToUse?: string) => {
     if (cart.length === 0) return;
     
     if (!customerPhone) {
@@ -816,7 +822,10 @@ export default function POSTerminal() {
 
     const itemsList = cart.map(item => `• ${item.dish.name} (x${item.quantity}) - ₹${item.dish.price * item.quantity}`).join('\n');
     
-    const message = `Hello ${customerName || 'Customer'}, 👋\n\nHere is your order bill from *${userShopName}*:\n\n*Bill No:* #${printedBillNo || 'N/A'}\n\n*ORDER DETAILS:*\n${itemsList}\n\n*Subtotal: ₹${total}*\n${discountAmount > 0 ? `*Discount: ${discountType === 'flat' ? `₹${parsedDiscount}` : `${parsedDiscount}%`} (₹${Math.round(discountAmount)})*\n` : ''}${applyGst ? `*GST (${userGstRate}%): ₹${gstAmount.toFixed(2)}*\n` : ''}${parsedAdditionalCharge > 0 ? `*Additional Charge: ₹${parsedAdditionalCharge}*\n` : ''}*Grand Total: ₹${grandTotal}*\n\n*Customer Details:*\nName: ${customerName || 'N/A'}\nContact No: ${customerPhone || 'N/A'}\n*Shop Details:*\nName: ${userShopName}\nAddress: ${user?.shopAddress || 'N/A'}\n\nThank you for visiting!\n\n_Sent via KYROZ_`;
+    // Using string interpolation for bill number to ensure it works whether called manually or automatically
+    const activeBillNo = (typeof billNumberToUse === 'string' && billNumberToUse) ? billNumberToUse : printedBillNo;
+    
+    const message = `Thank you ${customerName || 'Customer'}, 👋\n\nHere are your bill details:\n\n*Bill No:* #${activeBillNo || 'N/A'}\n\n*ORDER DETAILS:*\n${itemsList}\n\n*Subtotal: ₹${total}*\n${discountAmount > 0 ? `*Discount: ${discountType === 'flat' ? `₹${parsedDiscount}` : `${parsedDiscount}%`} (₹${Math.round(discountAmount)})*\n` : ''}${applyGst ? `*GST (${userGstRate}%): ₹${gstAmount.toFixed(2)}*\n` : ''}${parsedAdditionalCharge > 0 ? `*Additional Charge: ₹${parsedAdditionalCharge}*\n` : ''}*Grand Total: ₹${grandTotal}*\n\nThank you for visiting!\n\n_Sent via KYROZ_`;
     
     const encodedMessage = encodeURIComponent(message);
     const formattedPhone = customerPhone.startsWith('+') ? customerPhone.substring(1) : (customerPhone.length === 10 ? `91${customerPhone}` : customerPhone);
