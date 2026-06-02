@@ -141,6 +141,9 @@ export default function POSTerminal() {
     totalPlates: 0,
     lowStockThreshold: 5
   });
+  const [availableIngredients, setAvailableIngredients] = useState<any[]>([]);
+  const [recipeIngredients, setRecipeIngredients] = useState<{itemModel: string, itemId: string, name: string, quantity: number, unit: string, costPerUnit: number}[]>([]);
+  const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
   const [editingDish, setEditingDish] = useState<Dish | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -242,6 +245,12 @@ export default function POSTerminal() {
       isSwitchingTable.current = false;
     }, 100);
   }, []);
+
+  useEffect(() => {
+    if (showAddModal) {
+      fetchInventoryForCosting();
+    }
+  }, [showAddModal]);
 
   // Save current active table session to localStorage whenever states change
   useEffect(() => {
@@ -346,13 +355,34 @@ export default function POSTerminal() {
       if (Array.isArray(data)) {
         setDishes(data);
       } else {
-        console.warn('API did not return an array for dishes. Possibly token expired.');
         setDishes([]);
       }
     } catch (err) {
       console.error('Failed to fetch dishes', err);
+      setDishes([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchInventoryForCosting = async () => {
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch(`${API_URL}/api/inventory`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      
+      const allIngredients = [
+        ...(data.rawMaterials || []).map((i: any) => ({ ...i, model: 'RawMaterial' })),
+        ...(data.semiFinishedGoods || []).map((i: any) => ({ ...i, model: 'SemiFinishedGood' })),
+        ...(data.premixes || []).map((i: any) => ({ ...i, model: 'Premix' })),
+        ...(data.packaging || []).map((i: any) => ({ ...i, model: 'Packaging' }))
+      ];
+      
+      setAvailableIngredients(allIngredients);
+    } catch (err) {
+      console.error('Failed to fetch inventory for costing', err);
     }
   };
 
@@ -447,6 +477,37 @@ export default function POSTerminal() {
     }
   };
 
+  const handleAddIngredient = (item: any) => {
+    if (recipeIngredients.find(i => i.itemId === item._id)) return;
+    const costPerUnit = item.costPerUnit || (item.costPerPurchaseUnit ? item.costPerPurchaseUnit / (item.conversionFactor || 1)) : 0;
+    setRecipeIngredients([...recipeIngredients, {
+      itemModel: item.model,
+      itemId: item._id,
+      name: item.name,
+      quantity: 1,
+      unit: item.unit || 'unit',
+      costPerUnit
+    }]);
+    recalculateIngredientCost([...recipeIngredients, { itemModel: item.model, itemId: item._id, name: item.name, quantity: 1, unit: item.unit || 'unit', costPerUnit }]);
+  };
+
+  const handleRemoveIngredient = (itemId: string) => {
+    const updated = recipeIngredients.filter(i => i.itemId !== itemId);
+    setRecipeIngredients(updated);
+    recalculateIngredientCost(updated);
+  };
+
+  const handleIngredientQuantityChange = (itemId: string, quantity: number) => {
+    const updated = recipeIngredients.map(i => i.itemId === itemId ? { ...i, quantity } : i);
+    setRecipeIngredients(updated);
+    recalculateIngredientCost(updated);
+  };
+
+  const recalculateIngredientCost = (ingredients: any[]) => {
+    const totalCost = ingredients.reduce((sum, item) => sum + (item.quantity * item.costPerUnit), 0);
+    setNewDish(prev => ({ ...prev, ingredientPrice: totalCost.toString() }));
+  };
+
   const handleAddDish = async () => {
     const token = localStorage.getItem('token');
     try {
@@ -465,7 +526,7 @@ export default function POSTerminal() {
             imageUrl: newDish.imageUrl,
             allowedWastagePercentage: Number(advancedSetupData.allowedWastagePercentage) || 0
           },
-          recipeDetails: { ingredients: [] }, // Ingredients mapped later in Costing Master
+          recipeDetails: { ingredients: recipeIngredients.map(i => ({ itemModel: i.itemModel, itemId: i.itemId, quantity: i.quantity })) },
           inventoryDetails: {
             platesPerPacket: Number(advancedSetupData.platesPerPacket) || 10,
             totalPlates: Number(advancedSetupData.totalPlates) || 0,
@@ -478,6 +539,7 @@ export default function POSTerminal() {
         setSetupStep(1);
         setNewDish({ name: '', price: '', ingredientPrice: '', category: 'Main Course', imageUrl: '' });
         setAdvancedSetupData({ allowedWastagePercentage: 0, platesPerPacket: 10, totalPlates: 0, lowStockThreshold: 5 });
+        setRecipeIngredients([]);
         fetchDishes();
       } else {
         alert('Failed to save dish with advanced setup.');
@@ -1648,19 +1710,96 @@ export default function POSTerminal() {
                         <input type="text" value={newDish.name} onChange={(e) => setNewDish({...newDish, name: e.target.value})} placeholder="Item Name *" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" required />
                         <div className="grid grid-cols-2 gap-4">
                           <input type="number" value={newDish.price} onChange={(e) => setNewDish({...newDish, price: e.target.value})} placeholder="Selling Price *" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" required />
-                          <input type="text" value={newDish.category} onChange={(e) => setNewDish({...newDish, category: e.target.value})} placeholder="Category (e.g. Main Course)" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
+                          
+                          {isAddingNewCategory ? (
+                            <div className="relative">
+                              <input 
+                                type="text" 
+                                value={newDish.category} 
+                                onChange={(e) => setNewDish({...newDish, category: e.target.value})} 
+                                placeholder="New Category Name" 
+                                className="w-full bg-white/5 p-4 rounded-xl border border-white/10 pr-10" 
+                                autoFocus
+                              />
+                              <button 
+                                onClick={() => { setIsAddingNewCategory(false); setNewDish({...newDish, category: ''}); }} 
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white"
+                              >
+                                <X size={16} />
+                              </button>
+                            </div>
+                          ) : (
+                            <select 
+                              value={newDish.category}
+                              onChange={(e) => {
+                                if (e.target.value === 'ADD_NEW') {
+                                  setIsAddingNewCategory(true);
+                                  setNewDish({...newDish, category: ''});
+                                } else {
+                                  setNewDish({...newDish, category: e.target.value});
+                                }
+                              }}
+                              className="w-full bg-black/40 p-4 rounded-xl border border-white/10 text-sm"
+                            >
+                              <option value="" disabled>Select Category</option>
+                              {Array.from(new Set(dishes.map(d => d.category))).filter(Boolean).map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
+                              ))}
+                              <option value="ADD_NEW" className="text-gold font-bold">+ Add New Category</option>
+                            </select>
+                          )}
                         </div>
                         <button onClick={() => { if(newDish.name && newDish.price) setSetupStep(2); else alert('Name and Price are mandatory'); }} className="w-full py-4 bg-gold text-black font-black uppercase rounded-xl">Next: Costing</button>
                       </div>
                     )}
 
                     {setupStep === 2 && (
-                      <div className="space-y-4">
+                      <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
                         <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3">
-                          <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold block">Estimated Dish Cost (₹)</label>
-                          <input type="number" value={newDish.ingredientPrice} onChange={(e) => setNewDish({...newDish, ingredientPrice: e.target.value})} placeholder="Costing Amount *" className="w-full bg-black/40 p-3 rounded-lg border border-white/10" />
-                          <p className="text-[9px] text-white/40">You can add specific ingredients later in the Costing Master.</p>
+                          <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold block">Build Recipe</label>
+                          <select 
+                            onChange={(e) => {
+                              const item = availableIngredients.find(i => i._id === e.target.value);
+                              if (item) handleAddIngredient(item);
+                              e.target.value = '';
+                            }}
+                            className="w-full bg-black/40 p-3 rounded-lg border border-white/10 text-sm"
+                            defaultValue=""
+                          >
+                            <option value="" disabled>+ Add Ingredient</option>
+                            {availableIngredients.map(item => (
+                              <option key={item._id} value={item._id}>{item.name} ({item.model})</option>
+                            ))}
+                          </select>
+
+                          {recipeIngredients.length > 0 && (
+                            <div className="space-y-2 mt-4">
+                              {recipeIngredients.map(ing => (
+                                <div key={ing.itemId} className="flex items-center gap-2 bg-black/40 p-2 rounded border border-white/5">
+                                  <span className="text-xs flex-1 truncate">{ing.name}</span>
+                                  <input 
+                                    type="number" 
+                                    value={ing.quantity || ''}
+                                    onChange={(e) => handleIngredientQuantityChange(ing.itemId, Number(e.target.value))}
+                                    className="w-16 bg-white/5 border border-white/10 rounded px-2 py-1 text-xs text-center"
+                                    placeholder="Qty"
+                                  />
+                                  <span className="text-[10px] text-white/40 w-8">{ing.unit}</span>
+                                  <span className="text-xs text-gold font-bold w-12 text-right">₹{(ing.quantity * ing.costPerUnit).toFixed(1)}</span>
+                                  <button onClick={() => handleRemoveIngredient(ing.itemId)} className="text-red-500 hover:text-red-400 p-1"><X size={12} /></button>
+                                </div>
+                              ))}
+                              <div className="flex justify-between items-center pt-2 border-t border-white/10 mt-2">
+                                <span className="text-[10px] uppercase text-white/50 font-bold">Total Cost</span>
+                                <span className="text-sm font-black text-gold">₹{Number(newDish.ingredientPrice || 0).toFixed(2)}</span>
+                              </div>
+                            </div>
+                          )}
+                          {recipeIngredients.length === 0 && (
+                            <p className="text-[9px] text-white/40 text-center py-2">No ingredients added yet.</p>
+                          )}
                         </div>
+
                         <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3">
                           <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold block">Allowable Wastage (%)</label>
                           <input type="number" value={advancedSetupData.allowedWastagePercentage} onChange={(e) => setAdvancedSetupData({...advancedSetupData, allowedWastagePercentage: Number(e.target.value)})} placeholder="e.g. 5" className="w-full bg-black/40 p-3 rounded-lg border border-white/10" />
