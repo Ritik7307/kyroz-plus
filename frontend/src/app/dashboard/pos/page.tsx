@@ -132,9 +132,15 @@ export default function POSTerminal() {
 
   const isSwitchingTable = useRef(false);
 
-  // Management Form State
   const [showAddModal, setShowAddModal] = useState(false);
+  const [setupStep, setSetupStep] = useState(1);
   const [newDish, setNewDish] = useState({ name: '', price: '', ingredientPrice: '', category: 'Main Course', imageUrl: '' });
+  const [advancedSetupData, setAdvancedSetupData] = useState({
+    allowedWastagePercentage: 0,
+    platesPerPacket: 10,
+    totalPlates: 0,
+    lowStockThreshold: 5
+  });
   const [editingDish, setEditingDish] = useState<Dish | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -444,22 +450,37 @@ export default function POSTerminal() {
   const handleAddDish = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`${API_URL}/api/dishes`, {
+      const res = await fetch(`${API_URL}/api/dishes/advanced-setup`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify({ 
-          ...newDish, 
-          price: Number(newDish.price) || 0, 
-          ingredientPrice: Number(newDish.ingredientPrice) || 0 
+          dishDetails: {
+            name: newDish.name,
+            price: Number(newDish.price) || 0,
+            ingredientPrice: Number(newDish.ingredientPrice) || 0,
+            category: newDish.category || 'Main Course',
+            imageUrl: newDish.imageUrl,
+            allowedWastagePercentage: Number(advancedSetupData.allowedWastagePercentage) || 0
+          },
+          recipeDetails: { ingredients: [] }, // Ingredients mapped later in Costing Master
+          inventoryDetails: {
+            platesPerPacket: Number(advancedSetupData.platesPerPacket) || 10,
+            totalPlates: Number(advancedSetupData.totalPlates) || 0,
+            lowStockThreshold: Number(advancedSetupData.lowStockThreshold) || 5
+          }
         })
       });
       if (res.ok) {
         setShowAddModal(false);
+        setSetupStep(1);
         setNewDish({ name: '', price: '', ingredientPrice: '', category: 'Main Course', imageUrl: '' });
+        setAdvancedSetupData({ allowedWastagePercentage: 0, platesPerPacket: 10, totalPlates: 0, lowStockThreshold: 5 });
         fetchDishes();
+      } else {
+        alert('Failed to save dish with advanced setup.');
       }
     } catch (err) {
       console.error('Failed to add dish', err);
@@ -1594,23 +1615,87 @@ export default function POSTerminal() {
                 <button onClick={() => { setShowAddModal(false); setEditingDish(null); }}><X /></button>
               </div>
               <div className="space-y-4">
-                <input type="text" value={editingDish ? editingDish.name : newDish.name} onChange={(e) => editingDish ? setEditingDish({...editingDish, name: e.target.value}) : setNewDish({...newDish, name: e.target.value})} placeholder="Item Name" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
-                <div className="grid grid-cols-2 gap-4">
-                  <input type="number" value={editingDish ? editingDish.price : newDish.price} onChange={(e) => editingDish ? setEditingDish({...editingDish, price: Number(e.target.value)}) : setNewDish({...newDish, price: e.target.value})} placeholder="Price" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
-                  <input type="number" value={editingDish ? editingDish.ingredientPrice : newDish.ingredientPrice} onChange={(e) => editingDish ? setEditingDish({...editingDish, ingredientPrice: Number(e.target.value)}) : setNewDish({...newDish, ingredientPrice: e.target.value})} placeholder="Cost" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
-                </div>
-                {(() => {
-                  const cost = editingDish ? editingDish.ingredientPrice : Number(newDish.ingredientPrice);
-                  if (cost > 0) {
-                    return (
+                {editingDish ? (
+                  <>
+                    <input type="text" value={editingDish.name} onChange={(e) => setEditingDish({...editingDish, name: e.target.value})} placeholder="Item Name" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
+                    <div className="grid grid-cols-2 gap-4">
+                      <input type="number" value={editingDish.price} onChange={(e) => setEditingDish({...editingDish, price: Number(e.target.value)})} placeholder="Price" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
+                      <input type="number" value={editingDish.ingredientPrice} onChange={(e) => setEditingDish({...editingDish, ingredientPrice: Number(e.target.value)})} placeholder="Cost" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
+                    </div>
+                    {editingDish.ingredientPrice > 0 && (
                       <p className="text-[10px] text-white/50 italic px-2">
-                        💡 Suggested Selling Price: <span className="text-gold font-bold">₹{Math.round(cost * 2.5)}</span> - <span className="text-gold font-bold">₹{Math.round(cost * 5)}</span> (2.5x - 5x food cost)
+                        💡 Suggested Selling Price: <span className="text-gold font-bold">₹{Math.round(editingDish.ingredientPrice * 2.5)}</span> - <span className="text-gold font-bold">₹{Math.round(editingDish.ingredientPrice * 5)}</span>
                       </p>
-                    );
-                  }
-                  return null;
-                })()}
-                <button onClick={editingDish ? handleUpdateDish : handleAddDish} className="w-full py-4 bg-gold text-black font-black uppercase rounded-xl">{editingDish ? 'Save Changes' : 'Add Item'}</button>
+                    )}
+                    <button onClick={handleUpdateDish} className="w-full py-4 bg-gold text-black font-black uppercase rounded-xl">Save Changes</button>
+                  </>
+                ) : (
+                  <>
+                    {/* Setup Header */}
+                    <div className="flex items-center gap-2 mb-4">
+                      {[1, 2, 3].map(step => (
+                        <div key={step} className={`flex-1 h-1 rounded-full ${setupStep >= step ? 'bg-gold' : 'bg-white/10'}`} />
+                      ))}
+                    </div>
+                    <p className="text-[10px] uppercase font-bold tracking-widest text-gold mb-4">
+                      {setupStep === 1 && "Step 1: Basic Details"}
+                      {setupStep === 2 && "Step 2: Costing & Wastage"}
+                      {setupStep === 3 && "Step 3: Inventory Master"}
+                    </p>
+
+                    {setupStep === 1 && (
+                      <div className="space-y-4">
+                        <input type="text" value={newDish.name} onChange={(e) => setNewDish({...newDish, name: e.target.value})} placeholder="Item Name *" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" required />
+                        <div className="grid grid-cols-2 gap-4">
+                          <input type="number" value={newDish.price} onChange={(e) => setNewDish({...newDish, price: e.target.value})} placeholder="Selling Price *" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" required />
+                          <input type="text" value={newDish.category} onChange={(e) => setNewDish({...newDish, category: e.target.value})} placeholder="Category (e.g. Main Course)" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
+                        </div>
+                        <button onClick={() => { if(newDish.name && newDish.price) setSetupStep(2); else alert('Name and Price are mandatory'); }} className="w-full py-4 bg-gold text-black font-black uppercase rounded-xl">Next: Costing</button>
+                      </div>
+                    )}
+
+                    {setupStep === 2 && (
+                      <div className="space-y-4">
+                        <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3">
+                          <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold block">Estimated Dish Cost (₹)</label>
+                          <input type="number" value={newDish.ingredientPrice} onChange={(e) => setNewDish({...newDish, ingredientPrice: e.target.value})} placeholder="Costing Amount *" className="w-full bg-black/40 p-3 rounded-lg border border-white/10" />
+                          <p className="text-[9px] text-white/40">You can add specific ingredients later in the Costing Master.</p>
+                        </div>
+                        <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3">
+                          <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold block">Allowable Wastage (%)</label>
+                          <input type="number" value={advancedSetupData.allowedWastagePercentage} onChange={(e) => setAdvancedSetupData({...advancedSetupData, allowedWastagePercentage: Number(e.target.value)})} placeholder="e.g. 5" className="w-full bg-black/40 p-3 rounded-lg border border-white/10" />
+                        </div>
+                        <div className="flex gap-4">
+                          <button onClick={() => setSetupStep(1)} className="w-1/3 py-4 bg-white/5 text-white font-black uppercase rounded-xl hover:bg-white/10">Back</button>
+                          <button onClick={() => setSetupStep(3)} className="w-2/3 py-4 bg-gold text-black font-black uppercase rounded-xl">Next: Inventory</button>
+                        </div>
+                      </div>
+                    )}
+
+                    {setupStep === 3 && (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold pl-1">Initial Total Plates</label>
+                            <input type="number" value={advancedSetupData.totalPlates} onChange={(e) => setAdvancedSetupData({...advancedSetupData, totalPlates: Number(e.target.value)})} placeholder="0" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold pl-1">Plates Per Packet</label>
+                            <input type="number" value={advancedSetupData.platesPerPacket} onChange={(e) => setAdvancedSetupData({...advancedSetupData, platesPerPacket: Number(e.target.value)})} placeholder="10" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold pl-1">Low Stock Threshold (Packets)</label>
+                          <input type="number" value={advancedSetupData.lowStockThreshold} onChange={(e) => setAdvancedSetupData({...advancedSetupData, lowStockThreshold: Number(e.target.value)})} placeholder="5" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
+                        </div>
+                        <div className="flex gap-4">
+                          <button onClick={() => setSetupStep(2)} className="w-1/3 py-4 bg-white/5 text-white font-black uppercase rounded-xl hover:bg-white/10">Back</button>
+                          <button onClick={handleAddDish} className="w-2/3 py-4 bg-gold text-black font-black uppercase rounded-xl">Save Setup</button>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </motion.div>
           </div>

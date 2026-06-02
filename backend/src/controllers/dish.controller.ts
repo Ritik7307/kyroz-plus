@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import Dish from '../models/Dish';
 import User from '../models/User';
+import Recipe from '../models/Recipe';
+import Inventory from '../models/Inventory';
 import { seedBlueprints } from '../services/blueprintSeeder.service';
 
 export const getDishes = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -27,19 +29,75 @@ export const getDishes = async (req: AuthRequest, res: Response): Promise<void> 
 
 export const createDish = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, price, ingredientPrice, category, imageUrl } = req.body;
+    const { name, price, ingredientPrice, category, imageUrl, allowedWastagePercentage } = req.body;
     const newDish = new Dish({
       name,
       price,
       ingredientPrice,
       category,
       imageUrl,
+      allowedWastagePercentage,
       userId: req.user?.userId
     });
     await newDish.save();
     res.status(201).json(newDish);
   } catch (error) {
     res.status(500).json({ error: 'Failed to create dish' });
+  }
+};
+
+export const createDishAdvancedSetup = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { dishDetails, recipeDetails, inventoryDetails } = req.body;
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    // 1. Create Dish
+    const newDish = new Dish({
+      name: dishDetails.name,
+      price: dishDetails.price,
+      ingredientPrice: dishDetails.ingredientPrice || 0,
+      category: dishDetails.category,
+      imageUrl: dishDetails.imageUrl,
+      allowedWastagePercentage: dishDetails.allowedWastagePercentage || 0,
+      packagingLogic: inventoryDetails?.packagingLogic || undefined,
+      userId
+    });
+    const savedDish = await newDish.save();
+
+    // 2. Create Recipe if ingredients are provided
+    if (recipeDetails && recipeDetails.ingredients && recipeDetails.ingredients.length > 0) {
+      const newRecipe = new Recipe({
+        targetModel: 'Dish',
+        targetId: savedDish._id,
+        targetYield: 1,
+        operationalYield: 1,
+        ingredients: recipeDetails.ingredients,
+        userId
+      });
+      await newRecipe.save();
+    }
+
+    // 3. Initialize Inventory
+    if (inventoryDetails) {
+      const newInventory = new Inventory({
+        dishId: savedDish._id,
+        platesPerPacket: inventoryDetails.platesPerPacket || 10,
+        totalPlates: inventoryDetails.totalPlates || 0,
+        lowStockThreshold: inventoryDetails.lowStockThreshold || 5,
+        userId
+      });
+      await newInventory.save();
+    }
+
+    res.status(201).json({ message: 'Dish setup completed successfully', dish: savedDish });
+  } catch (error) {
+    console.error('Advanced Setup Error:', error);
+    res.status(500).json({ error: 'Failed to complete advanced dish setup' });
   }
 };
 

@@ -11,6 +11,7 @@ export interface IDish extends Document {
     takeaway: mongoose.Types.ObjectId[];
     delivery: mongoose.Types.ObjectId[];
   };
+  allowedWastagePercentage?: number;
   userId: mongoose.Types.ObjectId;
   createdAt: Date;
 }
@@ -26,6 +27,7 @@ const DishSchema: Schema = new Schema({
     takeaway: [{ type: Schema.Types.ObjectId, ref: 'Packaging' }],
     delivery: [{ type: Schema.Types.ObjectId, ref: 'Packaging' }]
   },
+  allowedWastagePercentage: { type: Number, default: 0 },
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   createdAt: { type: Date, default: Date.now }
 });
