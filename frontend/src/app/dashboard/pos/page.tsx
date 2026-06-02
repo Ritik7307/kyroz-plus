@@ -637,45 +637,46 @@ export default function POSTerminal() {
     }
 
     // Zero Latency Checkout: Generate bill no locally and print immediately
-    const generatedBillNo = Math.floor(100000 + Math.random() * 900000).toString();
-    setPrintedBillNo(generatedBillNo);
-    setShowQrModal(false);
+    const tempBillNo = `BILL-${Date.now()}`;
+    setPrintedBillNo(tempBillNo);
     setPrintType('bill');
+    
     setIsProcessingCheckout(true);
-
-    // Trigger printing after a brief delay for React to render the bill DOM
+    
     setTimeout(() => {
       window.print();
+      setPrintType(null);
       setIsProcessingCheckout(false);
-      setCheckoutSuccess(true);
-      setKotStatus('None');
-      setKotId('');
-    }, 100);
+      
+      // Since browsers don't tell us if the user clicked Print or Cancel,
+      // we ask them if it was successful before finalizing the order.
+      if (window.confirm("Did the bill print successfully? Click OK to complete the order, or Cancel to go back and edit the cart.")) {
+        setCheckoutSuccess(true);
+        setCart([]);
+        
+        // Update session for active table
+        // updateSession(activeTable, { cart: [] });
 
-    // Process the checkout in the background
-    const token = localStorage.getItem('token');
-    fetch(`${API_URL}/api/orders/checkout`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}` 
-      },
-      body: JSON.stringify({
-        items: cart.map(item => ({
-          dishId: item.dish._id,
-          quantity: item.quantity
-        })),
-        customerName,
-        customerPhone,
-        discount: discountType === 'percentage' ? parsedDiscount : 0,
-        discountType,
-        discountValue: parsedDiscount,
-        additionalCharge: parsedAdditionalCharge,
-        tableNumber: activeTable === 'quick' ? '' : tables.find(t => t.id === activeTable)?.name || '',
-        paymentMethod,
-        orderType
-      })
-    }).catch(err => console.error('Background checkout error', err));
+        // Process the checkout in the background
+        const token = localStorage.getItem('token');
+        fetch(`${API_URL}/api/orders/checkout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({
+            cart: cart.map(item => ({ dishId: item.dish._id, quantity: item.quantity, note: item.note })),
+            customerName, customerPhone, discount, discountType, additionalCharge,
+            applyGst, paymentMethod, orderType,
+            kotId, // Send KOT ID if it exists so backend can link them
+            tempBillNo // Send temp bill no so backend can use it
+          })
+        }).then(res => {
+          if (!res.ok) console.error('Background checkout failed');
+        }).catch(err => console.error('Background checkout error', err));
+      } else {
+        // User cancelled, clear the printed bill number but keep the cart
+        setPrintedBillNo('');
+      }
+    }, 100);
   };
 
   // Poll active KOT status
