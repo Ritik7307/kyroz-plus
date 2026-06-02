@@ -33,8 +33,17 @@ export default function StaffManagement() {
     name: '',
     email: '',
     password: '',
-    role: 'cook'
+    role: 'cook',
+    permissions: [] as string[]
   });
+
+  const availablePermissions = [
+    { id: 'pos', label: 'POS System' },
+    { id: 'inventory', label: 'Inventory Management' },
+    { id: 'orders', label: 'Order History' },
+    { id: 'menu', label: 'Menu Management' },
+    { id: 'reports', label: 'Reports & Analytics' }
+  ];
 
   const roleOptions = [
     { label: 'Cook (AI & Inventory)', value: 'cook' },
@@ -75,7 +84,7 @@ export default function StaffManagement() {
 
       if (res.ok) {
         setShowAddModal(false);
-        setNewStaff({ name: '', email: '', password: '', role: 'cook' });
+        setNewStaff({ name: '', email: '', password: '', role: 'cook', permissions: [] });
         fetchStaff();
       } else {
         const data = await res.json();
@@ -308,11 +317,41 @@ export default function StaffManagement() {
                 </div>
 
                 <CustomDropdown 
-                  label="Role & Permissions"
+                  label="Role"
                   options={roleOptions}
                   value={newStaff.role}
                   onChange={(val) => setNewStaff({...newStaff, role: val})}
                 />
+
+                <div className="space-y-2">
+                  <label className="text-xs font-black uppercase tracking-[0.2em] text-white/40 ml-1">Page Permissions</label>
+                  <div className="bg-black border border-white/10 rounded-xl p-4 grid grid-cols-2 gap-4">
+                    {availablePermissions.map(perm => (
+                      <label key={perm.id} className="flex items-center gap-3 cursor-pointer group">
+                        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${
+                          newStaff.permissions.includes(perm.id) 
+                            ? 'bg-gold border-gold text-black' 
+                            : 'border-white/20 group-hover:border-white/50'
+                        }`}>
+                          {newStaff.permissions.includes(perm.id) && <CheckCircle2 size={14} />}
+                        </div>
+                        <span className="text-sm font-bold text-white/80 group-hover:text-white transition-colors">{perm.label}</span>
+                        <input 
+                          type="checkbox" 
+                          className="hidden"
+                          checked={newStaff.permissions.includes(perm.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setNewStaff({...newStaff, permissions: [...newStaff.permissions, perm.id]});
+                            } else {
+                              setNewStaff({...newStaff, permissions: newStaff.permissions.filter(p => p !== perm.id)});
+                            }
+                          }}
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </div>
 
                 <button 
                   type="submit"

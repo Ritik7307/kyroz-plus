@@ -123,9 +123,10 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
       }
     }
 
-    if (orderItems.length > 0) {
-      // Calculate discount amount based on type
-      let discountAmount = 0;
+      let order;
+      if (orderItems.length > 0) {
+        // Calculate discount amount based on type
+        let discountAmount = 0;
       const dValue = discountValue !== undefined ? discountValue : (discount || 0);
       if (discountType === 'flat') {
         discountAmount = dValue;
@@ -136,7 +137,7 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
       const charge = additionalCharge || 0;
       const discountedRevenue = totalRevenue - discountAmount + charge;
 
-      const order = new Order({
+      const newOrder = new Order({
         userId: req.user?.userId,
         items: orderItems,
         totalRevenue: discountedRevenue,
@@ -151,7 +152,7 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
         paymentMethod: paymentMethod || 'Cash',
         orderType
       });
-      await order.save();
+      order = await newOrder.save();
 
       // Manage customer for future offers
       if (customerPhone && customerName) {
@@ -173,6 +174,7 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
 
     res.status(200).json({
       message: 'Checkout successful and inventory updated',
+      order,
       updates,
       alerts
     });

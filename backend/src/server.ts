@@ -32,6 +32,7 @@ import notificationRoutes from './routes/notification.routes';
 import customerRoutes from './routes/customer.routes';
 import wastageRoutes from './routes/wastage.routes';
 import costingRoutes from './routes/costing.routes';
+import eliteRoutes from './routes/elite.routes';
 console.log('All routes imported');
 
 const app = express();
@@ -79,6 +80,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/wastage', wastageRoutes);
 app.use('/api/costing', costingRoutes);
+app.use('/api/elite', eliteRoutes);
 
 app.get('/api/debug-routes', (req, res) => {
   res.json({ message: 'Routes are active' });

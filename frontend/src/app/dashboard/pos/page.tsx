@@ -104,6 +104,7 @@ export default function POSTerminal() {
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [printedBillNo, setPrintedBillNo] = useState<string>('');
 
   // Customer & Payment State
   const [customerName, setCustomerName] = useState('');
@@ -593,6 +594,10 @@ export default function POSTerminal() {
       });
       
       if (res.ok) {
+        const data = await res.json();
+        if (data.order && data.order._id) {
+          setPrintedBillNo(data.order._id.slice(-6).toUpperCase());
+        }
         setShowQrModal(false);
         setPrintType('bill');
         // Trigger printing
@@ -742,11 +747,19 @@ export default function POSTerminal() {
 
   const shareOrderOnWhatsApp = () => {
     if (cart.length === 0) return;
+    
+    if (!customerPhone) {
+      alert("Please enter customer phone number in the checkout panel to send WhatsApp bill.");
+      return;
+    }
+
     const itemsList = cart.map(item => `• ${item.dish.name} (x${item.quantity}) - ₹${item.dish.price * item.quantity}`).join('\n');
     
-    const message = `Hello Admin, 👨‍🍳\n\nI would like to place/confirm this order:\n\n*ORDER DETAILS:*\n${itemsList}\n\n*Subtotal: ₹${total}*\n${discountAmount > 0 ? `*Discount: ${discountType === 'flat' ? `₹${parsedDiscount}` : `${parsedDiscount}%`} (₹${Math.round(discountAmount)})*\n` : ''}${applyGst ? `*GST (${userGstRate}%): ₹${gstAmount.toFixed(2)}*\n` : ''}${parsedAdditionalCharge > 0 ? `*Additional Charge: ₹${parsedAdditionalCharge}*\n` : ''}*Grand Total: ₹${grandTotal}*\n\nPlease process this order. Thank you!\n\n_Sent via Kyyroz-Plus_`;
+    const message = `Hello ${customerName || 'Customer'}, 👋\n\nHere is your order bill from *${userShopName}*:\n\n*Bill No:* #${printedBillNo || 'N/A'}\n\n*ORDER DETAILS:*\n${itemsList}\n\n*Subtotal: ₹${total}*\n${discountAmount > 0 ? `*Discount: ${discountType === 'flat' ? `₹${parsedDiscount}` : `${parsedDiscount}%`} (₹${Math.round(discountAmount)})*\n` : ''}${applyGst ? `*GST (${userGstRate}%): ₹${gstAmount.toFixed(2)}*\n` : ''}${parsedAdditionalCharge > 0 ? `*Additional Charge: ₹${parsedAdditionalCharge}*\n` : ''}*Grand Total: ₹${grandTotal}*\n\n*Customer Details:*\nName: ${customerName || 'N/A'}\nContact No: ${customerPhone || 'N/A'}\n*Shop Details:*\nName: ${userShopName}\nAddress: ${user?.shopAddress || 'N/A'}\n\nThank you for visiting!\n\n_Sent via KYROZ_`;
+    
     const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/917307255940?text=${encodedMessage}`, '_blank');
+    const formattedPhone = customerPhone.startsWith('+') ? customerPhone.substring(1) : (customerPhone.length === 10 ? `91${customerPhone}` : customerPhone);
+    window.open(`https://wa.me/${formattedPhone}?text=${encodedMessage}`, '_blank');
   };
 
   const renderCartContent = (isDrawer = false) => {
@@ -993,26 +1006,7 @@ export default function POSTerminal() {
               </div>
             </div>
 
-          {/* Packaging Preview Section */}
-          {(() => {
-            const requiredPackaging = getRequiredPackaging();
-            if (requiredPackaging.length === 0) return null;
-            return (
-              <div className="bg-white/5 p-4 rounded-2xl border border-white/5 space-y-2.5">
-                <div className="flex items-center gap-2 text-white/40 uppercase tracking-widest text-[9px] font-black">
-                  <Package size={12} className="text-gold" /> Auto-Selected Packaging
-                </div>
-                <div className="grid grid-cols-1 gap-1.5">
-                  {requiredPackaging.map((pkg, idx) => (
-                    <div key={idx} className="flex justify-between items-center text-[10px] font-bold text-white/80">
-                      <span>{pkg.name}</span>
-                      <span className="text-gold font-black bg-gold/10 px-1.5 py-0.5 rounded border border-gold/10">x{pkg.quantity}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })()}
+          {/* Packaging Preview Section Hidden (still works in background) */}
 
           {/* KOT Status Badge */}
           {kotStatus !== 'None' && (
@@ -1126,6 +1120,7 @@ export default function POSTerminal() {
                     setCheckoutSuccess(false);
                     setKotStatus('None');
                     setKotId('');
+                    setPrintedBillNo('');
                     if (isDrawer) setIsCartOpen(false);
                   }}
                   className="w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-xl bg-white/10 text-white border border-white/10 hover:bg-white/20 mb-3"
@@ -1272,7 +1267,8 @@ export default function POSTerminal() {
             {/* Header section - All Centered like screenshot */}
             <div className="text-center mb-6 space-y-1">
               <h1 className="text-2xl font-black uppercase tracking-tight">{userShopName}</h1>
-              <p className="text-[10px] font-bold">Receipt / Bill</p>
+              {user?.shopAddress && <p className="text-[10px] uppercase font-bold">{user.shopAddress}</p>}
+              <p className="text-[10px] font-bold">Receipt / Bill {printedBillNo ? `#${printedBillNo}` : ''}</p>
               <p className="text-[10px]">{new Date().toLocaleString()}</p>
               
               {/* Customer Details - Centered as well for clean look */}

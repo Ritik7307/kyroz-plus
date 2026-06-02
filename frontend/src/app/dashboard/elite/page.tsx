@@ -36,7 +36,7 @@ export default function EliteDashboardPage() {
 
       const [locRes, analyticsRes] = await Promise.all([
         fetch(`${API_URL}/api/user/locations`, { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch(`${API_URL}/api/orders/elite-analytics`, { headers: { 'Authorization': `Bearer ${token}` } })
+        fetch(`${API_URL}/api/elite/dashboard`, { headers: { 'Authorization': `Bearer ${token}` } })
       ]);
 
       if (locRes.ok) setLocations(await locRes.json());
@@ -122,19 +122,18 @@ export default function EliteDashboardPage() {
         <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl"></div>
           <h3 className="text-white/40 text-[10px] font-black tracking-widest uppercase flex items-center gap-2 mb-4">
-            <Activity size={14} className="text-blue-500" /> Today's Total Network Sales
+            <Activity size={14} className="text-blue-500" /> Total Network Sales
           </h3>
-          <div className="text-4xl font-black text-white">{formatCurrency(analytics?.daily?.revenue || 0)}</div>
-          <p className="text-green-500 text-xs font-bold mt-2">Profit: {formatCurrency(analytics?.daily?.profit || 0)}</p>
+          <div className="text-4xl font-black text-white">{formatCurrency(analytics?.totalRevenue || 0)}</div>
+          <p className="text-green-500 text-xs font-bold mt-2">Profit: {formatCurrency(analytics?.totalProfit || 0)}</p>
         </div>
         
         <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-gold/10 rounded-full blur-3xl"></div>
           <h3 className="text-white/40 text-[10px] font-black tracking-widest uppercase flex items-center gap-2 mb-4">
-            <TrendingUp size={14} className="text-gold" /> Monthly Network Sales
+            <TrendingUp size={14} className="text-gold" /> Total Network Orders
           </h3>
-          <div className="text-4xl font-black text-white">{formatCurrency(analytics?.monthly?.revenue || 0)}</div>
-          <p className="text-green-500 text-xs font-bold mt-2">Profit: {formatCurrency(analytics?.monthly?.profit || 0)}</p>
+          <div className="text-4xl font-black text-white">{analytics?.totalOrders || 0}</div>
         </div>
       </div>
 
@@ -154,7 +153,7 @@ export default function EliteDashboardPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {locations.map((loc, idx) => {
-              const stats = analytics?.locationBreakdown?.find((l: any) => l.name === loc.shopName) || { revenue: 0, profit: 0, count: 0 };
+              const stats = analytics?.locationsData?.find((l: any) => l.name === loc.shopName) || { revenue: 0, profit: 0, orderCount: 0 };
               
               return (
                 <div key={idx} className="bg-card glass-card p-6 rounded-[2rem] border border-white/5 group hover:border-gold/30 transition-all flex flex-col justify-between">
@@ -181,7 +180,7 @@ export default function EliteDashboardPage() {
                       </div>
                       <div className="flex justify-between items-center text-sm">
                         <span className="text-white/40">Total Orders:</span>
-                        <span className="font-bold text-gold">{stats.count}</span>
+                        <span className="font-bold text-gold">{stats.orderCount}</span>
                       </div>
                     </div>
                   </div>

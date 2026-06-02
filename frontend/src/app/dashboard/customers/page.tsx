@@ -16,7 +16,7 @@ interface Customer {
 }
 
 type SortType = 'recent' | 'frequent' | 'spending';
-type FilterType = 'all' | 'frequent' | 'occasional' | 'new';
+type FilterType = 'all' | 'less_than_5' | '5_to_10' | 'greater_than_10';
 
 export default function CustomersPage() {
   const router = useRouter();
@@ -62,12 +62,12 @@ export default function CustomersPage() {
       );
     }
 
-    if (filterBy === 'frequent') {
-      result = result.filter(c => c.totalVisits > 2);
-    } else if (filterBy === 'occasional') {
-      result = result.filter(c => c.totalVisits === 2);
-    } else if (filterBy === 'new') {
-      result = result.filter(c => c.totalVisits === 1);
+    if (filterBy === 'less_than_5') {
+      result = result.filter(c => c.totalVisits < 5);
+    } else if (filterBy === '5_to_10') {
+      result = result.filter(c => c.totalVisits >= 5 && c.totalVisits <= 10);
+    } else if (filterBy === 'greater_than_10') {
+      result = result.filter(c => c.totalVisits > 10);
     }
 
     result.sort((a, b) => {
@@ -121,7 +121,7 @@ export default function CustomersPage() {
           </div>
 
           <div className="flex bg-white/5 border border-white/10 rounded-2xl p-1 overflow-x-auto scrollbar-hide">
-            {(['all', 'frequent', 'occasional', 'new'] as const).map(f => (
+            {(['all', 'less_than_5', '5_to_10', 'greater_than_10'] as const).map(f => (
               <button
                 key={f}
                 onClick={() => setFilterBy(f)}
@@ -129,7 +129,7 @@ export default function CustomersPage() {
                   filterBy === f ? 'bg-gold text-black shadow-lg shadow-gold/20' : 'text-white/40 hover:text-white hover:bg-white/5'
                 }`}
               >
-                {f === 'frequent' ? '> 2 Visits' : f === 'occasional' ? '2 Visits' : f === 'new' ? '1 Visit' : 'All'}
+                {f === 'less_than_5' ? '<5 visits' : f === '5_to_10' ? '5-10 visits' : f === 'greater_than_10' ? '>10 visits' : 'All'}
               </button>
             ))}
           </div>
