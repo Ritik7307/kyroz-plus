@@ -1124,7 +1124,7 @@ export default function POSTerminal() {
                 Clear
               </button>
               <button 
-                onClick={shareOrderOnWhatsApp}
+                onClick={() => shareOrderOnWhatsApp()}
                 disabled={cart.length === 0}
                 className="py-3.5 rounded-xl bg-green-500/10 border border-green-500/20 text-green-500 font-bold text-[10px] uppercase tracking-widest hover:bg-green-500/20 transition-all flex items-center justify-center gap-2"
               >
