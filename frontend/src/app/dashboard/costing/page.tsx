@@ -83,6 +83,40 @@ export default function CostingMaster() {
   const [sellingPriceInput, setSellingPriceInput] = useState<number | ''>('');
   const [savingSellingPrice, setSavingSellingPrice] = useState<boolean>(false);
 
+  // New states for Recipe Builder
+  const [availableIngredients, setAvailableIngredients] = useState<any[]>([]);
+  const [showAddIngredientModal, setShowAddIngredientModal] = useState(false);
+  const [newRawMaterial, setNewRawMaterial] = useState({
+    name: '',
+    consumptionUnit: '',
+    purchaseUnit: '',
+    costPerPurchaseUnit: '',
+    conversionFactor: 1
+  });
+  const [savingRawMaterial, setSavingRawMaterial] = useState(false);
+  const [savingRecipe, setSavingRecipe] = useState(false);
+
+  // Fetch Inventory
+  const fetchInventory = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/inventory`, { headers: { 'Authorization': `Bearer ${token}` } });
+      if (res.ok) {
+        const data = await res.json();
+        const mappedRM = (data.rawMaterials || []).map((rm: any) => ({ ...rm, model: 'RawMaterial' }));
+        const mappedSFG = (data.semiFinishedGoods || []).map((sfg: any) => ({ ...sfg, model: 'SemiFinishedGood' }));
+        const mappedPkg = (data.packaging || []).map((pkg: any) => ({ ...pkg, model: 'Packaging' }));
+        setAvailableIngredients([...mappedRM, ...mappedSFG, ...mappedPkg]);
+      }
+    } catch (err) {
+      console.error('Failed to load inventory', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchInventory();
+  }, []);
+
   // Fetch Dishes on load
   useEffect(() => {
     const fetchDishes = async () => {
@@ -253,6 +287,98 @@ export default function CostingMaster() {
   const foodCostPercentage = numericSellingPrice > 0 ? (costPerPlate / numericSellingPrice) * 100 : 0;
   const profitMargin = numericSellingPrice - costPerPlate;
 
+  const handleUpdateRecipe = async (newIngredientsList: any[]) => {
+    if (!selectedDishId) return;
+    setSavingRecipe(true);
+    try {
+      const token = localStorage.getItem('token');
+      const payload = newIngredientsList.map(ing => ({
+        itemModel: ing.itemModel,
+        itemId: ing.itemId,
+        quantity: Number(ing.quantity) || 1
+      }));
+      
+      const res = await fetch(`${API_URL}/api/costing/dish/${selectedDishId}/recipe`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ ingredients: payload })
+      });
+      if (!res.ok) throw new Error('Failed to update recipe');
+      await fetchCosting(selectedDishId);
+      setSuccessMessage('Recipe updated!');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to update recipe');
+    } finally {
+      setSavingRecipe(false);
+    }
+  };
+
+  const handleAddExistingIngredient = (item: any) => {
+    if (!costingData) return;
+    // Don't add if already in recipe (at top level)
+    if (costingData.ingredientsCostDetails.some(i => i.itemId === item._id && !i.isSubIngredient)) {
+      alert('Ingredient already in recipe');
+      return;
+    }
+    
+    // We get the current top level ingredients
+    const currentTopLevel = costingData.ingredientsCostDetails.filter(i => !i.isSubIngredient);
+    const newIngredient = {
+      itemModel: item.model,
+      itemId: item._id,
+      quantity: 1 // Default quantity, user can edit it
+    };
+    handleUpdateRecipe([...currentTopLevel, newIngredient]);
+  };
+
+  const handleRemoveIngredient = (itemId: string) => {
+    if (!costingData) return;
+    const currentTopLevel = costingData.ingredientsCostDetails.filter(i => !i.isSubIngredient && i.itemId !== itemId);
+    handleUpdateRecipe(currentTopLevel);
+  };
+
+  const handleUpdateIngredientQuantity = (itemId: string, newQty: number) => {
+    if (!costingData) return;
+    const currentTopLevel = costingData.ingredientsCostDetails.filter(i => !i.isSubIngredient);
+    const updated = currentTopLevel.map(i => i.itemId === itemId ? { ...i, quantity: newQty } : i);
+    handleUpdateRecipe(updated);
+  };
+
+  const handleCreateNewRawMaterial = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingRawMaterial(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/inventory/raw-materials`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({
+          name: newRawMaterial.name,
+          consumptionUnit: newRawMaterial.consumptionUnit,
+          purchaseUnit: newRawMaterial.purchaseUnit,
+          costPerPurchaseUnit: Number(newRawMaterial.costPerPurchaseUnit),
+          conversionFactor: Number(newRawMaterial.conversionFactor)
+        })
+      });
+      if (!res.ok) throw new Error('Failed to create ingredient');
+      const savedItem = await res.json();
+      
+      // Close modal and refresh inventory
+      setShowAddIngredientModal(false);
+      setNewRawMaterial({ name: '', consumptionUnit: '', purchaseUnit: '', costPerPurchaseUnit: '', conversionFactor: 1 });
+      await fetchInventory();
+      
+      // Auto-add to recipe
+      handleAddExistingIngredient({ ...savedItem, model: 'RawMaterial' });
+      
+    } catch (err: any) {
+      alert(err.message || 'Failed to create ingredient');
+    } finally {
+      setSavingRawMaterial(false);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-12 pb-24 text-white">
       <style>{noSpinnerStyle}</style>
@@ -338,12 +464,12 @@ export default function CostingMaster() {
               <div className="flex items-center justify-between mb-10">
                 <h3 className="text-xl font-black uppercase tracking-[0.2em] flex items-center gap-4">
                   <div className="w-8 h-8 rounded-lg bg-gold/10 flex items-center justify-center">
-                    <Lock className="text-gold" size={14} />
+                    <Edit2 className="text-gold" size={14} />
                   </div>
                   Standard Recipe Ledger
                 </h3>
-                <span className="text-[10px] bg-white/5 border border-white/10 px-3 py-1.5 rounded-full font-black text-white/50 uppercase tracking-widest">
-                  Quantities Locked
+                <span className="text-[10px] bg-gold/20 border border-gold/30 px-3 py-1.5 rounded-full font-black text-gold uppercase tracking-widest flex items-center gap-2">
+                  {savingRecipe ? <Loader2 className="animate-spin" size={10} /> : <CheckCircle size={10} />} Recipe Active
                 </span>
               </div>
 
@@ -360,10 +486,19 @@ export default function CostingMaster() {
                       }`}
                     >
                       <div className="flex items-center gap-6">
-                        <div className="min-w-[3.5rem] px-2 h-14 bg-white/5 rounded-2xl flex flex-col items-center justify-center border border-white/5 shrink-0">
-                          <span className="text-[14px] font-black text-white">
-                            {typeof ing.quantity === 'number' ? parseFloat(ing.quantity.toFixed(3)) : ing.quantity}
-                          </span>
+                        <div className="min-w-[4.5rem] px-2 h-14 bg-white/5 rounded-2xl flex flex-col items-center justify-center border border-white/5 shrink-0">
+                          {ing.isSubIngredient ? (
+                            <span className="text-[14px] font-black text-white">
+                              {typeof ing.quantity === 'number' ? parseFloat(ing.quantity.toFixed(3)) : ing.quantity}
+                            </span>
+                          ) : (
+                            <input
+                              type="number"
+                              value={ing.quantity}
+                              onChange={(e) => handleUpdateIngredientQuantity(ing.itemId, Number(e.target.value))}
+                              className="w-16 bg-transparent text-center text-[14px] font-black text-white outline-none focus:text-gold"
+                            />
+                          )}
                           <span className="text-[8px] font-black text-white/30 uppercase tracking-widest">{ing.unit}</span>
                         </div>
                         <div>
@@ -413,6 +548,15 @@ export default function CostingMaster() {
                                 <Save size={14} />
                               )}
                             </button>
+                            {!ing.isSubIngredient && (
+                              <button
+                                onClick={() => handleRemoveIngredient(ing.itemId)}
+                                className="h-8 w-8 ml-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 flex items-center justify-center transition-all"
+                                title="Remove Ingredient"
+                              >
+                                ✕
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -424,6 +568,30 @@ export default function CostingMaster() {
                       <Lock size={32} />
                     </div>
                     <p className="text-white/10 font-black uppercase tracking-[0.4em] text-[10px]">No ingredients mapped to this recipe</p>
+                  </div>
+                )}
+                {/* Add Ingredient Dropdown */}
+                {selectedDishId && (
+                  <div className="mt-4 pt-4 border-t border-dashed border-white/10">
+                    <select
+                      onChange={(e) => {
+                        if (e.target.value === 'CREATE_NEW') {
+                          setShowAddIngredientModal(true);
+                        } else {
+                          const item = availableIngredients.find(i => i._id === e.target.value);
+                          if (item) handleAddExistingIngredient(item);
+                        }
+                        e.target.value = '';
+                      }}
+                      className="w-full bg-black/40 p-4 rounded-xl border border-white/10 text-sm font-bold text-white/70 outline-none cursor-pointer"
+                      defaultValue=""
+                    >
+                      <option value="" disabled>+ Add Ingredient...</option>
+                      {availableIngredients.map(item => (
+                        <option key={item._id} value={item._id} className="bg-[#111]">{item.name} ({item.model})</option>
+                      ))}
+                      <option value="CREATE_NEW" className="bg-gold text-black font-black">+ Create New Ingredient</option>
+                    </select>
                   </div>
                 )}
               </div>
@@ -538,6 +706,102 @@ export default function CostingMaster() {
           <p className="font-bold uppercase tracking-widest text-sm">Please select a dish to see its costing calculations</p>
         </div>
       )}
+
+      {/* Create New Ingredient Modal */}
+      <AnimatePresence>
+        {showAddIngredientModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/95 backdrop-blur-md">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-card border border-white/10 rounded-[3.5rem] p-12 w-full max-w-2xl relative shadow-3xl text-white"
+            >
+              <h3 className="text-3xl font-black uppercase tracking-tighter mb-10 text-gold">Create New Raw Material</h3>
+              
+              <form onSubmit={handleCreateNewRawMaterial} className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 block">Item Name</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={newRawMaterial.name}
+                      onChange={(e) => setNewRawMaterial({ ...newRawMaterial, name: e.target.value })}
+                      placeholder="e.g. Tomatoes"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold outline-none focus:border-gold transition-all"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 block">Cost Per Purchase Unit (₹)</label>
+                    <input 
+                      type="number" 
+                      required
+                      value={newRawMaterial.costPerPurchaseUnit}
+                      onChange={(e) => setNewRawMaterial({ ...newRawMaterial, costPerPurchaseUnit: e.target.value })}
+                      placeholder="e.g. 50"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold outline-none focus:border-gold transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 block">Purchase Unit</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={newRawMaterial.purchaseUnit}
+                      onChange={(e) => setNewRawMaterial({ ...newRawMaterial, purchaseUnit: e.target.value })}
+                      placeholder="e.g. kg"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold outline-none focus:border-gold transition-all"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 block">Consumption Unit</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={newRawMaterial.consumptionUnit}
+                      onChange={(e) => setNewRawMaterial({ ...newRawMaterial, consumptionUnit: e.target.value })}
+                      placeholder="e.g. g"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold outline-none focus:border-gold transition-all"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 block">Conversion Factor</label>
+                    <input 
+                      type="number" 
+                      required
+                      value={newRawMaterial.conversionFactor}
+                      onChange={(e) => setNewRawMaterial({ ...newRawMaterial, conversionFactor: Number(e.target.value) })}
+                      placeholder="e.g. 1000"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold outline-none focus:border-gold transition-all"
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex gap-4 pt-6">
+                  <button 
+                    type="submit" 
+                    disabled={savingRawMaterial}
+                    className="flex-1 py-6 rounded-2xl bg-gold text-black font-black uppercase text-[11px] tracking-widest shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                  >
+                    {savingRawMaterial ? <Loader2 className="animate-spin" size={16} /> : 'Create & Add to Recipe'}
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => setShowAddIngredientModal(false)} 
+                    className="px-10 py-6 rounded-2xl bg-white/5 text-white/40 font-black uppercase text-[11px] tracking-widest hover:bg-white/10 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

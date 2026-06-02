@@ -252,3 +252,45 @@ export const updateIngredientPrice = async (req: AuthRequest, res: Response): Pr
     res.status(500).json({ error: 'Failed to update ingredient price' });
   }
 };
+
+export const updateDishRecipe = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { dishId } = req.params;
+    const { ingredients } = req.body;
+    const userId = req.user?.userId;
+
+    if (!dishId || !ingredients || !Array.isArray(ingredients) || !userId) {
+      res.status(400).json({ error: 'Missing required fields or invalid format' });
+      return;
+    }
+
+    // Verify dish exists
+    const dish = await Dish.findOne({ _id: dishId, userId });
+    if (!dish) {
+      res.status(404).json({ error: 'Dish not found' });
+      return;
+    }
+
+    let recipe = await Recipe.findOne({ targetModel: 'Dish', targetId: dishId, userId });
+    
+    if (recipe) {
+      recipe.ingredients = ingredients;
+      await recipe.save();
+    } else {
+      recipe = new Recipe({
+        targetModel: 'Dish',
+        targetId: dishId,
+        targetYield: 1,
+        operationalYield: 1,
+        ingredients,
+        userId
+      });
+      await recipe.save();
+    }
+
+    res.status(200).json({ message: 'Recipe updated successfully', recipe });
+  } catch (error) {
+    console.error('Update Recipe Error:', error);
+    res.status(500).json({ error: 'Failed to update dish recipe' });
+  }
+};
