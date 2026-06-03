@@ -89,6 +89,8 @@ export const createDishAdvancedSetup = async (req: AuthRequest, res: Response): 
         platesPerPacket: inventoryDetails.platesPerPacket || 10,
         totalPlates: inventoryDetails.totalPlates || 0,
         lowStockThreshold: inventoryDetails.lowStockThreshold || 5,
+        baseUnitName: inventoryDetails.baseUnitName || 'Packet',
+        subUnitName: inventoryDetails.subUnitName || 'Plate',
         userId
       });
       await newInventory.save();

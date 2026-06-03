@@ -139,7 +139,9 @@ export default function POSTerminal() {
     allowedWastagePercentage: 0,
     platesPerPacket: 10,
     totalPlates: 0,
-    lowStockThreshold: 5
+    lowStockThreshold: 5,
+    baseUnitName: 'Packet',
+    subUnitName: 'Plate'
   });
   const [availableIngredients, setAvailableIngredients] = useState<any[]>([]);
   const [recipeIngredients, setRecipeIngredients] = useState<{itemModel: string, itemId: string, name: string, quantity: number, unit: string, costPerUnit: number}[]>([]);
@@ -508,7 +510,9 @@ export default function POSTerminal() {
         inventoryDetails: {
           platesPerPacket: Number(advancedSetupData.platesPerPacket) || 10,
           totalPlates: Number(advancedSetupData.totalPlates) || 0,
-          lowStockThreshold: Number(advancedSetupData.lowStockThreshold) || 5
+          lowStockThreshold: Number(advancedSetupData.lowStockThreshold) || 5,
+          baseUnitName: advancedSetupData.baseUnitName || 'Packet',
+          subUnitName: advancedSetupData.subUnitName || 'Plate'
         }
       };
 
@@ -524,7 +528,7 @@ export default function POSTerminal() {
         setShowAddModal(false);
         setSetupStep(1);
         setNewDish({ name: '', price: '', ingredientPrice: '', category: 'Main Course', imageUrl: '' });
-        setAdvancedSetupData({ allowedWastagePercentage: 0, platesPerPacket: 10, totalPlates: 0, lowStockThreshold: 5 });
+        setAdvancedSetupData({ allowedWastagePercentage: 0, platesPerPacket: 10, totalPlates: 0, lowStockThreshold: 5, baseUnitName: 'Packet', subUnitName: 'Plate' });
         setRecipeIngredients([]);
         fetchDishes();
       } else {
@@ -1773,16 +1777,26 @@ export default function POSTerminal() {
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold pl-1">Initial Total Plates</label>
+                            <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold pl-1">Base Unit Name</label>
+                            <input type="text" value={advancedSetupData.baseUnitName} onChange={(e) => setAdvancedSetupData({...advancedSetupData, baseUnitName: e.target.value})} placeholder="e.g. Packet, Box" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold pl-1">Sub Unit Name</label>
+                            <input type="text" value={advancedSetupData.subUnitName} onChange={(e) => setAdvancedSetupData({...advancedSetupData, subUnitName: e.target.value})} placeholder="e.g. Plate, Pc" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold pl-1">Initial Total {advancedSetupData.subUnitName}s</label>
                             <input type="number" value={advancedSetupData.totalPlates} onChange={(e) => setAdvancedSetupData({...advancedSetupData, totalPlates: Number(e.target.value)})} placeholder="0" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold pl-1">Plates Per Packet</label>
+                            <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold pl-1">{advancedSetupData.subUnitName}s Per {advancedSetupData.baseUnitName}</label>
                             <input type="number" value={advancedSetupData.platesPerPacket} onChange={(e) => setAdvancedSetupData({...advancedSetupData, platesPerPacket: Number(e.target.value)})} placeholder="10" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold pl-1">Low Stock Threshold (Packets)</label>
+                          <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold pl-1">Low Stock Threshold ({advancedSetupData.baseUnitName}s)</label>
                           <input type="number" value={advancedSetupData.lowStockThreshold} onChange={(e) => setAdvancedSetupData({...advancedSetupData, lowStockThreshold: Number(e.target.value)})} placeholder="5" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
                         </div>
                         <div className="flex gap-4">

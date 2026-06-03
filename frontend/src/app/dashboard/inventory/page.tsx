@@ -37,6 +37,8 @@ interface InventoryItem {
   platesPerPacket: number;
   totalPlates: number;
   lowStockThreshold: number;
+  baseUnitName?: string;
+  subUnitName?: string;
 }
 
 interface Dish {
@@ -514,11 +516,11 @@ export default function InventoryPage() {
 
                     <div className="mt-6 grid grid-cols-2 gap-4 relative z-10">
                       <div className="bg-black/40 p-5 rounded-2xl border border-white/5">
-                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Packets</p>
+                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">{item.baseUnitName || 'Packets'}</p>
                         <p className={`text-3xl font-black ${isLow ? 'text-red-500' : 'text-gold'}`}>{packets}</p>
                       </div>
                       <div className="bg-black/40 p-5 rounded-2xl border border-white/5">
-                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Plates</p>
+                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">{item.subUnitName || 'Plates'}</p>
                         <p className="text-3xl font-black text-white">{item.totalPlates}</p>
                       </div>
                     </div>
@@ -535,7 +537,7 @@ export default function InventoryPage() {
                           {isLow ? <AlertTriangle size={12} /> : <RefreshCw size={12} />}
                           {isLow ? 'Low Stock' : 'Stock OK'}
                         </div>
-                        <span className="text-[9px] text-white/20 uppercase font-black">{item.platesPerPacket} plates/pkt</span>
+                        <span className="text-[9px] text-white/20 uppercase font-black">{item.platesPerPacket} {item.subUnitName || 'plates'}/{item.baseUnitName || 'pkt'}</span>
                       </div>
                     </div>
                   </motion.div>

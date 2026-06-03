@@ -7,6 +7,8 @@ export interface IInventory extends Document {
   lowStockThreshold: number; // In packets
   userId: mongoose.Types.ObjectId;
   lastNotified: Date;
+  baseUnitName: string;
+  subUnitName: string;
 }
 
 const InventorySchema: Schema = new Schema({
@@ -15,7 +17,9 @@ const InventorySchema: Schema = new Schema({
   totalPlates: { type: Number, required: true, default: 0 },
   lowStockThreshold: { type: Number, default: 5 },
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  lastNotified: { type: Date }
+  lastNotified: { type: Date },
+  baseUnitName: { type: String, default: 'Packet' },
+  subUnitName: { type: String, default: 'Plate' }
 });
 
 // Virtual for remaining packets
