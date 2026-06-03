@@ -147,6 +147,7 @@ export default function POSTerminal() {
   const [recipeIngredients, setRecipeIngredients] = useState<{itemModel: string, itemId: string, name: string, quantity: number, unit: string, costPerUnit: number}[]>([]);
   const [selectedIngredient, setSelectedIngredient] = useState('');
   const [ingredientQuantity, setIngredientQuantity] = useState('');
+  const [ingredientUnit, setIngredientUnit] = useState('unit');
   const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
   const [editingDish, setEditingDish] = useState<Dish | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -1788,7 +1789,7 @@ export default function POSTerminal() {
                           )}
 
                           <div className="grid grid-cols-12 gap-2">
-                            <div className="col-span-6">
+                            <div className="col-span-5">
                               <select 
                                 value={selectedIngredient}
                                 onChange={(e) => {
@@ -1798,6 +1799,10 @@ export default function POSTerminal() {
                                     return;
                                   }
                                   setSelectedIngredient(e.target.value);
+                                  const selected = availableIngredients.find(i => `${i.model}|${i._id}` === e.target.value);
+                                  if (selected) {
+                                    setIngredientUnit(selected.consumptionUnit || selected.yieldUnit || selected.unit || 'unit');
+                                  }
                                 }}
                                 className="w-full bg-black/40 p-3 rounded-lg border border-white/10 text-[11px]"
                               >
@@ -1810,7 +1815,7 @@ export default function POSTerminal() {
                                 <option value="MORE" className="text-gold font-bold">+ Add More Raw Materials</option>
                               </select>
                             </div>
-                            <div className="col-span-4">
+                            <div className="col-span-3">
                               <input 
                                 type="number" 
                                 value={ingredientQuantity}
@@ -1819,18 +1824,43 @@ export default function POSTerminal() {
                                 className="w-full bg-black/40 p-3 rounded-lg border border-white/10 text-[11px]" 
                               />
                             </div>
-                            <div className="col-span-2">
+                            <div className="col-span-3">
+                              <select 
+                                value={ingredientUnit}
+                                onChange={(e) => setIngredientUnit(e.target.value)}
+                                className="w-full bg-black/40 p-3 rounded-lg border border-white/10 text-[11px]"
+                              >
+                                <option value="kg">kg</option>
+                                <option value="gm">gm</option>
+                                <option value="ltr">ltr</option>
+                                <option value="ml">ml</option>
+                                <option value="pcs">pcs</option>
+                                <option value="pkt">pkt</option>
+                                <option value="unit">unit</option>
+                                <option value={ingredientUnit}>{ingredientUnit}</option>
+                              </select>
+                            </div>
+                            <div className="col-span-1">
                               <button onClick={() => {
                                 if (!selectedIngredient || !ingredientQuantity) return;
                                 const selected = availableIngredients.find(i => `${i.model}|${i._id}` === selectedIngredient);
                                 if (selected) {
+                                  let baseCost = selected.costPerUnit || selected.costPerPurchaseUnit || 0;
+                                  const baseUnit = (selected.consumptionUnit || selected.yieldUnit || selected.unit || 'unit').toLowerCase();
+                                  const targetUnit = ingredientUnit.toLowerCase();
+                                  
+                                  if (baseUnit === 'kg' && targetUnit === 'gm') baseCost = baseCost / 1000;
+                                  else if (baseUnit === 'gm' && targetUnit === 'kg') baseCost = baseCost * 1000;
+                                  else if ((baseUnit === 'ltr' || baseUnit === 'liter') && targetUnit === 'ml') baseCost = baseCost / 1000;
+                                  else if (baseUnit === 'ml' && (targetUnit === 'ltr' || targetUnit === 'liter')) baseCost = baseCost * 1000;
+
                                   const newIng = {
                                     itemModel: selected.model,
                                     itemId: selected._id,
                                     name: selected.name,
                                     quantity: Number(ingredientQuantity),
-                                    unit: selected.consumptionUnit || selected.yieldUnit || selected.unit || 'unit',
-                                    costPerUnit: selected.costPerUnit || selected.costPerPurchaseUnit || 0
+                                    unit: ingredientUnit,
+                                    costPerUnit: baseCost
                                   };
                                   const newIngs = [...recipeIngredients, newIng];
                                   setRecipeIngredients(newIngs);
