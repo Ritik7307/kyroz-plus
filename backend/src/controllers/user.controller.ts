@@ -15,10 +15,10 @@ export const getMyData = async (req: AuthRequest, res: Response): Promise<void> 
     }
 
     let unlockedFeatures = ['sop_library'];
-    if (user.subscriptionPlan === 'Pro' || user.subscriptionPlan === 'Elite' || user.subscriptionPlan === 'Admin') {
+    if (user.subscriptionPlan === 'Pro' || user.subscriptionPlan === 'Growth' || user.subscriptionPlan === 'Elite' || user.subscriptionPlan === 'Scale' || user.subscriptionPlan === 'Admin') {
       unlockedFeatures.push('costing_tools', 'unlimited_ai');
     }
-    if (user.subscriptionPlan === 'Elite' || user.subscriptionPlan === 'Admin') {
+    if (user.subscriptionPlan === 'Elite' || user.subscriptionPlan === 'Scale' || user.subscriptionPlan === 'Admin') {
       unlockedFeatures.push('scaling_strategy');
     }
 
@@ -142,8 +142,8 @@ export const createLocation = async (req: AuthRequest, res: Response): Promise<v
     const ownerId = req.user?.userId;
 
     const owner = await User.findById(ownerId);
-    if (!owner || owner.subscriptionPlan !== 'Elite') {
-      res.status(403).json({ error: 'Only Elite members can create locations' });
+    if (!owner || (owner.subscriptionPlan !== 'Elite' && owner.subscriptionPlan !== 'Scale')) {
+      res.status(403).json({ error: 'Only Scale members can create locations' });
       return;
     }
 
@@ -168,7 +168,7 @@ export const createLocation = async (req: AuthRequest, res: Response): Promise<v
       shopAddress,
       gstNumber,
       role: 'manager',
-      subscriptionPlan: 'Elite',
+      subscriptionPlan: 'Scale',
       ownerId,
       isLocation: true
     });
@@ -196,8 +196,8 @@ export const impersonateLocation = async (req: AuthRequest, res: Response): Prom
     const ownerId = req.user?.userId;
 
     const owner = await User.findById(ownerId);
-    if (!owner || owner.subscriptionPlan !== 'Elite') {
-      res.status(403).json({ error: 'Only Elite members can impersonate locations' });
+    if (!owner || (owner.subscriptionPlan !== 'Elite' && owner.subscriptionPlan !== 'Scale')) {
+      res.status(403).json({ error: 'Only Scale members can impersonate locations' });
       return;
     }
 

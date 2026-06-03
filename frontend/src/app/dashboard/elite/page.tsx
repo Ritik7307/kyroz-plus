@@ -28,8 +28,8 @@ export default function EliteDashboardPage() {
       });
       const userData = await userRes.json();
       
-      const currentPlan = userData.plan || userData.subscriptionPlan;
-      if (currentPlan !== 'Elite') {
+      const currentPlan = userData.user?.plan || userData.user?.subscriptionPlan || userData.plan || userData.subscriptionPlan;
+      if (currentPlan !== 'Scale' && currentPlan !== 'Elite' && currentPlan !== 'Admin') {
         router.push('/dashboard');
         return;
       }
