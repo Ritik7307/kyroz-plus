@@ -15,7 +15,12 @@ import {
   ChefHat,
   Monitor,
   Calculator,
-  LayoutDashboard
+  LayoutDashboard,
+  ClipboardList,
+  TrendingUp,
+  MessageSquare,
+  Megaphone,
+  Utensils
 } from 'lucide-react';
 import { API_URL } from '@/lib/api';
 
@@ -30,10 +35,16 @@ type StaffMember = {
 const MODULES = [
   { id: 'dashboard', name: 'Main Dashboard', icon: LayoutDashboard },
   { id: 'pos', name: 'POS Terminal', icon: Monitor },
+  { id: 'kot', name: 'KOT Display', icon: ClipboardList },
+  { id: 'customers', name: 'Customers', icon: Users },
+  { id: 'packets', name: 'SOP Packets', icon: Utensils },
+  { id: 'marketing', name: 'Marketing CRM', icon: Megaphone },
+  { id: 'history', name: 'Sales History', icon: TrendingUp },
+  { id: 'ai', name: 'Chef Assistant', icon: MessageSquare },
   { id: 'sop', name: 'SOP Library', icon: ChefHat },
   { id: 'inventory', name: 'Inventory Management', icon: Calculator },
-  { id: 'ai', name: 'Chef Assistant', icon: Users },
   { id: 'costing', name: 'Costing Master', icon: Settings },
+  { id: 'wastage', name: 'Wastage Master', icon: Trash2 },
 ];
 
 export default function TeamManagement() {
@@ -338,7 +349,7 @@ export default function TeamManagement() {
                           className={`flex items-center gap-3 p-4 rounded-2xl border transition-all text-left ${
                             formData.permissions.includes(mod.id)
                             ? 'bg-gold/10 border-gold/50 text-gold shadow-lg shadow-gold/5'
-                            : 'bg-black/20 border-white/5 text-white/40 hover:border-white/10'
+                            : 'bg-black/20 border-white/5 text-white hover:border-white/10'
                           }`}
                         >
                           <mod.icon size={16} />
