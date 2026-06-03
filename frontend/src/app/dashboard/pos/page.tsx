@@ -143,6 +143,7 @@ export default function POSTerminal() {
     baseUnitName: 'Packet',
     subUnitName: 'Plate'
   });
+  const [availableIngredients, setAvailableIngredients] = useState<any[]>([]);
   const [recipeIngredients, setRecipeIngredients] = useState<{itemModel: string, itemId: string, name: string, quantity: number, unit: string, costPerUnit: number}[]>([]);
   const [selectedIngredient, setSelectedIngredient] = useState('');
   const [ingredientQuantity, setIngredientQuantity] = useState('');
