@@ -372,16 +372,19 @@ export default function POSTerminal() {
   const fetchInventoryForCosting = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`${API_URL}/api/inventory`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await res.json();
+      const [invRes, sopRes] = await Promise.all([
+        fetch(`${API_URL}/api/inventory`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${API_URL}/api/sop-packets`, { headers: { 'Authorization': `Bearer ${token}` } })
+      ]);
+      const data = await invRes.json();
+      const sopData = await sopRes.json();
       
       const allIngredients = [
         ...(data.rawMaterials || []).map((i: any) => ({ ...i, model: 'RawMaterial' })),
         ...(data.semiFinishedGoods || []).map((i: any) => ({ ...i, model: 'SemiFinishedGood' })),
         ...(data.premixes || []).map((i: any) => ({ ...i, model: 'Premix' })),
-        ...(data.packaging || []).map((i: any) => ({ ...i, model: 'Packaging' }))
+        ...(data.packaging || []).map((i: any) => ({ ...i, model: 'Packaging' })),
+        ...(Array.isArray(sopData) ? sopData : []).map((i: any) => ({ ...i, model: 'SopPacket', costPerUnit: i.price, consumptionUnit: 'Packet' }))
       ];
       
       setAvailableIngredients(allIngredients);
@@ -1788,7 +1791,14 @@ export default function POSTerminal() {
                             <div className="col-span-6">
                               <select 
                                 value={selectedIngredient}
-                                onChange={(e) => setSelectedIngredient(e.target.value)}
+                                onChange={(e) => {
+                                  if (e.target.value === 'MORE') {
+                                    window.open('/dashboard/inventory', '_blank');
+                                    setSelectedIngredient('');
+                                    return;
+                                  }
+                                  setSelectedIngredient(e.target.value);
+                                }}
                                 className="w-full bg-black/40 p-3 rounded-lg border border-white/10 text-[11px]"
                               >
                                 <option value="">Select Ingredient...</option>
@@ -1797,6 +1807,7 @@ export default function POSTerminal() {
                                     {ing.name} ({ing.consumptionUnit || ing.yieldUnit || ing.unit || 'unit'})
                                   </option>
                                 ))}
+                                <option value="MORE" className="text-gold font-bold">+ Add More Raw Materials</option>
                               </select>
                             </div>
                             <div className="col-span-4">
