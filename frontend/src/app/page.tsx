@@ -2,28 +2,35 @@ import Link from 'next/link';
 import { API_URL } from '@/lib/api';
 
 async function getPricingConfig() {
-  try {
-    const res = await fetch(`${API_URL}/api/admin/settings/pricing`, { cache: 'no-store' });
-    if (res.ok) {
-      return await res.json();
-    }
-  } catch (err) {
-    console.error('Failed to fetch pricing config:', err);
-  }
-  // Fallback default pricing
-  return {
+  const defaultPricing = {
     starter: { price: 999, discount: 0 },
     growth: { price: 2999, discount: 0 },
     scale: { price: 9999, discount: 0 }
   };
+
+  try {
+    const res = await fetch(`${API_URL}/api/admin/settings/pricing`, { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      return {
+        starter: data?.starter || defaultPricing.starter,
+        growth: data?.growth || defaultPricing.growth,
+        scale: data?.scale || defaultPricing.scale
+      };
+    }
+  } catch (err) {
+    console.error('Failed to fetch pricing config:', err);
+  }
+  return defaultPricing;
 }
 
 export default async function Home() {
   const pricing = await getPricingConfig();
 
   const getFinalPrice = (plan: any) => {
+    if (!plan) return 0;
     if (plan.finalPrice !== undefined) return plan.finalPrice;
-    return Math.round(plan.price * (1 - plan.discount / 100));
+    return Math.round((plan.price || 0) * (1 - (plan.discount || 0) / 100));
   };
 
   return (
