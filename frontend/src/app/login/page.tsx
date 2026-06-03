@@ -9,6 +9,7 @@ import { API_URL } from '@/lib/api';
 export default function LoginPage() {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2>(1);
+  const [isStaffLogin, setIsStaffLogin] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
@@ -106,6 +107,23 @@ export default function LoginPage() {
 
         {step === 1 ? (
           <form onSubmit={handleSendOtp} className="space-y-6">
+            <div className="flex bg-[#222] p-1 rounded-lg mb-2">
+              <button 
+                type="button" 
+                onClick={() => { setIsStaffLogin(false); setPassword(''); }}
+                className={`flex-1 py-2 text-sm font-semibold rounded-md transition-colors ${!isStaffLogin ? 'bg-[#d4af37] text-black' : 'text-gray-400 hover:text-white'}`}
+              >
+                Owner (OTP)
+              </button>
+              <button 
+                type="button" 
+                onClick={() => setIsStaffLogin(true)}
+                className={`flex-1 py-2 text-sm font-semibold rounded-md transition-colors ${isStaffLogin ? 'bg-[#d4af37] text-black' : 'text-gray-400 hover:text-white'}`}
+              >
+                Staff Login
+              </button>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
               <input
@@ -118,20 +136,20 @@ export default function LoginPage() {
               />
             </div>
 
-            {email === '24mc3040@rgipt.ac.in' && (
+            {(isStaffLogin || email === '24mc3040@rgipt.ac.in') && (
               <motion.div 
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 className="space-y-2"
               >
-                <label className="block text-sm font-medium text-gray-300">Admin Password</label>
+                <label className="block text-sm font-medium text-gray-300">Password</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3 bg-black border border-[#333333] rounded-lg focus:outline-none focus:border-[#d4af37] text-white transition-colors"
                   placeholder="••••••••"
-                  required={email === '24mc3040@rgipt.ac.in'}
+                  required={isStaffLogin || email === '24mc3040@rgipt.ac.in'}
                 />
               </motion.div>
             )}
@@ -141,7 +159,7 @@ export default function LoginPage() {
               disabled={isLoading}
               className="w-full bg-[#d4af37] hover:bg-[#c5a028] disabled:opacity-50 disabled:cursor-not-allowed text-black font-semibold py-3 rounded-lg transition-colors"
             >
-              {isLoading ? 'Sending OTP...' : 'Send OTP'}
+              {isLoading ? (isStaffLogin || email === '24mc3040@rgipt.ac.in' ? 'Logging in...' : 'Sending OTP...') : (isStaffLogin || email === '24mc3040@rgipt.ac.in' ? 'Log In' : 'Send OTP')}
             </button>
           </form>
         ) : (

@@ -109,7 +109,8 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
             name: user.name, 
             role: user.role, 
             plan: user.subscriptionPlan,
-            shopName: user.shopName
+            shopName: user.shopName,
+            permissions: user.permissions || []
           } 
         });
         return;
