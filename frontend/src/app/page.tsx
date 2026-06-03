@@ -240,6 +240,9 @@ export default async function Home() {
               <div className="mb-8 flex-1">
                 <h4 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-3">Includes:</h4>
                 <ul className="space-y-3">
+                  <li className="flex items-start gap-3 text-sm text-white font-medium">
+                    <span className="text-[#d4af37]">✓</span> Everything in Growth
+                  </li>
                   {['Multi Outlet Dashboard', 'Menu Engineering', 'Premium AI Restaurant Consultant', 'Marketing Engine', 'Advanced Business Intelligence'].map(feature => (
                     <li key={feature} className="flex items-start gap-3 text-sm text-gray-300">
                       <span className="text-[#d4af37]">✓</span> {feature}

@@ -404,7 +404,7 @@ export default function MarketingCRM() {
                         </div>
                       </div>
                       <div className="flex flex-col gap-3 md:items-end">
-                        <button onClick={handleConnectWhatsApp} className="px-4 py-2 bg-white/10 text-white rounded-lg font-bold hover:bg-white/20 text-sm w-full md:w-auto text-center">Manage WhatsApp</button>
+                        <button onClick={() => window.open('https://business.facebook.com/wa/manage/home', '_blank')} className="px-4 py-2 bg-white/10 text-white rounded-lg font-bold hover:bg-white/20 text-sm w-full md:w-auto text-center">Manage WhatsApp</button>
                         <div className="flex gap-3">
                           <button onClick={handleConnectWhatsApp} className="px-4 py-2 bg-white/5 text-white rounded-lg font-bold hover:bg-white/10 text-sm">Reconnect</button>
                           <button onClick={handleDisconnectWhatsApp} className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg font-bold hover:bg-red-500/40 text-sm">Disconnect</button>

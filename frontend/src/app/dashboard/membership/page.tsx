@@ -180,23 +180,16 @@ export default function MembershipPage() {
             </div>
           </div>
           
-          <ul className="space-y-4 mb-8 flex-1">
-            <li className="flex items-center gap-3 text-gray-300">
-              <span className="text-green-500">✓</span> 1 Device Login
-            </li>
-            <li className="flex items-center gap-3 text-gray-300">
-              <span className="text-green-500">✓</span> 1 SOP Category
-            </li>
-            <li className="flex items-center gap-3 text-gray-300">
-              <span className="text-green-500">✓</span> Inventory Management
-            </li>
-            <li className="flex items-center gap-3 text-gray-500">
-              <span className="text-gray-600">✕</span> Costing & Wastage Master
-            </li>
-            <li className="flex items-center gap-3 text-gray-500">
-              <span className="text-gray-600">✕</span> AI Integration
-            </li>
-          </ul>
+          <div className="mb-8 flex-1">
+            <h4 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-3">Includes:</h4>
+            <ul className="space-y-3">
+              {['POS Terminal', 'KOT Display', 'WhatsApp Billing', 'Customer Directory', 'Sales Analytics', 'Team Management', '1 Cuisine SOP Library Access', 'Premix Purchase Access', 'Basic Support'].map(feature => (
+                <li key={feature} className="flex items-start gap-3 text-sm text-gray-300">
+                  <span className="text-[#d4af37]">✓</span> {feature}
+                </li>
+              ))}
+            </ul>
+          </div>
 
           <button 
             onClick={() => handleUpgrade('Starter')}
@@ -237,20 +230,19 @@ export default function MembershipPage() {
             </div>
           </div>
           
-          <ul className="space-y-4 mb-8 flex-1">
-            <li className="flex items-center gap-3 text-gray-300">
-              <span className="text-[#d4af37]">✓</span> 1 Device Login
-            </li>
-            <li className="flex items-center gap-3 text-gray-300">
-              <span className="text-[#d4af37]">✓</span> Unlimited SOPs
-            </li>
-            <li className="flex items-center gap-3 text-gray-300">
-              <span className="text-[#d4af37]">✓</span> Costing & Margin Tools
-            </li>
-            <li className="flex items-center gap-3 text-gray-300">
-              <span className="text-[#d4af37]">✓</span> Full KYROZ KOSA (AI) Access
-            </li>
-          </ul>
+          <div className="mb-8 flex-1">
+            <h4 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-3">Includes:</h4>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3 text-sm text-white font-medium">
+                <span className="text-[#d4af37]">✓</span> Everything in Starter
+              </li>
+              {['Full SOP Library', 'Costing Master', 'Inventory Management', 'AI Chef', 'Gross Profit Analytics', 'Food Cost Analysis', 'Advanced Reports', 'Premix Purchase Access', 'Priority Support'].map(feature => (
+                <li key={feature} className="flex items-start gap-3 text-sm text-gray-300">
+                  <span className="text-[#d4af37]">✓</span> {feature}
+                </li>
+              ))}
+            </ul>
+          </div>
 
           <button 
             onClick={() => handleUpgrade('Growth')}
@@ -289,20 +281,19 @@ export default function MembershipPage() {
             </div>
           </div>
           
-          <ul className="space-y-4 mb-8 flex-1">
-            <li className="flex items-center gap-3 text-gray-300">
-              <span className="text-green-500">✓</span> 4 Device Logins
-            </li>
-            <li className="flex items-center gap-3 text-gray-300">
-              <span className="text-green-500">✓</span> Everything in Growth
-            </li>
-            <li className="flex items-center gap-3 text-gray-300 font-bold text-[#d4af37]">
-              <span className="text-[#d4af37]">✓</span> Priority Support
-            </li>
-            <li className="flex items-center gap-3 text-gray-300">
-              <span className="text-green-500">✓</span> Scaling Strategies
-            </li>
-          </ul>
+          <div className="mb-8 flex-1">
+            <h4 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-3">Includes:</h4>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3 text-sm text-white font-medium">
+                <span className="text-[#d4af37]">✓</span> Everything in Growth
+              </li>
+              {['Multi Outlet Dashboard', 'Menu Engineering', 'Premium AI Restaurant Consultant', 'Marketing Engine', 'Advanced Business Intelligence'].map(feature => (
+                <li key={feature} className="flex items-start gap-3 text-sm text-gray-300">
+                  <span className="text-[#d4af37]">✓</span> {feature}
+                </li>
+              ))}
+            </ul>
+          </div>
 
           <button 
             onClick={() => handleUpgrade('Scale')}
