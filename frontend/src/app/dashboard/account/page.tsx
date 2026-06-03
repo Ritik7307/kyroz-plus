@@ -268,8 +268,8 @@ return (
               {user?.subscriptionPlan === 'Starter' ? 'Basic SOP Access' : 'Unlimited SOP Access'}
             </div>
             <div className="flex items-center gap-2 text-xs text-white/60 font-medium">
-              <ChevronRight size={14} className={user?.subscriptionPlan === 'Scale' || user?.role === 'admin' ? 'text-gold' : 'text-white/20'} />
-              <span className={user?.subscriptionPlan === 'Scale' || user?.role === 'admin' ? 'text-white/60' : 'text-white/20'}>
+              <ChevronRight size={14} className={(user?.subscriptionPlan === 'Scale' || user?.subscriptionPlan === 'Elite' || user?.role === 'admin') ? 'text-gold' : 'text-white/20'} />
+              <span className={(user?.subscriptionPlan === 'Scale' || user?.subscriptionPlan === 'Elite' || user?.role === 'admin') ? 'text-white/60' : 'text-white/20'}>
                 Chef Support 24/7
               </span>
             </div>
@@ -285,10 +285,10 @@ return (
             onClick={() => router.push('/dashboard/membership')}
             className="w-full py-4 bg-gold-gradient rounded-2xl text-black font-bold text-xs uppercase tracking-widest hover:scale-[1.02] transition-all shadow-xl shadow-gold/10"
           >
-            {user?.subscriptionPlan === 'Scale' || user?.role === 'admin' ? 'Manage Subscription' : 'Upgrade Your Plan'}
+            {(user?.subscriptionPlan === 'Scale' || user?.subscriptionPlan === 'Elite' || user?.role === 'admin') ? 'Manage Subscription' : 'Upgrade Your Plan'}
           </button>
 
-          {(user?.subscriptionPlan === 'Scale' || user?.role === 'admin') && !localStorage.getItem('impersonatedLocation') && (
+          {(user?.subscriptionPlan === 'Scale' || user?.subscriptionPlan === 'Elite' || user?.role === 'admin') && !localStorage.getItem('impersonatedLocation') && (
             <button 
               onClick={() => router.push('/dashboard/elite')}
               className="w-full mt-4 py-4 bg-black border border-gold/30 rounded-2xl text-gold font-bold text-xs uppercase tracking-widest hover:bg-gold/10 transition-all shadow-xl shadow-gold/5"
