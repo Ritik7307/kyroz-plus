@@ -143,8 +143,9 @@ export default function POSTerminal() {
     baseUnitName: 'Packet',
     subUnitName: 'Plate'
   });
-  const [availableIngredients, setAvailableIngredients] = useState<any[]>([]);
   const [recipeIngredients, setRecipeIngredients] = useState<{itemModel: string, itemId: string, name: string, quantity: number, unit: string, costPerUnit: number}[]>([]);
+  const [selectedIngredient, setSelectedIngredient] = useState('');
+  const [ingredientQuantity, setIngredientQuantity] = useState('');
   const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
   const [editingDish, setEditingDish] = useState<Dish | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -504,9 +505,9 @@ export default function POSTerminal() {
           ingredientPrice: Number(newDish.ingredientPrice) || 0,
           category: newDish.category || 'Main Course',
           imageUrl: currentImageUrl,
-          allowedWastagePercentage: 0
+          allowedWastagePercentage: Number(advancedSetupData.allowedWastagePercentage) || 0
         },
-        recipeDetails: { ingredients: [] },
+        recipeDetails: { ingredients: recipeIngredients },
         inventoryDetails: {
           platesPerPacket: Number(advancedSetupData.platesPerPacket) || 10,
           totalPlates: Number(advancedSetupData.totalPlates) || 0,
@@ -1761,11 +1762,90 @@ export default function POSTerminal() {
 
                     {setupStep === 2 && (
                       <div className="space-y-4">
+                        
+                        <div className="space-y-3 bg-white/5 p-4 rounded-xl border border-white/10">
+                          <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold block">Dish Ingredients (Optional)</label>
+                          
+                          {recipeIngredients.length > 0 && (
+                            <div className="space-y-2 mb-4">
+                              {recipeIngredients.map((ing, idx) => (
+                                <div key={idx} className="flex items-center gap-2 bg-black/40 p-2 rounded-lg border border-white/10">
+                                  <div className="flex-1 text-[11px] text-white truncate">{ing.name}</div>
+                                  <div className="text-[11px] text-gold font-bold">{ing.quantity} {ing.unit}</div>
+                                  <button onClick={() => {
+                                    const newIngs = recipeIngredients.filter((_, i) => i !== idx);
+                                    setRecipeIngredients(newIngs);
+                                    const totalCost = newIngs.reduce((sum, item) => sum + (item.quantity * item.costPerUnit), 0);
+                                    setNewDish({...newDish, ingredientPrice: String(totalCost)});
+                                  }} className="text-red-500 hover:text-red-400 p-1"><Trash2 size={12}/></button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="grid grid-cols-12 gap-2">
+                            <div className="col-span-6">
+                              <select 
+                                value={selectedIngredient}
+                                onChange={(e) => setSelectedIngredient(e.target.value)}
+                                className="w-full bg-black/40 p-3 rounded-lg border border-white/10 text-[11px]"
+                              >
+                                <option value="">Select Ingredient...</option>
+                                {availableIngredients.map(ing => (
+                                  <option key={`${ing.model}|${ing._id}`} value={`${ing.model}|${ing._id}`}>
+                                    {ing.name} ({ing.consumptionUnit || ing.yieldUnit || ing.unit || 'unit'})
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="col-span-4">
+                              <input 
+                                type="number" 
+                                value={ingredientQuantity}
+                                onChange={(e) => setIngredientQuantity(e.target.value)}
+                                placeholder="Qty" 
+                                className="w-full bg-black/40 p-3 rounded-lg border border-white/10 text-[11px]" 
+                              />
+                            </div>
+                            <div className="col-span-2">
+                              <button onClick={() => {
+                                if (!selectedIngredient || !ingredientQuantity) return;
+                                const selected = availableIngredients.find(i => `${i.model}|${i._id}` === selectedIngredient);
+                                if (selected) {
+                                  const newIng = {
+                                    itemModel: selected.model,
+                                    itemId: selected._id,
+                                    name: selected.name,
+                                    quantity: Number(ingredientQuantity),
+                                    unit: selected.consumptionUnit || selected.yieldUnit || selected.unit || 'unit',
+                                    costPerUnit: selected.costPerUnit || selected.costPerPurchaseUnit || 0
+                                  };
+                                  const newIngs = [...recipeIngredients, newIng];
+                                  setRecipeIngredients(newIngs);
+                                  
+                                  const totalCost = newIngs.reduce((sum, item) => sum + (item.quantity * item.costPerUnit), 0);
+                                  setNewDish({...newDish, ingredientPrice: String(totalCost)});
+                                  
+                                  setSelectedIngredient('');
+                                  setIngredientQuantity('');
+                                }
+                              }} className="w-full h-full bg-gold/20 text-gold rounded-lg flex items-center justify-center hover:bg-gold hover:text-black transition-all">
+                                <Plus size={14} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
                         <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3">
                           <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold block">Estimated Dish Cost (₹)</label>
                           <input type="number" value={newDish.ingredientPrice} onChange={(e) => setNewDish({...newDish, ingredientPrice: e.target.value})} placeholder="Costing Amount *" className="w-full bg-black/40 p-3 rounded-lg border border-white/10" />
-                          <p className="text-[9px] text-white/40">You can add specific ingredients later in the Costing Master.</p>
                         </div>
+                        
+                        <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3">
+                          <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold block">Allowed Wastage (%)</label>
+                          <input type="number" value={advancedSetupData.allowedWastagePercentage} onChange={(e) => setAdvancedSetupData({...advancedSetupData, allowedWastagePercentage: Number(e.target.value)})} placeholder="e.g. 5" className="w-full bg-black/40 p-3 rounded-lg border border-white/10" />
+                        </div>
+
                         <div className="flex gap-4">
                           <button onClick={() => setSetupStep(1)} className="w-1/3 py-4 bg-white/5 text-white font-black uppercase rounded-xl hover:bg-white/10">Back</button>
                           <button onClick={() => setSetupStep(3)} className="w-2/3 py-4 bg-gold text-black font-black uppercase rounded-xl">Next: Inventory</button>
