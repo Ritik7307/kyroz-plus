@@ -291,8 +291,8 @@ export const getEliteAnalytics = async (req: AuthRequest, res: Response): Promis
     const ownerId = req.user?.userId;
 
     const owner = await User.findById(ownerId);
-    if (!owner || owner.subscriptionPlan !== 'Elite') {
-      res.status(403).json({ error: 'Only Elite members can access this' });
+    if (!owner || owner.subscriptionPlan !== 'Scale') {
+      res.status(403).json({ error: 'Only Scale members can access this' });
       return;
     }
 

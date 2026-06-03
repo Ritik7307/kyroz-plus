@@ -12,9 +12,9 @@ async function getPricingConfig() {
   }
   // Fallback default pricing
   return {
-    basic: { price: 999, discount: 0 },
-    pro: { price: 2999, discount: 0 },
-    elite: { price: 4999, discount: 0 }
+    starter: { price: 999, discount: 0 },
+    growth: { price: 2999, discount: 0 },
+    scale: { price: 9999, discount: 0 }
   };
 }
 
@@ -150,111 +150,139 @@ export default async function Home() {
           <h2 className="text-3xl md:text-5xl font-bold mb-4">Simple, transparent pricing.</h2>
           <p className="text-gray-400 mb-16 text-lg">Scale your restaurant operations without breaking the bank.</p>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto text-left">
-            {/* Basic Plan */}
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto text-left mb-16">
+            {/* Starter Plan */}
             <div className="bg-[#111] border border-[#222] rounded-3xl p-8 hover:border-[#444] transition flex flex-col">
-              <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-                Basic
-                {pricing.basic.discount > 0 && (
-                  <span className="bg-green-500/20 text-green-400 text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{pricing.basic.discount}% OFF</span>
-                )}
-              </h3>
-              <div className="flex items-baseline gap-2 mb-6">
-                {pricing.basic.discount > 0 ? (
-                  <>
-                    <span className="text-2xl font-bold text-gray-500 line-through">₹{pricing.basic.price}</span>
-                    <span className="text-4xl font-extrabold text-white">₹{getFinalPrice(pricing.basic)}</span>
-                  </>
-                ) : (
-                  <span className="text-4xl font-extrabold text-white">₹{pricing.basic.price}</span>
-                )}
-                <span className="text-gray-500">/mo</span>
+              <h3 className="text-xl font-bold text-white mb-2 uppercase tracking-widest">KYROZ STARTER</h3>
+              <div className="flex flex-col mb-6">
+                <span className="text-xl font-bold text-gray-500 line-through">₹1,999</span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl font-extrabold text-white">₹{getFinalPrice(pricing.starter)}</span>
+                  <span className="text-gray-500">/mo</span>
+                </div>
+                <span className="text-[#d4af37] text-sm font-bold mt-1">Founding Member Price</span>
               </div>
-              <ul className="space-y-4 mb-8 flex-1">
-                <li className="flex items-start gap-3 text-sm text-gray-300">
-                  <span className="text-[#d4af37]">✓</span> Full SOP Library Access
-                </li>
-                <li className="flex items-start gap-3 text-sm text-gray-300">
-                  <span className="text-[#d4af37]">✓</span> Limited AI Queries (100/mo)
-                </li>
-                <li className="flex items-start gap-3 text-sm text-gray-300">
-                  <span className="text-[#d4af37]">✓</span> Basic Dashboard
-                </li>
-              </ul>
-              <Link href="/signup" className="w-full block text-center py-3 rounded-xl border border-[#333] hover:bg-[#222] transition font-medium">Get Basic</Link>
+              <div className="mb-6">
+                <h4 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-2">Best For:</h4>
+                <ul className="text-sm text-gray-400 space-y-1">
+                  <li>• New Restaurant</li>
+                  <li>• Cafe</li>
+                  <li>• Single Cuisine Setup</li>
+                  <li>• Small Outlet</li>
+                </ul>
+              </div>
+              <div className="mb-8 flex-1">
+                <h4 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-3">Includes:</h4>
+                <ul className="space-y-3">
+                  {['POS Terminal', 'KOT Display', 'WhatsApp Billing', 'Customer Directory', 'Sales Analytics', 'Team Management', '1 Cuisine SOP Library Access', 'Premix Purchase Access', 'Basic Support'].map(feature => (
+                    <li key={feature} className="flex items-start gap-3 text-sm text-gray-300">
+                      <span className="text-[#d4af37]">✓</span> {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <Link href="/signup" className="w-full block text-center py-3 rounded-xl border border-[#333] hover:bg-[#222] transition font-medium">Get Starter</Link>
             </div>
 
-            {/* Pro Plan */}
+            {/* Growth Plan */}
             <div className="bg-gradient-to-b from-[#1a1505] to-[#111] border border-[#d4af37]/50 rounded-3xl p-8 relative transform md:-translate-y-4 shadow-[0_10px_40px_rgba(212,175,55,0.15)] flex flex-col">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#d4af37] text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Most Popular</div>
-              <h3 className="text-xl font-bold text-[#d4af37] mb-2 flex items-center gap-2">
-                Pro
-                {pricing.pro.discount > 0 && (
-                  <span className="bg-green-500/20 text-green-400 text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{pricing.pro.discount}% OFF</span>
-                )}
-              </h3>
-              <div className="flex items-baseline gap-2 mb-6">
-                {pricing.pro.discount > 0 ? (
-                  <>
-                    <span className="text-2xl font-bold text-gray-500 line-through">₹{pricing.pro.price}</span>
-                    <span className="text-5xl font-extrabold text-[#d4af37]">₹{getFinalPrice(pricing.pro)}</span>
-                  </>
-                ) : (
-                  <span className="text-5xl font-extrabold text-[#d4af37]">₹{pricing.pro.price}</span>
-                )}
-                <span className="text-gray-500">/mo</span>
+              <h3 className="text-xl font-bold text-[#d4af37] mb-2 uppercase tracking-widest">KYROZ GROWTH</h3>
+              <div className="flex flex-col mb-6">
+                <span className="text-xl font-bold text-gray-500 line-through">₹4,999</span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-5xl font-extrabold text-[#d4af37]">₹{getFinalPrice(pricing.growth)}</span>
+                  <span className="text-gray-500">/mo</span>
+                </div>
+                <span className="text-[#d4af37] text-sm font-bold mt-1">Founding Member Price</span>
               </div>
-              <ul className="space-y-4 mb-8 flex-1">
-                <li className="flex items-start gap-3 text-sm text-gray-300">
-                  <span className="text-[#d4af37]">✓</span> Everything in Basic
-                </li>
-                <li className="flex items-start gap-3 text-sm text-white font-medium">
-                  <span className="text-[#d4af37]">✓</span> Unlimited AI Queries
-                </li>
-                <li className="flex items-start gap-3 text-sm text-white font-medium">
-                  <span className="text-[#d4af37]">✓</span> Full Costing & Menu Tools
-                </li>
-                <li className="flex items-start gap-3 text-sm text-gray-300">
-                  <span className="text-[#d4af37]">✓</span> Inventory & Wastage System
-                </li>
-              </ul>
-              <Link href="/signup" className="w-full block text-center py-3 rounded-xl bg-[#d4af37] text-black hover:bg-[#c5a028] transition font-bold">Get Pro</Link>
+              <div className="mb-6">
+                <h4 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-2">Best For:</h4>
+                <ul className="text-sm text-gray-400 space-y-1">
+                  <li>• Running Restaurants</li>
+                  <li>• Multi Cuisine Restaurants</li>
+                  <li>• Owners focused on Profit & Consistency</li>
+                </ul>
+              </div>
+              <div className="mb-8 flex-1">
+                <h4 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-3">Includes:</h4>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3 text-sm text-white font-medium">
+                    <span className="text-[#d4af37]">✓</span> Everything in Starter
+                  </li>
+                  {['Full SOP Library', 'Costing Master', 'Inventory Management', 'AI Chef', 'Gross Profit Analytics', 'Food Cost Analysis', 'Advanced Reports', 'Premix Purchase Access', 'Priority Support'].map(feature => (
+                    <li key={feature} className="flex items-start gap-3 text-sm text-gray-300">
+                      <span className="text-[#d4af37]">✓</span> {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <Link href="/signup" className="w-full block text-center py-3 rounded-xl bg-[#d4af37] text-black hover:bg-[#c5a028] transition font-bold">Get Growth</Link>
             </div>
 
-            {/* Elite Plan */}
-            <div className="bg-[#111] border border-[#222] rounded-3xl p-8 hover:border-[#444] transition flex flex-col">
-              <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-                Elite
-                {pricing.elite.discount > 0 && (
-                  <span className="bg-green-500/20 text-green-400 text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{pricing.elite.discount}% OFF</span>
-                )}
-              </h3>
-              <div className="flex items-baseline gap-2 mb-6">
-                {pricing.elite.discount > 0 ? (
-                  <>
-                    <span className="text-2xl font-bold text-gray-500 line-through">₹{pricing.elite.price}</span>
-                    <span className="text-4xl font-extrabold text-white">₹{getFinalPrice(pricing.elite)}</span>
-                  </>
-                ) : (
-                  <span className="text-4xl font-extrabold text-white">₹{pricing.elite.price}</span>
-                )}
-                <span className="text-gray-500">/mo</span>
+            {/* Scale Plan */}
+            <div className="bg-[#111] border border-[#222] rounded-3xl p-8 hover:border-[#444] transition flex flex-col relative overflow-hidden">
+              <h3 className="text-xl font-bold text-white mb-2 uppercase tracking-widest">KYROZ SCALE</h3>
+              <div className="flex flex-col mb-6">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl font-extrabold text-white">₹{pricing.scale.price}</span>
+                  <span className="text-gray-500">/mo</span>
+                </div>
               </div>
-              <ul className="space-y-4 mb-8 flex-1">
-                <li className="flex items-start gap-3 text-sm text-gray-300">
-                  <span className="text-[#d4af37]">✓</span> Everything in Pro
-                </li>
-                <li className="flex items-start gap-3 text-sm text-gray-300">
-                  <span className="text-[#d4af37]">✓</span> Strategy & Scaling Consultation
-                </li>
-                <li className="flex items-start gap-3 text-sm text-gray-300">
-                  <span className="text-[#d4af37]">✓</span> Priority 24/7 Support
-                </li>
-                <li className="flex items-start gap-3 text-sm text-gray-300">
-                  <span className="text-[#d4af37]">✓</span> Multiple Locations (up to 3)
-                </li>
+              <div className="mb-6">
+                <h4 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-2">Best For:</h4>
+                <ul className="text-sm text-gray-400 space-y-1">
+                  <li>• Growing Restaurant Brands</li>
+                  <li>• Multi Outlet Businesses</li>
+                  <li>• Expansion-Focused Owners</li>
+                </ul>
+              </div>
+              <div className="mb-8 flex-1">
+                <h4 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-3">Includes:</h4>
+                <ul className="space-y-3">
+                  {['Multi Outlet Dashboard', 'Menu Engineering', 'Premium AI Restaurant Consultant', 'Marketing Engine', 'Advanced Business Intelligence'].map(feature => (
+                    <li key={feature} className="flex items-start gap-3 text-sm text-gray-300">
+                      <span className="text-[#d4af37]">✓</span> {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <Link href="/signup" className="w-full block text-center py-3 rounded-xl border border-white text-white hover:bg-white hover:text-black transition font-bold">Get Scale</Link>
+            </div>
+          </div>
+
+          {/* Why KYROZ & Founding Offer */}
+          <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8 text-left mt-24 border-t border-white/10 pt-16">
+            <div className="bg-white/5 p-10 rounded-3xl border border-white/10">
+              <h3 className="text-3xl font-black text-white mb-6 uppercase tracking-wider">Why KYROZ?</h3>
+              <ul className="space-y-4">
+                <li className="flex items-center gap-3 text-lg text-gray-300"><span className="text-green-500">✔</span> SOP + Premix + Software</li>
+                <li className="flex items-center gap-3 text-lg text-gray-300"><span className="text-green-500">✔</span> Reduce Chef Dependency</li>
+                <li className="flex items-center gap-3 text-lg text-gray-300"><span className="text-green-500">✔</span> Maintain Taste Consistency</li>
+                <li className="flex items-center gap-3 text-lg text-gray-300"><span className="text-green-500">✔</span> Control Food Cost</li>
+                <li className="flex items-center gap-3 text-lg text-gray-300"><span className="text-green-500">✔</span> Reduce Wastage</li>
+                <li className="flex items-center gap-3 text-lg text-gray-300"><span className="text-green-500">✔</span> Improve Profitability</li>
               </ul>
-              <Link href="/signup" className="w-full block text-center py-3 rounded-xl border border-[#333] hover:bg-[#222] transition font-medium">Get Elite</Link>
+            </div>
+
+            <div className="bg-gradient-to-br from-[#1a1505] to-[#111] p-10 rounded-3xl border border-[#d4af37]/30 shadow-[0_0_30px_rgba(212,175,55,0.1)] flex flex-col justify-center">
+              <h3 className="text-2xl font-black text-[#d4af37] mb-2 uppercase tracking-widest">Founding Member Offer</h3>
+              <p className="text-white font-medium mb-8">First 50 Restaurants Only</p>
+              
+              <div className="space-y-4 mb-8">
+                <div className="flex justify-between items-center bg-black/40 px-6 py-4 rounded-xl border border-white/5">
+                  <span className="text-gray-300 font-bold uppercase tracking-wider">Starter</span>
+                  <span className="text-2xl font-black text-white">₹999<span className="text-sm text-gray-500 font-normal">/mo</span></span>
+                </div>
+                <div className="flex justify-between items-center bg-black/40 px-6 py-4 rounded-xl border border-white/5">
+                  <span className="text-gray-300 font-bold uppercase tracking-wider">Growth</span>
+                  <span className="text-2xl font-black text-[#d4af37]">₹2999<span className="text-sm text-gray-500 font-normal">/mo</span></span>
+                </div>
+              </div>
+              
+              <div className="inline-block px-4 py-2 bg-green-500/10 border border-green-500/20 text-green-400 font-bold rounded-lg text-center uppercase tracking-wider text-sm">
+                24 months Founder Pricing Lock
+              </div>
             </div>
           </div>
         </div>

@@ -36,6 +36,8 @@ interface Kot {
   kotNumber: number;
   tableNumber: string;
   orderType: 'DineIn' | 'Takeaway' | 'Delivery';
+  customerName?: string;
+  customerPhone?: string;
   items: KotItem[];
   status: 'Pending' | 'Preparing' | 'Ready' | 'Served' | 'Cancelled';
   packaging: { name: string; quantity: number; _id: string }[];
@@ -208,6 +210,12 @@ export default function KitchenOrderQueue() {
               <span>ORDER TYPE:</span>
               <span className="font-bold uppercase">{printingKot.orderType}</span>
             </div>
+            {(printingKot.customerName || printingKot.customerPhone) && (
+              <div className="pt-1 border-t border-black/10 mt-1">
+                {printingKot.customerName && <div className="flex justify-between text-[10px]"><span>CUSTOMER:</span><span className="font-bold uppercase">{printingKot.customerName}</span></div>}
+                {printingKot.customerPhone && <div className="flex justify-between text-[10px]"><span>PHONE:</span><span className="font-bold uppercase">{printingKot.customerPhone}</span></div>}
+              </div>
+            )}
           </div>
 
           <table className="w-full text-xs mb-4">

@@ -2,14 +2,14 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from './auth.middleware';
 
 const PLAN_LEVELS = {
-  'Basic': 1,
-  'Pro': 2,
-  'Elite': 3
+  'Starter': 1,
+  'Growth': 2,
+  'Scale': 3
 };
 
-export const requirePlan = (requiredPlan: 'Basic' | 'Pro' | 'Elite') => {
+export const requirePlan = (requiredPlan: 'Starter' | 'Growth' | 'Scale') => {
   return (req: AuthRequest, res: Response, next: NextFunction): void => {
-    const userPlan = req.user?.plan as 'Basic' | 'Pro' | 'Elite' | undefined;
+    const userPlan = req.user?.plan as 'Starter' | 'Growth' | 'Scale' | undefined;
 
     // Admins bypass all plan checks
     if (req.user?.role === 'admin') {

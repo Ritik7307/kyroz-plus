@@ -254,7 +254,7 @@ return (
           
           <div className="flex items-center justify-between mb-6">
             <div>
-              <p className="text-2xl font-bold text-gold">{user?.subscriptionPlan || 'KYROZ BASIC'}</p>
+              <p className="text-2xl font-bold text-gold">{user?.subscriptionPlan || 'KYROZ STARTER'}</p>
               <p className="text-[10px] text-white/30 uppercase mt-1">Billed Monthly</p>
             </div>
             <div className="p-3 bg-gold/10 rounded-2xl text-gold">
@@ -265,17 +265,17 @@ return (
           <div className="space-y-3 mb-6">
             <div className="flex items-center gap-2 text-xs text-white/60 font-medium">
               <ChevronRight size={14} className="text-gold" />
-              {user?.subscriptionPlan === 'Basic' ? 'Basic SOP Access' : 'Unlimited SOP Access'}
+              {user?.subscriptionPlan === 'Starter' ? 'Basic SOP Access' : 'Unlimited SOP Access'}
             </div>
             <div className="flex items-center gap-2 text-xs text-white/60 font-medium">
-              <ChevronRight size={14} className={user?.subscriptionPlan === 'Elite' || user?.role === 'admin' ? 'text-gold' : 'text-white/20'} />
-              <span className={user?.subscriptionPlan === 'Elite' || user?.role === 'admin' ? 'text-white/60' : 'text-white/20'}>
+              <ChevronRight size={14} className={user?.subscriptionPlan === 'Scale' || user?.role === 'admin' ? 'text-gold' : 'text-white/20'} />
+              <span className={user?.subscriptionPlan === 'Scale' || user?.role === 'admin' ? 'text-white/60' : 'text-white/20'}>
                 Chef Support 24/7
               </span>
             </div>
             <div className="flex items-center gap-2 text-xs text-white/60 font-medium">
-              <ChevronRight size={14} className={user?.subscriptionPlan !== 'Basic' ? 'text-gold' : 'text-white/20'} />
-              <span className={user?.subscriptionPlan !== 'Basic' ? 'text-white/60' : 'text-white/20'}>
+              <ChevronRight size={14} className={user?.subscriptionPlan !== 'Starter' ? 'text-gold' : 'text-white/20'} />
+              <span className={user?.subscriptionPlan !== 'Starter' ? 'text-white/60' : 'text-white/20'}>
                 Costing & Margin Tools
               </span>
             </div>
@@ -285,10 +285,10 @@ return (
             onClick={() => router.push('/dashboard/membership')}
             className="w-full py-4 bg-gold-gradient rounded-2xl text-black font-bold text-xs uppercase tracking-widest hover:scale-[1.02] transition-all shadow-xl shadow-gold/10"
           >
-            {user?.subscriptionPlan === 'Elite' || user?.role === 'admin' ? 'Manage Subscription' : 'Upgrade Your Plan'}
+            {user?.subscriptionPlan === 'Scale' || user?.role === 'admin' ? 'Manage Subscription' : 'Upgrade Your Plan'}
           </button>
 
-          {(user?.subscriptionPlan === 'Elite' || user?.role === 'admin') && !localStorage.getItem('impersonatedLocation') && (
+          {(user?.subscriptionPlan === 'Scale' || user?.role === 'admin') && !localStorage.getItem('impersonatedLocation') && (
             <button 
               onClick={() => router.push('/dashboard/elite')}
               className="w-full mt-4 py-4 bg-black border border-gold/30 rounded-2xl text-gold font-bold text-xs uppercase tracking-widest hover:bg-gold/10 transition-all shadow-xl shadow-gold/5"

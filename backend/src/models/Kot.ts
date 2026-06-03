@@ -11,6 +11,8 @@ export interface IKot extends Document {
   kotNumber: number;
   tableNumber: string;
   orderType: 'DineIn' | 'Takeaway' | 'Delivery';
+  customerName?: string;
+  customerPhone?: string;
   items: IKotItem[];
   status: 'Pending' | 'Preparing' | 'Ready' | 'Served' | 'Cancelled';
   packaging: { name: string; quantity: number }[];
@@ -29,6 +31,8 @@ const KotSchema = new Schema({
   kotNumber: { type: Number, required: true },
   tableNumber: { type: String, default: 'Quick Bill' },
   orderType: { type: String, enum: ['DineIn', 'Takeaway', 'Delivery'], default: 'DineIn' },
+  customerName: { type: String, default: '' },
+  customerPhone: { type: String, default: '' },
   items: { type: [KotItemSchema], required: true },
   status: { type: String, enum: ['Pending', 'Preparing', 'Ready', 'Served', 'Cancelled'], default: 'Pending' },
   packaging: [{

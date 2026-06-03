@@ -14,7 +14,8 @@ import {
   Menu,
   Bell,
   Utensils,
-  ClipboardList
+  ClipboardList,
+  Megaphone
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -49,6 +50,7 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user', permissi
       { name: 'Customers', icon: Users, path: '/dashboard/customers', id: 'customers' },
       { name: 'Manage Team', icon: Users, path: '/dashboard/team', id: 'team', ownerOnly: true },
       { name: 'SOP Packets', icon: Utensils, path: '/dashboard/packets', id: 'packets' },
+      { name: 'Marketing CRM', icon: Megaphone, path: '/dashboard/marketing', id: 'marketing', ownerOnly: true },
       { name: 'Sales History', icon: Calculator, path: '/dashboard/history', id: 'history' },
       { name: 'Chef', icon: MessageSquare, path: '/dashboard/ai', id: 'ai' },
       { name: 'SOP Library', icon: ChefHat, path: '/dashboard/sop', id: 'sop' },

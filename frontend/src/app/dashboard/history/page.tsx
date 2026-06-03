@@ -10,7 +10,9 @@ import {
   ChevronDown, 
   ChevronUp,
   Receipt,
-  Utensils
+  Utensils,
+  Plus,
+  X
 } from 'lucide-react';
 import { API_URL } from '@/lib/api';
 
@@ -22,6 +24,9 @@ export default function HistoryPage() {
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'daily' | 'monthly' | 'yearly'>('daily');
   const [itemFilter, setItemFilter] = useState<'quantity' | 'revenue' | 'margin'>('quantity');
+  const [expenses, setExpenses] = useState<{name: string, amount: number}[]>([]);
+  const [expenseName, setExpenseName] = useState('');
+  const [expenseAmount, setExpenseAmount] = useState<number | ''>('');
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -121,6 +126,81 @@ export default function HistoryPage() {
               <h3 className="text-3xl font-black text-white">{summary[activeTab].count}</h3>
               <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Processed Transactions</p>
             </div>
+          </div>
+
+          {/* Net Profit Calculator */}
+          <div className="bg-card glass-card p-6 rounded-[2rem] border border-white/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 relative overflow-hidden">
+             <div className="absolute top-0 left-0 w-32 h-32 bg-gold/5 rounded-full -ml-16 -mt-16 blur-3xl"></div>
+             
+             <div className="flex-1 space-y-4 relative z-10 w-full max-w-md">
+               <div className="flex items-center gap-4 mb-2">
+                  <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-white/40">
+                    <Calculator size={20} />
+                  </div>
+                  <div>
+                     <h4 className="text-white font-black uppercase tracking-widest text-sm">Net Profit Calculator</h4>
+                     <p className="text-white/40 text-[10px] font-bold">Subtract operational spends (Rent, Staff, etc.)</p>
+                  </div>
+               </div>
+
+               <div className="flex flex-col sm:flex-row gap-3">
+                 <input 
+                    type="text" 
+                    value={expenseName} 
+                    onChange={(e) => setExpenseName(e.target.value)}
+                    placeholder="Expense Name (e.g. Rent)" 
+                    className="bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-gold w-full sm:flex-1 placeholder:text-white/20"
+                 />
+                 <div className="flex gap-3">
+                   <input 
+                      type="number" 
+                      value={expenseAmount} 
+                      onChange={(e) => setExpenseAmount(e.target.value === '' ? '' : Number(e.target.value))}
+                      placeholder="Amount (₹)" 
+                      className="bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-gold w-full sm:w-32 placeholder:text-white/20"
+                   />
+                   <button 
+                      onClick={() => {
+                        if (expenseName && expenseAmount) {
+                          setExpenses([...expenses, { name: expenseName, amount: Number(expenseAmount) }]);
+                          setExpenseName('');
+                          setExpenseAmount('');
+                        }
+                      }}
+                      className="bg-gold/10 hover:bg-gold text-gold hover:text-black transition-all border border-gold/20 hover:border-gold rounded-xl px-4 flex items-center justify-center shrink-0"
+                   >
+                     <Plus size={18} />
+                   </button>
+                 </div>
+               </div>
+
+               {expenses.length > 0 && (
+                 <div className="space-y-2 mt-4 max-h-32 overflow-y-auto pr-2 scrollbar-hide">
+                   {expenses.map((exp, idx) => (
+                     <div key={idx} className="flex items-center justify-between bg-white/5 px-4 py-2 rounded-lg text-xs font-bold">
+                       <span className="text-white uppercase tracking-wider">{exp.name}</span>
+                       <div className="flex items-center gap-3">
+                         <span className="text-red-400">-₹{exp.amount}</span>
+                         <button onClick={() => setExpenses(expenses.filter((_, i) => i !== idx))} className="text-white/40 hover:text-red-500">
+                           <X size={14} />
+                         </button>
+                       </div>
+                     </div>
+                   ))}
+                   <div className="flex justify-between border-t border-white/10 pt-2 mt-2 text-xs font-black uppercase tracking-widest text-white/40 px-2">
+                     <span>Total Spends</span>
+                     <span className="text-red-500">-₹{expenses.reduce((sum, e) => sum + e.amount, 0)}</span>
+                   </div>
+                 </div>
+               )}
+             </div>
+
+             <div className="bg-green-500/10 border border-green-500/20 px-8 py-6 rounded-3xl min-w-[200px] text-center w-full md:w-auto shadow-inner shadow-green-500/5 relative z-10 shrink-0">
+                <p className="text-[10px] font-black text-green-500/60 uppercase tracking-[0.2em] mb-2">Net Profit</p>
+                <p className="text-4xl font-black text-green-500 tracking-tighter">
+                  {formatCurrency(summary[activeTab].profit - expenses.reduce((sum, e) => sum + e.amount, 0))}
+                </p>
+             </div>
           </div>
 
           {/* Top Selling Items & Item Analytics */}

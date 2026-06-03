@@ -6,8 +6,17 @@ import { API_URL } from '@/lib/api';
 
 export default function MembershipPage() {
   const router = useRouter();
-  const [currentPlan, setCurrentPlan] = useState<string>('Basic');
+  const [currentPlan, setCurrentPlan] = useState<string>('Starter');
   const [isLoading, setIsLoading] = useState<string | null>(null);
+  const [pricing, setPricing] = useState({
+    starter: { price: 999, discount: 0 },
+    growth: { price: 2999, discount: 0 },
+    scale: { price: 9999, discount: 0 }
+  });
+
+  const getFinalPrice = (plan: any) => {
+    return Math.round(plan.price * (1 - plan.discount / 100));
+  };
 
   useEffect(() => {
     // Load Razorpay Script dynamically
@@ -20,18 +29,30 @@ export default function MembershipPage() {
     const userStr = localStorage.getItem('user');
     if (userStr) {
       const user = JSON.parse(userStr);
-      setCurrentPlan(user.plan);
+      let plan = user.plan || 'Starter';
+      if (plan === 'Basic') plan = 'Starter';
+      if (plan === 'Pro') plan = 'Growth';
+      if (plan === 'Elite') plan = 'Scale';
+      setCurrentPlan(plan);
       if (user.role === 'admin') {
         setCurrentPlan('Admin');
       }
     }
+
+    // Fetch dynamic pricing
+    fetch(`${API_URL}/api/admin/settings/pricing`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.starter) setPricing(data);
+      })
+      .catch(err => console.error('Failed to fetch pricing:', err));
     
     return () => {
       document.body.removeChild(script);
     }
   }, []);
 
-  const handleUpgrade = async (plan: 'Basic' | 'Pro' | 'Elite') => {
+  const handleUpgrade = async (plan: 'Starter' | 'Growth' | 'Scale') => {
     setIsLoading(plan);
     try {
       const token = localStorage.getItem('token');
@@ -136,13 +157,25 @@ export default function MembershipPage() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-12">
-        {/* Basic Plan */}
+        {/* Starter Plan */}
         <div className="bg-[#111111] border border-[#333333] rounded-3xl p-8 flex flex-col relative overflow-hidden transition-transform hover:-translate-y-2">
           <div className="mb-8">
-            <h3 className="text-2xl font-bold text-white mb-2">Basic</h3>
+            <h3 className="text-2xl font-bold text-white mb-2 uppercase tracking-widest flex items-center gap-2">
+              Starter
+              {pricing.starter.discount > 0 && (
+                <span className="bg-green-500/20 text-green-400 text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{pricing.starter.discount}% OFF</span>
+              )}
+            </h3>
             <p className="text-gray-500 text-sm">Perfect for getting started.</p>
             <div className="mt-6 flex items-baseline gap-2">
-              <span className="text-4xl font-extrabold text-white">₹999</span>
+              {pricing.starter.discount > 0 ? (
+                <>
+                  <span className="text-2xl font-bold text-gray-500 line-through">₹{pricing.starter.price}</span>
+                  <span className="text-4xl font-extrabold text-white">₹{getFinalPrice(pricing.starter)}</span>
+                </>
+              ) : (
+                <span className="text-4xl font-extrabold text-white">₹{pricing.starter.price}</span>
+              )}
               <span className="text-gray-500">/mo</span>
             </div>
           </div>
@@ -166,28 +199,40 @@ export default function MembershipPage() {
           </ul>
 
           <button 
-            onClick={() => handleUpgrade('Basic')}
-            disabled={isLoading !== null || currentPlan === 'Basic' || currentPlan === 'Pro' || currentPlan === 'Elite'}
+            onClick={() => handleUpgrade('Starter')}
+            disabled={isLoading !== null || currentPlan === 'Starter' || currentPlan === 'Growth' || currentPlan === 'Scale'}
             className={`w-full py-4 rounded-xl font-bold transition-colors ${
-              currentPlan === 'Basic' || currentPlan === 'Pro' || currentPlan === 'Elite' 
+              currentPlan === 'Starter' || currentPlan === 'Growth' || currentPlan === 'Scale' 
               ? 'bg-[#222222] text-gray-400 cursor-not-allowed border border-[#333333]'
               : 'bg-white hover:bg-gray-200 text-black'
             }`}
           >
-            {isLoading === 'Basic' ? 'Processing...' : (currentPlan === 'Basic' ? 'Current Plan' : (currentPlan === 'Pro' || currentPlan === 'Elite' ? 'Included in Higher Plan' : 'Buy Basic'))}
+            {isLoading === 'Starter' ? 'Processing...' : (currentPlan === 'Starter' ? 'Current Plan' : (currentPlan === 'Growth' || currentPlan === 'Scale' ? 'Included in Higher Plan' : 'Buy Starter'))}
           </button>
         </div>
 
-        {/* Pro Plan */}
+        {/* Growth Plan */}
         <div className="bg-[#1a1a1a] border-2 border-[#d4af37] rounded-3xl p-8 flex flex-col relative overflow-hidden shadow-2xl shadow-[#d4af37]/10 transform scale-105 z-10">
           <div className="absolute top-0 right-0 bg-[#d4af37] text-black text-xs font-bold px-4 py-1 rounded-bl-lg uppercase tracking-wider">
             Most Popular
           </div>
           <div className="mb-8">
-            <h3 className="text-2xl font-bold text-[#d4af37] mb-2">Pro</h3>
+            <h3 className="text-2xl font-bold text-[#d4af37] mb-2 uppercase tracking-widest flex items-center gap-2">
+              Growth
+              {pricing.growth.discount > 0 && (
+                <span className="bg-green-500/20 text-green-400 text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{pricing.growth.discount}% OFF</span>
+              )}
+            </h3>
             <p className="text-gray-400 text-sm">For growing restaurants.</p>
             <div className="mt-6 flex items-baseline gap-2">
-              <span className="text-4xl font-extrabold text-white">₹1999</span>
+              {pricing.growth.discount > 0 ? (
+                <>
+                  <span className="text-2xl font-bold text-gray-500 line-through">₹{pricing.growth.price}</span>
+                  <span className="text-4xl font-extrabold text-white">₹{getFinalPrice(pricing.growth)}</span>
+                </>
+              ) : (
+                <span className="text-4xl font-extrabold text-white">₹{pricing.growth.price}</span>
+              )}
               <span className="text-gray-500">/mo</span>
             </div>
           </div>
@@ -208,25 +253,38 @@ export default function MembershipPage() {
           </ul>
 
           <button 
-            onClick={() => handleUpgrade('Pro')}
-            disabled={isLoading !== null || currentPlan === 'Pro' || currentPlan === 'Elite'}
+            onClick={() => handleUpgrade('Growth')}
+            disabled={isLoading !== null || currentPlan === 'Growth' || currentPlan === 'Scale'}
             className={`w-full py-4 rounded-xl font-bold transition-colors shadow-lg ${
-              currentPlan === 'Pro' || currentPlan === 'Elite' 
+              currentPlan === 'Growth' || currentPlan === 'Scale' 
               ? 'bg-[#222222] text-gray-400 cursor-not-allowed border border-[#333333]'
               : 'bg-[#d4af37] hover:bg-[#c5a028] text-black shadow-[#d4af37]/20 hover:shadow-[#d4af37]/40'
             }`}
           >
-            {isLoading === 'Pro' ? 'Processing...' : (currentPlan === 'Pro' ? 'Current Plan' : (currentPlan === 'Elite' ? 'Included in Elite' : 'Upgrade to Pro'))}
+            {isLoading === 'Growth' ? 'Processing...' : (currentPlan === 'Growth' ? 'Current Plan' : (currentPlan === 'Scale' ? 'Included in Scale' : 'Upgrade to Growth'))}
           </button>
         </div>
 
-        {/* Elite Plan */}
+        {/* Scale Plan */}
         <div className="bg-[#111111] border border-[#333333] rounded-3xl p-8 flex flex-col relative overflow-hidden transition-transform hover:-translate-y-2">
+
           <div className="mb-8">
-            <h3 className="text-2xl font-bold text-white mb-2">Elite</h3>
+            <h3 className="text-2xl font-bold text-white mb-2 uppercase tracking-widest flex items-center gap-2">
+              Scale
+              {pricing.scale.discount > 0 && (
+                <span className="bg-green-500/20 text-green-400 text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{pricing.scale.discount}% OFF</span>
+              )}
+            </h3>
             <p className="text-gray-500 text-sm">The ultimate restaurant OS.</p>
             <div className="mt-6 flex items-baseline gap-2">
-              <span className="text-4xl font-extrabold text-white">₹2999</span>
+              {pricing.scale.discount > 0 ? (
+                <>
+                  <span className="text-2xl font-bold text-gray-500 line-through">₹{pricing.scale.price}</span>
+                  <span className="text-4xl font-extrabold text-white">₹{getFinalPrice(pricing.scale)}</span>
+                </>
+              ) : (
+                <span className="text-4xl font-extrabold text-white">₹{pricing.scale.price}</span>
+              )}
               <span className="text-gray-500">/mo</span>
             </div>
           </div>
@@ -236,7 +294,7 @@ export default function MembershipPage() {
               <span className="text-green-500">✓</span> 4 Device Logins
             </li>
             <li className="flex items-center gap-3 text-gray-300">
-              <span className="text-green-500">✓</span> Everything in Pro
+              <span className="text-green-500">✓</span> Everything in Growth
             </li>
             <li className="flex items-center gap-3 text-gray-300 font-bold text-[#d4af37]">
               <span className="text-[#d4af37]">✓</span> Priority Support
@@ -247,15 +305,15 @@ export default function MembershipPage() {
           </ul>
 
           <button 
-            onClick={() => handleUpgrade('Elite')}
-            disabled={isLoading !== null || currentPlan === 'Elite'}
+            onClick={() => handleUpgrade('Scale')}
+            disabled={isLoading !== null || currentPlan === 'Scale'}
             className={`w-full py-4 rounded-xl font-bold transition-colors ${
-              currentPlan === 'Elite'
-              ? 'bg-[#222222] text-gray-400 cursor-not-allowed'
+              currentPlan === 'Scale'
+              ? 'bg-[#222222] text-gray-400 cursor-not-allowed border border-[#333333]'
               : 'bg-white hover:bg-gray-200 text-black'
             }`}
           >
-             {isLoading === 'Elite' ? 'Processing...' : (currentPlan === 'Elite' ? 'Current Plan' : 'Upgrade to Elite')}
+             {isLoading === 'Scale' ? 'Processing...' : (currentPlan === 'Scale' ? 'Current Plan' : 'Upgrade to Scale')}
           </button>
         </div>
       </div>

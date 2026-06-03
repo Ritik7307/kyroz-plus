@@ -33,6 +33,8 @@ import customerRoutes from './routes/customer.routes';
 import wastageRoutes from './routes/wastage.routes';
 import costingRoutes from './routes/costing.routes';
 import eliteRoutes from './routes/elite.routes';
+import marketingRoutes from './routes/marketing.routes';
+import whatsappRoutes from './routes/whatsapp.routes';
 console.log('All routes imported');
 
 const app = express();
@@ -81,7 +83,8 @@ app.use('/api/customers', customerRoutes);
 app.use('/api/wastage', wastageRoutes);
 app.use('/api/costing', costingRoutes);
 app.use('/api/elite', eliteRoutes);
-
+app.use('/api/marketing', marketingRoutes);
+app.use('/api/whatsapp', whatsappRoutes);
 app.get('/api/debug-routes', (req, res) => {
   res.json({ message: 'Routes are active' });
 });

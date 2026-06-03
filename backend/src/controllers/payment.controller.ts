@@ -8,9 +8,9 @@ import User from '../models/User';
 const JWT_SECRET = process.env.JWT_SECRET || 'kyroz_super_secret_key_123';
 
 const PLAN_PRICES = {
-  'Basic': 999 * 100, // ₹999 (in paise)
-  'Pro': 1999 * 100, // ₹1999 (in paise)
-  'Elite': 2999 * 100 // ₹2999 (in paise)
+  'Starter': 999 * 100, // ₹999 (in paise)
+  'Growth': 2999 * 100, // ₹2999 (in paise)
+  'Scale': 9999 * 100 // ₹9999 (in paise)
 };
 
 // Initialize Razorpay
@@ -36,7 +36,7 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
       return;
     }
 
-    if (plan !== 'Basic' && plan !== 'Pro' && plan !== 'Elite') {
+    if (plan !== 'Starter' && plan !== 'Growth' && plan !== 'Scale') {
       res.status(400).json({ error: 'Invalid plan selected' });
       return;
     }

@@ -73,7 +73,7 @@ function SOPLibraryContent() {
   });
 
   const [userRole, setUserRole] = useState<string>('');
-  const [userPlan, setUserPlan] = useState<string>('Basic');
+  const [userPlan, setUserPlan] = useState<string>('Starter');
   const [selectedSopCategory, setSelectedSopCategory] = useState<string | null>(null);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [isUpdatingCategory, setIsUpdatingCategory] = useState(false);
@@ -88,15 +88,13 @@ function SOPLibraryContent() {
       const userRes = await fetch(`${API_URL}/api/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      const userData = await userRes.json();
-      setUserRole(userData.role);
-      const plan = userData.plan || userData.subscriptionPlan || 'Basic';
+      const plan = userData.plan || userData.subscriptionPlan || 'Starter';
       setUserPlan(plan);
       setSelectedSopCategory(userData.selectedSopCategory || null);
 
-      if (plan === 'Basic' && userData.role !== 'admin' && !userData.selectedSopCategory) {
+      if (plan === 'Starter' && userData.role !== 'admin' && !userData.selectedSopCategory) {
         setShowCategoryModal(true);
-      } else if (plan === 'Basic' && userData.role !== 'admin' && userData.selectedSopCategory) {
+      } else if (plan === 'Starter' && userData.role !== 'admin' && userData.selectedSopCategory) {
         setActiveCategory(userData.selectedSopCategory);
       }
 
@@ -157,7 +155,7 @@ function SOPLibraryContent() {
 
   const categories = ['All', 'South Indian', 'Cafe', 'Mandi/Biryani', 'Chinese'];
   
-  const displayedCategories = (userPlan === 'Basic' && userRole !== 'admin' && selectedSopCategory) 
+  const displayedCategories = (userPlan === 'Starter' && userRole !== 'admin' && selectedSopCategory) 
     ? [selectedSopCategory]
     : categories;
 
@@ -247,8 +245,8 @@ function SOPLibraryContent() {
         <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 w-full lg:w-auto custom-scrollbar">
           {displayedCategories.map(cat => (
             <button key={cat} onClick={() => {
-              if (userPlan === 'Basic' && userRole !== 'admin' && cat !== selectedSopCategory) {
-                // If they somehow click another category, prevent it
+              if (userPlan === 'Starter' && userRole !== 'admin' && cat !== selectedSopCategory) {
+                alert('Your Starter plan only allows access to your selected category.');
                 return;
               }
               setActiveCategory(cat);
@@ -286,7 +284,7 @@ function SOPLibraryContent() {
                 <ChefHat className="text-gold" size={32} />
               </div>
               <h3 className="text-2xl font-black tracking-tighter uppercase mb-4 text-white">Select Your <span className="text-gold">SOP Category</span></h3>
-              <p className="text-white/60 text-sm mb-8 font-medium">Your Basic plan includes access to one SOP category. Please select it carefully, as this choice is permanent for the Basic plan.</p>
+              <p className="text-white/60 text-sm mb-8 font-medium">Your Starter plan includes access to one SOP category. Please select it carefully, as this choice is permanent for the Starter plan.</p>
               
               <div className="grid grid-cols-2 gap-4 mb-8">
                 {categories.filter(c => c !== 'All').map(cat => (

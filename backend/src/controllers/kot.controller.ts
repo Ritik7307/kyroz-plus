@@ -8,7 +8,7 @@ import Packaging from '../models/Packaging';
 // Create a new Kitchen Order Ticket (KOT)
 export const createKot = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { items, tableNumber = 'Quick Bill', orderType = 'DineIn' } = req.body;
+    const { items, tableNumber = 'Quick Bill', orderType = 'DineIn', customerName = '', customerPhone = '' } = req.body;
     const userId = req.user?.userId;
 
     if (!userId) {
@@ -53,6 +53,8 @@ export const createKot = async (req: AuthRequest, res: Response): Promise<void> 
       kotNumber,
       tableNumber,
       orderType,
+      customerName,
+      customerPhone,
       items: items.map(item => ({
         dishId: item.dishId,
         quantity: item.quantity,

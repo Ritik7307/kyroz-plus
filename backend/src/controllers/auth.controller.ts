@@ -11,9 +11,9 @@ import { syncMasterSopsForUser } from '../services/sop.service';
 const JWT_SECRET = process.env.JWT_SECRET || 'kyroz_super_secret_key_123';
 
 const PLAN_LIMITS = {
-  'Basic': 1,
-  'Pro': 1,
-  'Elite': 4,
+  'Starter': 1,
+  'Growth': 1,
+  'Scale': 4,
   'Admin': 999
 };
 
@@ -220,7 +220,7 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
     const browser = parser.getBrowser();
     const os = parser.getOS();
     const deviceInfo = `${browser.name || 'Unknown Browser'} on ${os.name || 'Unknown OS'}`;
-    const ipAddress = req.ip || req.socket.remoteAddress || 'Unknown IP';
+    const ipAddress = req.ip || req.socket?.remoteAddress || 'Unknown IP';
 
     // Check existing active sessions
     const activeSessions = await Session.find({ userId: user._id }).sort({ lastActive: 1 });

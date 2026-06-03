@@ -652,13 +652,11 @@ export default function POSTerminal() {
       // we ask them if it was successful before finalizing the order.
       if (window.confirm("Did the bill print successfully? Click OK to complete the order, or Cancel to go back and edit the cart.")) {
         
-        // Auto-send WhatsApp message if customer phone is provided
-        if (customerPhone && customerPhone.length >= 10) {
-          shareOrderOnWhatsApp(tempBillNo);
-        }
+        // Browsers block window.open inside setTimeout callbacks. 
+        // A manual "Send WhatsApp Bill" button is now shown on the success screen instead.
         
         setCheckoutSuccess(true);
-        setCart([]);
+        // Do not setCart([]) here so the success screen can use cart data for the WhatsApp bill
         
         // Update session for active table
         // updateSession(activeTable, { cart: [] });
@@ -669,8 +667,8 @@ export default function POSTerminal() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({
-            cart: cart.map(item => ({ dishId: item.dish._id, quantity: item.quantity, note: item.note })),
-            customerName, customerPhone, discount, discountType, additionalCharge,
+            items: cart.map(item => ({ dishId: item.dish._id, quantity: item.quantity, note: item.note })),
+            customerName, customerPhone, discount: Number(discount) || 0, discountType, additionalCharge: Number(additionalCharge) || 0,
             applyGst, paymentMethod, orderType,
             kotId, // Send KOT ID if it exists so backend can link them
             tempBillNo // Send temp bill no so backend can use it
@@ -782,7 +780,9 @@ export default function POSTerminal() {
             note: item.note
           })),
           tableNumber: activeTable === 'quick' ? 'Quick Bill' : tables.find(t => t.id === activeTable)?.name || activeTable,
-          orderType: orderType
+          orderType: orderType,
+          customerName: customerName,
+          customerPhone: customerPhone
         })
       });
       const data = await res.json();
@@ -820,12 +820,12 @@ export default function POSTerminal() {
       return;
     }
 
-    const itemsList = cart.map(item => `• ${item.dish.name} (x${item.quantity}) - ₹${item.dish.price * item.quantity}`).join('\n');
+    const itemsList = cart.map(item => `- ${item.dish.name} (x${item.quantity}) - Rs.${item.dish.price * item.quantity}`).join('\n');
     
     // Using string interpolation for bill number to ensure it works whether called manually or automatically
     const activeBillNo = (typeof billNumberToUse === 'string' && billNumberToUse) ? billNumberToUse : printedBillNo;
     
-    const message = `Thank you ${customerName || 'Customer'}, 👋\n\nHere are your bill details:\n\n*Bill No:* #${activeBillNo || 'N/A'}\n\n*ORDER DETAILS:*\n${itemsList}\n\n*Subtotal: ₹${total}*\n${discountAmount > 0 ? `*Discount: ${discountType === 'flat' ? `₹${parsedDiscount}` : `${parsedDiscount}%`} (₹${Math.round(discountAmount)})*\n` : ''}${applyGst ? `*GST (${userGstRate}%): ₹${gstAmount.toFixed(2)}*\n` : ''}${parsedAdditionalCharge > 0 ? `*Additional Charge: ₹${parsedAdditionalCharge}*\n` : ''}*Grand Total: ₹${grandTotal}*\n\nThank you for visiting!\n\n_Sent via KYROZ_`;
+    const message = `Thank you ${customerName || 'Customer'},\n\nHere are your bill details:\n\n*Bill No:* #${activeBillNo || 'N/A'}\n\n*ORDER DETAILS:*\n${itemsList}\n\n*Subtotal: Rs.${total}*\n${discountAmount > 0 ? `*Discount: ${discountType === 'flat' ? `Rs.${parsedDiscount}` : `${parsedDiscount}%`} (Rs.${Math.round(discountAmount)})*\n` : ''}${applyGst ? `*GST (${userGstRate}%): Rs.${gstAmount.toFixed(2)}*\n` : ''}${parsedAdditionalCharge > 0 ? `*Additional Charge: Rs.${parsedAdditionalCharge}*\n` : ''}*Grand Total: Rs.${grandTotal}*\n\nThank you for visiting!\n\n_Sent via KYROZ_`;
     
     const encodedMessage = encodeURIComponent(message);
     const formattedPhone = customerPhone.startsWith('+') ? customerPhone.substring(1) : (customerPhone.length === 10 ? `91${customerPhone}` : customerPhone);
@@ -1167,6 +1167,15 @@ export default function POSTerminal() {
                   </div>
                 </motion.div>
 
+                {customerPhone && customerPhone.length >= 10 && (
+                  <button 
+                    onClick={() => shareOrderOnWhatsApp()}
+                    className="w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-xl bg-green-500 text-white hover:scale-[1.02] active:scale-95 mb-3 flex items-center justify-center gap-2"
+                  >
+                    Send WhatsApp Bill
+                  </button>
+                )}
+
                 <button 
                   onClick={() => {
                     setCart([]);
@@ -1278,6 +1287,12 @@ export default function POSTerminal() {
                 <span>ORDER TYPE:</span>
                 <span className="font-bold uppercase">{printingKot.orderType}</span>
               </div>
+              {(printingKot.customerName || printingKot.customerPhone) && (
+                <div className="pt-1 border-t border-black/10 mt-1">
+                  {printingKot.customerName && <div className="flex justify-between text-[10px]"><span>CUSTOMER:</span><span className="font-bold uppercase">{printingKot.customerName}</span></div>}
+                  {printingKot.customerPhone && <div className="flex justify-between text-[10px]"><span>PHONE:</span><span className="font-bold uppercase">{printingKot.customerPhone}</span></div>}
+                </div>
+              )}
             </div>
 
             <table className="w-full text-xs mb-4">

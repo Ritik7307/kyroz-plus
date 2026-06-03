@@ -63,8 +63,8 @@ export default function SettingsPage() {
   };
 
   const getLimit = () => {
-    if (userPlan === 'Elite') return 3;
-    if (userPlan === 'Pro') return 2;
+    if (userPlan === 'Scale') return 3;
+    if (userPlan === 'Growth') return 2;
     return 1;
   };
 

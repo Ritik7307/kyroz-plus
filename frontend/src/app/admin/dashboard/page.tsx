@@ -243,6 +243,13 @@ export default function AdminDashboard() {
                     <MessageSquare size={20} className="text-gold" />
                     <span className="text-[9px] uppercase tracking-widest">Testimonials</span>
                   </button>
+                  <button 
+                    onClick={() => router.push('/admin/pricing')}
+                    className="col-span-2 bg-card glass-card p-4 rounded-2xl text-white font-bold flex flex-col items-center justify-center gap-2 hover:border-gold/50 border border-white/5 transition-all group"
+                  >
+                    <IndianRupee size={20} className="text-gold" />
+                    <span className="text-[9px] uppercase tracking-widest">Plan Pricing & Discounts</span>
+                  </button>
                 </div>
 
                 <div className="bg-card glass-card p-6 rounded-2xl space-y-4">

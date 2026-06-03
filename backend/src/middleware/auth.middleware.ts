@@ -23,6 +23,11 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
 
   try {
     const verified = jwt.verify(token, JWT_SECRET) as { userId: string; role: string; plan?: string; sessionId?: string };
+
+    if (verified.plan === 'Basic') verified.plan = 'Starter';
+    if (verified.plan === 'Pro') verified.plan = 'Growth';
+    if (verified.plan === 'Elite') verified.plan = 'Scale';
+
     req.user = verified;
     next();
   } catch (err) {

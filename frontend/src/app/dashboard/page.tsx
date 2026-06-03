@@ -274,6 +274,7 @@ export default function DashboardPage() {
             <div className="space-y-3">
               {[
                 { label: "Check Food Cost %", icon: TrendingUp, category: "Costing", path: "/dashboard/costing" },
+                { label: "Top Profit Dishes", icon: Activity, category: "History", path: "/dashboard/history" },
                 { label: "Report Daily Wastage", icon: AlertCircle, category: "Wastage", path: "/dashboard/wastage" },
               ].map((action, idx) => (
                 <button key={idx} onClick={() => router.push(action.path)} className="w-full bg-card/50 hover:bg-card glass-card p-4 rounded-2xl flex items-center gap-4 group transition-all text-left border border-white/5">

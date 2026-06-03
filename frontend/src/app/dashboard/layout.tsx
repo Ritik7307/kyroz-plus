@@ -151,7 +151,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return ['account'].includes(link.id);
   });
 
-  const currentPlan = user?.plan || user?.subscriptionPlan || 'None';
+  let currentPlan = user?.plan || user?.subscriptionPlan || 'None';
+  if (currentPlan === 'Basic') currentPlan = 'Starter';
+  if (currentPlan === 'Pro') currentPlan = 'Growth';
+  if (currentPlan === 'Elite') currentPlan = 'Scale';
 
   const mainLinks = navLinks.filter((link) => ['dashboard', 'pos', 'kot', 'inventory', 'sop', 'ai', 'costing', 'elite'].includes(link.id));
   const moreLinks = navLinks.filter((link) => !['dashboard', 'pos', 'kot', 'inventory', 'sop', 'ai', 'costing', 'elite'].includes(link.id));
@@ -167,11 +170,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     
     if (currentPlan === 'None') {
       if (!isMembershipRoute && !isAccountRoute) isLocked = true;
-    } else if (currentPlan === 'Basic') {
-      // Basic plan doesn't have AI, Costing, or Wastage
+    } else if (currentPlan === 'Starter') {
+      // Starter plan doesn't have AI, Costing, or Wastage
       if (isAiRoute || isCostingRoute || isWastageRoute) isLocked = true;
     }
-    // Pro and Elite have access to everything
+    // Growth and Scale have access to everything
   }
 
   return (
