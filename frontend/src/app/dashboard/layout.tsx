@@ -138,8 +138,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     // If Admin, show everything
     if (user?.role === 'admin') return true;
     
-    // If Owner (user), show everything except specifically restricted ones
-    if (user?.role === 'user') return true;
+    // If Owner (user) or Impersonating an Elite Location, show everything except specifically restricted ones
+    if (user?.role === 'user' || impersonationData) return true;
 
     // If Staff, check permissions
     if (link.ownerOnly) return false;
@@ -197,7 +197,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <Sidebar 
         isOpen={isSidebarOpen} 
         setIsOpen={setIsSidebarOpen} 
-        userRole={user?.role || 'user'} 
+        userRole={impersonationData ? 'user' : (user?.role || 'user')} 
         permissions={user?.permissions || []}
       />
 
