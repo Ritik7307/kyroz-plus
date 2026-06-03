@@ -342,18 +342,27 @@ export default function MarketingCRM() {
                 </div>
 
                 {!waStatus?.whatsappConnected ? (
-                  <div className="bg-black/50 border border-white/5 rounded-xl p-8 text-center flex flex-col items-center">
-                    <MessageSquare size={48} className="text-white/20 mb-4" />
-                    <h4 className="text-white font-bold text-lg mb-2">Status: Not Connected</h4>
-                    <p className="text-white/40 text-sm max-w-md mb-6">Connect your WhatsApp Business account to automate customer communication securely using the official Meta Cloud API.</p>
-                    <button 
-                      onClick={handleConnectWhatsApp}
-                      disabled={isConnecting}
-                      className="bg-green-500 hover:bg-green-400 text-black px-8 py-3 rounded-xl font-bold transition-all disabled:opacity-50"
-                    >
-                      {isConnecting ? 'Connecting...' : 'Connect WhatsApp'}
-                    </button>
-                  </div>
+                    <div className="bg-black/50 border border-white/5 rounded-xl p-8 text-center flex flex-col items-center">
+                      <MessageSquare size={48} className="text-white/20 mb-4" />
+                      <h4 className="text-white font-bold text-lg mb-2">Status: Not Connected</h4>
+                      <p className="text-white/40 text-sm max-w-md mb-2">Connect your WhatsApp Business account to automate customer communication securely using the official Meta Cloud API.</p>
+                      
+                      <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl text-xs text-left max-w-md mb-6 w-full">
+                        <p className="font-bold mb-1">Billing Notice:</p>
+                        <ul className="list-disc pl-4 space-y-1 text-white/60">
+                          <li>WhatsApp message charges are billed directly by Meta and are not included in your KyrozPlus subscription.</li>
+                          <li>KyrozPlus provides automation tools only.</li>
+                        </ul>
+                      </div>
+
+                      <button 
+                        onClick={handleConnectWhatsApp}
+                        disabled={isConnecting}
+                        className="bg-green-500 hover:bg-green-400 text-black px-8 py-3 rounded-xl font-bold transition-all disabled:opacity-50"
+                      >
+                        {isConnecting ? 'Connecting...' : 'Connect WhatsApp Business'}
+                      </button>
+                    </div>
                 ) : (
                   <div className="space-y-8">
                     {/* Connected Status */}
@@ -385,12 +394,21 @@ export default function MarketingCRM() {
                               </>
                             )}
                           </div>
-                          <p className="text-xs text-white/40 mt-1">Last Synced: {new Date(waStatus.lastSynced).toLocaleString()}</p>
+                          <div className="text-sm text-white/60 flex items-center gap-2 mt-2">
+                            Billing: <span className="text-yellow-400 font-bold bg-yellow-400/10 px-2 py-0.5 rounded text-xs">Charges handled directly by Meta</span>
+                          </div>
+                          <div className="text-sm text-white/60 flex items-center gap-2 mt-1">
+                            KyrozPlus Subscription: <span className="text-green-400 font-bold bg-green-400/10 px-2 py-0.5 rounded text-xs">Active</span>
+                          </div>
+                          <p className="text-xs text-white/40 mt-3">Last Synced: {new Date(waStatus.lastSynced).toLocaleString()}</p>
                         </div>
                       </div>
-                      <div className="flex gap-3">
-                        <button onClick={handleConnectWhatsApp} className="px-4 py-2 bg-white/10 text-white rounded-lg font-bold hover:bg-white/20 text-sm">Reconnect</button>
-                        <button onClick={handleDisconnectWhatsApp} className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg font-bold hover:bg-red-500/40 text-sm">Disconnect</button>
+                      <div className="flex flex-col gap-3 md:items-end">
+                        <button onClick={handleConnectWhatsApp} className="px-4 py-2 bg-white/10 text-white rounded-lg font-bold hover:bg-white/20 text-sm w-full md:w-auto text-center">Manage WhatsApp</button>
+                        <div className="flex gap-3">
+                          <button onClick={handleConnectWhatsApp} className="px-4 py-2 bg-white/5 text-white rounded-lg font-bold hover:bg-white/10 text-sm">Reconnect</button>
+                          <button onClick={handleDisconnectWhatsApp} className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg font-bold hover:bg-red-500/40 text-sm">Disconnect</button>
+                        </div>
                       </div>
                     </div>
 
