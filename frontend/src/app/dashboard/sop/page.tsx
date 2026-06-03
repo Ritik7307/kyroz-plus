@@ -88,6 +88,7 @@ function SOPLibraryContent() {
       const userRes = await fetch(`${API_URL}/api/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      const userData = await userRes.json();
       const plan = userData.plan || userData.subscriptionPlan || 'Starter';
       setUserPlan(plan);
       setSelectedSopCategory(userData.selectedSopCategory || null);
