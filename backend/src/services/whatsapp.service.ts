@@ -74,3 +74,55 @@ export const sendCustomerFeedbackWhatsApp = async (phone: string, customerName: 
     console.error(`[WhatsApp] Failed to send feedback message to ${phone}:`, error);
   }
 };
+
+/**
+ * Sends a Marketing WhatsApp message using the Meta WhatsApp Cloud API.
+ * Uses the global WHATSAPP_PHONE_NUMBER_ID and WHATSAPP_ACCESS_TOKEN from .env.
+ */
+export const sendMarketingWhatsApp = async (phone: string, messageText: string) => {
+  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
+
+  if (!phoneNumberId || !accessToken) {
+    console.warn('[WhatsApp] Meta Cloud API credentials not configured in .env. Skipping message.');
+    return { success: false, error: 'Credentials not configured' };
+  }
+
+  // Format phone number for Meta API (remove all non-digits, ensure country code, no leading +)
+  let formattedPhone = phone.replace(/\D/g, '');
+  if (formattedPhone.length === 10) {
+    formattedPhone = `91${formattedPhone}`; // Assume India if 10 digits
+  }
+
+  try {
+    const response = await fetch(`https://graph.facebook.com/v19.0/${phoneNumberId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to: formattedPhone,
+        type: 'text',
+        text: {
+          preview_url: true,
+          body: messageText
+        }
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(`[WhatsApp Meta API Error] to ${formattedPhone}:`, data);
+      return { success: false, error: data.error?.message || 'Unknown Meta API error' };
+    }
+
+    console.log(`[WhatsApp] Marketing message sent to ${formattedPhone}. Message ID: ${data.messages?.[0]?.id}`);
+    return { success: true, messageId: data.messages?.[0]?.id };
+  } catch (error: any) {
+    console.error(`[WhatsApp] Exception sending marketing message to ${phone}:`, error.message);
+    return { success: false, error: error.message };
+  }
+};

@@ -2,6 +2,7 @@ import { Router, Response, NextFunction } from 'express';
 import { authenticateToken, AuthRequest } from '../middleware/auth.middleware';
 import MarketingSettings from '../models/MarketingSettings';
 import User from '../models/User';
+import { sendMarketingWhatsApp } from '../services/whatsapp.service';
 
 const router = Router();
 
@@ -30,7 +31,7 @@ const isEliteOrAdmin = async (req: AuthRequest, res: Response, next: NextFunctio
 router.use(authenticateToken);
 router.use(isEliteOrAdmin);
 
-// POST /api/whatsapp/connect - Mock OAuth Connection
+// POST /api/whatsapp/connect - Global Connect
 router.post('/connect', async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId;
@@ -40,11 +41,19 @@ router.post('/connect', async (req: AuthRequest, res: Response): Promise<void> =
       settings = await MarketingSettings.create({ userId });
     }
 
-    // Mock successful connection with Meta Cloud API details
+    const globalPhoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+    const globalAccessToken = process.env.WHATSAPP_ACCESS_TOKEN;
+
+    if (!globalPhoneNumberId || !globalAccessToken) {
+      res.status(400).json({ error: 'Meta Cloud API keys are not configured on the server. Please contact support or update your .env file.' });
+      return;
+    }
+
     settings.whatsappConnected = true;
-    settings.businessAccountId = 'mock_biz_acc_' + Math.floor(Math.random() * 1000000);
-    settings.phoneNumberId = 'mock_phone_id_' + Math.floor(Math.random() * 1000000);
-    settings.accessToken = 'mock_access_token_EAAG...';
+    settings.businessAccountId = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID || 'connected_account';
+    settings.phoneNumberId = globalPhoneNumberId;
+    // We do not save the global token to the user document for security reasons, it's used from .env
+    settings.accessToken = 'hidden_system_token'; 
     
     // Use actual user details if available
     const user = await User.findById(userId);
@@ -163,10 +172,28 @@ router.post('/send', async (req: AuthRequest, res: Response): Promise<void> => {
       return;
     }
 
-    // Mock send logic
-    console.log(`Sending WhatsApp via Meta Cloud API to ${phones.length} users: ${message}`);
+    if (!phones || !Array.isArray(phones) || phones.length === 0) {
+      res.status(400).json({ error: 'No phone numbers provided.' });
+      return;
+    }
+
+    let successCount = 0;
+    let failCount = 0;
+
+    // Send messages sequentially to respect rate limits
+    for (const phone of phones) {
+      const result = await sendMarketingWhatsApp(phone, message);
+      if (result?.success) {
+        successCount++;
+      } else {
+        failCount++;
+      }
+    }
     
-    res.status(200).json({ message: `Message successfully queued for ${phones.length} customers!` });
+    res.status(200).json({ 
+      message: `Successfully sent ${successCount} messages. Failed: ${failCount}`,
+      stats: { success: successCount, failed: failCount }
+    });
   } catch (error) {
     res.status(500).json({ error: 'Failed to send WhatsApp messages' });
   }

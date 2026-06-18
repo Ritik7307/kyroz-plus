@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import sharp from 'sharp';
 import { authenticateToken } from '../middleware/auth.middleware';
 
 const router = Router();
@@ -12,15 +13,8 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
+// Use memory storage to process image before saving
+const storage = multer.memoryStorage();
 
 const upload = multer({ 
   storage,
@@ -37,19 +31,33 @@ const upload = multer({
   }
 });
 
-router.post('/', authenticateToken, upload.single('image'), (req: any, res: Response) => {
+router.post('/', authenticateToken, upload.single('image'), async (req: any, res: Response) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
-  // Construct the URL to the uploaded file
-  // Assuming the server is running on the same domain or we use relative paths
-  const fileUrl = `${process.env.BACKEND_URL || ''}/public/uploads/${req.file.filename}`;
-  
-  res.status(200).json({ 
-    message: 'File uploaded successfully', 
-    url: fileUrl 
-  });
+  try {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const filename = req.file.fieldname + '-' + uniqueSuffix + '.webp';
+    const filePath = path.join(uploadDir, filename);
+
+    // Compress, resize, and convert to WebP
+    await sharp(req.file.buffer)
+      .resize({ width: 800, withoutEnlargement: true }) // Max width 800px
+      .webp({ quality: 80 }) // Compress to 80% quality WebP
+      .toFile(filePath);
+
+    // Construct the URL to the uploaded file
+    const fileUrl = `${process.env.BACKEND_URL || ''}/public/uploads/${filename}`;
+    
+    res.status(200).json({ 
+      message: 'File uploaded and optimized successfully', 
+      url: fileUrl 
+    });
+  } catch (error) {
+    console.error('Image upload/compression error:', error);
+    res.status(500).json({ error: 'Failed to process image' });
+  }
 });
 
 export default router;

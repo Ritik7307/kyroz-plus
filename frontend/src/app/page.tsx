@@ -9,7 +9,10 @@ async function getPricingConfig() {
   };
 
   try {
-    const res = await fetch(`${API_URL}/api/admin/settings/pricing`, { cache: 'no-store' });
+    // Cache the pricing config for 1 hour to prevent blocking the landing page render
+    const res = await fetch(`${API_URL}/api/admin/settings/pricing`, { 
+      next: { revalidate: 3600 } 
+    });
     if (res.ok) {
       const data = await res.json();
       return {

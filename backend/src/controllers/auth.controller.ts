@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { Resend } from 'resend';
 import { UAParser } from 'ua-parser-js';
 import User from '../models/User';
 import Session from '../models/Session';
@@ -16,8 +15,6 @@ const PLAN_LIMITS = {
   'Scale': 4,
   'Admin': 999
 };
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendOtp = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -157,9 +154,16 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
     console.log(`[AUTH] Generating OTP for ${email}: ${plainOtp}`);
     
     try {
-      // Send email asynchronously without awaiting to reduce latency
-      resend.emails.send({
-        from: `KYROZ Security <no-reply@kyrozplus.com>`,
+      const transporter = require('nodemailer').createTransport({
+        service: process.env.SMTP_SERVICE || 'gmail',
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+
+      transporter.sendMail({
+        from: `"KYROZ Security" <${process.env.SMTP_USER || 'no-reply@kyrozplus.com'}>`,
         to: email,
         subject: 'Your KYROZ Login Code',
         html: `
@@ -171,15 +175,15 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
         `
       })
       .then(() => {
-        console.log(`✅ [RESEND] OTP sent to ${email}`);
+        console.log(`✅ [NODEMAILER] OTP sent to ${email}`);
       })
-      .catch((resendErr: any) => {
-        console.error('❌ [RESEND] Error:', resendErr);
+      .catch((err: any) => {
+        console.error('❌ [NODEMAILER] Error:', err);
       });
       
       res.status(200).json({ message: 'OTP sent successfully' });
     } catch (err: any) {
-      console.error('❌ [RESEND] Setup Error:', err);
+      console.error('❌ [NODEMAILER] Setup Error:', err);
       res.status(500).json({ error: 'Email Sending Failed', details: err.message });
     }
   } catch (error: any) {

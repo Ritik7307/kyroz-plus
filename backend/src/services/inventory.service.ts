@@ -535,24 +535,40 @@ export const getIngredientUnitCost = async (
 
 export const calculateDishCost = async (
   dishId: mongoose.Types.ObjectId | string,
-  userId: mongoose.Types.ObjectId | string
+  userId: mongoose.Types.ObjectId | string,
+  orderType?: string
 ): Promise<number> => {
-  const dish = await Dish.findOne({ _id: dishId, userId });
+  const dish = await Dish.findOne({ _id: dishId, userId }).populate('packagingLogic.dineIn packagingLogic.takeaway packagingLogic.delivery');
   if (!dish) return 0;
 
   const recipe = await Recipe.findOne({ targetModel: 'Dish', targetId: dishId, userId });
-  if (!recipe) {
-    return dish.ingredientPrice || 0;
+  let baseCost = dish.ingredientPrice || 0;
+
+  if (recipe) {
+    let totalFoodCost = 0;
+    for (const ingredient of recipe.ingredients) {
+      const cost = await getIngredientUnitCost(ingredient.itemModel, ingredient.itemId, userId);
+      totalFoodCost += cost * ingredient.quantity;
+    }
+    const yieldQty = recipe.operationalYield || recipe.targetYield || 1;
+    baseCost = totalFoodCost / yieldQty;
   }
 
-  let totalFoodCost = 0;
-  for (const ingredient of recipe.ingredients) {
-    const cost = await getIngredientUnitCost(ingredient.itemModel, ingredient.itemId, userId);
-    totalFoodCost += cost * ingredient.quantity;
+  // Add packaging cost based on orderType if available
+  let packagingCost = 0;
+  if (dish.packagingLogic && orderType) {
+    let pkgs: any[] = [];
+    if (orderType === 'Takeaway' && dish.packagingLogic.takeaway) pkgs = dish.packagingLogic.takeaway;
+    else if (orderType === 'Delivery' && dish.packagingLogic.delivery) pkgs = dish.packagingLogic.delivery;
+    else if (orderType === 'DineIn' && dish.packagingLogic.dineIn) pkgs = dish.packagingLogic.dineIn;
+
+    for (const pkg of pkgs) {
+      // If populated, pkg will have costPerUnit
+      packagingCost += pkg.costPerUnit || 0;
+    }
   }
 
-  const yieldQty = recipe.operationalYield || recipe.targetYield || 1;
-  return totalFoodCost / yieldQty;
+  return baseCost + packagingCost;
 };
 
 

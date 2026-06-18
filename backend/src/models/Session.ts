@@ -21,5 +21,6 @@ const SessionSchema: Schema = new Schema(
 
 // Index to automatically remove inactive sessions after 7 days (auto cleanup)
 SessionSchema.index({ lastActive: 1 }, { expireAfterSeconds: 7 * 24 * 60 * 60 });
+SessionSchema.index({ userId: 1 });
 
 export default mongoose.models.Session || mongoose.model<ISession>('Session', SessionSchema);

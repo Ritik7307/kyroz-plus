@@ -45,4 +45,6 @@ const UserSchema: Schema = new Schema(
   { timestamps: true }
 );
 
+UserSchema.index({ ownerId: 1 });
+
 export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

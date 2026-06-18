@@ -44,7 +44,7 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
       const dish = await Dish.findById(dishId);
       if (dish) {
         const price = dish.price || 0;
-        const ingredientPrice = await calculateDishCost(dishId, req.user?.userId || '');
+        const ingredientPrice = await calculateDishCost(dishId, req.user?.userId || '', orderType);
 
         orderItems.push({
           dishId,

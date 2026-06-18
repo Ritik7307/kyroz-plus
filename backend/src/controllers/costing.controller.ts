@@ -185,6 +185,16 @@ export const getDishCosting = async (req: AuthRequest, res: Response): Promise<v
       }
     }
 
+    let maxPackagingCost = 0;
+    if (dish.packagingLogic) {
+      const getPkgCost = (pkgArr: any[]) => pkgArr.reduce((sum, pkg) => sum + (pkg?.costPerUnit || 0), 0);
+      const dineInCost = getPkgCost(dish.packagingLogic.dineIn || []);
+      const takeawayCost = getPkgCost(dish.packagingLogic.takeaway || []);
+      const deliveryCost = getPkgCost(dish.packagingLogic.delivery || []);
+      maxPackagingCost = Math.max(dineInCost, takeawayCost, deliveryCost);
+      totalFoodCost += maxPackagingCost;
+    }
+
     // Costing master rules: Minimum Selling Price is 2.5x food cost, Max is 5x.
     const minSellingPrice = totalFoodCost * 2.5;
     const maxSellingPrice = totalFoodCost * 5;

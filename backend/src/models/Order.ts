@@ -48,4 +48,6 @@ const OrderSchema: Schema = new Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+OrderSchema.index({ userId: 1, createdAt: -1 });
+
 export default mongoose.models.Order || mongoose.model<IOrder>('Order', OrderSchema);

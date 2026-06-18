@@ -3,6 +3,7 @@ import { AuthRequest } from '../middleware/auth.middleware';
 import Sop from '../models/Sop';
 import Inventory from '../models/Inventory';
 import Dish from '../models/Dish';
+import { processSopText } from '../services/ai/ingestion.service';
 
 export const createSop = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -37,6 +38,19 @@ export const createSop = async (req: AuthRequest, res: Response): Promise<void> 
         { platesPerPacket, $setOnInsert: { totalPlates: 0 } },
         { upsert: true }
       );
+    }
+
+    // Process SOP for AI Chatbot Context
+    if (userId) {
+      if (contentEn) {
+        processSopText(userId.toString(), `SOP: ${title}\n\n${contentEn}`, 'en').catch(e => console.error('SOP AI Sync Error EN:', e));
+      }
+      if (contentHi) {
+        processSopText(userId.toString(), `SOP: ${title}\n\n${contentHi}`, 'hi').catch(e => console.error('SOP AI Sync Error HI:', e));
+      }
+      if (content && !contentEn && !contentHi) {
+        processSopText(userId.toString(), `SOP: ${title}\n\n${content}`, 'en').catch(e => console.error('SOP AI Sync Error:', e));
+      }
     }
 
     res.status(201).json(newSop);
@@ -83,6 +97,19 @@ export const updateSop = async (req: AuthRequest, res: Response): Promise<void> 
         { platesPerPacket },
         { upsert: true }
       );
+    }
+
+    // Process SOP for AI Chatbot Context
+    if (userId) {
+      if (contentEn) {
+        processSopText(userId.toString(), `SOP: ${title}\n\n${contentEn}`, 'en').catch(e => console.error('SOP AI Sync Error EN:', e));
+      }
+      if (contentHi) {
+        processSopText(userId.toString(), `SOP: ${title}\n\n${contentHi}`, 'hi').catch(e => console.error('SOP AI Sync Error HI:', e));
+      }
+      if (content && !contentEn && !contentHi) {
+        processSopText(userId.toString(), `SOP: ${title}\n\n${content}`, 'en').catch(e => console.error('SOP AI Sync Error:', e));
+      }
     }
 
     res.status(200).json(updatedSop);
