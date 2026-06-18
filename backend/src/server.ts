@@ -48,11 +48,13 @@ const numCPUs = os.cpus().length;
 
 const PORT = process.env.PORT || 5000;
 
+const numWorkers = process.env.WEB_CONCURRENCY ? parseInt(process.env.WEB_CONCURRENCY, 10) : numCPUs;
+
 if (cluster.isPrimary && process.env.NODE_ENV === 'production') {
   console.log(`Primary ${process.pid} is running`);
 
-  // Fork workers.
-  for (let i = 0; i < numCPUs; i++) {
+  // Fork workers based on WEB_CONCURRENCY or numCPUs
+  for (let i = 0; i < numWorkers; i++) {
     cluster.fork();
   }
 
