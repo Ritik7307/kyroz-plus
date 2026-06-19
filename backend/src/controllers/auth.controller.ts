@@ -6,6 +6,7 @@ import User from '../models/User';
 import Session from '../models/Session';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { syncMasterSopsForUser } from '../services/sop.service';
+import { Resend } from 'resend';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'kyroz_super_secret_key_123';
 
@@ -154,37 +155,66 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
     console.log(`[AUTH] Generating OTP for ${email}: ${plainOtp}`);
     
     try {
-      const transporter = require('nodemailer').createTransport({
-        service: process.env.SMTP_SERVICE || 'gmail',
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-      });
+      let emailSent = false;
+      const emailHtml = `
+        <div style="font-family: sans-serif; padding: 20px; border: 1px solid #d4af37; border-radius: 10px;">
+          <h2>Your KYROZ Login Code</h2>
+          <p style="font-size: 32px; font-weight: bold; color: #d4af37; letter-spacing: 5px;">${plainOtp}</p>
+          <p>Enter this code to verify your identity. Valid for 5 minutes.</p>
+        </div>
+      `;
 
-      transporter.sendMail({
-        from: `"KYROZ Security" <${process.env.SMTP_USER || 'no-reply@kyrozplus.com'}>`,
-        to: email,
-        subject: 'Your KYROZ Login Code',
-        html: `
-          <div style="font-family: sans-serif; padding: 20px; border: 1px solid #d4af37; border-radius: 10px;">
-            <h2>Your KYROZ Login Code</h2>
-            <p style="font-size: 32px; font-weight: bold; color: #d4af37; letter-spacing: 5px;">${plainOtp}</p>
-            <p>Enter this code to verify your identity. Valid for 5 minutes.</p>
-          </div>
-        `
-      })
-      .then(() => {
+      // Try Resend first
+      if (process.env.RESEND_API_KEY) {
+        try {
+          const resend = new Resend(process.env.RESEND_API_KEY);
+          const data = await resend.emails.send({
+            from: 'KYROZ Security <onboarding@resend.dev>', // Change to your verified domain in production
+            to: email,
+            subject: 'Your KYROZ Login Code',
+            html: emailHtml
+          });
+          
+          if (data.error) {
+             console.error('❌ [RESEND] API Error:', data.error);
+          } else {
+             console.log(`✅ [RESEND] OTP sent to ${email}`);
+             emailSent = true;
+          }
+        } catch (resendErr) {
+          console.error('❌ [RESEND] SDK Error:', resendErr);
+        }
+      }
+
+      // Fallback to Nodemailer if Resend fails or is missing
+      if (!emailSent) {
+        console.log('⚠️ Falling back to Nodemailer for OTP...');
+        const transporter = require('nodemailer').createTransport({
+          service: process.env.SMTP_SERVICE || 'gmail',
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+          },
+        });
+
+        await transporter.sendMail({
+          from: `"KYROZ Security" <${process.env.SMTP_USER || 'no-reply@kyrozplus.com'}>`,
+          to: email,
+          subject: 'Your KYROZ Login Code',
+          html: emailHtml
+        });
         console.log(`✅ [NODEMAILER] OTP sent to ${email}`);
-      })
-      .catch((err: any) => {
-        console.error('❌ [NODEMAILER] Error:', err);
-      });
-      
-      res.status(200).json({ message: 'OTP sent successfully' });
+        emailSent = true;
+      }
+
+      if (emailSent) {
+        res.status(200).json({ message: 'OTP sent successfully' });
+      } else {
+        throw new Error("Failed to send email via both Resend and Nodemailer.");
+      }
     } catch (err: any) {
-      console.error('❌ [NODEMAILER] Setup Error:', err);
-      res.status(500).json({ error: 'Email Sending Failed', details: err.message });
+      console.error('❌ [EMAIL] Setup Error:', err);
+      res.status(500).json({ error: 'Email Sending Failed. Please try again later.' });
     }
   } catch (error: any) {
     console.error('❌ [AUTH] Error:', error);

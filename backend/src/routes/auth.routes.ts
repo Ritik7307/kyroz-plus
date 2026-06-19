@@ -7,9 +7,11 @@ const router = Router();
 
 // Rate limiter for sending OTPs to prevent brute force/spam
 const otpLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 100, // Limit each IP to 100 OTP requests per minute
-  message: { error: 'Too many OTP requests. Please wait a minute.' }
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 OTP requests per 15 minutes
+  message: { error: 'Too many OTP requests. Please wait 15 minutes before trying again.' },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 
 router.post('/send-otp', otpLimiter, sendOtp);
