@@ -152,10 +152,11 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
       { upsert: true, new: true }
     );
 
-    console.log(`[AUTH] Generating OTP for ${email}: ${plainOtp}`);
-    
-    try {
-      let emailSent = false;
+    // -----------------------------------------------------------------
+    // FIRE AND FORGET EMAIL SENDING (Background execution)
+    // This removes the API latency so the user doesn't wait for SMTP
+    // -----------------------------------------------------------------
+    const sendEmailBackground = async () => {
       const emailHtml = `
         <div style="font-family: sans-serif; padding: 20px; border: 1px solid #d4af37; border-radius: 10px;">
           <h2>Your KYROZ Login Code</h2>
@@ -163,6 +164,8 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
           <p>Enter this code to verify your identity. Valid for 5 minutes.</p>
         </div>
       `;
+
+      let emailSent = false;
 
       // Try Resend first
       if (process.env.RESEND_API_KEY) {
@@ -188,34 +191,35 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
 
       // Fallback to Nodemailer if Resend fails or is missing
       if (!emailSent) {
-        console.log('⚠️ Falling back to Nodemailer for OTP...');
-        const transporter = require('nodemailer').createTransport({
-          service: process.env.SMTP_SERVICE || 'gmail',
-          auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
-          },
-        });
+        try {
+          console.log('⚠️ Falling back to Nodemailer for OTP...');
+          const transporter = require('nodemailer').createTransport({
+            service: process.env.SMTP_SERVICE || 'gmail',
+            auth: {
+              user: process.env.SMTP_USER,
+              pass: process.env.SMTP_PASS,
+            },
+          });
 
-        await transporter.sendMail({
-          from: `"KYROZ Security" <${process.env.SMTP_USER || 'no-reply@kyrozplus.com'}>`,
-          to: email,
-          subject: 'Your KYROZ Login Code',
-          html: emailHtml
-        });
-        console.log(`✅ [NODEMAILER] OTP sent to ${email}`);
-        emailSent = true;
+          await transporter.sendMail({
+            from: `"KYROZ Security" <${process.env.SMTP_USER || 'no-reply@kyrozplus.com'}>`,
+            to: email,
+            subject: 'Your KYROZ Login Code',
+            html: emailHtml
+          });
+          console.log(`✅ [NODEMAILER] OTP sent to ${email}`);
+        } catch (nodeErr) {
+          console.error('❌ [NODEMAILER] Error:', nodeErr);
+        }
       }
+    };
 
-      if (emailSent) {
-        res.status(200).json({ message: 'OTP sent successfully' });
-      } else {
-        throw new Error("Failed to send email via both Resend and Nodemailer.");
-      }
-    } catch (err: any) {
-      console.error('❌ [EMAIL] Setup Error:', err);
-      res.status(500).json({ error: 'Email Sending Failed. Please try again later.' });
-    }
+    // Execute background task without awaiting it
+    sendEmailBackground().catch(err => console.error('Background Email Error:', err));
+
+    // Return success to client immediately for snappy UI
+    res.status(200).json({ message: 'OTP sending initiated successfully' });
+
   } catch (error: any) {
     console.error('❌ [AUTH] Error:', error);
     res.status(500).json({ error: 'Server error', details: error.message });
