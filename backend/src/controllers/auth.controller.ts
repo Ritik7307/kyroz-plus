@@ -44,7 +44,7 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
       console.log(`[AUTH] Admin Password Login: ${email}`);
       const parser = new UAParser(req.headers['user-agent']);
       const deviceInfo = `${parser.getBrowser().name || 'Unknown'} on ${parser.getOS().name || 'Unknown'}`;
-      
+
       const newSession = new Session({
         userId: adminUser._id,
         deviceInfo,
@@ -54,22 +54,22 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
       await newSession.save();
 
       const token = jwt.sign(
-        { userId: adminUser._id, role: adminUser.role, plan: adminUser.subscriptionPlan, sessionId: newSession._id }, 
-        JWT_SECRET, 
+        { userId: adminUser._id, role: adminUser.role, plan: adminUser.subscriptionPlan, sessionId: newSession._id },
+        JWT_SECRET,
         { expiresIn: '7d' }
       );
 
-      res.status(200).json({ 
+      res.status(200).json({
         message: 'Admin login successful',
         isDirectLogin: true,
         token,
-        user: { 
-          id: adminUser._id, 
-          email: adminUser.email, 
-          name: adminUser.name, 
-          role: adminUser.role, 
-          plan: adminUser.subscriptionPlan 
-        } 
+        user: {
+          id: adminUser._id,
+          email: adminUser.email,
+          name: adminUser.name,
+          role: adminUser.role,
+          plan: adminUser.subscriptionPlan
+        }
       });
       return;
     }
@@ -79,10 +79,10 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
       const user = await User.findOne({ email });
       if (user && user.password && await bcrypt.compare(password, user.password)) {
         console.log(`[AUTH] Staff Password Login: ${email}`);
-        
+
         const parser = new UAParser(req.headers['user-agent']);
         const deviceInfo = `${parser.getBrowser().name || 'Unknown'} on ${parser.getOS().name || 'Unknown'}`;
-        
+
         const newSession = new Session({
           userId: user._id,
           deviceInfo,
@@ -92,24 +92,24 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
         await newSession.save();
 
         const token = jwt.sign(
-          { userId: user._id, role: user.role, plan: user.subscriptionPlan, sessionId: newSession._id }, 
-          JWT_SECRET, 
+          { userId: user._id, role: user.role, plan: user.subscriptionPlan, sessionId: newSession._id },
+          JWT_SECRET,
           { expiresIn: '7d' }
         );
 
-        res.status(200).json({ 
+        res.status(200).json({
           message: 'Login successful',
           isDirectLogin: true,
           token,
-          user: { 
-            id: user._id, 
-            email: user.email, 
-            name: user.name, 
-            role: user.role, 
+          user: {
+            id: user._id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
             plan: user.subscriptionPlan,
             shopName: user.shopName,
             permissions: user.permissions || []
-          } 
+          }
         });
         return;
       }
@@ -132,22 +132,22 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
     // Generate 6-digit OTP
     const plainOtp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
-    
+
     // Hash OTP
     const otpHash = await bcrypt.hash(plainOtp, 4);
 
     await User.findOneAndUpdate(
       { email },
-      { 
-        $set: { 
-          otpHash, 
+      {
+        $set: {
+          otpHash,
           otpExpiresAt,
           ...(name && { name }),
           ...(phone && { phone }),
           ...(shopName && { shopName }),
           ...(shopAddress && { shopAddress }),
           ...(gstNumber && { gstNumber })
-        } 
+        }
       },
       { upsert: true, new: true }
     );
@@ -172,17 +172,17 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
         try {
           const resend = new Resend(process.env.RESEND_API_KEY);
           const data = await resend.emails.send({
-            from: 'KYROZ Security <onboarding@resend.dev>', // Change to your verified domain in production
+            from: 'KYROZ Security <security@kyrozplus.com>',
             to: email,
             subject: 'Your KYROZ Login Code',
             html: emailHtml
           });
-          
+
           if (data.error) {
-             console.error('❌ [RESEND] API Error:', data.error);
+            console.error('❌ [RESEND] API Error:', data.error);
           } else {
-             console.log(`✅ [RESEND] OTP sent to ${email}`);
-             emailSent = true;
+            console.log(`✅ [RESEND] OTP sent to ${email}`);
+            emailSent = true;
           }
         } catch (resendErr) {
           console.error('❌ [RESEND] SDK Error:', resendErr);
@@ -231,7 +231,7 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
     const { email, otp } = req.body;
 
     const user = await User.findOne({ email });
-    
+
     if (!user || !user.otpHash || !user.otpExpiresAt || user.otpExpiresAt < new Date()) {
       res.status(400).json({ error: 'Invalid or expired OTP' });
       return;
@@ -263,7 +263,7 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
 
     // Check existing active sessions
     const activeSessions = await Session.find({ userId: user._id }).sort({ lastActive: 1 });
-    
+
     const limit = PLAN_LIMITS[user.subscriptionPlan as keyof typeof PLAN_LIMITS] || 1;
 
     // If limit exceeded, kick out the oldest session
@@ -285,14 +285,14 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
     // ----------------------------------------------------
 
     const token = jwt.sign(
-      { userId: user._id, role: user.role, plan: user.subscriptionPlan, sessionId: newSession._id }, 
-      JWT_SECRET, 
+      { userId: user._id, role: user.role, plan: user.subscriptionPlan, sessionId: newSession._id },
+      JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    res.status(200).json({ 
-      token, 
-      user: { id: user._id, email: user.email, name: user.name, role: user.role, plan: user.subscriptionPlan } 
+    res.status(200).json({
+      token,
+      user: { id: user._id, email: user.email, name: user.name, role: user.role, plan: user.subscriptionPlan }
     });
   } catch (error) {
     console.error('Error verifying OTP:', error);
@@ -306,10 +306,10 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (token) {
-       const decoded: any = jwt.verify(token, JWT_SECRET);
-       if (decoded.sessionId) {
-         await Session.findByIdAndDelete(decoded.sessionId);
-       }
+      const decoded: any = jwt.verify(token, JWT_SECRET);
+      if (decoded.sessionId) {
+        await Session.findByIdAndDelete(decoded.sessionId);
+      }
     }
     res.status(200).json({ message: 'Logged out successfully' });
   } catch (error) {
@@ -339,7 +339,7 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
 export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { name, phone, shopName, shopAddress, gstNumber, gstPercentage, paymentQrCode, selectedSopCategory } = req.body;
-    
+
     const user = await User.findById(req.user?.userId);
     if (!user) {
       res.status(404).json({ error: 'User not found' });

@@ -1,45 +1,89 @@
-const nodemailer = require('nodemailer');
 const dotenv = require('dotenv');
-const path = require('path');
+const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-// Load env from the backend directory
-dotenv.config({ path: path.join(__dirname, '.env') });
+dotenv.config();
 
-async function testEmail() {
-  console.log('--- KYROZ Email Diagnostic ---');
-  console.log('Testing with User:', process.env.SMTP_USER);
-  
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.error('ERROR: Missing SMTP_USER or SMTP_PASS in .env file!');
-    return;
+const testEmail = process.argv[2] || process.env.ADMIN_EMAIL || 'test@example.com';
+
+async function testEmails() {
+  console.log(`\n--- Testing Email Delivery to ${testEmail} ---\n`);
+
+  // 1. Test Resend
+  if (process.env.RESEND_API_KEY) {
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    // 1. TEST RESEND API WITH SUBDOMAIN
+    console.log('\n[TEST 1A] Testing Resend API with subdomain (send.kyrozplus.com)...');
+    try {
+      const data = await resend.emails.send({
+        from: 'KYROZ Security <security@send.kyrozplus.com>',
+        to: testEmail,
+        subject: 'Resend Subdomain Test',
+        html: '<p>This is a test from the subdomain.</p>'
+      });
+
+      if (data.error) {
+        console.error('❌ Resend Subdomain Error:', data.error);
+      } else {
+        console.log('✅ Resend Subdomain Success! Message ID:', data.data?.id);
+      }
+    } catch (error) {
+      console.error('❌ Resend SDK Error:', error);
+    }
+
+    // 2. TEST RESEND API WITH ROOT DOMAIN
+    console.log('\n[TEST 1B] Testing Resend API with root domain (kyrozplus.com)...');
+    try {
+      const data = await resend.emails.send({
+        from: 'KYROZ Security <security@kyrozplus.com>',
+        to: testEmail,
+        subject: 'Resend Root Domain Test',
+        html: '<p>This is a test from the root domain.</p>'
+      });
+
+      if (data.error) {
+        console.error('❌ Resend Root Domain Error:', data.error);
+      } else {
+        console.log('✅ Resend Root Domain Success! Message ID:', data.data?.id);
+      }
+    } catch (error) {
+      console.error('❌ Resend SDK Error:', error);
+    }
+  } else {
+    console.log('⚠️ RESEND_API_KEY not found in .env, skipping Resend test.');
   }
 
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS
-    }
-  });
+  console.log('\n----------------------------------------\n');
 
-  try {
-    console.log('Connecting to Google...');
-    await transporter.verify();
-    console.log('SUCCESS: Connection is valid! Your credentials are correct.');
-  } catch (error) {
-    console.error('FAILED: Could not connect to Gmail.');
-    console.error('Reason:', error.message);
-    
-    if (error.message.includes('Invalid login')) {
-      console.log('\nTIP: Google rejected your password.');
-      console.log('1. Ensure you are using a 16-character APP PASSWORD, not your normal password.');
-      console.log('2. Ensure there are NO SPACES in the password in your .env file.');
-    } else if (error.message.includes('ETIMEOUT')) {
-      console.log('\nTIP: Connection timed out. Check your internet or if a firewall is blocking port 465.');
+  // 2. Test Nodemailer
+  console.log('[TEST 2] Testing Nodemailer (Gmail)...');
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+    try {
+      const transporter = nodemailer.createTransport({
+        service: process.env.SMTP_SERVICE || 'gmail',
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+
+      // Verify connection config
+      await transporter.verify();
+      console.log('✅ Nodemailer Transport verified. Credentials are correct.');
+
+      const info = await transporter.sendMail({
+        from: `"KYROZ Security" <${process.env.SMTP_USER}>`,
+        to: testEmail,
+        subject: 'KYROZ Email Test (Nodemailer)',
+        html: '<p>This is a test email from Nodemailer.</p>'
+      });
+      console.log('✅ Nodemailer Success! Message ID:', info.messageId);
+    } catch (e) {
+      console.error('❌ Nodemailer Error:', e.message);
     }
+  } else {
+    console.log('⚠️ SMTP_USER or SMTP_PASS not found in .env, skipping Nodemailer test.');
   }
 }
 
-testEmail();
+testEmails();
