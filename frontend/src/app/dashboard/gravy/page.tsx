@@ -13,6 +13,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 
 interface GravyBatch {
   id: string;
@@ -37,6 +38,7 @@ export default function GravyMaster() {
 
   const currentGravy = gravies.find(g => g.name === activeGravy) || gravies[0];
   const calculatedYield = (baseQty / currentGravy.qtyPerBatch) * currentGravy.yieldLtr;
+  const router = useRouter();
 
   return (
     <div className="max-w-7xl mx-auto space-y-12 pb-24">
@@ -170,7 +172,10 @@ export default function GravyMaster() {
                 Never mix old gravy with new batch. Always reheat only the required portion in a clean copper/steel handi to maintain base color and avoid charring.
               </p>
             </div>
-            <button className="px-8 py-4 bg-white/10 hover:bg-gold hover:text-black rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+            <button 
+              onClick={() => router.push(`/dashboard/sop?search=${encodeURIComponent(currentGravy.name)}`)}
+              className="px-8 py-4 bg-white/10 hover:bg-gold hover:text-black rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+            >
               View Full SOP
             </button>
           </div>

@@ -167,14 +167,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const isAiRoute = pathname.startsWith('/dashboard/ai');
     const isCostingRoute = pathname.startsWith('/dashboard/costing');
     const isWastageRoute = pathname.startsWith('/dashboard/wastage');
+    const isMarketingRoute = pathname.startsWith('/dashboard/marketing');
     
     if (currentPlan === 'None') {
       if (!isMembershipRoute && !isAccountRoute) isLocked = true;
     } else if (currentPlan === 'Starter') {
-      // Starter plan doesn't have AI, Costing, or Wastage
-      if (isAiRoute || isCostingRoute || isWastageRoute) isLocked = true;
+      // Starter plan doesn't have AI, Costing, Wastage, or Marketing
+      if (isAiRoute || isCostingRoute || isWastageRoute || isMarketingRoute) isLocked = true;
+    } else if (currentPlan === 'Growth') {
+      // Growth plan doesn't have Marketing
+      if (isMarketingRoute) isLocked = true;
     }
-    // Growth and Scale have access to everything
+    // Scale has access to everything
   }
 
   return (

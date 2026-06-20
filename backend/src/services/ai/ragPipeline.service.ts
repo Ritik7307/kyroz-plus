@@ -114,11 +114,13 @@ const correctPhoneticTypos = (query: string): string => {
 
     'alu masala': 'aloo masala',
 
-    'rawa dosa': 'rava dosa',
-
     'rawa dhosa': 'rava dosa',
 
-    'rava dhosa': 'rava dosa',
+    'jal fry': 'jalfrezi',
+
+    'do pyaja': 'do pyaza',
+
+    'do piasa': 'do pyaza',
 
   };
 
@@ -153,6 +155,8 @@ const correctPhoneticTypos = (query: string): string => {
     'dosha': 'dosa',
 
     'tosa': 'dosa',
+
+    'bhosa': 'dosa',
 
     'utappa': 'uttapam',
 
@@ -205,6 +209,44 @@ const correctPhoneticTypos = (query: string): string => {
     'lucknawi': 'lucknowi',
 
     'lucknow': 'lucknowi',
+
+    'panir': 'paneer',
+
+    'paner': 'paneer',
+
+    'mashroom': 'mushroom',
+
+    'mashrum': 'mushroom',
+
+    'musrum': 'mushroom',
+
+    'malayi': 'malai',
+
+    'khopta': 'kofta',
+
+    'copta': 'kofta',
+
+    'lesun': 'lehsuni',
+
+    'lasooni': 'lehsuni',
+
+    'lasuni': 'lehsuni',
+
+    'jalfrazi': 'jalfrezi',
+
+    'dhaniya': 'dhania',
+
+    'adraqui': 'adraki',
+
+    'lavabdar': 'lababdar',
+
+    'pasinda': 'pasanda',
+
+    'rattan': 'ratan',
+
+    'kari': 'curry',
+
+    'handy': 'handi',
 
   };
 
@@ -445,6 +487,7 @@ const HINDI_PHONETIC_MAP: Record<string, string> = {
   'पिर्यानी': 'biryani',
   'दोसा': 'dosa',
   'डोसा': 'dosa',
+  'भोसा': 'dosa',
   'मंडी': 'mandi',
   'इडली': 'idli',
   'चटनी': 'chutney',
@@ -462,7 +505,19 @@ const HINDI_PHONETIC_MAP: Record<string, string> = {
   'सैंडविच': 'sandwich',
   'मोमो': 'momo',
   'सूप': 'soup',
-  'नूडल्स': 'noodles'
+  'नूडल्स': 'noodles',
+  'मलाई': 'malai',
+  'कोफ्ता': 'kofta',
+  'लहसुनी': 'lehsuni',
+  'जलफ्रेजी': 'jalfrezi',
+  'हंडी': 'handi',
+  'पसंदा': 'pasanda',
+  'लबबदार': 'lababdar',
+  'धनिया': 'dhania',
+  'अदरकी': 'adraki',
+  'दो प्याज़ा': 'do pyaza',
+  'पंच रतन': 'panch ratan',
+  'करी': 'curry'
 };
 
 const HINGLISH_MAP: Record<string, string> = {
@@ -473,7 +528,16 @@ const HINGLISH_MAP: Record<string, string> = {
   'piryani': 'biryani',
   'briyani': 'biryani',
   'dosa': 'dosa',
-  'dhosa': 'dosa'
+  'dhosa': 'dosa',
+  'bhosa': 'dosa',
+  'panir': 'paneer',
+  'mashroom': 'mushroom',
+  'malayi': 'malai',
+  'khopta': 'kofta',
+  'lesun': 'lehsuni',
+  'lasooni': 'lehsuni',
+  'dhaniya': 'dhania',
+  'jalfrazi': 'jalfrezi'
 };
 
 const translatePhoneticsLocally = (query: string): string => {

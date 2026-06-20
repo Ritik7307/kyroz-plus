@@ -120,7 +120,7 @@ export default function DashboardPage() {
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* POS Terminal Button */}
           {(user?.role === 'manager' || user?.role === 'billing' || user?.role === 'user') && (
-            <div className="lg:col-span-4 h-full">
+            <div className="lg:col-span-6 h-full">
               <button 
                 onClick={() => router.push('/dashboard/pos')}
                 className="w-full h-full min-h-[180px] bg-card glass-card rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-6 group hover:scale-[1.02] transition-all duration-500 animate-gold-glow border-gold/30 border-2 shadow-2xl relative overflow-hidden"
@@ -138,8 +138,8 @@ export default function DashboardPage() {
           )}
 
           {/* Welcome & Status */}
-          <div className={user?.role === 'cook' ? 'lg:col-span-12' : 'lg:col-span-8'}>
-            <div className="bg-card glass-card rounded-[2.5rem] p-10 flex flex-col lg:flex-row items-center justify-between gap-8 border border-white/5 shadow-2xl relative overflow-hidden">
+          <div className={user?.role === 'cook' ? 'lg:col-span-12 h-full' : 'lg:col-span-6 h-full'}>
+            <div className="h-full bg-card glass-card rounded-[2.5rem] p-10 flex flex-col lg:flex-row items-center justify-between gap-8 border border-white/5 shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 left-0 w-64 h-64 bg-gold/5 rounded-full -ml-32 -mt-32 blur-[100px]"></div>
               <div className="space-y-3 relative z-10 text-center lg:text-left">
                 <h2 className="text-4xl font-black tracking-tighter uppercase leading-none text-white">WELCOME BACK, <span className="text-gold">{user?.name || 'CHEF'}!</span></h2>
@@ -176,36 +176,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Role Specific Widgets */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-              {(user?.role === 'manager' || user?.role === 'user' || user?.role === 'cook') && (
-                <div onClick={() => router.push('/dashboard/inventory')} className="bg-red-500/5 border border-red-500/20 p-6 rounded-3xl flex items-center gap-4 group hover:bg-red-500/10 transition-all cursor-pointer">
-                  <div className="w-12 h-12 rounded-2xl bg-red-500/20 flex items-center justify-center text-red-500"><AlertCircle size={24} /></div>
-                  <div>
-                    <p className="text-[10px] font-black text-red-500/60 uppercase tracking-widest">Wastage Alert</p>
-                    <p className="text-xs font-black text-white uppercase">Milk Expiring Today</p>
-                  </div>
-                </div>
-              )}
-              {(user?.role === 'manager' || user?.role === 'user' || user?.role === 'cook') && (
-                <div onClick={() => router.push('/dashboard/inventory')} className="bg-yellow-500/5 border border-yellow-500/20 p-6 rounded-3xl flex items-center gap-4 group hover:bg-yellow-500/10 transition-all cursor-pointer">
-                  <div className="w-12 h-12 rounded-2xl bg-yellow-500/20 flex items-center justify-center text-yellow-500"><ShoppingCart size={24} /></div>
-                  <div>
-                    <p className="text-[10px] font-black text-yellow-500/60 uppercase tracking-widest">Low Stock</p>
-                    <p className="text-xs font-black text-white uppercase">Premix Packet A (2 Left)</p>
-                  </div>
-                </div>
-              )}
-              {(user?.role === 'manager' || user?.role === 'user' || user?.role === 'billing') && (
-                <div onClick={() => router.push('/dashboard/sop?category=Costing')} className="bg-orange-500/5 border border-orange-500/20 p-6 rounded-3xl flex items-center gap-4 group hover:bg-orange-500/10 transition-all cursor-pointer">
-                  <div className="w-12 h-12 rounded-2xl bg-orange-500/20 flex items-center justify-center text-orange-500"><DollarSign size={24} /></div>
-                  <div>
-                    <p className="text-[10px] font-black text-orange-500/60 uppercase tracking-widest">Low Margin</p>
-                    <p className="text-xs font-black text-white uppercase">Veg Jalfrezi (12%)</p>
-                  </div>
-                </div>
-              )}
-            </div>
+
           </div>
         </section>
 

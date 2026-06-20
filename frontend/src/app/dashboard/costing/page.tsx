@@ -82,6 +82,7 @@ export default function CostingMaster() {
   const [savingIngredientId, setSavingIngredientId] = useState<string>('');
   const [sellingPriceInput, setSellingPriceInput] = useState<number | ''>('');
   const [savingSellingPrice, setSavingSellingPrice] = useState<boolean>(false);
+  const [businessType, setBusinessType] = useState<string>('Casual Dining');
 
   // New states for Recipe Builder
   const [availableIngredients, setAvailableIngredients] = useState<any[]>([]);
@@ -280,7 +281,7 @@ export default function CostingMaster() {
     return closest;
   };
 
-  const multiplier = 3.0; // Standard base multiplier
+  const multiplier = businessType === 'Street Food / Kiosk' ? 2.5 : businessType === 'Fine Dining' ? 4.0 : 3.0;
   const rawSuggested = costPerPlate * multiplier;
   const suggestedPrice = getPsychologicalPrice(rawSuggested);
   const numericSellingPrice = Number(sellingPriceInput) || 0;
@@ -597,14 +598,32 @@ export default function CostingMaster() {
               </div>
             </div>
 
-            {/* Inherent Rules Informational Widget */}
-            <div className="bg-white/5 border border-white/10 rounded-[2rem] p-8 space-y-4">
-              <h5 className="text-[10px] font-black text-gold uppercase tracking-[0.2em] flex items-center gap-2">
-                <Sparkles size={14} /> KYROZ Standard Costing Policy
+            {/* Business Type Selector for Pricing */}
+            <div className="bg-white/5 border border-white/10 rounded-[2rem] p-8 space-y-6">
+              <h5 className="text-sm md:text-base font-black text-gold uppercase tracking-[0.2em]">
+                Pricing Strategy Simulator
               </h5>
               <p className="text-[11px] text-white/60 font-medium leading-relaxed">
-                Standard recipes are locked at the operational level. To safeguard margins, kitchen staff are prohibited from modifying quantities. Only the restaurant owner can define ingredient pricing matrices which directly impact active costs.
+                Select your business type to see suggested pricing based on industry standard margins.
               </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {['Street Food / Kiosk', 'Casual Dining', 'Fine Dining'].map(type => (
+                  <button
+                    key={type}
+                    onClick={() => setBusinessType(type)}
+                    className={`p-4 rounded-xl border text-xs font-bold transition-all text-left ${
+                      businessType === type 
+                        ? 'bg-gold/10 border-gold text-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]' 
+                        : 'bg-black/20 border-white/10 text-white/50 hover:border-white/30'
+                    }`}
+                  >
+                    {type}
+                    <div className="text-[9px] font-medium opacity-60 mt-1 uppercase tracking-widest">
+                      {type === 'Street Food / Kiosk' ? '2.5x Multiplier' : type === 'Casual Dining' ? '3.0x Multiplier' : '4.0x Multiplier'}
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

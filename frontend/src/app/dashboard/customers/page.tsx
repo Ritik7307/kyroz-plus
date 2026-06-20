@@ -202,12 +202,14 @@ export default function CustomersPage() {
           <h1 className="text-4xl font-black uppercase tracking-tighter text-white">Customer Directory</h1>
           <p className="text-gold font-bold text-[10px] uppercase tracking-[0.2em] mt-2">Manage Relationships & Track Footfall</p>
         </div>
-        <button 
-          onClick={() => router.push('/dashboard/marketing')}
-          className="bg-gold text-black px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-gold/80 transition-colors shadow-lg shadow-gold/20"
-        >
-          <Megaphone size={18} /> Marketing Engine
-        </button>
+        {userPlan === 'Scale' && (
+          <button 
+            onClick={() => router.push('/dashboard/marketing')}
+            className="bg-gold text-black px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-gold/80 transition-colors shadow-lg shadow-gold/20"
+          >
+            <Megaphone size={18} /> Marketing Engine
+          </button>
+        )}
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6 justify-between items-start lg:items-center bg-card glass-card p-6 rounded-3xl border border-white/5">
@@ -269,35 +271,7 @@ export default function CustomersPage() {
         </div>
       </div>
 
-      {canUseWhatsapp && (
-        <div className="flex justify-between items-center bg-card glass-card p-4 rounded-2xl border border-white/5">
-          <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-white/60 hover:text-white uppercase tracking-widest">
-              <input 
-                type="checkbox" 
-                checked={filteredAndSortedCustomers.length > 0 && selectedCustomers.length === filteredAndSortedCustomers.length}
-                onChange={handleSelectAll}
-                className="accent-gold w-4 h-4 rounded"
-              />
-              Select All Filtered
-            </label>
-            <span className="text-[10px] text-gold font-black uppercase tracking-widest bg-gold/10 px-2 py-1 rounded">
-              {selectedCustomers.length} Selected
-            </span>
-          </div>
-          <button 
-            onClick={() => setShowMessageModal(true)}
-            disabled={selectedCustomers.length === 0}
-            className={`px-6 py-2 rounded-xl font-bold flex items-center gap-2 whitespace-nowrap transition-all ${
-              selectedCustomers.length > 0 
-                ? 'bg-green-500 hover:bg-green-400 text-black' 
-                : 'bg-white/5 text-white/20 cursor-not-allowed border border-white/5'
-            }`}
-          >
-            <MessageSquare size={16} /> Send WhatsApp
-          </button>
-        </div>
-      )}
+
 
       {/* WhatsApp Message Modal */}
       {showMessageModal && (
@@ -440,14 +414,7 @@ export default function CustomersPage() {
 
                 <div className="flex items-start justify-between mb-6 relative z-10">
                   <div className="flex gap-4 items-center">
-                    {canUseWhatsapp && (
-                      <input 
-                        type="checkbox" 
-                        checked={selectedCustomers.includes(customer.phone)}
-                        onChange={() => handleSelectCustomer(customer.phone)}
-                        className="accent-gold w-5 h-5 rounded cursor-pointer self-center mr-2"
-                      />
-                    )}
+
                     <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-gold font-black text-xl shadow-inner border border-white/5 group-hover:scale-110 transition-transform">
                       {customer.name?.charAt(0).toUpperCase() || 'U'}
                     </div>

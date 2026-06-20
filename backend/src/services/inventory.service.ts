@@ -69,28 +69,10 @@ export const deductInventory = async (
   } else if (targetModel === 'SemiFinishedGood') {
     const sfg = await SemiFinishedGood.findOne({ _id: targetId, userId });
     if (sfg) {
-      const availableStock = sfg.currentStock || 0;
-      if (availableStock >= quantity) {
-        sfg.currentStock -= quantity;
-        await sfg.save();
-        if (sfg.currentStock <= 20) {
-          await createStockNotification(userId, sfg.name, sfg.currentStock, sfg.yieldUnit);
-        }
-      } else {
-        const consumedFromStock = Math.max(0, availableStock);
-        const deficit = quantity - consumedFromStock;
-        sfg.currentStock = 0;
-        await sfg.save();
-
-        // Recursively deduct the remaining deficit from the SFG's recipe
-        const recipe = await Recipe.findOne({ targetModel: 'SemiFinishedGood', targetId, userId });
-        if (recipe) {
-          const multiplier = deficit / recipe.operationalYield;
-          for (const ingredient of recipe.ingredients) {
-            const requiredQty = ingredient.quantity * multiplier;
-            await deductInventory(ingredient.itemModel, ingredient.itemId, requiredQty, userId);
-          }
-        }
+      sfg.currentStock -= quantity;
+      await sfg.save();
+      if (sfg.currentStock <= 20) {
+        await createStockNotification(userId, sfg.name, sfg.currentStock, sfg.yieldUnit);
       }
     }
     return;
