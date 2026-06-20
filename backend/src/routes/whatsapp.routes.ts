@@ -31,29 +31,26 @@ const isEliteOrAdmin = async (req: AuthRequest, res: Response, next: NextFunctio
 router.use(authenticateToken);
 router.use(isEliteOrAdmin);
 
-// POST /api/whatsapp/connect - Global Connect
+// POST /api/whatsapp/connect - Connect using user-provided credentials
 router.post('/connect', async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId;
+    const { phoneNumberId, accessToken } = req.body;
+
+    if (!phoneNumberId || !accessToken) {
+      res.status(400).json({ error: 'Please provide both Phone Number ID and Access Token.' });
+      return;
+    }
+
     let settings = await MarketingSettings.findOne({ userId });
-    
     if (!settings) {
       settings = await MarketingSettings.create({ userId });
     }
 
-    const globalPhoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-    const globalAccessToken = process.env.WHATSAPP_ACCESS_TOKEN;
-
-    if (!globalPhoneNumberId || !globalAccessToken) {
-      res.status(400).json({ error: 'Meta Cloud API keys are not configured on the server. Please contact support or update your .env file.' });
-      return;
-    }
-
     settings.whatsappConnected = true;
-    settings.businessAccountId = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID || 'connected_account';
-    settings.phoneNumberId = globalPhoneNumberId;
-    // We do not save the global token to the user document for security reasons, it's used from .env
-    settings.accessToken = 'hidden_system_token'; 
+    settings.businessAccountId = 'connected_account';
+    settings.phoneNumberId = phoneNumberId;
+    settings.accessToken = accessToken; 
     
     // Use actual user details if available
     const user = await User.findById(userId);

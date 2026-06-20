@@ -166,8 +166,13 @@ router.post('/send-whatsapp', authenticateToken, isEliteOrAdmin, async (req: Aut
     let failedCount = 0;
     let lastError = '';
 
+    const credentials = {
+      phoneNumberId: settings.phoneNumberId,
+      accessToken: settings.accessToken
+    };
+
     for (const phone of phones) {
-      const result = await sendMarketingWhatsApp(phone, message, imageUrl);
+      const result = await sendMarketingWhatsApp(phone, message, imageUrl, credentials);
       if (result?.success) {
         successCount++;
       } else {

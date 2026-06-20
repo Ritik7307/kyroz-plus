@@ -36,6 +36,8 @@ export default function MarketingCRM() {
   const [waStatus, setWaStatus] = useState<any>(null);
   const [waAnalytics, setWaAnalytics] = useState<any>(null);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [waPhoneNumberId, setWaPhoneNumberId] = useState('');
+  const [waAccessToken, setWaAccessToken] = useState('');
   const [isEditingPhone, setIsEditingPhone] = useState(false);
   const [tempPhone, setTempPhone] = useState('');
   const [activePreview, setActivePreview] = useState('Order Confirmation');
@@ -149,16 +151,28 @@ export default function MarketingCRM() {
   };
 
   const handleConnectWhatsApp = async () => {
+    if (!waPhoneNumberId || !waAccessToken) {
+      alert('Please enter both Phone Number ID and Access Token');
+      return;
+    }
     setIsConnecting(true);
     const token = localStorage.getItem('token');
     try {
       const res = await fetch(`${API_URL}/api/whatsapp/connect`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ phoneNumberId: waPhoneNumberId, accessToken: waAccessToken })
       });
       const data = await res.json();
       if (res.ok) {
         setWaStatus(data.settings);
+        setWaPhoneNumberId('');
+        setWaAccessToken('');
+      } else {
+        alert(data.error || 'Failed to connect');
       }
     } finally {
       setIsConnecting(false);
@@ -386,9 +400,32 @@ export default function MarketingCRM() {
                         </ul>
                       </div>
 
+                      <div className="w-full max-w-md space-y-4 mb-6 text-left">
+                        <div>
+                          <label className="text-xs text-white/40 mb-2 block font-bold">Phone Number ID</label>
+                          <input 
+                            type="text" 
+                            placeholder="e.g. 123456789012345"
+                            value={waPhoneNumberId} 
+                            onChange={e => setWaPhoneNumberId(e.target.value)} 
+                            className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-white/40 mb-2 block font-bold">Permanent Access Token</label>
+                          <input 
+                            type="password" 
+                            placeholder="EAAL..."
+                            value={waAccessToken} 
+                            onChange={e => setWaAccessToken(e.target.value)} 
+                            className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm" 
+                          />
+                        </div>
+                      </div>
+
                       <button 
                         onClick={handleConnectWhatsApp}
-                        disabled={isConnecting}
+                        disabled={isConnecting || !waPhoneNumberId || !waAccessToken}
                         className="bg-green-500 hover:bg-green-400 text-black px-8 py-3 rounded-xl font-bold transition-all disabled:opacity-50"
                       >
                         {isConnecting ? 'Connecting...' : 'Connect WhatsApp Business'}

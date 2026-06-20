@@ -77,14 +77,19 @@ export const sendCustomerFeedbackWhatsApp = async (phone: string, customerName: 
 
 /**
  * Sends a Marketing WhatsApp message using the Meta WhatsApp Cloud API.
- * Uses the global WHATSAPP_PHONE_NUMBER_ID and WHATSAPP_ACCESS_TOKEN from .env.
+ * Uses the user's specific credentials if provided, falling back to global .env.
  */
-export const sendMarketingWhatsApp = async (phone: string, messageText: string, imageUrl?: string) => {
-  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
+export const sendMarketingWhatsApp = async (
+  phone: string, 
+  messageText: string, 
+  imageUrl?: string,
+  credentials?: { phoneNumberId?: string; accessToken?: string }
+) => {
+  const phoneNumberId = credentials?.phoneNumberId || process.env.WHATSAPP_PHONE_NUMBER_ID;
+  const accessToken = credentials?.accessToken || process.env.WHATSAPP_ACCESS_TOKEN;
 
   if (!phoneNumberId || !accessToken) {
-    console.warn('[WhatsApp] Meta Cloud API credentials not configured in .env. Skipping message.');
+    console.warn('[WhatsApp] Meta Cloud API credentials not configured. Skipping message.');
     return { success: false, error: 'Credentials not configured' };
   }
 
