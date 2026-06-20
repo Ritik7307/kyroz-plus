@@ -2,9 +2,9 @@ import { Router, Response, NextFunction } from 'express';
 import { authenticateToken, AuthRequest } from '../middleware/auth.middleware';
 import Order from '../models/Order';
 import MarketingSettings from '../models/MarketingSettings';
-
 import User from '../models/User';
 import mongoose from 'mongoose';
+import { sendMarketingWhatsApp } from '../services/whatsapp.service';
 
 const router = Router();
 
@@ -148,7 +148,7 @@ router.get('/crm', authenticateToken, isEliteOrAdmin, async (req: AuthRequest, r
 router.post('/send-whatsapp', authenticateToken, isEliteOrAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.userId;
-    const { phones, message } = req.body;
+    const { phones, message, imageUrl } = req.body;
 
     if (!phones || !Array.isArray(phones) || phones.length === 0) {
       return res.status(400).json({ error: 'No phone numbers provided.' });
@@ -166,36 +166,10 @@ router.post('/send-whatsapp', authenticateToken, isEliteOrAdmin, async (req: Aut
     let failedCount = 0;
 
     for (const phone of phones) {
-      try {
-        if (settings.accessToken?.startsWith('mock')) {
-          // Simulate sending to provider for testing
-          console.log(`[Mock WhatsApp API] Sending message to ${phone}: ${message}`);
-          successCount++;
-        } else {
-          // Real Meta Cloud API fetch
-          const response = await fetch(`https://graph.facebook.com/v17.0/${settings.phoneNumberId}/messages`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${settings.accessToken}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              messaging_product: "whatsapp",
-              to: phone,
-              type: "text",
-              text: { body: message }
-            })
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            console.error('Meta API Error:', errorData);
-            throw new Error('Meta API failed');
-          }
-          successCount++;
-        }
-      } catch (err) {
-        console.error(`Failed to send to ${phone}`, err);
+      const result = await sendMarketingWhatsApp(phone, message, imageUrl);
+      if (result?.success) {
+        successCount++;
+      } else {
         failedCount++;
       }
     }

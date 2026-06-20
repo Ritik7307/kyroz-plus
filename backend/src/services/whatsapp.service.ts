@@ -79,7 +79,7 @@ export const sendCustomerFeedbackWhatsApp = async (phone: string, customerName: 
  * Sends a Marketing WhatsApp message using the Meta WhatsApp Cloud API.
  * Uses the global WHATSAPP_PHONE_NUMBER_ID and WHATSAPP_ACCESS_TOKEN from .env.
  */
-export const sendMarketingWhatsApp = async (phone: string, messageText: string) => {
+export const sendMarketingWhatsApp = async (phone: string, messageText: string, imageUrl?: string) => {
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
   const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
 
@@ -95,21 +95,32 @@ export const sendMarketingWhatsApp = async (phone: string, messageText: string) 
   }
 
   try {
+    const payload: any = {
+      messaging_product: 'whatsapp',
+      to: formattedPhone,
+    };
+
+    if (imageUrl) {
+      payload.type = 'image';
+      payload.image = {
+        link: imageUrl,
+        caption: messageText || ''
+      };
+    } else {
+      payload.type = 'text';
+      payload.text = {
+        preview_url: true,
+        body: messageText
+      };
+    }
+
     const response = await fetch(`https://graph.facebook.com/v19.0/${phoneNumberId}/messages`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        to: formattedPhone,
-        type: 'text',
-        text: {
-          preview_url: true,
-          body: messageText
-        }
-      })
+      body: JSON.stringify(payload)
     });
 
     const data = await response.json();

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { API_URL } from '@/lib/api';
 import { 
   Users, Crown, Repeat, UserMinus, Sparkles, TrendingUp,
-  Settings, Lock, MessageSquare, ArrowRight, Save, CheckCircle2, XCircle, BarChart3, Smartphone
+  Settings, Lock, MessageSquare, ArrowRight, Save, CheckCircle2, XCircle, BarChart3, Smartphone, ImageIcon, X
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
@@ -22,6 +22,8 @@ export default function MarketingCRM() {
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [whatsappMessage, setWhatsappMessage] = useState('');
+  const [whatsappImage, setWhatsappImage] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
   
   // Settings Form State
@@ -241,6 +243,34 @@ export default function MarketingCRM() {
     );
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/upload`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setWhatsappImage(data.url);
+      } else {
+        alert(data.error || 'Failed to upload image');
+      }
+    } catch (err) {
+      alert('Error uploading image');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleSendMessage = async () => {
     if (selectedCustomers.length === 0 || !whatsappMessage.trim()) return;
     
@@ -253,7 +283,7 @@ export default function MarketingCRM() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ phones: selectedCustomers, message: whatsappMessage })
+        body: JSON.stringify({ phones: selectedCustomers, message: whatsappMessage, imageUrl: whatsappImage })
       });
       
       const data = await res.json();
@@ -261,6 +291,7 @@ export default function MarketingCRM() {
         alert(data.message || 'Messages queued successfully!');
         setShowMessageModal(false);
         setWhatsappMessage('');
+        setWhatsappImage('');
         setSelectedCustomers([]);
       } else {
         alert(data.error || 'Failed to send messages');
@@ -673,36 +704,112 @@ export default function MarketingCRM() {
 
       {/* WhatsApp Message Modal */}
       {showMessageModal && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-md">
           <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-[#111] border border-white/10 p-8 rounded-3xl max-w-lg w-full"
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="bg-[#111] border border-white/10 p-1 rounded-3xl max-w-lg w-full relative overflow-hidden shadow-2xl shadow-green-500/10"
           >
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-black text-white flex items-center gap-2">
-                <MessageSquare className="text-green-500" /> Send WhatsApp Campaign
-              </h2>
-              <button onClick={() => setShowMessageModal(false)} className="text-white/40 hover:text-white">✕</button>
-            </div>
-            <div className="mb-4 text-sm text-white/60">
-              Sending to <strong className="text-white">{selectedCustomers.length}</strong> selected customers.
-            </div>
-            <textarea
-              value={whatsappMessage}
-              onChange={e => setWhatsappMessage(e.target.value)}
-              placeholder="Type your promotional message here..."
-              className="w-full bg-black border border-white/10 rounded-xl p-4 text-white h-32 resize-none mb-6"
-            />
-            <div className="flex justify-end gap-3">
-              <button onClick={() => setShowMessageModal(false)} className="px-4 py-2 text-white/40 hover:text-white font-bold">Cancel</button>
-              <button 
-                onClick={handleSendMessage}
-                disabled={sendingMessage || !whatsappMessage.trim()}
-                className="bg-green-500 text-black px-6 py-2 rounded-xl font-bold hover:bg-green-400 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {sendingMessage ? 'Sending...' : 'Send Message'}
-              </button>
+            {/* Ambient Background Glow */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-32 bg-green-500/20 rounded-full blur-[80px] pointer-events-none" />
+
+            <div className="bg-[#161616] rounded-[1.4rem] p-6 sm:p-8 relative z-10 border border-white/5">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <div className="w-12 h-12 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center justify-center mb-4">
+                    <MessageSquare className="text-green-500" size={24} />
+                  </div>
+                  <h2 className="text-2xl font-black text-white tracking-tight">WhatsApp Campaign</h2>
+                  <p className="text-white/40 text-sm mt-1">
+                    Ready to send to <strong className="text-white">{selectedCustomers.length}</strong> selected customer{selectedCustomers.length !== 1 && 's'}.
+                  </p>
+                </div>
+                <button 
+                  onClick={() => setShowMessageModal(false)} 
+                  className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-full text-white/40 hover:text-white transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                <div className="relative bg-[#000] border border-white/10 group-hover:border-green-500/30 rounded-2xl p-4 transition-colors">
+                  <div className="flex items-center justify-between mb-3 px-2 border-b border-white/5 pb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="flex gap-1.5">
+                        <div className="w-3 h-3 rounded-full bg-red-500/20" />
+                        <div className="w-3 h-3 rounded-full bg-yellow-500/20" />
+                        <div className="w-3 h-3 rounded-full bg-green-500/20" />
+                      </div>
+                      <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest ml-2">Message Preview</span>
+                    </div>
+                    
+                    <label className="cursor-pointer text-white/40 hover:text-white transition-colors flex items-center gap-1 text-[10px] uppercase font-bold tracking-widest">
+                      {uploadingImage ? (
+                        <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <ImageIcon size={14} />
+                      )}
+                      <span>Attach Image</span>
+                      <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploadingImage} />
+                    </label>
+                  </div>
+
+                  {whatsappImage && (
+                    <div className="relative mb-3 group/img">
+                      <img src={whatsappImage} alt="Attached" className="w-full h-32 object-cover rounded-xl border border-white/10" />
+                      <button 
+                        onClick={() => setWhatsappImage('')}
+                        className="absolute top-2 right-2 bg-black/60 hover:bg-red-500/80 text-white p-1.5 rounded-lg opacity-0 group-hover/img:opacity-100 transition-all backdrop-blur-sm"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  )}
+
+                  <textarea
+                    value={whatsappMessage}
+                    onChange={e => setWhatsappMessage(e.target.value)}
+                    placeholder="Hey there! We have a special offer for you..."
+                    className="w-full bg-transparent text-white/90 h-32 resize-none focus:outline-none placeholder:text-white/20 text-sm leading-relaxed"
+                  />
+                  <div className="flex justify-between items-center mt-2 px-1">
+                    <span className="text-xs text-white/30">{whatsappMessage.length} / 1024 characters</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-8">
+                <button 
+                  onClick={() => setShowMessageModal(false)} 
+                  className="px-6 py-3 text-white/40 hover:text-white font-bold transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleSendMessage}
+                  disabled={sendingMessage || !whatsappMessage.trim()}
+                  className="relative overflow-hidden bg-green-500 text-black px-8 py-3 rounded-xl font-black hover:bg-green-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all group shadow-lg shadow-green-500/20 hover:shadow-green-500/40"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    {sendingMessage ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        Send Campaign <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
+                  </span>
+                  {!sendingMessage && (
+                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+                  )}
+                </button>
+              </div>
             </div>
           </motion.div>
         </div>
