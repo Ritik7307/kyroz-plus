@@ -164,6 +164,7 @@ router.post('/send-whatsapp', authenticateToken, isEliteOrAdmin, async (req: Aut
 
     let successCount = 0;
     let failedCount = 0;
+    let lastError = '';
 
     for (const phone of phones) {
       const result = await sendMarketingWhatsApp(phone, message, imageUrl);
@@ -171,10 +172,12 @@ router.post('/send-whatsapp', authenticateToken, isEliteOrAdmin, async (req: Aut
         successCount++;
       } else {
         failedCount++;
+        if (result?.error) lastError = result.error;
       }
     }
 
-    res.json({ success: true, message: `Successfully queued ${successCount} messages. Failed: ${failedCount}` });
+    const errorMessageAppend = lastError ? ` (Reason: ${lastError})` : '';
+    res.json({ success: true, message: `Successfully queued ${successCount} messages. Failed: ${failedCount}${errorMessageAppend}` });
   } catch (error) {
     console.error('Error sending WhatsApp messages:', error);
     res.status(500).json({ error: 'Failed to send WhatsApp messages' });
