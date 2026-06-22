@@ -161,6 +161,8 @@ export const getDishCosting = async (req: AuthRequest, res: Response): Promise<v
   try {
     const { dishId } = req.params;
     const userId = req.user?.userId;
+    console.log(`[DEBUG] getDishCosting called by userId: ${userId} for dishId: ${dishId}`);
+
 
     const dish = await Dish.findOne({ _id: dishId, userId }).populate('packagingLogic.dineIn packagingLogic.takeaway packagingLogic.delivery');
     if (!dish) {

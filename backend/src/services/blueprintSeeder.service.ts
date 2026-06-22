@@ -11,7 +11,7 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
   const rmData = [
     { code: 'RM_C506', name: 'C-506 Marinara Core', category: 'Sauce Core', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 10000, costPerPurchaseUnit: 250 },
     { code: 'RM_C505', name: 'C-505 Alfredo Core', category: 'Sauce Core', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 10000, costPerPurchaseUnit: 300 },
-    { code: 'RM_C501', name: 'C-501 Dough Master', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'kg', conversionFactor: 1, currentStock: 20, costPerPurchaseUnit: 180 },
+    { code: 'RM_C501', name: 'C-501 Dough Master', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 20000, costPerPurchaseUnit: 180 },
     { code: 'RM_C504', name: 'C-504 Herb Infusion', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 400 },
     { code: 'RM_BUTTER', name: 'Butter', category: 'Dairy', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 10000, costPerPurchaseUnit: 500 },
     { code: 'RM_MILK', name: 'Milk', category: 'Dairy', purchaseUnit: 'litre', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 20000, costPerPurchaseUnit: 60 },
@@ -158,7 +158,7 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
     { code: 'SFG_GARLIC_BUTTER', name: 'Garlic Butter Spread', batchYield: 12, yieldUnit: 'portions', currentStock: 1000, costPerUnit: 0.40 },
     { code: 'SFG_HERB_GARLIC_MAYO', name: 'Herb Garlic Mayo', batchYield: 20, yieldUnit: 'portions', currentStock: 1000, costPerUnit: 0.20 },
     { code: 'SFG_CREAMY_VELVET_SAUCE', name: 'Creamy Velvet Sauce', batchYield: 14, yieldUnit: 'portions', currentStock: 1000, costPerUnit: 0.20 },
-    { code: 'SFG_MARINATED_CHICK', name: 'Marinated Chicken', batchYield: 24, yieldUnit: 'portions', currentStock: 100, costPerUnit: 12 },
+    { code: 'SFG_MARINATED_CHICK', name: 'Marinated Chicken', batchYield: 1040, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.25 },
     { code: 'SFG_DRY_COATING', name: 'Dry Coating Mix', batchYield: 1000, yieldUnit: 'gm', currentStock: 2000, costPerUnit: 0.10 },
     { code: 'SFG_MARINATED_CHICKEN_LEG', name: 'Marinated Chicken Leg Pieces', batchYield: 4, yieldUnit: 'portions', currentStock: 50, costPerUnit: 25 },
     { code: 'SFG_MARINATED_CHICKEN_WINGS', name: 'Marinated Chicken Wings', batchYield: 8, yieldUnit: 'portions', currentStock: 50, costPerUnit: 20 },
@@ -215,7 +215,27 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
     { code: 'SFG_FIRE_DUST_FRIES', name: 'Fire Dust portion for Fries', batchYield: 1, yieldUnit: 'portion', currentStock: 500, costPerUnit: 4.2 },
     { code: 'SFG_FIRE_DUST_GRILL', name: 'Fire Dust portion for Grills', batchYield: 1, yieldUnit: 'portion', currentStock: 500, costPerUnit: 3.5 },
     { code: 'SFG_FIRE_DUST_PIZZA', name: 'Fire Dust portion for Pizzas', batchYield: 1, yieldUnit: 'portion', currentStock: 500, costPerUnit: 0.9 },
-    { code: 'SFG_FIRE_DUST_WRAP', name: 'Fire Dust portion for Wraps', batchYield: 1, yieldUnit: 'portion', currentStock: 500, costPerUnit: 1.25 }
+    { code: 'SFG_FIRE_DUST_WRAP', name: 'Fire Dust portion for Wraps', batchYield: 1, yieldUnit: 'portion', currentStock: 500, costPerUnit: 1.25 },
+    // Pizza Portion SFGs (Automatically Linked System)
+    { code: 'SFG_SAUCE_PORTION_PERSONAL', name: 'Personal Red Sauce Portion', batchYield: 1, yieldUnit: 'portion', currentStock: 50, costPerUnit: 8.75 },
+    { code: 'SFG_SAUCE_PORTION_MEDIUM', name: 'Medium Red Sauce Portion', batchYield: 1, yieldUnit: 'portion', currentStock: 50, costPerUnit: 12.5 },
+    { code: 'SFG_SAUCE_PORTION_LARGE', name: 'Large Red Sauce Portion', batchYield: 1, yieldUnit: 'portion', currentStock: 50, costPerUnit: 17.5 },
+    { code: 'SFG_CHEESE_PORTION_PERSONAL', name: 'Personal Cheese Portion', batchYield: 1, yieldUnit: 'portion', currentStock: 50, costPerUnit: 29.25 },
+    { code: 'SFG_CHEESE_PORTION_MEDIUM', name: 'Medium Cheese Portion', batchYield: 1, yieldUnit: 'portion', currentStock: 50, costPerUnit: 40.5 },
+    { code: 'SFG_CHEESE_PORTION_LARGE', name: 'Large Cheese Portion', batchYield: 1, yieldUnit: 'portion', currentStock: 50, costPerUnit: 58.5 },
+    { code: 'SFG_VEG_PORTION_PERSONAL', name: 'Personal Veg Portion', batchYield: 1, yieldUnit: 'portion', currentStock: 50, costPerUnit: 2.5 },
+    { code: 'SFG_VEG_PORTION_MEDIUM', name: 'Medium Veg Portion', batchYield: 1, yieldUnit: 'portion', currentStock: 50, costPerUnit: 4 },
+    { code: 'SFG_VEG_PORTION_LARGE', name: 'Large Veg Portion', batchYield: 1, yieldUnit: 'portion', currentStock: 50, costPerUnit: 6 },
+    { code: 'SFG_CORN_PORTION_PERSONAL', name: 'Personal Corn Portion', batchYield: 1, yieldUnit: 'portion', currentStock: 50, costPerUnit: 3.75 },
+    { code: 'SFG_CORN_PORTION_MEDIUM', name: 'Medium Corn Portion', batchYield: 1, yieldUnit: 'portion', currentStock: 50, costPerUnit: 6 },
+    { code: 'SFG_CORN_PORTION_LARGE', name: 'Large Corn Portion', batchYield: 1, yieldUnit: 'portion', currentStock: 50, costPerUnit: 9 },
+    { code: 'SFG_PANEER_PORTION_PERSONAL', name: 'Personal Paneer Portion', batchYield: 1, yieldUnit: 'portion', currentStock: 50, costPerUnit: 8.75 },
+    { code: 'SFG_PANEER_PORTION_MEDIUM', name: 'Medium Paneer Portion', batchYield: 1, yieldUnit: 'portion', currentStock: 50, costPerUnit: 14 },
+    { code: 'SFG_PANEER_PORTION_LARGE', name: 'Large Paneer Portion', batchYield: 1, yieldUnit: 'portion', currentStock: 50, costPerUnit: 21 },
+    { code: 'SFG_CHICKEN_PORTION_PERSONAL', name: 'Personal Chicken Portion', batchYield: 1, yieldUnit: 'portion', currentStock: 50, costPerUnit: 6.25 },
+    { code: 'SFG_CHICKEN_PORTION_MEDIUM', name: 'Medium Chicken Portion', batchYield: 1, yieldUnit: 'portion', currentStock: 50, costPerUnit: 10 },
+    { code: 'SFG_CHICKEN_PORTION_LARGE', name: 'Large Chicken Portion', batchYield: 1, yieldUnit: 'portion', currentStock: 50, costPerUnit: 15 }
+
   ];
 
   const sfgIds: any = {};
@@ -393,7 +413,7 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
     ],
     'SFG_MARINATED_CHICK': [
       { itemModel: 'RawMaterial', code: 'RM_CHICKEN_RAW', quantity: 1000 },
-      { itemModel: 'RawMaterial', code: 'RM_C510', quantity: 100 }
+      { itemModel: 'RawMaterial', code: 'RM_C510', quantity: 40 }
     ],
     'SFG_DRY_COATING': [
       { itemModel: 'RawMaterial', code: 'RM_MAIDA', quantity: 1000 },
@@ -453,7 +473,26 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
     ],
     'SFG_DARK_SHAKE_BASE': [
       { itemModel: 'RawMaterial', code: 'RM_C508_COCOA_BASE', quantity: 42.5 }
-    ]
+    ],
+    'SFG_SAUCE_PORTION_PERSONAL': [{ itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 35 }],
+    'SFG_SAUCE_PORTION_MEDIUM': [{ itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 50 }],
+    'SFG_SAUCE_PORTION_LARGE': [{ itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 70 }],
+    'SFG_CHEESE_PORTION_PERSONAL': [{ itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 60 }],
+    'SFG_CHEESE_PORTION_MEDIUM': [{ itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 80 }],
+    'SFG_CHEESE_PORTION_LARGE': [{ itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 120 }],
+    'SFG_VEG_PORTION_PERSONAL': [{ itemModel: 'SemiFinishedGood', code: 'SFG_TOPPING_MIX', quantity: 40 }],
+    'SFG_VEG_PORTION_MEDIUM': [{ itemModel: 'SemiFinishedGood', code: 'SFG_TOPPING_MIX', quantity: 60 }],
+    'SFG_VEG_PORTION_LARGE': [{ itemModel: 'SemiFinishedGood', code: 'SFG_TOPPING_MIX', quantity: 100 }],
+    'SFG_CORN_PORTION_PERSONAL': [{ itemModel: 'SemiFinishedGood', code: 'SFG_CORN_FILLING', quantity: 40 }],
+    'SFG_CORN_PORTION_MEDIUM': [{ itemModel: 'SemiFinishedGood', code: 'SFG_CORN_FILLING', quantity: 60 }],
+    'SFG_CORN_PORTION_LARGE': [{ itemModel: 'SemiFinishedGood', code: 'SFG_CORN_FILLING', quantity: 100 }],
+    'SFG_PANEER_PORTION_PERSONAL': [{ itemModel: 'SemiFinishedGood', code: 'SFG_PANEER_TOPPING', quantity: 40 }],
+    'SFG_PANEER_PORTION_MEDIUM': [{ itemModel: 'SemiFinishedGood', code: 'SFG_PANEER_TOPPING', quantity: 60 }],
+    'SFG_PANEER_PORTION_LARGE': [{ itemModel: 'SemiFinishedGood', code: 'SFG_PANEER_TOPPING', quantity: 100 }],
+    'SFG_CHICKEN_PORTION_PERSONAL': [{ itemModel: 'SemiFinishedGood', code: 'SFG_MARINATED_CHICK', quantity: 41.6 }],
+    'SFG_CHICKEN_PORTION_MEDIUM': [{ itemModel: 'SemiFinishedGood', code: 'SFG_MARINATED_CHICK', quantity: 62.4 }],
+    'SFG_CHICKEN_PORTION_LARGE': [{ itemModel: 'SemiFinishedGood', code: 'SFG_MARINATED_CHICK', quantity: 104 }],
+
   };
 
   for (const sfgCode of Object.keys(sfgRecipeMappings)) {
@@ -593,93 +632,93 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
     ],
     'Large Farmhouse Pizza': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_LARGE', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 70 },
-      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 130 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_TOPPING_MIX', quantity: 60 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_LARGE', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_LARGE', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_VEG_PORTION_LARGE', quantity: 1 }
     ],
     'Personal Farmhouse Pizza': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_PERSONAL', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 35 },
-      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 65 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_TOPPING_MIX', quantity: 25 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_PERSONAL', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_PERSONAL', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_VEG_PORTION_PERSONAL', quantity: 1 }
     ],
     'Medium Farmhouse Pizza': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_MEDIUM', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 50 },
-      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 90 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_TOPPING_MIX', quantity: 40 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_MEDIUM', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_MEDIUM', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_VEG_PORTION_MEDIUM', quantity: 1 }
     ],
     'Personal Classic Veg Pizza': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_PERSONAL', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 35 },
-      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 65 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_TOPPING_MIX', quantity: 25 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_PERSONAL', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_PERSONAL', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_VEG_PORTION_PERSONAL', quantity: 1 }
     ],
     'Medium Classic Veg Pizza': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_MEDIUM', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 50 },
-      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 90 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_TOPPING_MIX', quantity: 40 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_MEDIUM', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_MEDIUM', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_VEG_PORTION_MEDIUM', quantity: 1 }
     ],
     'Large Classic Veg Pizza': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_LARGE', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 70 },
-      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 130 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_TOPPING_MIX', quantity: 60 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_LARGE', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_LARGE', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_VEG_PORTION_LARGE', quantity: 1 }
     ],
     'Personal Corn Cheese Pizza': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_PERSONAL', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 35 },
-      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 65 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CORN_FILLING', quantity: 25 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_PERSONAL', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_PERSONAL', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CORN_PORTION_PERSONAL', quantity: 1 }
     ],
     'Medium Corn Cheese Pizza': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_MEDIUM', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 50 },
-      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 90 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CORN_FILLING', quantity: 40 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_MEDIUM', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_MEDIUM', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CORN_PORTION_MEDIUM', quantity: 1 }
     ],
     'Large Corn Cheese Pizza': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_LARGE', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 70 },
-      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 130 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CORN_FILLING', quantity: 60 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_LARGE', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_LARGE', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CORN_PORTION_LARGE', quantity: 1 }
     ],
     'Personal Paneer Pizza': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_PERSONAL', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 35 },
-      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 65 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PANEER_TOPPING', quantity: 25 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_PERSONAL', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_PERSONAL', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_PANEER_PORTION_PERSONAL', quantity: 1 }
     ],
     'Medium Paneer Pizza': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_MEDIUM', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 50 },
-      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 90 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PANEER_TOPPING', quantity: 40 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_MEDIUM', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_MEDIUM', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_PANEER_PORTION_MEDIUM', quantity: 1 }
     ],
     'Large Paneer Pizza': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_LARGE', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 70 },
-      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 130 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PANEER_TOPPING', quantity: 60 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_LARGE', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_LARGE', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_PANEER_PORTION_LARGE', quantity: 1 }
     ],
     'Personal Chicken Pizza': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_PERSONAL', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 35 },
-      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 65 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_MARINATED_CHICK', quantity: 25 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_PERSONAL', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_PERSONAL', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHICKEN_PORTION_PERSONAL', quantity: 1 }
     ],
     'Medium Chicken Pizza': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_MEDIUM', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 50 },
-      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 90 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_MARINATED_CHICK', quantity: 40 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_MEDIUM', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_MEDIUM', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHICKEN_PORTION_MEDIUM', quantity: 1 }
     ],
     'Large Chicken Pizza': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_LARGE', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 70 },
-      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 130 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_MARINATED_CHICK', quantity: 60 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_LARGE', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_LARGE', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHICKEN_PORTION_LARGE', quantity: 1 }
     ],
     'Garlic Bread': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_PERSONAL', quantity: 1 },

@@ -39,6 +39,7 @@ import costingRoutes from './routes/costing.routes';
 import eliteRoutes from './routes/elite.routes';
 import marketingRoutes from './routes/marketing.routes';
 import whatsappRoutes from './routes/whatsapp.routes';
+import whatsappWebhookRoutes from './routes/whatsappWebhook.routes';
 console.log('All routes imported');
 
 import cluster from 'cluster';
@@ -119,6 +120,7 @@ app.use('/api/wastage', wastageRoutes);
 app.use('/api/costing', costingRoutes);
 app.use('/api/elite', eliteRoutes);
 app.use('/api/marketing', marketingRoutes);
+app.use('/api/whatsapp/webhook', whatsappWebhookRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
 app.get('/api/debug-routes', (req, res) => {
   res.json({ message: 'Routes are active' });

@@ -150,6 +150,8 @@ export default function CostingMaster() {
     fetchDishes();
   }, []);
 
+  const [localIngredients, setLocalIngredients] = useState<any[]>([]);
+
   // Fetch costing for selected dish
   const fetchCosting = async (dishId: string) => {
     setLoading(true);
@@ -159,12 +161,14 @@ export default function CostingMaster() {
       const res = await fetch(`${API_URL}/api/costing/dish/${dishId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
-        }
+        },
+        cache: 'no-store'
       });
       if (!res.ok) throw new Error('Failed to calculate dish costing');
       const data = await res.json();
       setCostingData(data);
       setSellingPriceInput(data.currentPrice || '');
+      setLocalIngredients(data.ingredientsCostDetails);
       
       // Initialize local input values for editing ingredient prices
       const initialPrices: Record<string, number> = {};
@@ -288,12 +292,14 @@ export default function CostingMaster() {
   const foodCostPercentage = numericSellingPrice > 0 ? (costPerPlate / numericSellingPrice) * 100 : 0;
   const profitMargin = numericSellingPrice - costPerPlate;
 
-  const handleUpdateRecipe = async (newIngredientsList: any[]) => {
+  const handleUpdateRecipe = async () => {
     if (!selectedDishId) return;
     setSavingRecipe(true);
     try {
       const token = localStorage.getItem('token');
-      const payload = newIngredientsList.map(ing => ({
+      // Only send top-level ingredients to the recipe saver
+      const topLevel = localIngredients.filter(ing => !ing.isSubIngredient);
+      const payload = topLevel.map(ing => ({
         itemModel: ing.itemModel,
         itemId: ing.itemId,
         quantity: Number(ing.quantity) || 1
@@ -304,46 +310,45 @@ export default function CostingMaster() {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ ingredients: payload })
       });
-      if (!res.ok) throw new Error('Failed to update recipe');
+      if (!res.ok) throw new Error('Failed to save recipe');
       await fetchCosting(selectedDishId);
-      setSuccessMessage('Recipe updated!');
+      setSuccessMessage('Recipe saved successfully!');
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err: any) {
-      setError(err.message || 'Failed to update recipe');
+      setError(err.message || 'Failed to save recipe');
     } finally {
       setSavingRecipe(false);
     }
   };
 
   const handleAddExistingIngredient = (item: any) => {
-    if (!costingData) return;
-    // Don't add if already in recipe (at top level)
-    if (costingData.ingredientsCostDetails.some(i => i.itemId === item._id && !i.isSubIngredient)) {
+    if (!localIngredients) return;
+    if (localIngredients.some(i => i.itemId === item._id && !i.isSubIngredient)) {
       alert('Ingredient already in recipe');
       return;
     }
     
-    // We get the current top level ingredients
-    const currentTopLevel = costingData.ingredientsCostDetails.filter(i => !i.isSubIngredient);
     const newIngredient = {
       itemModel: item.model,
       itemId: item._id,
-      quantity: 1 // Default quantity, user can edit it
+      name: item.name,
+      quantity: 1,
+      unit: item.consumptionUnit || item.yieldUnit || item.unit,
+      rateUnit: item.purchaseUnit || item.yieldUnit || item.unit,
+      purchasePrice: item.costPerPurchaseUnit || item.costPerUnit || 0,
+      unitCost: item.costPerPurchaseUnit || item.costPerUnit || 0,
+      totalCost: item.costPerPurchaseUnit || item.costPerUnit || 0,
+      isSubIngredient: false
     };
-    handleUpdateRecipe([...currentTopLevel, newIngredient]);
+    setLocalIngredients(prev => [...prev, newIngredient]);
   };
 
   const handleRemoveIngredient = (itemId: string) => {
-    if (!costingData) return;
-    const currentTopLevel = costingData.ingredientsCostDetails.filter(i => !i.isSubIngredient && i.itemId !== itemId);
-    handleUpdateRecipe(currentTopLevel);
+    setLocalIngredients(prev => prev.filter(i => i.isSubIngredient || i.itemId !== itemId));
   };
 
-  const handleUpdateIngredientQuantity = (itemId: string, newQty: number) => {
-    if (!costingData) return;
-    const currentTopLevel = costingData.ingredientsCostDetails.filter(i => !i.isSubIngredient);
-    const updated = currentTopLevel.map(i => i.itemId === itemId ? { ...i, quantity: newQty } : i);
-    handleUpdateRecipe(updated);
+  const handleUpdateIngredientQuantity = (itemId: string, newQty: string) => {
+    setLocalIngredients(prev => prev.map(i => i.itemId === itemId && !i.isSubIngredient ? { ...i, quantity: newQty } : i));
   };
 
   const handleCreateNewRawMaterial = async (e: React.FormEvent) => {
@@ -476,8 +481,8 @@ export default function CostingMaster() {
 
               {/* Ingredient List */}
               <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                {costingData.ingredientsCostDetails.length > 0 ? (
-                  costingData.ingredientsCostDetails.map((ing, idx) => (
+                {localIngredients.length > 0 ? (
+                  localIngredients.map((ing, idx) => (
                     <div 
                       key={`${ing.itemId}-${idx}`}
                       className={`flex flex-col md:flex-row md:items-center justify-between p-6 rounded-2xl border transition-all gap-6 ${
@@ -496,7 +501,7 @@ export default function CostingMaster() {
                             <input
                               type="number"
                               value={ing.quantity}
-                              onChange={(e) => handleUpdateIngredientQuantity(ing.itemId, Number(e.target.value))}
+                              onChange={(e) => handleUpdateIngredientQuantity(ing.itemId, e.target.value)}
                               className="w-16 bg-transparent text-center text-[14px] font-black text-white outline-none focus:text-gold"
                             />
                           )}
@@ -571,6 +576,25 @@ export default function CostingMaster() {
                     <p className="text-white/10 font-black uppercase tracking-[0.4em] text-[10px]">No ingredients mapped to this recipe</p>
                   </div>
                 )}
+                
+                {/* Save Recipe Button */}
+                {localIngredients.length > 0 && (
+                  <div className="mt-6 flex justify-end">
+                    <button
+                      onClick={handleUpdateRecipe}
+                      disabled={savingRecipe}
+                      className="bg-gold text-black px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                    >
+                      {savingRecipe ? (
+                        <Loader2 className="animate-spin" size={16} />
+                      ) : (
+                        <Save size={16} />
+                      )}
+                      Save Recipe Configuration
+                    </button>
+                  </div>
+                )}
+
                 {/* Add Ingredient Dropdown */}
                 {selectedDishId && (
                   <div className="mt-4 pt-4 border-t border-dashed border-white/10">
