@@ -7,8 +7,8 @@ const VERIFY_TOKEN = process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || 'KYROZ_WA_WEBH
 
 // To send messages we need the Access Token and Phone Number ID
 // The user has them, we will expect them in env or config
-const getAccessToken = () => process.env.WHATSAPP_ACCESS_TOKEN || '';
-const getPhoneNumberId = () => process.env.WHATSAPP_PHONE_NUMBER_ID || '';
+const getAccessToken = () => (process.env.WHATSAPP_ACCESS_TOKEN || '').replace(/"/g, '');
+const getPhoneNumberId = () => (process.env.WHATSAPP_PHONE_NUMBER_ID || '').replace(/"/g, '');
 
 const GOOGLE_FORM_LINK = process.env.WHATSAPP_ASSESSMENT_LINK || 'https://forms.gle/placeholder';
 
