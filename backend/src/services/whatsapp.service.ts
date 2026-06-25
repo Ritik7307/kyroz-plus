@@ -3,7 +3,7 @@ import twilio from 'twilio';
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const twilioNumber = process.env.TWILIO_PHONE_NUMBER;
-const adminNumber = 'whatsapp:+919889640388';
+const adminNumber = process.env.ADMIN_WHATSAPP_NUMBER || 'whatsapp:+917887009800';
 
 const client = (accountSid && authToken) ? twilio(accountSid, authToken) : null;
 

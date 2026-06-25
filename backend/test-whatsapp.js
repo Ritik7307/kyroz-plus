@@ -15,7 +15,7 @@ if (token && phoneId) {
     `https://graph.facebook.com/v17.0/${phoneId}/messages`,
     {
       messaging_product: 'whatsapp',
-      to: '1234567890', // Invalid number just to test auth
+      to: '917887009800', // User's actual number
       type: 'text',
       text: { body: 'Test' }
     },
