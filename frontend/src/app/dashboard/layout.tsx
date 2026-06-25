@@ -372,11 +372,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             
             {/* Brand Section */}
             <div className="space-y-6 flex flex-col items-center sm:items-start text-center sm:text-left">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-start">
                 <div className="w-10 h-10 bg-gold-gradient rounded-xl flex items-center justify-center shadow-lg border border-white/10 shrink-0">
                   <span className="text-black font-black text-xl">K</span>
                 </div>
-                <h3 className="font-black text-lg tracking-normal leading-none text-white whitespace-nowrap">KYROZ-PLUS</h3>
+                <h3 className="font-black text-lg tracking-normal leading-none text-white text-center sm:text-left">
+                  KYROZ-PLUS <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest ml-1 block sm:inline mt-1 sm:mt-0">powered by AROMA AGRO INTERNATIONAL</span>
+                </h3>
               </div>
               <p className="text-white/40 text-[10px] md:text-xs leading-relaxed max-w-xs font-medium">
                 The world's most advanced Kitchen Operating System. Standardizing excellence for elite restaurants globally.
@@ -396,9 +398,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <h4 className="text-white text-[11px] font-black uppercase tracking-[0.2em]">Immediate Support</h4>
               <ul className="space-y-4">
                 <li>
-                  <a href="tel:+917307255940" className="flex items-center gap-3 text-white/40 hover:text-gold transition-all group">
+                  <a href="tel:+919889640388" className="flex items-center gap-3 text-white/40 hover:text-gold transition-all group">
                     <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-gold/10 transition-all"><span className="text-[14px]">📞</span></div>
-                    <span className="text-[11px] font-bold">+91 73072 55940</span>
+                    <span className="text-[11px] font-bold">+91 98896 40388</span>
                   </a>
                 </li>
                 <li>

@@ -9,7 +9,8 @@ import User from '../models/User';
 import Customer from '../models/Customer';
 import Packaging from '../models/Packaging';
 import Notification from '../models/Notification';
-import { sendLowStockAlert, sendCustomerFeedbackWhatsApp } from '../services/whatsapp.service';
+import MarketingSettings from '../models/MarketingSettings';
+import { sendLowStockAlert, sendCustomerFeedbackWhatsApp, sendAutomatedOrderConfirmation } from '../services/whatsapp.service';
 import { deductInventory, calculateDishCost } from '../services/inventory.service';
 
 export const processCheckout = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -123,7 +124,7 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
       }
     }
 
-      let order;
+      let order: any;
       if (orderItems.length > 0) {
         // Calculate discount amount based on type
         let discountAmount = 0;
@@ -163,11 +164,24 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
         );
       }
 
-      // Auto-send WhatsApp Feedback if phone is provided
       if (customerPhone) {
         // Run in background without blocking response
         const user = await User.findById(req.user?.userId);
         const shopName = user?.shopName || 'our restaurant';
+        
+        // Automated Order Confirmation
+        MarketingSettings.findOne({ userId: req.user?.userId }).then(settings => {
+          if (settings?.whatsappConnected && settings?.automationSettings?.orderConfirmation) {
+            sendAutomatedOrderConfirmation(
+              customerPhone, 
+              order._id.toString().substring(18), // Short order ID
+              shopName,
+              { phoneNumberId: settings.phoneNumberId, accessToken: settings.accessToken }
+            ).catch(err => console.error('Auto Order Conf Error:', err));
+          }
+        }).catch(err => console.error('Marketing Settings Error:', err));
+
+        // Auto-send WhatsApp Feedback if phone is provided
         sendCustomerFeedbackWhatsApp(customerPhone, customerName || '', shopName).catch(err => console.error('Feedback send error:', err));
       }
     }

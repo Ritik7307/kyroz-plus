@@ -100,7 +100,7 @@ export default function DashboardPage() {
   }, [router]);
 
   const openWhatsAppSupport = () => {
-    const phoneNumber = "917307255940";
+    const phoneNumber = "919889640388";
     const userName = user?.name || "Kyyroz Member";
     const message = `Namaste Admin, 👨‍🍳\n\nI am ${userName} from Kyyroz-Plus. I need some assistance regarding the dashboard/operations.\n\nPlease guide me. Dhanyawad! 🙏`;
     const encoded = encodeURIComponent(message);

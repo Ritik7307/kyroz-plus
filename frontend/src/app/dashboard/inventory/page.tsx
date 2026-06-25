@@ -326,7 +326,7 @@ export default function InventoryPage() {
     const packets = Math.floor(item.totalPlates / item.platesPerPacket);
     const message = `Hello Admin, 👨‍🍳\n\nI would like to place an order for restock:\nItem: *${item.dishId.name}*\nCurrent Stock: ${packets} packets.\n\nPlease arrange for more stock as soon as possible.\n\nThank you!`;
     const encoded = encodeURIComponent(message);
-    window.open(`https://wa.me/917307255940?text=${encoded}`, '_blank');
+    window.open(`https://wa.me/919889640388?text=${encoded}`, '_blank');
   };
 
   const deleteItem = async (id: string) => {

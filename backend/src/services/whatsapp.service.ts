@@ -3,7 +3,7 @@ import twilio from 'twilio';
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const twilioNumber = process.env.TWILIO_PHONE_NUMBER;
-const adminNumber = 'whatsapp:+917307255940';
+const adminNumber = 'whatsapp:+919889640388';
 
 const client = (accountSid && authToken) ? twilio(accountSid, authToken) : null;
 
@@ -141,4 +141,30 @@ export const sendMarketingWhatsApp = async (
     console.error(`[WhatsApp] Exception sending marketing message to ${phone}:`, error.message);
     return { success: false, error: error.message };
   }
+};
+
+/**
+ * Sends an automated Order Confirmation message.
+ */
+export const sendAutomatedOrderConfirmation = async (
+  phone: string, 
+  orderId: string, 
+  shopName: string, 
+  credentials?: { phoneNumberId?: string; accessToken?: string }
+) => {
+  const messageText = `Hello! 👋\n\nYour order *#${orderId}* has been confirmed.\n\nThank you for choosing ${shopName || 'our restaurant'}! We are preparing your order.`;
+  return sendMarketingWhatsApp(phone, messageText, undefined, credentials);
+};
+
+/**
+ * Sends an automated Order Ready message.
+ */
+export const sendAutomatedOrderReady = async (
+  phone: string, 
+  orderId: string, 
+  shopName: string, 
+  credentials?: { phoneNumberId?: string; accessToken?: string }
+) => {
+  const messageText = `Great news! 🍽️\n\nYour order *#${orderId}* is now Ready!\n\nThank you for dining with ${shopName || 'us'}!`;
+  return sendMarketingWhatsApp(phone, messageText, undefined, credentials);
 };
