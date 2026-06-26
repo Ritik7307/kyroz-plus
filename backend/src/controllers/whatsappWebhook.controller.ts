@@ -67,6 +67,7 @@ const sendWhatsAppMessage = async (toPhone: string, text: string) => {
 export const handleIncomingMessage = async (req: Request, res: Response) => {
   try {
     const body = req.body;
+    console.log("🔥 [WEBHOOK POST HIT] Received Payload:", JSON.stringify(body, null, 2));
 
     // Check if it's a WhatsApp status update or message
     if (body.object === 'whatsapp_business_account') {
