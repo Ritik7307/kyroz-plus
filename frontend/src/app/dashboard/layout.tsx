@@ -284,10 +284,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-xs font-black uppercase tracking-widest ${
                             isActive 
                               ? 'bg-gold/10 text-gold border border-gold/20' 
-                              : 'text-white/50 hover:text-gold hover:bg-white/5 border border-transparent'
+                              : 'text-gray-300 hover:text-gold hover:bg-white/5 border border-transparent'
                           }`}
                         >
-                          {Icon && <Icon size={16} className={isActive ? 'text-gold' : 'text-white/30'} />}
+                          {Icon && <Icon size={16} className={isActive ? 'text-gold' : 'text-gray-400'} />}
                           <span>{link.name}</span>
                         </Link>
                       );
