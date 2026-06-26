@@ -50,7 +50,12 @@ const rmData = [
   { code: 'RM_B404B_PREMIX', consumptionUnit: 'gm', conversionFactor: 1000 }
 ];
 
-mongoose.connect('mongodb+srv://vijayshankarprajapati29_db_user:3FxmRRA5ReXi2BqV@cluster0.wf2za1x.mongodb.net/?appName=Cluster0').then(async () => {
+import dotenv from 'dotenv';
+dotenv.config();
+
+const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/kyroz';
+
+mongoose.connect(mongoUri).then(async () => {
   for (const rm of rmData) {
     const res = await RawMaterial.updateMany(
       { code: rm.code },
