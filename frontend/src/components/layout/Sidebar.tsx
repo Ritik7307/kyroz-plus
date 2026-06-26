@@ -15,7 +15,10 @@ import {
   Bell,
   Utensils,
   ClipboardList,
-  Megaphone
+  Megaphone,
+  ShieldCheck,
+  FileText,
+  Database
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -59,6 +62,9 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user', permissi
       { name: 'Wastage Master', icon: Trash2, path: '/dashboard/wastage', id: 'wastage' },
       { name: 'Account', icon: Users, path: '/dashboard/account', id: 'account' },
       { name: 'Settings', icon: Settings, path: '/dashboard/settings', id: 'settings' },
+      { name: 'Privacy Policy', icon: ShieldCheck, path: '/privacy-policy', id: 'privacy' },
+      { name: 'Terms of Service', icon: FileText, path: '/terms-of-service', id: 'terms' },
+      { name: 'Data Deletion', icon: Database, path: '/data-deletion', id: 'data' },
     ];
 
     return allItems.filter(item => {
@@ -72,7 +78,7 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user', permissi
       }
 
       // Fallback for staff with no permissions
-      return ['dashboard', 'account'].includes(item.id);
+      return ['dashboard', 'account', 'privacy', 'terms', 'data'].includes(item.id);
     });
   };
 
