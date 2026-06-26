@@ -1,4 +1,6 @@
 import React from 'react';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
 export const metadata = {
   title: 'Data Deletion Instructions | KYROZ Plus',
@@ -7,8 +9,15 @@ export const metadata = {
 
 export default function DataDeletionPage() {
   return (
-    <div className="min-h-screen bg-black text-white/90 py-20 px-6 sm:px-12 lg:px-24">
+    <div className="min-h-screen bg-black text-white/90 py-12 px-6 sm:px-12 lg:px-24">
       <div className="max-w-4xl mx-auto">
+        <Link 
+          href="/dashboard" 
+          className="inline-flex items-center gap-2 text-white/50 hover:text-gold mb-8 transition-colors bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg"
+        >
+          <ArrowLeft size={20} />
+          <span>Back to Dashboard</span>
+        </Link>
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">KYROZ Plus - Data Deletion Instructions</h1>
         <div className="text-sm text-white/60 mb-12 space-y-1">
           <p>Effective Date: 26 June 2026</p>
