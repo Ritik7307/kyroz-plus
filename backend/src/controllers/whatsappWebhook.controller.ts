@@ -84,7 +84,7 @@ export const handleIncomingMessage = async (req: Request, res: Response) => {
         if (msg_body) {
           const text = msg_body.trim().toLowerCase();
           
-          if (text === '1' || text === '1️⃣' || text.includes('start my complimentary assessment')) {
+          if (text === '1' || text === '1️⃣') {
             const reply = `Bahut badhiya.\n\nRestaurant Assessment complete karne me lagbhag 3-5 minute lagenge.\n\n🔗 Assessment Link:\n${GOOGLE_FORM_LINK}\n\nForm submit karne ke baad aapko KYROZ+ Growth Report di jayegi.\n\n---\n*Anya options:*\n2️⃣ KYROZ+ Kya Hai?\n3️⃣ Demo Request`;
             await sendWhatsAppMessage(from, reply);
           } else if (text === '2' || text === '2️⃣') {
