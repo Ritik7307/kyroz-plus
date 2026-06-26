@@ -3,26 +3,22 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
 import { API_URL } from '@/lib/api';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [step, setStep] = useState<1 | 2>(1);
-  const [isStaffLogin, setIsStaffLogin] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSendOtp = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/send-otp`, {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -31,45 +27,7 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to send OTP');
-      }
-
-      if (data.isDirectLogin) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        
-        if (data.user.role === 'admin') {
-          router.push('/admin/dashboard');
-        } else {
-          router.push('/dashboard');
-        }
-        return;
-      }
-
-      setStep(2);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
-
-    try {
-      const res = await fetch(`${API_URL}/api/auth/verify-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Invalid OTP');
+        throw new Error(data.error || 'Failed to login');
       }
 
       localStorage.setItem('token', data.token);
@@ -92,10 +50,10 @@ export default function LoginPage() {
       <div className="max-w-md w-full bg-[#111111] border border-[#333333] rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-white mb-2">
-            {step === 1 ? 'Welcome to KYROZ-PLUS' : 'Enter OTP'}
+            Welcome to KYROZ-PLUS
           </h2>
           <p className="text-gray-400">
-            {step === 1 ? 'Log in or sign up with your email' : `Sent to ${email}`}
+            Log in to your account
           </p>
         </div>
 
@@ -105,103 +63,46 @@ export default function LoginPage() {
           </div>
         )}
 
-        {step === 1 ? (
-          <form onSubmit={handleSendOtp} className="space-y-6">
-            <div className="flex bg-[#222] p-1 rounded-lg mb-2">
-              <button 
-                type="button" 
-                onClick={() => { setIsStaffLogin(false); setPassword(''); }}
-                className={`flex-1 py-2 text-sm font-semibold rounded-md transition-colors ${!isStaffLogin ? 'bg-[#d4af37] text-black' : 'text-gray-400 hover:text-white'}`}
-              >
-                Owner (OTP)
-              </button>
-              <button 
-                type="button" 
-                onClick={() => setIsStaffLogin(true)}
-                className={`flex-1 py-2 text-sm font-semibold rounded-md transition-colors ${isStaffLogin ? 'bg-[#d4af37] text-black' : 'text-gray-400 hover:text-white'}`}
-              >
-                Staff Login
-              </button>
-            </div>
+        <form onSubmit={handleLogin} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 bg-black border border-[#333333] rounded-lg focus:outline-none focus:border-[#d4af37] text-white transition-colors"
+              placeholder="user@example.com"
+              required
+            />
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-black border border-[#333333] rounded-lg focus:outline-none focus:border-[#d4af37] text-white transition-colors"
-                placeholder="chef@restaurant.com"
-                required
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 bg-black border border-[#333333] rounded-lg focus:outline-none focus:border-[#d4af37] text-white transition-colors"
+              placeholder="••••••••"
+              required
+            />
+          </div>
 
-            {(isStaffLogin || email === '24mc3040@rgipt.ac.in') && (
-              <motion.div 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                className="space-y-2"
-              >
-                <label className="block text-sm font-medium text-gray-300">Password</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-black border border-[#333333] rounded-lg focus:outline-none focus:border-[#d4af37] text-white transition-colors"
-                  placeholder="••••••••"
-                  required={isStaffLogin || email === '24mc3040@rgipt.ac.in'}
-                />
-              </motion.div>
-            )}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-[#d4af37] hover:bg-[#c5a028] disabled:opacity-50 disabled:cursor-not-allowed text-black font-semibold py-3 rounded-lg transition-colors"
+          >
+            {isLoading ? 'Logging in...' : 'Log In'}
+          </button>
+        </form>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-[#d4af37] hover:bg-[#c5a028] disabled:opacity-50 disabled:cursor-not-allowed text-black font-semibold py-3 rounded-lg transition-colors"
-            >
-              {isLoading ? (isStaffLogin || email === '24mc3040@rgipt.ac.in' ? 'Logging in...' : 'Sending OTP...') : (isStaffLogin || email === '24mc3040@rgipt.ac.in' ? 'Log In' : 'Send OTP')}
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleVerifyOtp} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">6-Digit Code</label>
-              <input
-                type="text"
-                maxLength={6}
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                className="w-full px-4 py-3 bg-black border border-[#333333] rounded-lg focus:outline-none focus:border-[#d4af37] text-white transition-colors tracking-widest text-center text-xl"
-                placeholder="000000"
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-[#d4af37] hover:bg-[#c5a028] disabled:opacity-50 disabled:cursor-not-allowed text-black font-semibold py-3 rounded-lg transition-colors"
-            >
-              {isLoading ? 'Verifying...' : 'Verify & Log In'}
-            </button>
-            <button
-              type="button"
-              onClick={() => setStep(1)}
-              className="w-full mt-4 text-sm text-gray-400 hover:text-white transition-colors"
-            >
-              Change email address
-            </button>
-          </form>
-        )}
-
-        {step === 1 && (
-          <p className="mt-6 text-center text-gray-400 text-sm">
-            Don't have an account?{' '}
-            <Link href="/signup" className="text-[#d4af37] hover:underline">
-              Sign up here
-            </Link>
-          </p>
-        )}
+        <p className="mt-6 text-center text-gray-400 text-sm">
+          Don't have an account?{' '}
+          <Link href="/signup" className="text-[#d4af37] hover:underline">
+            Sign up here
+          </Link>
+        </p>
       </div>
     </div>
   );

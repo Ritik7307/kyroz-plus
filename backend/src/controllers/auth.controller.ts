@@ -17,240 +17,92 @@ const PLAN_LIMITS = {
   'Admin': 999
 };
 
-export const sendOtp = async (req: Request, res: Response): Promise<void> => {
+export const signup = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password, name, phone, shopName, shopAddress, gstNumber, isSignup } = req.body;
+    const { email, password, name, phone, shopName, shopAddress, gstNumber } = req.body;
 
-    if (!email) {
-      res.status(400).json({ error: 'Email is required' });
+    if (!email || !password) {
+      res.status(400).json({ error: 'Email and password are required' });
       return;
     }
 
-    // Admin/Staff Password Bypass
-    const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
-    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      let adminUser = await User.findOne({ email });
-      if (!adminUser) {
-        adminUser = new User({ email, role: 'admin', subscriptionPlan: 'Admin', name: 'Super Admin' });
-        await adminUser.save();
-      } else if (adminUser.role !== 'admin') {
-        adminUser.role = 'admin';
-        adminUser.subscriptionPlan = 'Admin';
-        await adminUser.save();
-      }
-
-      console.log(`[AUTH] Admin Password Login: ${email}`);
-      const parser = new UAParser(req.headers['user-agent']);
-      const deviceInfo = `${parser.getBrowser().name || 'Unknown'} on ${parser.getOS().name || 'Unknown'}`;
-
-      const newSession = new Session({
-        userId: adminUser._id,
-        deviceInfo,
-        ipAddress: req.ip || 'Unknown',
-        lastActive: new Date()
-      });
-      await newSession.save();
-
-      const token = jwt.sign(
-        { userId: adminUser._id, role: adminUser.role, plan: adminUser.subscriptionPlan, sessionId: newSession._id },
-        JWT_SECRET,
-        { expiresIn: '7d' }
-      );
-
-      res.status(200).json({
-        message: 'Admin login successful',
-        isDirectLogin: true,
-        token,
-        user: {
-          id: adminUser._id,
-          email: adminUser.email,
-          name: adminUser.name,
-          role: adminUser.role,
-          plan: adminUser.subscriptionPlan
-        }
-      });
-      return;
-    }
-
-    // Regular Staff Password Login
-    if (password) {
-      const user = await User.findOne({ email });
-      if (user && user.password && await bcrypt.compare(password, user.password)) {
-        console.log(`[AUTH] Staff Password Login: ${email}`);
-
-        const parser = new UAParser(req.headers['user-agent']);
-        const deviceInfo = `${parser.getBrowser().name || 'Unknown'} on ${parser.getOS().name || 'Unknown'}`;
-
-        const newSession = new Session({
-          userId: user._id,
-          deviceInfo,
-          ipAddress: req.ip || 'Unknown',
-          lastActive: new Date()
-        });
-        await newSession.save();
-
-        const token = jwt.sign(
-          { userId: user._id, role: user.role, plan: user.subscriptionPlan, sessionId: newSession._id },
-          JWT_SECRET,
-          { expiresIn: '7d' }
-        );
-
-        res.status(200).json({
-          message: 'Login successful',
-          isDirectLogin: true,
-          token,
-          user: {
-            id: user._id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-            plan: user.subscriptionPlan,
-            shopName: user.shopName,
-            permissions: user.permissions || []
-          }
-        });
-        return;
-      }
-    }
-
-    // Signup vs Login separation
     const existingUser = await User.findOne({ email });
-
-    if (!isSignup && !existingUser) {
-      // Trying to login but user doesn't exist
-      res.status(404).json({ error: 'Account not found. Please sign up first.' });
+    if (existingUser) {
+      res.status(400).json({ error: 'Email is already in use' });
       return;
     }
 
-    if (isSignup && existingUser && existingUser.name) {
-      // Allow them to proceed to verify, but maybe they should just log in. 
-      // It will just overwrite OTP, which is fine.
-    }
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Generate 6-digit OTP
-    const plainOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+      name,
+      phone,
+      shopName,
+      shopAddress,
+      gstNumber,
+      role: 'user', // Default role for signups
+      subscriptionPlan: 'None'
+    });
 
-    // Hash OTP
-    const otpHash = await bcrypt.hash(plainOtp, 4);
+    await newUser.save();
 
-    await User.findOneAndUpdate(
-      { email },
-      {
-        $set: {
-          otpHash,
-          otpExpiresAt,
-          ...(name && { name }),
-          ...(phone && { phone }),
-          ...(shopName && { shopName }),
-          ...(shopAddress && { shopAddress }),
-          ...(gstNumber && { gstNumber })
-        }
-      },
-      { upsert: true, new: true }
-    );
-
-    // -----------------------------------------------------------------
-    // FIRE AND FORGET EMAIL SENDING (Background execution)
-    // This removes the API latency so the user doesn't wait for SMTP
-    // -----------------------------------------------------------------
-    const sendEmailBackground = async () => {
-      const emailHtml = `
-        <div style="font-family: sans-serif; padding: 20px; border: 1px solid #d4af37; border-radius: 10px;">
-          <h2>Your KYROZ Login Code</h2>
-          <p style="font-size: 32px; font-weight: bold; color: #d4af37; letter-spacing: 5px;">${plainOtp}</p>
-          <p>Enter this code to verify your identity. Valid for 5 minutes.</p>
-        </div>
-      `;
-
-      let emailSent = false;
-
-      // Try Resend first
-      if (process.env.RESEND_API_KEY) {
-        try {
-          const resend = new Resend(process.env.RESEND_API_KEY);
-          const data = await resend.emails.send({
-            from: 'KYROZ Security <security@kyrozplus.com>',
-            to: email,
-            subject: 'Your KYROZ Login Code',
-            html: emailHtml
-          });
-
-          if (data.error) {
-            console.error('❌ [RESEND] API Error:', data.error);
-          } else {
-            console.log(`✅ [RESEND] OTP sent to ${email}`);
-            emailSent = true;
-          }
-        } catch (resendErr) {
-          console.error('❌ [RESEND] SDK Error:', resendErr);
-        }
-      }
-
-      // Fallback to Nodemailer if Resend fails or is missing
-      if (!emailSent) {
-        try {
-          console.log('⚠️ Falling back to Nodemailer for OTP...');
-          const transporter = require('nodemailer').createTransport({
-            service: process.env.SMTP_SERVICE || 'gmail',
-            auth: {
-              user: process.env.SMTP_USER,
-              pass: process.env.SMTP_PASS,
-            },
-          });
-
-          await transporter.sendMail({
-            from: `"KYROZ Security" <${process.env.SMTP_USER || 'no-reply@kyrozplus.com'}>`,
-            to: email,
-            subject: 'Your KYROZ Login Code',
-            html: emailHtml
-          });
-          console.log(`✅ [NODEMAILER] OTP sent to ${email}`);
-        } catch (nodeErr) {
-          console.error('❌ [NODEMAILER] Error:', nodeErr);
-        }
-      }
-    };
-
-    // Execute background task without awaiting it
-    sendEmailBackground().catch(err => console.error('Background Email Error:', err));
-
-    // Return success to client immediately for snappy UI
-    res.status(200).json({ message: 'OTP sending initiated successfully' });
-
+    res.status(201).json({ message: 'User created successfully' });
   } catch (error: any) {
-    console.error('❌ [AUTH] Error:', error);
+    console.error('❌ [AUTH] Signup Error:', error);
     res.status(500).json({ error: 'Server error', details: error.message });
   }
 };
 
-export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
+export const login = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, otp } = req.body;
+    const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
-
-    if (!user || !user.otpHash || !user.otpExpiresAt || user.otpExpiresAt < new Date()) {
-      res.status(400).json({ error: 'Invalid or expired OTP' });
+    if (!email || !password) {
+      res.status(400).json({ error: 'Email and password are required' });
       return;
     }
 
-    // Compare hashed OTP
-    const isMatch = await bcrypt.compare(otp, user.otpHash);
-    if (!isMatch) {
-      res.status(400).json({ error: 'Invalid OTP' });
-      return;
+    // Admin Password Bypass
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+    let user;
+
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      user = await User.findOne({ email });
+      if (!user) {
+        user = new User({ email, role: 'admin', subscriptionPlan: 'Admin', name: 'Super Admin' });
+        await user.save();
+      } else if (user.role !== 'admin') {
+        user.role = 'admin';
+        user.subscriptionPlan = 'Admin';
+        await user.save();
+      }
+      console.log(`[AUTH] Admin Login: ${email}`);
+    } else {
+      user = await User.findOne({ email });
+      if (!user) {
+        res.status(400).json({ error: 'Invalid credentials' });
+        return;
+      }
+      
+      if (!user.password) {
+        res.status(400).json({ error: 'Invalid credentials. User might be registered without a password.' });
+        return;
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        res.status(400).json({ error: 'Invalid credentials' });
+        return;
+      }
+      console.log(`[AUTH] User Login: ${email}`);
     }
 
     // Sync Master SOPs in background
     syncMasterSopsForUser(user._id as any).catch(err => console.error('BG Sync failed:', err));
-
-    // Clear OTP
-    user.otpHash = undefined;
-    user.otpExpiresAt = undefined;
-    await user.save();
 
     // ----------------------------------------------------
     // SESSION MANAGEMENT & DEVICE LIMIT LOGIC
@@ -261,19 +113,15 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
     const deviceInfo = `${browser.name || 'Unknown Browser'} on ${os.name || 'Unknown OS'}`;
     const ipAddress = req.ip || req.socket?.remoteAddress || 'Unknown IP';
 
-    // Check existing active sessions
     const activeSessions = await Session.find({ userId: user._id }).sort({ lastActive: 1 });
-
     const limit = PLAN_LIMITS[user.subscriptionPlan as keyof typeof PLAN_LIMITS] || 1;
 
-    // If limit exceeded, kick out the oldest session
     if (activeSessions.length >= limit) {
       const oldestSession = activeSessions[0];
       await Session.findByIdAndDelete(oldestSession._id);
       console.log(`Removed oldest session for user ${user.email} due to device limits.`);
     }
 
-    // Create new session
     const newSession = new Session({
       userId: user._id,
       deviceInfo,
@@ -281,7 +129,6 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
       lastActive: new Date()
     });
     await newSession.save();
-
     // ----------------------------------------------------
 
     const token = jwt.sign(
@@ -291,12 +138,13 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
     );
 
     res.status(200).json({
+      message: 'Login successful',
       token,
-      user: { id: user._id, email: user.email, name: user.name, role: user.role, plan: user.subscriptionPlan }
+      user: { id: user._id, email: user.email, name: user.name, role: user.role, plan: user.subscriptionPlan, shopName: user.shopName, permissions: user.permissions || [] }
     });
-  } catch (error) {
-    console.error('Error verifying OTP:', error);
-    res.status(500).json({ error: 'Server error while verifying OTP' });
+  } catch (error: any) {
+    console.error('❌ [AUTH] Login Error:', error);
+    res.status(500).json({ error: 'Server error', details: error.message });
   }
 };
 
