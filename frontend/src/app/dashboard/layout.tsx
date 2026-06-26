@@ -398,15 +398,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <h4 className="text-white text-[11px] font-black uppercase tracking-[0.2em]">Immediate Support</h4>
               <ul className="space-y-4">
                 <li>
-                  <a href="tel:+919889640388" className="flex items-center gap-3 text-white/40 hover:text-gold transition-all group">
+                  <a href="tel:+917887009800" className="flex items-center gap-3 text-white/40 hover:text-gold transition-all group">
                     <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-gold/10 transition-all"><span className="text-[14px]">📞</span></div>
-                    <span className="text-[11px] font-bold">+91 98896 40388</span>
+                    <span className="text-[11px] font-bold">+91 78870 09800</span>
                   </a>
                 </li>
                 <li>
-                  <a href="mailto:support@kyroz.com" className="flex items-center gap-3 text-white/40 hover:text-gold transition-all group">
+                  <a href="mailto:info@kyrozplus.com" className="flex items-center gap-3 text-white/40 hover:text-gold transition-all group">
                     <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-gold/10 transition-all"><span className="text-[14px]">✉️</span></div>
-                    <span className="text-[11px] font-bold truncate max-w-[150px] md:max-w-none">support@kyroz.com</span>
+                    <span className="text-[11px] font-bold truncate max-w-[150px] md:max-w-none">info@kyrozplus.com</span>
                   </a>
                 </li>
               </ul>
