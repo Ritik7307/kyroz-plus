@@ -100,11 +100,11 @@ export default function DashboardPage() {
   }, [router]);
 
   const openWhatsAppSupport = () => {
-    const phoneNumber = "919889640388";
+    const phoneNumber = "917887009800";
     const userName = user?.name || "Kyyroz Member";
     const message = `Namaste Admin, 👨‍🍳\n\nI am ${userName} from Kyyroz-Plus. I need some assistance regarding the dashboard/operations.\n\nPlease guide me. Dhanyawad! 🙏`;
     const encoded = encodeURIComponent(message);
-    window.open(`https://wa.me/${phoneNumber}?text=${encoded}`, '_blank');
+    window.open(`https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encoded}`, '_blank');
   };
 
   const formatCurrency = (amount: number) => {

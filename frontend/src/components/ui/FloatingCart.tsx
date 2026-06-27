@@ -15,7 +15,7 @@ export default function FloatingCart() {
     const itemsList = cart.map(item => `• ${item.name} (x${item.quantity}) - ₹${item.price * item.quantity}`).join('\n');
     const message = `Hello Admin, 👨‍🍳\n\nI would like to purchase the following SOP Packets:\n\n*ORDER DETAILS:*\n${itemsList}\n\n*Total Amount: ₹${totalPrice}*\n\nPlease process this request. Thank you!\n\n_Sent via Kyyroz-Plus_`;
     const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/919889640388?text=${encodedMessage}`, '_blank');
+    window.open(`https://api.whatsapp.com/send?phone=917887009800&text=${encodedMessage}`, '_blank');
     
     clearCart();
     setIsOpen(false);

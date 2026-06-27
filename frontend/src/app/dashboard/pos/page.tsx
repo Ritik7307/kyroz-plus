@@ -103,6 +103,7 @@ export default function POSTerminal() {
   const [showShareMenuModal, setShowShareMenuModal] = useState(false);
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
+  const [lastCheckoutData, setLastCheckoutData] = useState<any>(null);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [printedBillNo, setPrintedBillNo] = useState<string>('');
 
@@ -665,11 +666,38 @@ export default function POSTerminal() {
         // Browsers block window.open inside setTimeout callbacks. 
         // A manual "Send WhatsApp Bill" button is now shown on the success screen instead.
         
+        setLastCheckoutData({
+          cart: [...cart],
+          customerName,
+          customerPhone,
+          total,
+          discountAmount,
+          discountType,
+          parsedDiscount,
+          applyGst,
+          userGstRate,
+          gstAmount,
+          parsedAdditionalCharge,
+          grandTotal,
+          printedBillNo: tempBillNo
+        });
         setCheckoutSuccess(true);
-        // Do not setCart([]) here so the success screen can use cart data for the WhatsApp bill
         
-        // Update session for active table
-        // updateSession(activeTable, { cart: [] });
+        // Clear the cart and table data immediately so the table is freed
+        setCart([]);
+        setCustomerName('');
+        setCustomerPhone('');
+        setDiscount('');
+        setDiscountType('percentage');
+        setAdditionalCharge('');
+        setApplyGst(true);
+        setPaymentMethod('Cash');
+        setOrderType('DineIn');
+        setKotStatus('None');
+        setKotId('');
+        
+        // Update session for active table is handled automatically by the useEffect
+
 
         // Process the checkout in the background
         const token = localStorage.getItem('token');
@@ -823,23 +851,27 @@ export default function POSTerminal() {
   };
 
   const shareOrderOnWhatsApp = (billNumberToUse?: string) => {
-    if (cart.length === 0) return;
+    const activeData = lastCheckoutData || {
+      cart, customerName, customerPhone, total, discountAmount, discountType, parsedDiscount, applyGst, userGstRate, gstAmount, parsedAdditionalCharge, grandTotal, printedBillNo
+    };
+
+    if (activeData.cart.length === 0) return;
     
-    if (!customerPhone) {
+    if (!activeData.customerPhone) {
       alert("Please enter customer phone number in the checkout panel to send WhatsApp bill.");
       return;
     }
 
-    const itemsList = cart.map(item => `- ${item.dish.name} (x${item.quantity}) - Rs.${item.dish.price * item.quantity}`).join('\n');
+    const itemsList = activeData.cart.map((item: any) => `- ${item.dish.name} (x${item.quantity}) - Rs.${item.dish.price * item.quantity}`).join('\n');
     
     // Using string interpolation for bill number to ensure it works whether called manually or automatically
-    const activeBillNo = (typeof billNumberToUse === 'string' && billNumberToUse) ? billNumberToUse : printedBillNo;
+    const activeBillNo = (typeof billNumberToUse === 'string' && billNumberToUse) ? billNumberToUse : activeData.printedBillNo;
     
-    const message = `Thank you ${customerName || 'Customer'},\n\nHere are your bill details:\n\n*Bill No:* #${activeBillNo || 'N/A'}\n\n*ORDER DETAILS:*\n${itemsList}\n\n*Subtotal: Rs.${total}*\n${discountAmount > 0 ? `*Discount: ${discountType === 'flat' ? `Rs.${parsedDiscount}` : `${parsedDiscount}%`} (Rs.${Math.round(discountAmount)})*\n` : ''}${applyGst ? `*GST (${userGstRate}%): Rs.${gstAmount.toFixed(2)}*\n` : ''}${parsedAdditionalCharge > 0 ? `*Additional Charge: Rs.${parsedAdditionalCharge}*\n` : ''}*Grand Total: Rs.${grandTotal}*\n\nThank you for visiting!\n\n_Sent via KYROZ_`;
+    const message = `Thank you ${activeData.customerName || 'Customer'},\n\nHere are your bill details:\n\n*Bill No:* #${activeBillNo || 'N/A'}\n\n*ORDER DETAILS:*\n${itemsList}\n\n*Subtotal: Rs.${activeData.total}*\n${activeData.discountAmount > 0 ? `*Discount: ${activeData.discountType === 'flat' ? `Rs.${activeData.parsedDiscount}` : `${activeData.parsedDiscount}%`} (Rs.${Math.round(activeData.discountAmount)})*\n` : ''}${activeData.applyGst ? `*GST (${activeData.userGstRate}%): Rs.${activeData.gstAmount.toFixed(2)}*\n` : ''}${activeData.parsedAdditionalCharge > 0 ? `*Additional Charge: Rs.${activeData.parsedAdditionalCharge}*\n` : ''}*Grand Total: Rs.${activeData.grandTotal}*\n\nThank you for visiting!\n\n_Sent via KYROZ_`;
     
     const encodedMessage = encodeURIComponent(message);
-    const formattedPhone = customerPhone.startsWith('+') ? customerPhone.substring(1) : (customerPhone.length === 10 ? `91${customerPhone}` : customerPhone);
-    window.open(`https://wa.me/${formattedPhone}?text=${encodedMessage}`, '_blank');
+    const formattedPhone = activeData.customerPhone.startsWith('+') ? activeData.customerPhone.substring(1) : (activeData.customerPhone.length === 10 ? `91${activeData.customerPhone}` : activeData.customerPhone);
+    window.open(`https://api.whatsapp.com/send?phone=${formattedPhone}&text=${encodedMessage}`, '_blank');
   };
 
   const renderCartContent = (isDrawer = false) => {
@@ -1177,7 +1209,7 @@ export default function POSTerminal() {
                   </div>
                 </motion.div>
 
-                {customerPhone && customerPhone.length >= 10 && (
+                {lastCheckoutData?.customerPhone && lastCheckoutData.customerPhone.length >= 10 && (
                   <button 
                     onClick={() => shareOrderOnWhatsApp()}
                     className="w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-xl bg-green-500 text-white hover:scale-[1.02] active:scale-95 mb-3 flex items-center justify-center gap-2"
@@ -1188,31 +1220,14 @@ export default function POSTerminal() {
 
                 <button 
                   onClick={() => {
-                    setCart([]);
-                    setCustomerName('');
-                    setCustomerPhone('');
-                    setDiscount('');
-                    setDiscountType('percentage');
-                    setAdditionalCharge('');
-                    setApplyGst(true);
-                    setPaymentMethod('Cash');
-                    setOrderType('DineIn');
                     setCheckoutSuccess(false);
-                    setKotStatus('None');
-                    setKotId('');
+                    setLastCheckoutData(null);
                     setPrintedBillNo('');
                     if (isDrawer) setIsCartOpen(false);
                   }}
                   className="w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-xl bg-white/10 text-white border border-white/10 hover:bg-white/20 mb-3"
                 >
                   Start New Order
-                </button>
-
-                <button 
-                  onClick={() => setCheckoutSuccess(false)}
-                  className="w-full py-3 rounded-xl border border-white/5 text-white/40 font-bold text-[10px] uppercase tracking-widest hover:text-white hover:bg-white/5 transition-all"
-                >
-                  Add More Items / Edit
                 </button>
               </>
             )}
