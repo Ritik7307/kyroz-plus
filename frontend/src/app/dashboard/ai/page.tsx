@@ -83,7 +83,7 @@ export default function AiDashboard() {
   const [messages, setMessages] = useState<Message[]>([
     { 
       role: 'kosa', 
-      content: 'Namaste! I am Chef (Production Core). I am now powered by a high-performance RAG pipeline. How can I help you in the kitchen today?',
+      content: 'Welcome to KYROZ+ Chef AI.Your AI Recipe, SOP & Kitchen Troubleshooting Expert.How can I help you?',
       timestamp: new Date()
     }
   ]);

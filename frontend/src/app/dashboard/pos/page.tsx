@@ -864,7 +864,7 @@ export default function POSTerminal() {
 
     const itemsList = activeData.cart.map((item: any) => `- ${item.dish.name} (x${item.quantity}) - Rs.${item.dish.price * item.quantity}`).join('\n');
     
-    // Using string interpolation for bill number to ensure it works whether called manually or automatically
+  
     const activeBillNo = (typeof billNumberToUse === 'string' && billNumberToUse) ? billNumberToUse : activeData.printedBillNo;
     
     const message = `Thank you ${activeData.customerName || 'Customer'},\n\nHere are your bill details:\n\n*Bill No:* #${activeBillNo || 'N/A'}\n\n*ORDER DETAILS:*\n${itemsList}\n\n*Subtotal: Rs.${activeData.total}*\n${activeData.discountAmount > 0 ? `*Discount: ${activeData.discountType === 'flat' ? `Rs.${activeData.parsedDiscount}` : `${activeData.parsedDiscount}%`} (Rs.${Math.round(activeData.discountAmount)})*\n` : ''}${activeData.applyGst ? `*GST (${activeData.userGstRate}%): Rs.${activeData.gstAmount.toFixed(2)}*\n` : ''}${activeData.parsedAdditionalCharge > 0 ? `*Additional Charge: Rs.${activeData.parsedAdditionalCharge}*\n` : ''}*Grand Total: Rs.${activeData.grandTotal}*\n\nThank you for visiting!\n\n_Sent via KYROZ+_`;

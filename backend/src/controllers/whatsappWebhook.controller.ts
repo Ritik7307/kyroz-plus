@@ -10,7 +10,7 @@ const VERIFY_TOKEN = process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || 'KYROZ_WA_WEBH
 const getAccessToken = () => (process.env.WHATSAPP_ACCESS_TOKEN || '').replace(/"/g, '');
 const getPhoneNumberId = () => (process.env.WHATSAPP_PHONE_NUMBER_ID || '').replace(/"/g, '');
 
-const GOOGLE_FORM_LINK = process.env.WHATSAPP_ASSESSMENT_LINK || 'https://forms.gle/placeholder';
+const GOOGLE_FORM_LINK = process.env.WHATSAPP_ASSESSMENT_LINK || 'https://docs.google.com/forms/d/e/1FAIpQLSdPdwRKKAgO8LxN1X7YftteBmrdhmbXK0TTUJnk4WIm7wtNxw/viewform?usp=publish-editor';
 
 export const verifyWebhook = (req: Request, res: Response) => {
   console.log("WhatsApp webhook verification request received");
