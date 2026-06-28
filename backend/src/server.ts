@@ -40,6 +40,7 @@ import eliteRoutes from './routes/elite.routes';
 import marketingRoutes from './routes/marketing.routes';
 import whatsappRoutes from './routes/whatsapp.routes';
 import whatsappWebhookRoutes from './routes/whatsappWebhook.routes';
+import googleFormRoutes from './routes/googleForm.routes';
 console.log('All routes imported');
 
 import cluster from 'cluster';
@@ -122,6 +123,7 @@ app.use('/api/elite', eliteRoutes);
 app.use('/api/marketing', marketingRoutes);
 app.use('/api/whatsapp/webhook', whatsappWebhookRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
+app.use('/api/google-form', googleFormRoutes);
 app.get('/api/debug-routes', (req, res) => {
   res.json({ message: 'Routes are active' });
 });

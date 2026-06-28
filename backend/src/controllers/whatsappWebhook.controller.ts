@@ -34,7 +34,7 @@ export const verifyWebhook = (req: Request, res: Response) => {
   }
 };
 
-const sendWhatsAppMessage = async (toPhone: string, text: string) => {
+export const sendWhatsAppMessage = async (toPhone: string, text: string) => {
   const token = getAccessToken();
   const phoneId = getPhoneNumberId();
   if (!token || !phoneId) {
