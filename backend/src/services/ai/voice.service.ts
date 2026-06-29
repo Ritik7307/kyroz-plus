@@ -48,11 +48,16 @@ export const generateSpeech = async (text: string, lang: string = 'auto'): Promi
   }
 
   // Clean markdown and bullet markers before sending to any TTS engine
-  const cleanedText = text
+  let cleanedText = text
     .replace(/[\*#`_\~\+•▪◦●○]/g, '')
     .replace(/(?:^|\n)\s*[-–—]\s*/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+
+  // Prevent TTS from reading "10-15" as "10 minus 15"
+  cleanedText = cleanedText.replace(/(\d+)\s*[-–—]\s*(\d+)/g, (match, p1, p2) => {
+    return lang === 'hi' ? `${p1} से ${p2}` : `${p1} to ${p2}`;
+  });
 
   try {
     const formData = new URLSearchParams();
