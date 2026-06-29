@@ -164,7 +164,8 @@ router.post('/send', async (req: AuthRequest, res: Response): Promise<void> => {
     const userId = req.user?.userId;
     const settings = await MarketingSettings.findOne({ userId });
 
-    if (!settings?.whatsappConnected) {
+    const hasGlobalEnv = !!process.env.WHATSAPP_ACCESS_TOKEN && !!process.env.WHATSAPP_PHONE_NUMBER_ID;
+    if (!settings?.whatsappConnected && !hasGlobalEnv) {
       res.status(400).json({ error: 'WhatsApp Provider settings are not configured. Please connect WhatsApp first.' });
       return;
     }

@@ -94,6 +94,9 @@ export const handleIncomingMessage = async (req: Request, res: Response) => {
           } else if (text === '3' || text === '3️⃣') {
             const reply = `Bahut badhiya. 👍\n\nDemo discussion schedule karne se pehle, kripya niche diye gaye link par click karke 3-5 minute ka Restaurant Growth Assessment complete karein.\n\n🔗 ${GOOGLE_FORM_LINK}\n\nIs assessment ke madhyam se hum aapke restaurant ke operational challenges, growth opportunities aur kitchen-related bottlenecks ko samajh paate hain.\nIsse hume demo discussion ko aapke restaurant ki zarurat ke anusar tayyar karne me madad milti hai.\n\n✅ Assessment complete hote hi KYROZ+ Team aapse sampark karke demo discussion schedule karegi.`;
             await sendWhatsAppMessage(from, reply);
+          } else if (text.includes('purchase the following sop packets') || text.includes('order details:')) {
+            const reply = `Thank you for your order! 🙏\n\nWe have received your request for the SOP Packets. Our team will review the details and contact you shortly to process the payment and deliver your files.\n\nIf you have any urgent queries, please wait for our admin to reply.`;
+            await sendWhatsAppMessage(from, reply);
           } else {
             // First Contact Message or fallback
             const reply = `Hello 👋\nWelcome to KYROZ+\n\nKYROZ restaurant owners ko chef dependency, taste inconsistency, staff training aur food cost control jaise operational challenges ko solve karne me help karta hai.\n\nApne restaurant ko behtar banane ke liye niche diye gaye option me se ek number (1, 2, ya 3) reply karein:\n\n1️⃣ Kya aap apna complimentary KYROZ Assessment shuru karna chahte hain? (Reply 1)\n\n2️⃣ Kya aap janna chahte hain ki KYROZ+ kya hai aur ye kaise madad karta hai? (Reply 2)\n\n3️⃣ Kya aap hamari team ke saath Demo Request schedule karna chahte hain? (Reply 3)`;

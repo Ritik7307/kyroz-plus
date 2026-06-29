@@ -158,7 +158,9 @@ router.post('/send-whatsapp', authenticateToken, isEliteOrAdmin, async (req: Aut
     }
 
     const settings = await MarketingSettings.findOne({ userId });
-    if (!settings || (!settings.whatsappConnected && !settings.waProvider)) {
+    
+    const hasGlobalEnv = !!process.env.WHATSAPP_ACCESS_TOKEN && !!process.env.WHATSAPP_PHONE_NUMBER_ID;
+    if ((!settings || !settings.whatsappConnected) && !hasGlobalEnv) {
       return res.status(400).json({ error: 'WhatsApp is not connected. Please connect it in the Engine Settings.' });
     }
 
