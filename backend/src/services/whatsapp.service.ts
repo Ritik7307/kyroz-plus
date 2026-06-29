@@ -1,4 +1,5 @@
 import twilio from 'twilio';
+import axios from 'axios';
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -119,27 +120,25 @@ export const sendMarketingWhatsApp = async (
       };
     }
 
-    const response = await fetch(`https://graph.facebook.com/v19.0/${phoneNumberId}/messages`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload)
-    });
+    const response = await axios.post(
+      `https://graph.facebook.com/v19.0/${phoneNumberId}/messages`,
+      payload,
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        }
+      }
+    );
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error(`[WhatsApp Meta API Error] to ${formattedPhone}:`, data);
-      return { success: false, error: data.error?.message || 'Unknown Meta API error' };
-    }
+    const data = response.data;
 
     console.log(`[WhatsApp] Marketing message sent to ${formattedPhone}. Message ID: ${data.messages?.[0]?.id}`);
     return { success: true, messageId: data.messages?.[0]?.id };
   } catch (error: any) {
-    console.error(`[WhatsApp] Exception sending marketing message to ${phone}:`, error.message);
-    return { success: false, error: error.message };
+    const errorData = error.response?.data || error.message;
+    console.error(`[WhatsApp] Exception sending marketing message to ${phone}:`, errorData);
+    return { success: false, error: errorData?.error?.message || error.message };
   }
 };
 
