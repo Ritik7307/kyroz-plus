@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { API_URL } from '@/lib/api';
 import { 
   Users, Crown, Repeat, UserMinus, Sparkles, TrendingUp,
-  Settings, Lock, MessageSquare, ArrowRight, Save, CheckCircle2, XCircle, BarChart3, Smartphone, ImageIcon, X
+  Settings, Lock, MessageSquare, ArrowRight, Save, CheckCircle2, XCircle, BarChart3, Smartphone, ImageIcon, X, Info
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
@@ -392,6 +392,18 @@ export default function MarketingCRM() {
                       <h4 className="text-white font-bold text-lg mb-2">Status: Not Connected</h4>
                       <p className="text-white/40 text-sm max-w-md mb-2">Connect your WhatsApp Business account to automate customer communication securely using the official Meta Cloud API.</p>
                       
+                      <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl text-left max-w-md w-full mb-4">
+                        <p className="text-blue-400 font-bold mb-2 text-sm flex items-center gap-2">
+                          <Info size={16} /> How to get your credentials:
+                        </p>
+                        <ol className="list-decimal pl-4 text-xs text-white/70 space-y-2">
+                          <li>Go to the <a href="https://developers.facebook.com/" target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">Meta Developer Dashboard</a> and create a Business App.</li>
+                          <li>Add the <strong>WhatsApp</strong> product and go to API Setup.</li>
+                          <li>Copy your <strong>Phone Number ID</strong> below.</li>
+                          <li>Generate a <strong>Permanent Access Token</strong> (System User Token) in Business Settings so it doesn't expire, and paste it below.</li>
+                        </ol>
+                      </div>
+
                       <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl text-xs text-left max-w-md mb-6 w-full">
                         <p className="font-bold mb-1">Billing Notice:</p>
                         <ul className="list-disc pl-4 space-y-1 text-white/60">
