@@ -59,6 +59,17 @@ export const generateSpeech = async (text: string, lang: string = 'auto'): Promi
     return lang === 'hi' ? `${p1} से ${p2}` : `${p1} to ${p2}`;
   });
 
+  // For English, prioritize OpenAI TTS as it provides a much more human-like, expressive voice.
+  if (lang === 'en' && openai) {
+    try {
+      const mp3 = await openai.audio.speech.create({ model: "tts-1", voice: "shimmer", input: cleanedText });
+      const arrayBuffer = await mp3.arrayBuffer();
+      return Buffer.from(arrayBuffer);
+    } catch (openaiError) {
+      console.warn("OpenAI high-quality TTS failed, falling back to Python AI Core:", openaiError);
+    }
+  }
+
   try {
     const formData = new URLSearchParams();
     formData.append('text', cleanedText);
