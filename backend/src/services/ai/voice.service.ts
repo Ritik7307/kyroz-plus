@@ -83,7 +83,7 @@ export const generateSpeech = async (text: string, lang: string = 'auto'): Promi
     
     if (openai) {
       try {
-        const mp3 = await openai.audio.speech.create({ model: "tts-1", voice: "nova", input: cleanedText });
+        const mp3 = await openai.audio.speech.create({ model: "tts-1", voice: "shimmer", input: cleanedText });
         const arrayBuffer = await mp3.arrayBuffer();
         return Buffer.from(arrayBuffer);
       } catch (openaiError) {
