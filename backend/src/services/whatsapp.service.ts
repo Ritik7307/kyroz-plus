@@ -85,8 +85,8 @@ export const sendMarketingWhatsApp = async (
   imageUrl?: string,
   credentials?: { phoneNumberId?: string; accessToken?: string }
 ) => {
-  const phoneNumberId = credentials?.phoneNumberId || process.env.WHATSAPP_PHONE_NUMBER_ID;
-  const accessToken = credentials?.accessToken || process.env.WHATSAPP_ACCESS_TOKEN;
+  const phoneNumberId = (credentials?.phoneNumberId || process.env.WHATSAPP_PHONE_NUMBER_ID || '').replace(/"/g, '');
+  const accessToken = (credentials?.accessToken || process.env.WHATSAPP_ACCESS_TOKEN || '').replace(/"/g, '');
 
   if (!phoneNumberId || !accessToken) {
     console.warn('[WhatsApp] Meta Cloud API credentials not configured. Skipping message.');
