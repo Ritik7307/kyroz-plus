@@ -101,24 +101,47 @@ export const sendMarketingWhatsApp = async (
   }
 
   try {
-    const payload: any = {
+    let payload: any = {
       messaging_product: 'whatsapp',
       to: formattedPhone,
+      type: 'template'
     };
 
     if (imageUrl) {
-      payload.type = 'image';
-      payload.image = {
-        link: imageUrl,
-        caption: messageText || ''
+      payload.template = {
+        name: 'kyroz_marketing_blast_image',
+        language: { code: 'en' },
+        components: [
+          {
+            type: 'header',
+            parameters: [{ type: 'image', image: { link: imageUrl } }]
+          },
+          {
+            type: 'body',
+            parameters: [{ type: 'text', text: messageText }]
+          }
+        ]
       };
     } else {
-      payload.type = 'text';
-      payload.text = {
-        preview_url: true,
-        body: messageText
+      payload.template = {
+        name: 'kyroz_marketing_blast',
+        language: { code: 'en' },
+        components: [
+          {
+            type: 'body',
+            parameters: [{ type: 'text', text: messageText }]
+          }
+        ]
       };
     }
+
+    console.log(`\n======================================================`);
+    console.log(`[WhatsApp Debug] SENDING MARKETING MESSAGE`);
+    console.log(`Target Phone: ${formattedPhone} (Original: ${phone})`);
+    console.log(`Token Length: ${accessToken?.length || 0} chars`);
+    console.log(`Phone ID: ${phoneNumberId}`);
+    console.log(`Payload:`, JSON.stringify(payload, null, 2));
+    console.log(`======================================================\n`);
 
     const response = await axios.post(
       `https://graph.facebook.com/v19.0/${phoneNumberId}/messages`,
@@ -133,11 +156,11 @@ export const sendMarketingWhatsApp = async (
 
     const data = response.data;
 
-    console.log(`[WhatsApp] Marketing message sent to ${formattedPhone}. Message ID: ${data.messages?.[0]?.id}`);
+    console.log(`[WhatsApp Debug] SUCCESS! Meta Response:`, JSON.stringify(data));
     return { success: true, messageId: data.messages?.[0]?.id };
   } catch (error: any) {
     const errorData = error.response?.data || error.message;
-    console.error(`[WhatsApp] Exception sending marketing message to ${phone}:`, errorData);
+    console.error(`\n[WhatsApp Debug] EXCEPTION sending to ${phone}:`, JSON.stringify(errorData, null, 2));
     return { success: false, error: errorData?.error?.message || error.message };
   }
 };
