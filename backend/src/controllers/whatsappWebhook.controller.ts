@@ -15,7 +15,7 @@ const GOOGLE_FORM_LINK = process.env.WHATSAPP_ASSESSMENT_LINK || 'https://docs.g
 export const verifyWebhook = (req: Request, res: Response) => {
   console.log("WhatsApp webhook verification request received");
   console.log("Query params:", req.query);
-  
+
   const mode = req.query['hub.mode'];
   const token = req.query['hub.verify_token'];
   const challenge = req.query['hub.challenge'];
@@ -84,7 +84,7 @@ export const handleIncomingMessage = async (req: Request, res: Response) => {
 
         if (msg_body) {
           const text = msg_body.trim().toLowerCase();
-          
+
           if (text === '1' || text === '1️⃣') {
             const reply = `Bahut badhiya.\n\nRestaurant Assessment complete karne me lagbhag 3-5 minute lagenge.\n\n🔗 Assessment Link:\n${GOOGLE_FORM_LINK}\n\nForm submit karne ke baad aapko KYROZ+ Growth Report di jayegi.\n\n---\n*Anya options:*\n2️⃣ KYROZ+ Kya Hai?\n3️⃣ Demo Request`;
             await sendWhatsAppMessage(from, reply);
@@ -92,7 +92,7 @@ export const handleIncomingMessage = async (req: Request, res: Response) => {
             const reply = `KYROZ+ kya hai?\n\nKYROZ+ ek Restaurant Systemization Platform hai jo growing restaurants ke kitchen aur operations ko system par lane me help karta hai.\n\nAgar aapko lagta hai ki:\n✔ Taste har baar same nahi rehta\n✔ Chef ke bina restaurant chalana mushkil hai\n✔ Naye staff ko training dene me bahut samay lagta hai\n✔ Food cost aur wastage control nahi ho pata\n✔ Owner ko har chhoti-badi cheez dekhni padti hai\n\nTo KYROZ+ aapke liye useful ho sakta hai.\nKYROZ+ ka uddeshya restaurant ko logon par nahi, systems par chalana hai.\n\nAgar aap dekhna chahte hain ki KYROZ+ aapke restaurant me kitna useful ho sakta hai, to niche diye gaye option ka chunav karein:\n\n1️⃣ Start Assessment\n3️⃣ Demo Request`;
             await sendWhatsAppMessage(from, reply);
           } else if (text === '3' || text === '3️⃣') {
-            const reply = `Bahut badhiya. 👍\n\nDemo discussion schedule karne se pehle, kripya niche diye gaye link par click karke 3–5 minute ka Restaurant Growth Assessment complete karein.\n\n🔗 ${GOOGLE_FORM_LINK}\n\nIs assessment ke madhyam se hum aapke restaurant ke operational challenges, growth opportunities aur kitchen-related bottlenecks ko samajh paate hain.\nIsse hume demo discussion ko aapke restaurant ki zarurat ke anusar tayyar karne me madad milti hai.\n\n✅ Assessment complete hote hi KYROZ+ Team aapse sampark karke demo discussion schedule karegi.`;
+            const reply = `Bahut badhiya. 👍\n\nDemo discussion schedule karne se pehle, kripya niche diye gaye link par click karke 3-5 minute ka Restaurant Growth Assessment complete karein.\n\n🔗 ${GOOGLE_FORM_LINK}\n\nIs assessment ke madhyam se hum aapke restaurant ke operational challenges, growth opportunities aur kitchen-related bottlenecks ko samajh paate hain.\nIsse hume demo discussion ko aapke restaurant ki zarurat ke anusar tayyar karne me madad milti hai.\n\n✅ Assessment complete hote hi KYROZ+ Team aapse sampark karke demo discussion schedule karegi.`;
             await sendWhatsAppMessage(from, reply);
           } else {
             // First Contact Message or fallback

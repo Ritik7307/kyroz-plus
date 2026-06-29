@@ -4,7 +4,7 @@ import { sendWhatsAppMessage } from './whatsappWebhook.controller';
 export const handleGoogleFormWebhook = async (req: Request, res: Response) => {
   try {
     const data = req.body;
-    console.log("🔥 [GOOGLE FORM WEBHOOK HIT] Received Data:", JSON.stringify(data, null, 2));
+    console.log("[GOOGLE FORM WEBHOOK HIT] Received Data:", JSON.stringify(data, null, 2));
 
     // The Google Apps Script will send data in this format:
     // {

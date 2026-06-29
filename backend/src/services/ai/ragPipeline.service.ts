@@ -1104,56 +1104,36 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
           lang: targetLang
         }).lean();
 
-
-
-        // Fallback to English if no chunks exist for targetLang
-
-        if (directChunks.length === 0 && targetLang !== 'en') {
-
+        // Fallback to any language if no chunks exist for targetLang
+        if (directChunks.length === 0) {
           directChunks = await SopChunk.find({
-
             userId,
-
-            dish: standaloneQuery.toLowerCase(),
-
-            lang: 'en'
-
+            dish: standaloneQuery.toLowerCase()
           }).lean();
-
         }
 
-
-
         if (directChunks.length > 0) {
-
           contextText = directChunks.map(chunk => `[SOP: ${chunk.dish}]\n${chunk.content}`).join('\n---\n');
-
         }
 
       } else if (gemini) {
-
         const queryEmbedding = await generateEmbedding(standaloneQuery);
-
         const relevantChunks = await retrieveRelevantChunks(userId, queryEmbedding, 8, standaloneQuery, targetLang);
-
         if (relevantChunks.length > 0) {
-
           contextText = relevantChunks.map(chunk => `[SOP: ${chunk.dish}]\n${chunk.content}`).join('\n---\n');
-
         }
-
+      } else {
+        // No Gemini API KEY. Fallback to text search immediately.
+        const textChunks = await searchSopByText(userId, standaloneQuery, 5, targetLang);
+        if (textChunks.length > 0) {
+          contextText = textChunks.map(chunk => `[SOP: ${chunk.dish}]\n${chunk.content}`).join('\n---\n');
+        }
       }
-
     } catch (e) {
-
       const textChunks = await searchSopByText(userId, standaloneQuery, 5, targetLang);
-
       if (textChunks.length > 0) {
-
         contextText = textChunks.map(chunk => `[SOP: ${chunk.dish}]\n${chunk.content}`).join('\n---\n');
-
       }
-
     }
 
 
