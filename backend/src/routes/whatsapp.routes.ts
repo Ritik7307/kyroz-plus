@@ -3,6 +3,7 @@ import { authenticateToken, AuthRequest } from '../middleware/auth.middleware';
 import MarketingSettings from '../models/MarketingSettings';
 import User from '../models/User';
 import { sendMarketingWhatsApp } from '../services/whatsapp.service';
+import { linkWhatsApp } from '../controllers/whatsapp.controller';
 
 const router = Router();
 
@@ -30,6 +31,9 @@ const isEliteOrAdmin = async (req: AuthRequest, res: Response, next: NextFunctio
 // Apply auth and plan check middleware to all routes
 router.use(authenticateToken);
 router.use(isEliteOrAdmin);
+
+// POST /api/whatsapp/link - Official Embedded Signup connection
+router.post('/link', linkWhatsApp);
 
 // POST /api/whatsapp/connect - Connect using user-provided credentials
 router.post('/connect', async (req: AuthRequest, res: Response): Promise<void> => {

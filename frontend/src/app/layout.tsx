@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const inter = Inter({
@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 
 import { CartProvider } from "@/context/CartContext";
 import FloatingCart from "@/components/ui/FloatingCart";
+import FacebookSdk from "@/components/ui/FacebookSdk";
 
 export default function RootLayout({
   children,
@@ -31,6 +32,9 @@ export default function RootLayout({
           {children}
           <FloatingCart />
         </CartProvider>
+
+        {/* Facebook SDK for WhatsApp Embedded Signup */}
+        <FacebookSdk />
       </body>
     </html>
   );

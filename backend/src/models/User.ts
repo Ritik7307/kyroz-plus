@@ -18,6 +18,12 @@ export interface IUser extends Document {
   otpExpiresAt?: Date;
   paymentQrCode?: string;
   isLocation?: boolean;
+  whatsappConnected?: boolean;
+  whatsappCredentials?: {
+    wabaId?: string;
+    phoneNumberId?: string;
+    accessToken?: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -40,7 +46,13 @@ const UserSchema: Schema = new Schema(
     otpHash: { type: String },
     otpExpiresAt: { type: Date },
     paymentQrCode: { type: String },
-    isLocation: { type: Boolean, default: false }
+    isLocation: { type: Boolean, default: false },
+    whatsappConnected: { type: Boolean, default: false },
+    whatsappCredentials: {
+      wabaId: { type: String },
+      phoneNumberId: { type: String },
+      accessToken: { type: String },
+    }
   },
   { timestamps: true }
 );

@@ -7,7 +7,9 @@ import {
   Users, Crown, Repeat, UserMinus, Sparkles, TrendingUp,
   Settings, Lock, MessageSquare, ArrowRight, Save, CheckCircle2, XCircle, BarChart3, Smartphone, ImageIcon, X, Info
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ToastContainer, Toast, GlobalSearch } from '@/components/dashboard/GlobalSearch';
+import ConnectWhatsAppButton from '@/components/marketing/ConnectWhatsAppButton';
+import { motion, AnimatePresence } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function MarketingCRM() {
@@ -394,13 +396,13 @@ export default function MarketingCRM() {
                       
                       <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl text-left max-w-md w-full mb-4">
                         <p className="text-blue-400 font-bold mb-2 text-sm flex items-center gap-2">
-                          <Info size={16} /> How to get your credentials:
+                          <Info size={16} /> How it works:
                         </p>
                         <ol className="list-decimal pl-4 text-xs text-white/70 space-y-2">
-                          <li>Go to the <a href="https://developers.facebook.com/" target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">Meta Developer Dashboard</a> and create a Business App.</li>
-                          <li>Add the <strong>WhatsApp</strong> product and go to API Setup.</li>
-                          <li>Copy your <strong>Phone Number ID</strong> below.</li>
-                          <li>Generate a <strong>Permanent Access Token</strong> (System User Token) in Business Settings so it doesn't expire, and paste it below.</li>
+                          <li>Click the button below to connect with Meta.</li>
+                          <li>Log in to your Facebook account.</li>
+                          <li>Select your Business Profile and WhatsApp Number.</li>
+                          <li>Approve the permissions, and KYROZ-PLUS will automatically configure your connection!</li>
                         </ol>
                       </div>
 
@@ -412,36 +414,22 @@ export default function MarketingCRM() {
                         </ul>
                       </div>
 
-                      <div className="w-full max-w-md space-y-4 mb-6 text-left">
-                        <div>
-                          <label className="text-xs text-white/40 mb-2 block font-bold">Phone Number ID</label>
-                          <input 
-                            type="text" 
-                            placeholder="e.g. 123456789012345"
-                            value={waPhoneNumberId} 
-                            onChange={e => setWaPhoneNumberId(e.target.value)} 
-                            className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm" 
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs text-white/40 mb-2 block font-bold">Permanent Access Token</label>
-                          <input 
-                            type="password" 
-                            placeholder="EAAL..."
-                            value={waAccessToken} 
-                            onChange={e => setWaAccessToken(e.target.value)} 
-                            className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm" 
-                          />
-                        </div>
-                      </div>
-
-                      <button 
-                        onClick={handleConnectWhatsApp}
-                        disabled={isConnecting || !waPhoneNumberId || !waAccessToken}
-                        className="bg-green-500 hover:bg-green-400 text-black px-8 py-3 rounded-xl font-bold transition-all disabled:opacity-50"
-                      >
-                        {isConnecting ? 'Connecting...' : 'Connect WhatsApp Business'}
-                      </button>
+                      <ConnectWhatsAppButton
+                        isConnecting={isConnecting}
+                        onSuccess={(data) => {
+                          setWaStatus({
+                            ...waStatus,
+                            whatsappConnected: true,
+                            businessPhone: data.displayName || '+91 00000 00000'
+                          });
+                          addToast('WhatsApp Connected Successfully!', 'success');
+                          fetchStatus();
+                        }}
+                        onError={(error) => {
+                          addToast(error, 'error');
+                          setIsConnecting(false);
+                        }}
+                      />
                     </div>
                 ) : (
                   <div className="space-y-8">
