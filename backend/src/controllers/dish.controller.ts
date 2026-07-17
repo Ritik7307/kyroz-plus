@@ -6,6 +6,23 @@ import Recipe from '../models/Recipe';
 import Inventory from '../models/Inventory';
 import { seedBlueprints } from '../services/blueprintSeeder.service';
 
+
+export const deleteAllDishes = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+    await (Recipe as any).deleteMany({ userId, entityModel: 'Dish' });
+    await (Dish as any).deleteMany({ userId });
+    res.status(200).json({ message: 'All dishes and their recipes have been deleted successfully.' });
+  } catch (error) {
+    console.error('deleteAllDishes error:', error);
+    res.status(500).json({ error: 'Failed to delete dishes' });
+  }
+};
+
 export const getDishes = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId;
