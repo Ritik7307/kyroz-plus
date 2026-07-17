@@ -209,3 +209,80 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
     res.status(500).json({ error: 'Server error updating profile' });
   }
 };
+
+export const requestPasswordReset = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      res.status(400).json({ error: 'Email is required' });
+      return;
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Return 200 to prevent email enumeration
+      res.status(200).json({ message: 'If that email is registered, a reset code has been sent.' });
+      return;
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpHash = await bcrypt.hash(otp, 10);
+    const otpExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+
+    user.otpHash = otpHash;
+    user.otpExpiresAt = otpExpiresAt;
+    await user.save();
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const emailRes = await resend.emails.send({
+      from: 'KYROZ-PLUS <onboarding@resend.dev>', // Adjust if domain is verified
+      to: email,
+      subject: 'Password Reset OTP',
+      html: `<p>Your password reset code is: <strong>${otp}</strong></p><p>This code will expire in 15 minutes.</p>`
+    });
+    
+    console.log('OTP Email Sent:', emailRes);
+    res.status(200).json({ message: 'If that email is registered, a reset code has been sent.' });
+  } catch (error: any) {
+    console.error('Error requesting password reset:', error);
+    res.status(500).json({ error: 'Server error requesting password reset' });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      res.status(400).json({ error: 'Email, OTP, and new password are required' });
+      return;
+    }
+
+    const user = await User.findOne({ email });
+    if (!user || !user.otpHash || !user.otpExpiresAt) {
+      res.status(400).json({ error: 'Invalid or expired OTP' });
+      return;
+    }
+
+    if (new Date() > user.otpExpiresAt) {
+      res.status(400).json({ error: 'OTP has expired' });
+      return;
+    }
+
+    const isMatch = await bcrypt.compare(otp, user.otpHash);
+    if (!isMatch) {
+      res.status(400).json({ error: 'Invalid OTP' });
+      return;
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.otpHash = undefined;
+    user.otpExpiresAt = undefined;
+    await user.save();
+
+    res.status(200).json({ message: 'Password has been reset successfully' });
+  } catch (error: any) {
+    console.error('Error resetting password:', error);
+    res.status(500).json({ error: 'Server error resetting password' });
+  }
+};

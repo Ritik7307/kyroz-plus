@@ -5,6 +5,8 @@ import Recipe from '../models/Recipe';
 import RawMaterial from '../models/RawMaterial';
 import SemiFinishedGood from '../models/SemiFinishedGood';
 import Packaging from '../models/Packaging';
+import PortionMaster from '../models/PortionMaster';
+import PreparationMaster from '../models/PreparationMaster';
 
 const resolveIngredientCost = async (itemModel: string, itemId: any, userId: any): Promise<number> => {
   if (itemModel === 'RawMaterial') {
@@ -28,6 +30,19 @@ const resolveIngredientCost = async (itemModel: string, itemId: any, userId: any
       return totalCost / yieldQty;
     }
     return sfg.costPerUnit || 0;
+  } else if (itemModel === 'PreparationMaster') {
+    const prep = await PreparationMaster.findOne({ _id: itemId, userId });
+    return prep ? (prep.costPerOutputUnit || 0) : 0;
+  } else if (itemModel === 'PortionMaster') {
+    const portion = await PortionMaster.findOne({ _id: itemId, userId });
+    if (!portion) return 0;
+    let totalCost = 0;
+    for (const ing of portion.ingredients) {
+      const sfgCost = await resolveIngredientCost('PreparationMaster', ing.sfgId, userId);
+      const fallbackCost = sfgCost > 0 ? sfgCost : await resolveIngredientCost('SemiFinishedGood', ing.sfgId, userId);
+      totalCost += fallbackCost * ing.quantity;
+    }
+    return totalCost > 0 ? totalCost : (portion.costPerPortion || 0);
   } else if (itemModel === 'Packaging') {
     const pkg = await Packaging.findOne({ _id: itemId, userId });
     return pkg ? pkg.costPerUnit : 0;
@@ -129,6 +144,73 @@ const getRecipeDetailsRecursive = async (
           parentSfgName: parentName
         });
       }
+    }
+  } else if (itemModel === 'PreparationMaster') {
+    const prep = await PreparationMaster.findOne({ _id: itemId, userId });
+    if (prep) {
+      name = prep.name;
+      unit = prep.outputUnit;
+      rateUnit = prep.outputUnit;
+      purchasePrice = prep.costPerOutputUnit;
+      unitCost = prep.costPerOutputUnit;
+
+      details.push({
+        itemModel,
+        itemId: itemId.toString(),
+        name,
+        quantity: quantityNeeded,
+        unit,
+        rateUnit,
+        purchasePrice,
+        unitCost,
+        totalCost: unitCost * quantityNeeded,
+        isSubIngredient: !!parentName,
+        parentSfgName: parentName
+      });
+    }
+  } else if (itemModel === 'PortionMaster') {
+    const portion = await PortionMaster.findOne({ _id: itemId, userId });
+    if (portion) {
+      name = portion.name;
+      unit = portion.ingredients.length > 0 ? portion.ingredients[0].unit : 'unit'; // Approx unit based on first ingredient
+      rateUnit = 'portion';
+      
+      let subDetails: any[] = [];
+      let portionCost = 0;
+      
+      for (const ing of portion.ingredients) {
+        // Multiply portion's standard qty by how many portions we need
+        const scaledSubQty = ing.quantity * quantityNeeded;
+        // Assume SFG/Prep Master
+        const resolved = await getRecipeDetailsRecursive('PreparationMaster', ing.sfgId, scaledSubQty, userId, name);
+        let finalResolved = resolved;
+        if (resolved.length === 0 || resolved[0].unitCost === 0) {
+          finalResolved = await getRecipeDetailsRecursive('SemiFinishedGood', ing.sfgId, scaledSubQty, userId, name);
+        }
+        
+        subDetails = subDetails.concat(finalResolved);
+        const subUnitCost = finalResolved.length > 0 ? finalResolved[0].unitCost : 0;
+        portionCost += subUnitCost * ing.quantity;
+      }
+      
+      unitCost = portionCost;
+      purchasePrice = portionCost;
+      
+      details.push({
+        itemModel,
+        itemId: itemId.toString(),
+        name,
+        quantity: quantityNeeded,
+        unit,
+        rateUnit,
+        purchasePrice,
+        unitCost,
+        totalCost: unitCost * quantityNeeded,
+        isSubIngredient: !!parentName,
+        parentSfgName: parentName
+      });
+      
+      details = details.concat(subDetails);
     }
   } else if (itemModel === 'Packaging') {
     const pkg = await Packaging.findOne({ _id: itemId, userId });

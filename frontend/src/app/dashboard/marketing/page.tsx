@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { ToastContainer, Toast, GlobalSearch } from '@/components/dashboard/GlobalSearch';
 import ConnectWhatsAppButton from '@/components/marketing/ConnectWhatsAppButton';
+import GuidedWhatsAppSetup from '@/components/marketing/GuidedWhatsAppSetup';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -43,6 +44,7 @@ export default function MarketingCRM() {
   const [isEditingPhone, setIsEditingPhone] = useState(false);
   const [tempPhone, setTempPhone] = useState('');
   const [activePreview, setActivePreview] = useState('Order Confirmation');
+  const [showGuidedSetup, setShowGuidedSetup] = useState(false);
   
   const [automationSettings, setAutomationSettings] = useState({
     orderConfirmation: false,
@@ -414,22 +416,30 @@ export default function MarketingCRM() {
                         </ul>
                       </div>
 
-                      <ConnectWhatsAppButton
-                        isConnecting={isConnecting}
-                        onSuccess={(data) => {
-                          setWaStatus({
-                            ...waStatus,
-                            whatsappConnected: true,
-                            businessPhone: data.displayName || '+91 00000 00000'
-                          });
-                          addToast('WhatsApp Connected Successfully!', 'success');
-                          fetchStatus();
-                        }}
-                        onError={(error) => {
-                          addToast(error, 'error');
-                          setIsConnecting(false);
-                        }}
-                      />
+                      <div className="flex flex-col gap-3 w-full max-w-md">
+                        <ConnectWhatsAppButton
+                          isConnecting={isConnecting}
+                          onSuccess={(data) => {
+                            setWaStatus({
+                              ...waStatus,
+                              whatsappConnected: true,
+                              businessPhone: data.displayName || '+91 00000 00000'
+                            });
+                            alert('WhatsApp Connected Successfully!');
+                            setShowSettings(false); // Close settings to force a refresh on reopen
+                          }}
+                          onError={(error) => {
+                            alert(error);
+                            setIsConnecting(false);
+                          }}
+                        />
+                        <button
+                          onClick={() => setShowGuidedSetup(true)}
+                          className="bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center w-full"
+                        >
+                          Guided Manual Setup
+                        </button>
+                      </div>
                     </div>
                 ) : (
                   <div className="space-y-8">
@@ -693,6 +703,21 @@ export default function MarketingCRM() {
             </div>
           </motion.div>
         </div>
+      )}
+
+      {showGuidedSetup && (
+        <GuidedWhatsAppSetup 
+          onClose={() => setShowGuidedSetup(false)}
+          onSuccess={(data) => {
+            setWaStatus({
+              ...waStatus,
+              whatsappConnected: true,
+              businessPhone: data.settings?.businessPhone || '+91 00000 00000'
+            });
+            alert('WhatsApp Connected Successfully via Manual Setup!');
+            setShowGuidedSetup(false);
+          }}
+        />
       )}
 
 

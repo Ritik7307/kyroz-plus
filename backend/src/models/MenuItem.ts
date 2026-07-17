@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IMenuItemIngredient {
   itemId: mongoose.Types.ObjectId;
-  itemModel: 'RawMaterial' | 'PreparationMaster';
+  itemModel: 'RawMaterial' | 'PreparationMaster' | 'SemiFinishedGood' | 'PortionMaster';
   defaultQuantity: number;
   isEditable: boolean; // if true, can be modified during order
 }
@@ -20,7 +20,7 @@ export interface IMenuItem extends Document {
 
 const MenuItemIngredientSchema = new Schema({
   itemId: { type: Schema.Types.ObjectId, required: true },
-  itemModel: { type: String, enum: ['RawMaterial', 'PreparationMaster'], required: true },
+  itemModel: { type: String, enum: ['RawMaterial', 'PreparationMaster', 'SemiFinishedGood', 'PortionMaster'], required: true },
   defaultQuantity: { type: Number, required: true },
   isEditable: { type: Boolean, default: false }
 });

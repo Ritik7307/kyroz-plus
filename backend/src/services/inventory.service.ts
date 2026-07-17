@@ -8,6 +8,8 @@ import Recipe from '../models/Recipe';
 import Dish from '../models/Dish';
 import Inventory from '../models/Inventory';
 import Notification from '../models/Notification';
+import PortionMaster from '../models/PortionMaster';
+import PreparationMaster from '../models/PreparationMaster';
 
 const createStockNotification = async (
   userId: any,
@@ -76,6 +78,16 @@ export const deductInventory = async (
       }
     }
     return;
+  } else if (targetModel === 'PreparationMaster') {
+    const prep = await PreparationMaster.findOne({ _id: targetId, userId });
+    if (prep) {
+      prep.currentStock -= quantity;
+      await prep.save();
+      if (prep.reorderLevel !== undefined && prep.currentStock <= prep.reorderLevel) {
+        await createStockNotification(userId, prep.name, prep.currentStock, prep.outputUnit);
+      }
+    }
+    return;
   } else if (targetModel === 'Premix') {
     const item = await Premix.findOneAndUpdate(
       { _id: targetId, userId },
@@ -102,6 +114,15 @@ export const deductInventory = async (
       { $inc: { currentStock: -quantity } }
     );
     return; // SOP Packets have no sub-recipe here
+  } else if (targetModel === 'PortionMaster') {
+    const portion = await PortionMaster.findOne({ _id: targetId, userId });
+    if (portion) {
+      for (const ing of portion.ingredients) {
+        const requiredQty = ing.quantity * quantity; // portion's standard qty * number of portions ordered
+        await deductInventory('PreparationMaster', ing.sfgId, requiredQty, userId);
+      }
+    }
+    return;
   }
 
   // 2. Recursive deduction: If this item has a recipe, break it down further
@@ -508,6 +529,22 @@ export const getIngredientUnitCost = async (
       return totalCost / yieldQty;
     }
     return sfg.costPerUnit || 0;
+  } else if (itemModel === 'PreparationMaster') {
+    const prep = await PreparationMaster.findOne({ _id: itemId, userId });
+    return prep ? (prep.costPerOutputUnit || 0) : 0;
+  } else if (itemModel === 'PortionMaster') {
+    const portion = await PortionMaster.findOne({ _id: itemId, userId });
+    if (!portion) return 0;
+    
+    // Calculate cost dynamically if not set
+    let totalPortionCost = 0;
+    for (const ing of portion.ingredients) {
+      const sfgCost = await getIngredientUnitCost('PreparationMaster', ing.sfgId, userId);
+      // Fallback to SemiFinishedGood if PreparationMaster not found
+      const finalSfgCost = sfgCost > 0 ? sfgCost : await getIngredientUnitCost('SemiFinishedGood', ing.sfgId, userId);
+      totalPortionCost += finalSfgCost * ing.quantity;
+    }
+    return totalPortionCost > 0 ? totalPortionCost : (portion.costPerPortion || 0);
   } else if (itemModel === 'Packaging') {
     const pkg = await Packaging.findOne({ _id: itemId, userId });
     return pkg ? (pkg.costPerUnit || 0) : 0;

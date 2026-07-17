@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 import { CartProvider } from "@/context/CartContext";
 import FloatingCart from "@/components/ui/FloatingCart";
 import FacebookSdk from "@/components/ui/FacebookSdk";
+import { Metadata } from "next";
 
 export default function RootLayout({
   children,

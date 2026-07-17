@@ -1,47 +1,48 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { API_URL } from '@/lib/api';
 import { Eye, EyeOff } from 'lucide-react';
 
-export default function LoginPage() {
+export default function ResetPasswordPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const emailParam = searchParams.get('email') || '';
+
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
+    const otp = formData.get('otp') as string;
+    const newPassword = formData.get('newPassword') as string;
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/login`, {
+      const res = await fetch(`${API_URL}/api/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, otp, newPassword }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to login');
+        throw new Error(data.error || 'Failed to reset password');
       }
 
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-
-      if (data.user.role === 'admin') {
-        router.push('/admin/dashboard');
-      } else {
-        router.push('/dashboard');
-      }
+      setSuccess(true);
+      setTimeout(() => {
+        router.push('/login');
+      }, 3000);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -49,15 +50,29 @@ export default function LoginPage() {
     }
   };
 
+  if (success) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black px-4">
+        <div className="max-w-md w-full bg-[#111111] border border-[#333333] rounded-2xl shadow-xl p-8 text-center">
+          <h2 className="text-2xl font-bold text-white mb-4">Password Reset Successfully!</h2>
+          <p className="text-gray-400 mb-6">You can now log in with your new password. Redirecting to login...</p>
+          <Link href="/login" className="text-[#d4af37] hover:underline">
+            Click here if not redirected
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-black px-4">
       <div className="max-w-md w-full bg-[#111111] border border-[#333333] rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-white mb-2">
-            Welcome to KYROZ-PLUS
+            Create New Password
           </h2>
           <p className="text-gray-400">
-            Log in to your account
+            Enter the 6-digit code sent to your email
           </p>
         </div>
 
@@ -67,27 +82,42 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-6">
+        <form onSubmit={handleResetPassword} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
             <input
               type="email"
               name="email"
+              defaultValue={emailParam}
               className="w-full px-4 py-3 bg-black border border-[#333333] rounded-lg focus:outline-none focus:border-[#d4af37] text-white transition-colors"
               placeholder="user@example.com"
+              required
+              readOnly={!!emailParam}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">6-Digit Code</label>
+            <input
+              type="text"
+              name="otp"
+              maxLength={6}
+              className="w-full px-4 py-3 bg-black border border-[#333333] rounded-lg focus:outline-none focus:border-[#d4af37] text-white transition-colors tracking-widest text-center text-lg"
+              placeholder="000000"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Password</label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">New Password</label>
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
-                name="password"
+                name="newPassword"
                 className="w-full px-4 py-3 bg-black border border-[#333333] rounded-lg focus:outline-none focus:border-[#d4af37] text-white transition-colors pr-12"
                 placeholder="••••••••"
                 required
+                minLength={6}
               />
               <button
                 type="button"
@@ -97,11 +127,6 @@ export default function LoginPage() {
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
-            <div className="flex justify-end mt-2">
-              <Link href="/forgot-password" className="text-sm text-[#d4af37] hover:underline">
-                Forgot Password?
-              </Link>
-            </div>
           </div>
 
           <button
@@ -109,14 +134,13 @@ export default function LoginPage() {
             disabled={isLoading}
             className="w-full bg-[#d4af37] hover:bg-[#c5a028] disabled:opacity-50 disabled:cursor-not-allowed text-black font-semibold py-3 rounded-lg transition-colors"
           >
-            {isLoading ? 'Logging in...' : 'Log In'}
+            {isLoading ? 'Resetting...' : 'Reset Password'}
           </button>
         </form>
 
         <p className="mt-6 text-center text-gray-400 text-sm">
-          Don't have an account?{' '}
-          <Link href="/signup" className="text-[#d4af37] hover:underline">
-            Sign up here
+          <Link href="/login" className="text-[#d4af37] hover:underline">
+            Back to Login
           </Link>
         </p>
       </div>

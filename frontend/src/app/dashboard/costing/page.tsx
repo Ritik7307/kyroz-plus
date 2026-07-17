@@ -27,7 +27,7 @@ interface DishOption {
 }
 
 interface IngredientCostDetail {
-  itemModel: 'RawMaterial' | 'SemiFinishedGood' | 'Packaging';
+  itemModel: 'RawMaterial' | 'SemiFinishedGood' | 'Packaging' | 'PortionMaster' | 'PreparationMaster';
   itemId: string;
   name: string;
   quantity: number;

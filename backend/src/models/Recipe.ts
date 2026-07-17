@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IRecipeIngredient {
-  itemModel: 'RawMaterial' | 'SemiFinishedGood' | 'Premix' | 'SopPacket' | 'Packaging';
+  itemModel: 'RawMaterial' | 'SemiFinishedGood' | 'PreparationMaster' | 'Premix' | 'SopPacket' | 'Packaging' | 'PortionMaster';
   itemId: mongoose.Types.ObjectId;
   quantity: number; // The standard quantity required
 }
@@ -19,7 +19,7 @@ const RecipeIngredientSchema = new Schema({
   itemModel: { 
     type: String, 
     required: true, 
-    enum: ['RawMaterial', 'SemiFinishedGood', 'Premix', 'SopPacket', 'Packaging'] 
+    enum: ['RawMaterial', 'SemiFinishedGood', 'PreparationMaster', 'Premix', 'SopPacket', 'Packaging', 'PortionMaster'] 
   },
   itemId: { type: Schema.Types.ObjectId, required: true },
   quantity: { type: Number, required: true }
