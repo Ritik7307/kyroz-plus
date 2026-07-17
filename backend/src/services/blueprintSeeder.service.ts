@@ -1235,32 +1235,56 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
     'Classic Burger': [
       { itemModel: 'RawMaterial', code: 'RM_BURGER_BUN', quantity: 1 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_ALOO_PATTY', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CLASSIC_BURGER_SAUCE', quantity: 20 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CLASSIC_BURGER_SAUCE', quantity: 30 },
+      { itemModel: 'RawMaterial', code: 'RM_LETTUCE', quantity: 10 },
+      { itemModel: 'RawMaterial', code: 'RM_TOMATO', quantity: 20 },
+      { itemModel: 'RawMaterial', code: 'RM_ONION', quantity: 15 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 }
     ],
     'Crispy Veggie Burger': [
       { itemModel: 'RawMaterial', code: 'RM_BURGER_BUN', quantity: 1 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_VEG_PATTY', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CLASSIC_BURGER_SAUCE', quantity: 20 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CLASSIC_BURGER_SAUCE', quantity: 30 },
+      { itemModel: 'RawMaterial', code: 'RM_LETTUCE', quantity: 10 },
+      { itemModel: 'RawMaterial', code: 'RM_TOMATO', quantity: 20 },
+      { itemModel: 'RawMaterial', code: 'RM_ONION', quantity: 15 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 }
     ],
     'Tandoori Burger': [
       { itemModel: 'RawMaterial', code: 'RM_BURGER_BUN', quantity: 1 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_ALOO_PATTY', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_TANDOORI_BURGER_SAUCE', quantity: 20 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_TANDOORI_BURGER_SAUCE', quantity: 30 },
+      { itemModel: 'RawMaterial', code: 'RM_LETTUCE', quantity: 10 },
+      { itemModel: 'RawMaterial', code: 'RM_TOMATO', quantity: 20 },
+      { itemModel: 'RawMaterial', code: 'RM_ONION', quantity: 15 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 }
     ],
     'Paneer Burger': [
       { itemModel: 'RawMaterial', code: 'RM_BURGER_BUN', quantity: 1 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_PANEER_PATTY', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CLASSIC_BURGER_SAUCE', quantity: 20 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CLASSIC_BURGER_SAUCE', quantity: 30 },
+      { itemModel: 'RawMaterial', code: 'RM_LETTUCE', quantity: 10 },
+      { itemModel: 'RawMaterial', code: 'RM_TOMATO', quantity: 20 },
+      { itemModel: 'RawMaterial', code: 'RM_ONION', quantity: 15 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 }
     ],
     'Classic Chicken Burger': [
       { itemModel: 'RawMaterial', code: 'RM_BURGER_BUN', quantity: 1 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_CHICKEN_PATTY', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CLASSIC_BURGER_SAUCE', quantity: 20 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CLASSIC_BURGER_SAUCE', quantity: 30 },
+      { itemModel: 'RawMaterial', code: 'RM_LETTUCE', quantity: 10 },
+      { itemModel: 'RawMaterial', code: 'RM_TOMATO', quantity: 20 },
+      { itemModel: 'RawMaterial', code: 'RM_ONION', quantity: 15 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 }
     ],
     'Zinger Burger': [
       { itemModel: 'RawMaterial', code: 'RM_BURGER_BUN', quantity: 1 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_ZINGER_PATTY', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_SPICY_BURGER_SAUCE', quantity: 20 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SPICY_BURGER_SAUCE', quantity: 30 },
+      { itemModel: 'RawMaterial', code: 'RM_LETTUCE', quantity: 10 },
+      { itemModel: 'RawMaterial', code: 'RM_TOMATO', quantity: 20 },
+      { itemModel: 'RawMaterial', code: 'RM_ONION', quantity: 15 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 }
     ],
     'Crispy Chicken Sandwich': [
       { itemModel: 'RawMaterial', code: 'RM_BREAD', quantity: 2 },
