@@ -97,21 +97,7 @@ export default function CostingMaster() {
   const [savingRawMaterial, setSavingRawMaterial] = useState(false);
   const [savingRecipe, setSavingRecipe] = useState(false);
 
-    const handleResetMaster = async () => {
-    if(!confirm('Are you sure you want to delete ALL dishes? This will force a fresh blueprint seed on next load!')) return;
-    try {
-      const token = localStorage.getItem('token');
-      await fetch(API_URL + '/api/dishes/all', {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      alert('All dishes deleted. Refreshing to seed new blueprints...');
-      window.location.reload();
-    } catch(err) {
-      alert('Error resetting master');
-    }
-  };
-
+  
   // Fetch Inventory
   const fetchInventory = async () => {
     try {
@@ -439,22 +425,15 @@ export default function CostingMaster() {
               <span>Loading dishes...</span>
             </div>
           ) : (
-            <div className="w-full flex gap-2 items-center">
-              <div className="flex-1">
-                <CustomDropdown
+            <div className="w-full">
+              <CustomDropdown
                 options={dishes}
                 value={selectedDishId}
                 onChange={setSelectedDishId}
                 label="Selected Restaurant Dish"
-                placeholder="Choose a dish to analyze"
+                placeholder="Search or choose a dish to analyze"
+                searchable={true}
               />
-              </div>
-              <button 
-                onClick={handleResetMaster}
-                className="mt-6 px-4 py-2 bg-red-500/20 text-red-400 hover:bg-red-500/40 rounded-xl border border-red-500/50 transition-all font-bold text-xs tracking-wider"
-              >
-                RESET
-              </button>
             </div>
           )}
         </div>

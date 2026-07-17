@@ -15,13 +15,18 @@ interface CustomDropdownProps {
   onChange: (value: string) => void;
   label?: string;
   placeholder?: string;
+  searchable?: boolean;
 }
 
-export default function CustomDropdown({ options, value, onChange, label, placeholder }: CustomDropdownProps) {
+export default function CustomDropdown({ options, value, onChange, label, placeholder, searchable }: CustomDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const selectedOption = options.find(opt => opt.value === value);
+  const filteredOptions = searchable 
+    ? options.filter(opt => opt.label.toLowerCase().includes(searchQuery.toLowerCase())) 
+    : options;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -59,8 +64,20 @@ export default function CustomDropdown({ options, value, onChange, label, placeh
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             className="absolute z-50 w-full bg-[#111111] border border-white/10 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl"
           >
+            {searchable && (
+              <div className="p-2 border-b border-white/10">
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-gold transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
+            )}
             <div className="py-2 max-h-60 overflow-y-auto custom-scrollbar">
-              {options.map((option) => (
+              {filteredOptions.map((option) => (
                 <button
                   key={option.value}
                   type="button"
