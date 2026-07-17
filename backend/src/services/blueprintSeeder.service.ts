@@ -1103,19 +1103,32 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
 
   const recipeMappings: Record<string, { itemModel: 'RawMaterial' | 'SemiFinishedGood' | 'Packaging'; code: string; quantity: number }[]> = {
     'Red Sauce Pasta': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_BOILED_PASTA', quantity: 190 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 50 },
-      { itemModel: 'RawMaterial', code: 'RM_OIL_GHEE', quantity: 10 }
+            { itemModel: 'SemiFinishedGood', code: 'SFG_BOILED_PASTA', quantity: 200 },
+      { itemModel: 'RawMaterial', code: 'RM_WATER_STOCK', quantity: 200 },
+      { itemModel: 'RawMaterial', code: 'RM_C506', quantity: 50 },
+      { itemModel: 'RawMaterial', code: 'RM_OLIVE_OIL', quantity: 10 },
+      { itemModel: 'RawMaterial', code: 'RM_MIXED_VEG', quantity: 40 },
+      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 10 }
     ],
     'White Sauce Pasta': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_BOILED_PASTA', quantity: 190 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_WHITE_SAUCE', quantity: 1 }
+            { itemModel: 'SemiFinishedGood', code: 'SFG_BOILED_PASTA', quantity: 200 },
+      { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
+      { itemModel: 'RawMaterial', code: 'RM_C505', quantity: 45 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 10 },
+      { itemModel: 'RawMaterial', code: 'RM_MIXED_VEG', quantity: 40 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 1 }
     ],
     'Pink Sauce Pasta': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_BOILED_PASTA', quantity: 190 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_SAUCE', quantity: 25 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_WHITE_SAUCE', quantity: 0.5 },
-      { itemModel: 'RawMaterial', code: 'RM_OIL_GHEE', quantity: 5 }
+            { itemModel: 'SemiFinishedGood', code: 'SFG_BOILED_PASTA', quantity: 200 },
+      { itemModel: 'RawMaterial', code: 'RM_WATER_STOCK', quantity: 100 },
+      { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 100 },
+      { itemModel: 'RawMaterial', code: 'RM_C506', quantity: 25 },
+      { itemModel: 'RawMaterial', code: 'RM_C505', quantity: 20 },
+      { itemModel: 'RawMaterial', code: 'RM_OLIVE_OIL', quantity: 5 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'RawMaterial', code: 'RM_MIXED_VEG', quantity: 40 },
+      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 10 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 1 }
     ],
     'Large Farmhouse Pizza': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_LARGE', quantity: 1 },
@@ -1154,58 +1167,85 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
       { itemModel: 'SemiFinishedGood', code: 'SFG_VEG_PORTION_LARGE', quantity: 1 }
     ],
     'Personal Corn Cheese Pizza': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_PERSONAL', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_PERSONAL', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_PERSONAL', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CORN_PORTION_PERSONAL', quantity: 1 }
+            { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_BASE_PERSONAL', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_PREPARED_PIZZA_SAUCE', quantity: 50 },
+      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 90 },
+      { itemModel: 'RawMaterial', code: 'RM_MIXED_VEG', quantity: 40 },
+      { itemModel: 'RawMaterial', code: 'RM_OLIVE_OIL', quantity: 3 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 1 },
+      { itemModel: 'RawMaterial', code: 'RM_CORN_RAW', quantity: 30 }
     ],
     'Medium Corn Cheese Pizza': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_MEDIUM', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_MEDIUM', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_MEDIUM', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CORN_PORTION_MEDIUM', quantity: 1 }
+            { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_BASE_MEDIUM', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_PREPARED_PIZZA_SAUCE', quantity: 75.0 },
+      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 135.0 },
+      { itemModel: 'RawMaterial', code: 'RM_MIXED_VEG', quantity: 60.0 },
+      { itemModel: 'RawMaterial', code: 'RM_OLIVE_OIL', quantity: 4.5 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 1 },
+      { itemModel: 'RawMaterial', code: 'RM_CORN_RAW', quantity: 45.0 }
     ],
     'Large Corn Cheese Pizza': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_LARGE', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_LARGE', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_LARGE', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CORN_PORTION_LARGE', quantity: 1 }
+            { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_BASE_LARGE', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_PREPARED_PIZZA_SAUCE', quantity: 100 },
+      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 180 },
+      { itemModel: 'RawMaterial', code: 'RM_MIXED_VEG', quantity: 80 },
+      { itemModel: 'RawMaterial', code: 'RM_OLIVE_OIL', quantity: 6 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 1 },
+      { itemModel: 'RawMaterial', code: 'RM_CORN_RAW', quantity: 60 }
     ],
     'Personal Paneer Pizza': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_PERSONAL', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_PERSONAL', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_PERSONAL', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PANEER_PORTION_PERSONAL', quantity: 1 }
+            { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_BASE_PERSONAL', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_PREPARED_PIZZA_SAUCE', quantity: 50 },
+      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 90 },
+      { itemModel: 'RawMaterial', code: 'RM_MIXED_VEG', quantity: 40 },
+      { itemModel: 'RawMaterial', code: 'RM_OLIVE_OIL', quantity: 3 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 1 },
+      { itemModel: 'RawMaterial', code: 'RM_PANEER_RAW', quantity: 40 }
     ],
     'Medium Paneer Pizza': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_MEDIUM', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_MEDIUM', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_MEDIUM', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PANEER_PORTION_MEDIUM', quantity: 1 }
+            { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_BASE_MEDIUM', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_PREPARED_PIZZA_SAUCE', quantity: 75.0 },
+      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 135.0 },
+      { itemModel: 'RawMaterial', code: 'RM_MIXED_VEG', quantity: 60.0 },
+      { itemModel: 'RawMaterial', code: 'RM_OLIVE_OIL', quantity: 4.5 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 1 },
+      { itemModel: 'RawMaterial', code: 'RM_PANEER_RAW', quantity: 60.0 }
     ],
     'Large Paneer Pizza': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_LARGE', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_LARGE', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_LARGE', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PANEER_PORTION_LARGE', quantity: 1 }
+            { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_BASE_LARGE', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_PREPARED_PIZZA_SAUCE', quantity: 100 },
+      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 180 },
+      { itemModel: 'RawMaterial', code: 'RM_MIXED_VEG', quantity: 80 },
+      { itemModel: 'RawMaterial', code: 'RM_OLIVE_OIL', quantity: 6 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 1 },
+      { itemModel: 'RawMaterial', code: 'RM_PANEER_RAW', quantity: 80 }
     ],
     'Personal Chicken Pizza': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_PERSONAL', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_PERSONAL', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_PERSONAL', quantity: 1 },
+            { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_BASE_PERSONAL', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_PREPARED_PIZZA_SAUCE', quantity: 50 },
+      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 90 },
+      { itemModel: 'RawMaterial', code: 'RM_MIXED_VEG', quantity: 40 },
+      { itemModel: 'RawMaterial', code: 'RM_OLIVE_OIL', quantity: 3 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 1 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_CHICKEN_PORTION_PERSONAL', quantity: 1 }
     ],
     'Medium Chicken Pizza': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_MEDIUM', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_MEDIUM', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_MEDIUM', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CHICKEN_PORTION_MEDIUM', quantity: 1 }
+            { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_BASE_MEDIUM', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_PREPARED_PIZZA_SAUCE', quantity: 75.0 },
+      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 135.0 },
+      { itemModel: 'RawMaterial', code: 'RM_MIXED_VEG', quantity: 60.0 },
+      { itemModel: 'RawMaterial', code: 'RM_OLIVE_OIL', quantity: 4.5 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHICKEN_PORTION_PERSONAL', quantity: 1.5 }
     ],
     'Large Chicken Pizza': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_LARGE', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_SAUCE_PORTION_LARGE', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CHEESE_PORTION_LARGE', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CHICKEN_PORTION_LARGE', quantity: 1 }
+            { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_BASE_LARGE', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_PREPARED_PIZZA_SAUCE', quantity: 100 },
+      { itemModel: 'RawMaterial', code: 'RM_CHEESE_BLEND', quantity: 180 },
+      { itemModel: 'RawMaterial', code: 'RM_MIXED_VEG', quantity: 80 },
+      { itemModel: 'RawMaterial', code: 'RM_OLIVE_OIL', quantity: 6 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHICKEN_PORTION_PERSONAL', quantity: 2 }
     ],
     'Garlic Bread': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_PIZZA_DOUGH_PERSONAL', quantity: 1 },
@@ -1287,29 +1327,44 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
       { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 }
     ],
     'Crispy Chicken Sandwich': [
-      { itemModel: 'RawMaterial', code: 'RM_BREAD', quantity: 2 },
+            { itemModel: 'RawMaterial', code: 'RM_BREAD', quantity: 2 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_HERB_GARLIC_MAYO', quantity: 1 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_CREAMY_VELVET_SAUCE', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CHICKEN_FILLING', quantity: 50 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CHICKEN_FILLING', quantity: 50 },
+      { itemModel: 'RawMaterial', code: 'RM_MIXED_VEG', quantity: 40 },
+      { itemModel: 'RawMaterial', code: 'RM_CHEESE', quantity: 1 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 1 }
     ],
     'Classic Corn Cheese Sandwich': [
-      { itemModel: 'RawMaterial', code: 'RM_BREAD', quantity: 2 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_HERB_GARLIC_MAYO', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_CORN_FILLING', quantity: 50 },
-      { itemModel: 'RawMaterial', code: 'RM_CHEESE', quantity: 1 }
-    ],
-    'Veg Grilled Club': [
-      { itemModel: 'RawMaterial', code: 'RM_BREAD', quantity: 2 },
+            { itemModel: 'RawMaterial', code: 'RM_BREAD', quantity: 2 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_HERB_GARLIC_MAYO', quantity: 1 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_CREAMY_VELVET_SAUCE', quantity: 1 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_VEG_FILLING', quantity: 50 }
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CORN_FILLING', quantity: 50 },
+      { itemModel: 'RawMaterial', code: 'RM_MIXED_VEG', quantity: 40 },
+      { itemModel: 'RawMaterial', code: 'RM_CHEESE', quantity: 1 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 1 }
+    ],
+    'Veg Grilled Club': [
+            { itemModel: 'RawMaterial', code: 'RM_BREAD', quantity: 2 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_HERB_GARLIC_MAYO', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CREAMY_VELVET_SAUCE', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_VEG_FILLING', quantity: 50 },
+      { itemModel: 'RawMaterial', code: 'RM_MIXED_VEG', quantity: 40 },
+      { itemModel: 'RawMaterial', code: 'RM_CHEESE', quantity: 1 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 1 }
     ],
     'Peri-Peri Paneer Sandwich': [
-      { itemModel: 'RawMaterial', code: 'RM_BREAD', quantity: 2 },
+            { itemModel: 'RawMaterial', code: 'RM_BREAD', quantity: 2 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_HERB_GARLIC_MAYO', quantity: 1 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_CREAMY_VELVET_SAUCE', quantity: 1 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_PANEER_FILLING', quantity: 50 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_FIRE_DUST_WRAP', quantity: 1 }
+      { itemModel: 'RawMaterial', code: 'RM_MIXED_VEG', quantity: 40 },
+      { itemModel: 'RawMaterial', code: 'RM_CHEESE', quantity: 1 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 1 }
     ],
 
     'Veg Wrap': [
@@ -1328,52 +1383,43 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
       { itemModel: 'SemiFinishedGood', code: 'SFG_HERB_GARLIC_MAYO', quantity: 1 }
     ],
     'Cold Coffee': [
-      { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_WHITE_SHAKE_BASE', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_COFFEE_POWDER', quantity: 10 },
-      { itemModel: 'RawMaterial', code: 'RM_SUGAR', quantity: 15 }
+            { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
+      { itemModel: 'RawMaterial', code: 'RM_C507_SNOW_BASE', quantity: 35 },
+      { itemModel: 'RawMaterial', code: 'RM_COFFEE_POWDER', quantity: 10 }
     ],
     'Chocolate Shake': [
-      { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_DARK_SHAKE_BASE', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_CHOCO_SYRUP', quantity: 30 },
-      { itemModel: 'RawMaterial', code: 'RM_SUGAR', quantity: 15 }
+            { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
+      { itemModel: 'RawMaterial', code: 'RM_C508_COCOA_BASE', quantity: 45 }
     ],
     'Vanilla Shake': [
-      { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_WHITE_SHAKE_BASE', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_VANILLA_CORE', quantity: 30 },
-      { itemModel: 'RawMaterial', code: 'RM_SUGAR', quantity: 15 }
+            { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
+      { itemModel: 'RawMaterial', code: 'RM_C507_SNOW_BASE', quantity: 40 },
+      { itemModel: 'RawMaterial', code: 'RM_VANILLA_CORE', quantity: 30 }
     ],
     'Strawberry Shake': [
-      { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_WHITE_SHAKE_BASE', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_STRAWBERRY_CORE', quantity: 30 },
-      { itemModel: 'RawMaterial', code: 'RM_SUGAR', quantity: 15 }
+            { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
+      { itemModel: 'RawMaterial', code: 'RM_C507_SNOW_BASE', quantity: 40 },
+      { itemModel: 'RawMaterial', code: 'RM_STRAWBERRY_CORE', quantity: 20 }
     ],
     'Mango Shake': [
-      { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_WHITE_SHAKE_BASE', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_MANGO_SYRUP', quantity: 30 },
-      { itemModel: 'RawMaterial', code: 'RM_SUGAR', quantity: 15 }
+            { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
+      { itemModel: 'RawMaterial', code: 'RM_C507_SNOW_BASE', quantity: 40 },
+      { itemModel: 'RawMaterial', code: 'RM_MANGO_SYRUP', quantity: 20 }
     ],
     'Oreo Shake': [
-      { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_DARK_SHAKE_BASE', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_OREO_ADDON', quantity: 2 },
-      { itemModel: 'RawMaterial', code: 'RM_SUGAR', quantity: 15 }
+            { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
+      { itemModel: 'RawMaterial', code: 'RM_C508_COCOA_BASE', quantity: 45 },
+      { itemModel: 'RawMaterial', code: 'RM_OREO_ADDON', quantity: 2 }
     ],
     'KitKat Shake': [
-      { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_DARK_SHAKE_BASE', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_KITKAT_ADDON', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_SUGAR', quantity: 15 }
+            { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
+      { itemModel: 'RawMaterial', code: 'RM_C508_COCOA_BASE', quantity: 45 },
+      { itemModel: 'RawMaterial', code: 'RM_KITKAT_ADDON', quantity: 1 }
     ],
     'Hazelnut Shake': [
-      { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_DARK_SHAKE_BASE', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_HAZELNUT_SYRUP', quantity: 30 },
-      { itemModel: 'RawMaterial', code: 'RM_SUGAR', quantity: 15 }
+            { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
+      { itemModel: 'RawMaterial', code: 'RM_C508_COCOA_BASE', quantity: 40 },
+      { itemModel: 'RawMaterial', code: 'RM_HAZELNUT_SYRUP', quantity: 15 }
     ],
     'Hot Coffee': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_HOT_COFFEE_BASE', quantity: 1 },
@@ -1382,10 +1428,9 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
       { itemModel: 'RawMaterial', code: 'RM_SUGAR', quantity: 15 }
     ],
     'Mocha Frappe': [
-      { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_DARK_SHAKE_BASE', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_COFFEE_POWDER', quantity: 10 },
-      { itemModel: 'RawMaterial', code: 'RM_SUGAR', quantity: 15 }
+            { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
+      { itemModel: 'RawMaterial', code: 'RM_C508_COCOA_BASE', quantity: 35 },
+      { itemModel: 'RawMaterial', code: 'RM_COFFEE_POWDER', quantity: 10 }
     ],
     'Mini Uttapam': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_UTTAPAM_BATTER_SMALL', quantity: 1 },
