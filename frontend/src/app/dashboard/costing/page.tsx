@@ -172,8 +172,12 @@ export default function CostingMaster() {
       
       // Initialize local input values for editing ingredient prices
       const initialPrices: Record<string, number> = {};
-      data.ingredientsCostDetails.forEach((ing: IngredientCostDetail) => {
-        initialPrices[ing.itemId] = ing.purchasePrice;
+      data.ingredientsCostDetails.forEach((ing: any) => {
+        let displayPrice = ing.purchasePrice;
+        if (ing.rateUnit === 'gm' || ing.rateUnit === 'ml') {
+          displayPrice = ing.purchasePrice * 1000;
+        }
+        initialPrices[ing.itemId] = displayPrice;
       });
       setEditingPrices(initialPrices);
     } catch (err: any) {
@@ -203,7 +207,12 @@ export default function CostingMaster() {
     setSuccessMessage('');
     try {
       const token = localStorage.getItem('token');
-      const newPrice = editingPrices[itemId];
+      let newPrice = Number(editingPrices[itemId]);
+      const ing = localIngredients.find(i => i.itemId === itemId);
+      if (ing && (ing.rateUnit === 'gm' || ing.rateUnit === 'ml')) {
+        newPrice = newPrice / 1000;
+      }
+
       const res = await fetch(`${API_URL}/api/costing/ingredient`, {
         method: 'PUT',
         headers: {
@@ -213,7 +222,7 @@ export default function CostingMaster() {
         body: JSON.stringify({
           itemModel,
           itemId,
-          price: Number(newPrice)
+          price: newPrice
         })
       });
       if (!res.ok) {
@@ -529,7 +538,7 @@ export default function CostingMaster() {
                       <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 pt-4 md:pt-0 border-white/5">
                         <div className="space-y-1 text-left md:text-right">
                           <label className="text-[9px] font-black text-white/20 uppercase tracking-widest block">
-                            Purchase / {ing.rateUnit}
+                            Purchase / {ing.rateUnit === 'gm' ? 'kg' : ing.rateUnit === 'ml' ? 'L' : ing.rateUnit}
                           </label>
                           <div className="flex items-center gap-2">
                             <div className="relative w-28">
