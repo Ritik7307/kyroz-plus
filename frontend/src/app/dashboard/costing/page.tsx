@@ -529,7 +529,7 @@ export default function CostingMaster() {
                       <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 pt-4 md:pt-0 border-white/5">
                         <div className="space-y-1 text-left md:text-right">
                           <label className="text-[9px] font-black text-white/20 uppercase tracking-widest block">
-                            Purchase Rate / {ing.rateUnit}
+                            Purchase / {ing.rateUnit}
                           </label>
                           <div className="flex items-center gap-2">
                             <div className="relative w-28">
