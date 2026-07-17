@@ -7,6 +7,24 @@ import Inventory from '../models/Inventory';
 import { seedBlueprints } from '../services/blueprintSeeder.service';
 
 
+
+export const forceSeedDb = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.params.userId;
+    if (!userId) {
+      res.status(400).json({ error: 'User ID is required' });
+      return;
+    }
+    await (Recipe as any).deleteMany({ userId, entityModel: 'Dish' });
+    await (Dish as any).deleteMany({ userId });
+    await seedBlueprints(userId);
+    res.status(200).json({ message: 'Database successfully cleared and re-seeded with EXACT 30gm recipes and correct naming!' });
+  } catch (error) {
+    console.error('forceSeedDb error:', error);
+    res.status(500).json({ error: 'Failed to force seed db' });
+  }
+};
+
 export const deleteAllDishes = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId;

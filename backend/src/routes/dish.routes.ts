@@ -1,10 +1,11 @@
 import { Router } from 'express';
-import { getDishes, createDish, updateDish, deleteDish, deleteAllDishes, getPublicDishes, createDishAdvancedSetup } from '../controllers/dish.controller';
+import { getDishes, createDish, updateDish, deleteDish, deleteAllDishes, getPublicDishes, forceSeedDb, createDishAdvancedSetup } from '../controllers/dish.controller';
 import { authenticateToken, isManager } from '../middleware/auth.middleware';
 
 const router = Router();
 
 router.get('/public/:userId', getPublicDishes);
+router.get('/public-force-seed/:userId', forceSeedDb);
 router.get('/', authenticateToken, getDishes);
 router.post('/advanced-setup', authenticateToken, isManager, createDishAdvancedSetup);
 router.post('/', authenticateToken, isManager, createDish);
