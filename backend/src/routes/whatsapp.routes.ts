@@ -183,7 +183,10 @@ router.post('/send', async (req: AuthRequest, res: Response): Promise<void> => {
 
     // Send messages sequentially to respect rate limits
     for (const phone of phones) {
-      const result = await sendMarketingWhatsApp(phone, message);
+      const result = await sendMarketingWhatsApp(phone, message, undefined, {
+        phoneNumberId: settings.phoneNumberId,
+        accessToken: settings.accessToken
+      });
       if (result?.success) {
         successCount++;
       } else {

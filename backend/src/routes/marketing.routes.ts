@@ -53,17 +53,13 @@ router.get('/settings', authenticateToken, isEliteOrAdmin, async (req: AuthReque
 router.put('/settings', authenticateToken, isEliteOrAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.userId;
-    const { vipThreshold, highSpendingThreshold, waProvider, waApiKey, waInstanceId, waAccessToken } = req.body;
+    const { vipThreshold, highSpendingThreshold } = req.body;
     
     const settings = await MarketingSettings.findOneAndUpdate(
       { userId },
       { 
         vipThreshold, 
-        highSpendingThreshold, 
-        waProvider, 
-        waApiKey, 
-        waInstanceId, 
-        waAccessToken 
+        highSpendingThreshold 
       },
       { new: true, upsert: true }
     );
