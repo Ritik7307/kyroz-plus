@@ -52,6 +52,7 @@ interface RawMaterial {
   name: string;
   purchaseUnit: string;
   consumptionUnit: string;
+  conversionFactor?: number;
   category: string;
   currentStock: number;
   costPerPurchaseUnit: number;
@@ -64,6 +65,7 @@ interface SemiFinishedGood {
   batchYield: number;
   yieldUnit: string;
   currentStock: number;
+  costPerUnit?: number;
 }
 
 interface Premix {
@@ -80,6 +82,7 @@ interface Packaging {
   name: string;
   unit: string;
   currentStock: number;
+  costPerUnit?: number;
 }
 
 interface RecipeIngredient {
@@ -99,7 +102,7 @@ interface Recipe {
 }
 
 export default function InventoryPage() {
-  const [activeTab, setActiveTab] = useState<'dishes' | 'rawMaterials' | 'semiFinishedGoods' | 'premixes' | 'packaging'>('dishes');
+  const [activeTab, setActiveTab] = useState<'overview' | 'dishes' | 'rawMaterials' | 'semiFinishedGoods' | 'premixes' | 'packaging'>('overview');
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [rawMaterials, setRawMaterials] = useState<RawMaterial[]>([]);
   const [semiFinishedGoods, setSemiFinishedGoods] = useState<SemiFinishedGood[]>([]);
@@ -440,6 +443,7 @@ export default function InventoryPage() {
       {/* Tabs */}
       <div className="flex overflow-x-auto gap-3 pb-2 border-b border-white/5 scrollbar-thin">
         {[
+          { key: 'overview', label: 'Overview & Valuation' },
           { key: 'dishes', label: 'Dishes / Portions' },
           { key: 'rawMaterials', label: 'Raw Materials' },
           { key: 'semiFinishedGoods', label: 'Semi-Finished' },
@@ -466,7 +470,51 @@ export default function InventoryPage() {
           <p className="font-black uppercase tracking-[0.3em] text-sm">Syncing Inventory...</p>
         </div>
       ) : (
-        <div>
+        <div className="pt-4">
+          {/* 0. OVERVIEW TAB */}
+          {activeTab === 'overview' && (
+            <div className="space-y-8">
+              {(() => {
+                const totalRMValue = rawMaterials.reduce((acc, rm) => {
+                  const factor = rm.conversionFactor || 1;
+                  const unitCost = (rm.costPerPurchaseUnit || 0) / factor;
+                  return acc + (rm.currentStock * unitCost);
+                }, 0);
+                
+                const totalSFGValue = semiFinishedGoods.reduce((acc, sfg) => acc + (sfg.currentStock * (sfg.costPerUnit || 0)), 0);
+                const totalPkgValue = packaging.reduce((acc, pkg) => acc + (pkg.currentStock * (pkg.costPerUnit || 0)), 0);
+                const totalValuation = totalRMValue + totalSFGValue + totalPkgValue;
+
+                return (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                      <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 relative overflow-hidden group hover:border-gold/30 transition-all">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-gold/10 rounded-full blur-[50px] -mr-16 -mt-16 transition-all group-hover:bg-gold/20"></div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 relative z-10">Total Inventory Valuation</p>
+                        <h3 className="text-4xl font-black text-white tracking-tighter relative z-10">₹{totalValuation.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                      </div>
+                      <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 relative overflow-hidden group hover:border-blue-500/30 transition-all">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-[50px] -mr-16 -mt-16 transition-all group-hover:bg-blue-500/20"></div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 relative z-10">Raw Materials Value</p>
+                        <h3 className="text-3xl font-black text-white tracking-tighter relative z-10">₹{totalRMValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                      </div>
+                      <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 relative overflow-hidden group hover:border-green-500/30 transition-all">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-[50px] -mr-16 -mt-16 transition-all group-hover:bg-green-500/20"></div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 relative z-10">SFG Value</p>
+                        <h3 className="text-3xl font-black text-white tracking-tighter relative z-10">₹{totalSFGValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                      </div>
+                      <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 relative overflow-hidden group hover:border-purple-500/30 transition-all">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-[50px] -mr-16 -mt-16 transition-all group-hover:bg-purple-500/20"></div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 relative z-10">Packaging Value</p>
+                        <h3 className="text-3xl font-black text-white tracking-tighter relative z-10">₹{totalPkgValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          )}
+
           {/* 1. DISHES TAB */}
           {activeTab === 'dishes' && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

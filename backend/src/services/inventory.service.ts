@@ -10,6 +10,7 @@ import Inventory from '../models/Inventory';
 import Notification from '../models/Notification';
 import PortionMaster from '../models/PortionMaster';
 import PreparationMaster from '../models/PreparationMaster';
+import { sendMarketingWhatsApp } from './whatsapp.service';
 
 const createStockNotification = async (
   userId: any,
@@ -27,15 +28,28 @@ const createStockNotification = async (
     });
 
     if (!existing) {
+      const messageText = `Your stock for ${itemName} is low (${currentStock.toFixed(2)} ${unit} remaining). Please refill.`;
+      
       await Notification.create({
         userId,
         title: 'Low Stock Alert',
-        message: `Your stock for ${itemName} is low (${currentStock.toFixed(2)} ${unit} remaining). Please refill.`,
+        message: messageText,
         type: 'warning',
         category: 'inventory',
         isRead: false
       });
       console.log(`Created low stock notification for ${itemName}`);
+
+      // Automated WhatsApp Alert
+      const adminPhone = process.env.ADMIN_WHATSAPP_NUMBER || '+917887009800';
+      const waMessage = `🚨 *KYROZ+ AUTOMATED STOCK ALERT* 🚨\n\nItem: *${itemName}*\nCurrent Stock: ${currentStock.toFixed(2)} ${unit}\n\n⚠️ _This item has dropped below its safe threshold. Please arrange for a restock._`;
+      
+      try {
+        await sendMarketingWhatsApp(adminPhone, waMessage);
+        console.log(`Automated WhatsApp stock alert sent to Admin for ${itemName}`);
+      } catch (waErr) {
+        console.error('Failed to send automated WhatsApp stock alert:', waErr);
+      }
     }
   } catch (err) {
     console.error('Failed to create stock notification:', err);
