@@ -54,9 +54,9 @@ Structure:
 
       if (reportContent) {
         // 4. Send the final report via WhatsApp
-        await sendWhatsAppMessage(phone, `*KYROZ+ Growth Assessment Report* 📊\n\n${reportContent}\n\n---\n_Reply with "3" to schedule a personalized Demo with our team!_`);
+        await sendWhatsAppMessage(phone, `*KYROZ+ Growth Assessment Report* 📊\n\n${reportContent}\n\n---\n_Reply with "3" to schedule a personalized Demo with our team, or contact us directly at +91 7887009800!_`);
       } else {
-        await sendWhatsAppMessage(phone, `We successfully analyzed your profile! However, there was a slight issue generating the text report. Please reply with "3" to schedule a demo and our team will present your report on the call!`);
+        await sendWhatsAppMessage(phone, `We successfully analyzed your profile! However, there was a slight issue generating the text report. Please reply with "3" to schedule a demo, or call us at +91 7887009800!`);
       }
 
     } catch (aiError) {
