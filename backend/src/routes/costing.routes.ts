@@ -147,4 +147,13 @@ router.get('/inject-mandi-debug', async (req, res) => {
   }
 });
 
+router.get('/inject-south-indian-debug', async (req, res) => {
+  try {
+    const { injectSouthIndian } = require('../controllers/southIndianInject.controller');
+    await injectSouthIndian(req, res);
+  } catch(e: any) {
+    if (!res.headersSent) res.status(500).json({ error: e.message });
+  }
+});
+
 export default router;
