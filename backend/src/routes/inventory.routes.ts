@@ -15,7 +15,18 @@ router.post('/notify/:id', authenticateToken, notifyAdminAboutStock);
 router.post('/upload', authenticateToken, upload.single('file'), uploadInventoryConfig);
 router.post('/update-stock', authenticateToken, updateStock);
 router.post('/purchase', authenticateToken, addPurchaseEntry);
+import User from '../models/User';
+import Dish from '../models/Dish';
+
 router.post('/produce', authenticateToken, addProductionEntry);
-router.post('/inject-sops', injectSops);
+router.post('/inject-sops', authenticateToken, injectSops);
+router.get('/debug', async (req, res) => {
+  const allUsers = await User.find({}, 'email _id');
+  const debugInfo: any = {};
+  for (const u of allUsers) {
+    debugInfo[u.email] = await Dish.countDocuments({ userId: u._id });
+  }
+  res.json(debugInfo);
+});
 
 export default router;
