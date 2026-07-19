@@ -19,7 +19,7 @@ import User from '../models/User';
 import Dish from '../models/Dish';
 
 router.post('/produce', authenticateToken, addProductionEntry);
-router.post('/inject-sops', injectSops);
+router.post('/inject-sops', authenticateToken, injectSops);
 router.get('/debug', async (req, res) => {
   const allUsers = await User.find({}, 'email _id');
   const debugInfo: any = {};
