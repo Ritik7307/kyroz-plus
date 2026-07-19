@@ -51,7 +51,7 @@ const resolveIngredientCost = async (itemModel: string, itemId: any, userId: any
   return 0;
 };
 
-const getRecipeDetailsRecursive = async (
+export const getRecipeDetailsRecursive = async (
   itemModel: string,
   itemId: any,
   quantityNeeded: number,
@@ -203,6 +203,8 @@ const getRecipeDetailsRecursive = async (
           SemiFinishedGood.exists({ _id: ing.sfgId, userId }),
           RawMaterial.exists({ _id: ing.sfgId, userId })
         ]);
+        
+        console.log(`PortionMaster Ing Check for ${ing.sfgId}: prep=${!!prep}, sfg=${!!sfg}, rm=${!!rm}`);
         
         let itemModel = 'RawMaterial';
         if (prep) itemModel = 'PreparationMaster';
