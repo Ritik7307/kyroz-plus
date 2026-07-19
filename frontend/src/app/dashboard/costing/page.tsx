@@ -284,8 +284,22 @@ export default function CostingMaster() {
     }
   };
 
-  // Cost calculations
-  const costPerPlate = costingData?.totalFoodCost || 0;
+  // Compute cost per plate locally based on editingPrices and quantities
+  const costPerPlate = localIngredients ? localIngredients.reduce((total, ing) => {
+    // Top level ingredients only (sub-ingredients are bundled into their parent SFG cost)
+    if (ing.isSubIngredient) return total;
+    
+    // Get the current editing price for the purchase unit
+    let currentPurchasePrice = editingPrices[ing.itemId] !== undefined ? editingPrices[ing.itemId] : ing.purchasePrice;
+    
+    // Convert currentPurchasePrice to unit cost
+    if (ing.rateUnit === 'gm' || ing.rateUnit === 'ml') {
+        currentPurchasePrice = currentPurchasePrice / 1000;
+    }
+    
+    const qty = Number(ing.quantity) || 0;
+    return total + (qty * currentPurchasePrice);
+  }, 0) : (costingData?.totalFoodCost || 0);
   
   // Psychological Rounding Logic
   const getPsychologicalPrice = (price: number) => {
