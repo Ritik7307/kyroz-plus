@@ -18,8 +18,11 @@ router.post('/purchase', authenticateToken, addPurchaseEntry);
 import User from '../models/User';
 import Dish from '../models/Dish';
 
+import { injectBiryani } from '../controllers/biryaniInject.controller';
+
 router.post('/produce', authenticateToken, addProductionEntry);
 router.post('/inject-sops', authenticateToken, injectSops);
+router.post('/inject-biryani', authenticateToken, injectBiryani);
 router.get('/debug', async (req, res) => {
   const allUsers = await User.find({}, 'email _id');
   const debugInfo: any = {};
