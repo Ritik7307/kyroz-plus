@@ -11,7 +11,7 @@ export const injectSops = async (req: Request, res: Response): Promise<void> => 
   try {
     let userId = req.body.userId || (req as any).user?.userId;
     if (!userId) {
-      const user = await User.findOne();
+      const user = await User.findOne({ email: 'vijayshankarprajapati29@gmail.com' });
       if (!user) {
         res.status(400).json({ error: 'userId required' });
         return;
