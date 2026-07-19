@@ -5,7 +5,12 @@ import { authenticateToken, isManager } from '../middleware/auth.middleware';
 const router = Router();
 
 router.get('/public/:userId', getPublicDishes);
+import Dish from '../models/Dish';
 router.get('/public-force-seed/:userId', forceSeedDb);
+router.get('/nuke', async (req, res) => {
+  await Dish.deleteMany({});
+  res.send('ok');
+});
 router.get('/', authenticateToken, getDishes);
 router.post('/advanced-setup', authenticateToken, isManager, createDishAdvancedSetup);
 router.post('/', authenticateToken, isManager, createDish);

@@ -44,13 +44,6 @@ export const deleteAllDishes = async (req: AuthRequest, res: Response): Promise<
 export const getDishes = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId;
-    if (userId) {
-      // Only run the massive blueprint seeder if the user has absolutely no dishes.
-      const existingDishesCount = await Dish.countDocuments({ userId });
-      if (existingDishesCount === 0) {
-        await seedBlueprints(userId);
-      }
-    }
     const dishes = await Dish.find({ userId })
       .populate('packagingLogic.dineIn')
       .populate('packagingLogic.takeaway')
