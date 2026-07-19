@@ -111,4 +111,22 @@ router.get('/debug', async (req, res) => {
   }
 });
 
+router.get('/inject-mutton-debug', async (req, res) => {
+  try {
+    const { debugInjectMuttonDishes } = require('../controllers/muttonInject.controller');
+    await debugInjectMuttonDishes(req, res);
+  } catch(e: any) {
+    if (!res.headersSent) res.status(500).json({ error: e.message });
+  }
+});
+
+router.get('/inject-chinese-debug', async (req, res) => {
+  try {
+    const { injectChinese } = require('../controllers/chineseInject.controller');
+    await injectChinese(req, res);
+  } catch(e: any) {
+    if (!res.headersSent) res.status(500).json({ error: e.message });
+  }
+});
+
 export default router;

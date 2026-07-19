@@ -4,6 +4,7 @@ import { injectMoreFastFood } from './src/controllers/moreFastFoodInject.control
 import { injectChicken } from './src/controllers/chickenInject.controller';
 import { injectMoreChicken } from './src/controllers/moreChickenInject.controller';
 import { debugInjectMuttonDishes } from './src/controllers/muttonInject.controller';
+import { injectChinese } from './src/controllers/chineseInject.controller';
 
 const MONGO_URI = "mongodb+srv://vijayshankarprajapati29_db_user:3FxmRRA5ReXi2BqV@cluster0.wf2za1x.mongodb.net/?appName=Cluster0";
 
@@ -35,6 +36,9 @@ async function run() {
         
         console.log("Injecting Mutton...");
         await debugInjectMuttonDishes(req, res);
+        
+        console.log("Injecting Chinese...");
+        await injectChinese(req, res);
         
         console.log("Done!");
         process.exit(0);
