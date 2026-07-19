@@ -54,7 +54,7 @@ export const injectSops = async (req: Request, res: Response): Promise<void> => 
     };
 
     // PANEER DHANIYA ADRAKI
-    let pt1 = new PortionMaster({ name: 'Paneer Dhaniya Adraki Portion', userId, ingredients: [] });
+    let pt1 = new PortionMaster({ code: 'PT_PANEER_DHANIYA_ADRAKI', name: 'Paneer Dhaniya Adraki Portion', userId, ingredients: [] });
     await pt1.save();
     pt1.ingredients = [
       { sfgId: (await resolveIng('G-205 ROYAL ROGAN'))?.id, quantity: 140, unit: 'gm' },
@@ -92,7 +92,7 @@ export const injectSops = async (req: Request, res: Response): Promise<void> => 
     );
 
     // PANEER LABABDAR
-    let pt2 = new PortionMaster({ name: 'Paneer Lababdar Portion', userId, ingredients: [] });
+    let pt2 = new PortionMaster({ code: 'PT_PANEER_LABABDAR', name: 'Paneer Lababdar Portion', userId, ingredients: [] });
     await pt2.save();
     pt2.ingredients = [
       { sfgId: (await resolveIng('G-201 SUNSET BASE'))?.id, quantity: 140, unit: 'gm' },
@@ -127,7 +127,7 @@ export const injectSops = async (req: Request, res: Response): Promise<void> => 
     );
 
     // PANEER PASANDA
-    let pt3 = new PortionMaster({ name: 'Paneer Pasanda Portion', userId, ingredients: [] });
+    let pt3 = new PortionMaster({ code: 'PT_PANEER_PASANDA', name: 'Paneer Pasanda Portion', userId, ingredients: [] });
     await pt3.save();
     pt3.ingredients = [
       { sfgId: (await resolveIng('G-202 IVORY BASE'))?.id, quantity: 160, unit: 'gm' },
@@ -162,7 +162,7 @@ export const injectSops = async (req: Request, res: Response): Promise<void> => 
     );
 
     // SHAHI PANEER
-    let pt4 = new PortionMaster({ name: 'Shahi Paneer Portion', userId, ingredients: [] });
+    let pt4 = new PortionMaster({ code: 'PT_SHAHI_PANEER', name: 'Shahi Paneer Portion', userId, ingredients: [] });
     await pt4.save();
     pt4.ingredients = [
       { sfgId: (await resolveIng('G-202 IVORY BASE'))?.id, quantity: 200, unit: 'gm' },
@@ -193,7 +193,7 @@ export const injectSops = async (req: Request, res: Response): Promise<void> => 
     );
 
     // SIGNATURE PANCH-RATAN
-    let pt5 = new PortionMaster({ name: 'Panch-Ratan Curry Portion', userId, ingredients: [] });
+    let pt5 = new PortionMaster({ code: 'PT_PANCH_RATAN', name: 'Panch-Ratan Curry Portion', userId, ingredients: [] });
     await pt5.save();
     pt5.ingredients = [
       { sfgId: (await resolveIng('G-201 SUNSET BASE'))?.id, quantity: 80, unit: 'gm' },
@@ -233,7 +233,7 @@ export const injectSops = async (req: Request, res: Response): Promise<void> => 
     );
 
     // VEG HANDI
-    let pt6 = new PortionMaster({ name: 'Veg Handi Portion', userId, ingredients: [] });
+    let pt6 = new PortionMaster({ code: 'PT_VEG_HANDI', name: 'Veg Handi Portion', userId, ingredients: [] });
     await pt6.save();
     pt6.ingredients = [
       { sfgId: (await resolveIng('G-204 ROASTED RUST'))?.id, quantity: 80, unit: 'gm' },
@@ -271,7 +271,7 @@ export const injectSops = async (req: Request, res: Response): Promise<void> => 
     );
 
     // VEG JALFREZI
-    let pt7 = new PortionMaster({ name: 'Veg Jalfrezi Portion', userId, ingredients: [] });
+    let pt7 = new PortionMaster({ code: 'PT_VEG_JALFREZI', name: 'Veg Jalfrezi Portion', userId, ingredients: [] });
     await pt7.save();
     pt7.ingredients = [
       { sfgId: (await resolveIng('G-204 ROASTED RUST'))?.id, quantity: 120, unit: 'gm' },
