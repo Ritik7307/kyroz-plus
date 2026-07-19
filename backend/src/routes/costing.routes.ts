@@ -67,6 +67,15 @@ router.get('/inject-chicken-debug', async (req, res) => {
   }
 });
 
+router.get('/inject-more-chicken-debug', async (req, res) => {
+  try {
+    const { injectMoreChicken } = require('../controllers/moreChickenInject.controller');
+    await injectMoreChicken(req, res);
+  } catch(e: any) {
+    if (!res.headersSent) res.status(500).json({ error: e.message });
+  }
+});
+
 router.get('/dump', async (req, res) => {
   try {
     const user = await require('../models/User').default.findOne({ email: 'vijayshankarprajapati29@gmail.com' });
