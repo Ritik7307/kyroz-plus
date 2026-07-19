@@ -8,14 +8,14 @@ import Packaging from '../models/Packaging';
 import PortionMaster from '../models/PortionMaster';
 import PreparationMaster from '../models/PreparationMaster';
 
-const resolveIngredientCost = async (itemModel: string, itemId: any, userId: any): Promise<number> => {
+const resolveIngredientCost = async (cache: Map<string, any>, itemModel: string, itemId: any, userId: any): Promise<number> => {
   if (itemModel === 'RawMaterial') {
-    const rm = await RawMaterial.findOne({ _id: itemId, userId });
+    const rm = await getCachedDoc(RawMaterial, itemId, userId, cache);
     if (!rm) return 0;
     const factor = rm.conversionFactor || 1;
     return rm.costPerPurchaseUnit / factor;
   } else if (itemModel === 'SemiFinishedGood') {
-    const sfg = await SemiFinishedGood.findOne({ _id: itemId, userId });
+    const sfg = await getCachedDoc(SemiFinishedGood, itemId, userId, cache);
     if (!sfg) return 0;
     
     // Recursive lookup if recipe exists
@@ -23,7 +23,7 @@ const resolveIngredientCost = async (itemModel: string, itemId: any, userId: any
     if (recipe) {
       let totalCost = 0;
       for (const ing of recipe.ingredients) {
-        const cost = await resolveIngredientCost(ing.itemModel, ing.itemId, userId);
+        const cost = await resolveIngredientCost(cache, ing.itemModel, ing.itemId, userId);
         totalCost += cost * ing.quantity;
       }
       const yieldQty = recipe.operationalYield || sfg.batchYield || 1;
@@ -31,27 +31,37 @@ const resolveIngredientCost = async (itemModel: string, itemId: any, userId: any
     }
     return sfg.costPerUnit || 0;
   } else if (itemModel === 'PreparationMaster') {
-    const prep = await PreparationMaster.findOne({ _id: itemId, userId });
+    const prep = await getCachedDoc(PreparationMaster, itemId, userId, cache);
     return prep ? (prep.costPerOutputUnit || 0) : 0;
   } else if (itemModel === 'PortionMaster') {
-    const portion = await PortionMaster.findOne({ _id: itemId, userId });
+    const portion = await getCachedDoc(PortionMaster, itemId, userId, cache);
     if (!portion) return 0;
     let totalCost = 0;
     for (const ing of portion.ingredients) {
-      const sfgCost = await resolveIngredientCost('PreparationMaster', ing.sfgId, userId);
-      const sfgFallback = sfgCost > 0 ? sfgCost : await resolveIngredientCost('SemiFinishedGood', ing.sfgId, userId);
-      const finalCost = sfgFallback > 0 ? sfgFallback : await resolveIngredientCost('RawMaterial', ing.sfgId, userId);
+      const sfgCost = await resolveIngredientCost(cache, 'PreparationMaster', ing.sfgId, userId);
+      const sfgFallback = sfgCost > 0 ? sfgCost : await resolveIngredientCost(cache, 'SemiFinishedGood', ing.sfgId, userId);
+      const finalCost = sfgFallback > 0 ? sfgFallback : await resolveIngredientCost(cache, 'RawMaterial', ing.sfgId, userId);
       totalCost += finalCost * ing.quantity;
     }
     return totalCost > 0 ? totalCost : (portion.costPerPortion || 0);
   } else if (itemModel === 'Packaging') {
-    const pkg = await Packaging.findOne({ _id: itemId, userId });
+    const pkg = await getCachedDoc(Packaging, itemId, userId, cache);
     return pkg ? pkg.costPerUnit : 0;
   }
   return 0;
 };
 
+
+const getCachedDoc = async (model: any, id: string, userId: string, cache: Map<string, any>) => {
+  const key = `${model.modelName}_${id}`;
+  if (cache.has(key)) return cache.get(key);
+  const doc = await model.findOne({ _id: id, userId });
+  cache.set(key, doc);
+  return doc;
+};
+
 export const getRecipeDetailsRecursive = async (
+  cache: Map<string, any>,
   itemModel: string,
   itemId: any,
   quantityNeeded: number,
@@ -69,7 +79,7 @@ export const getRecipeDetailsRecursive = async (
   let unitCost = 0;
 
   if (itemModel === 'RawMaterial') {
-    const rm = await RawMaterial.findOne({ _id: itemId, userId });
+    const rm = await getCachedDoc(RawMaterial, itemId, userId, cache);
     if (rm) {
       name = rm.name;
       unit = rm.consumptionUnit;
@@ -94,7 +104,7 @@ export const getRecipeDetailsRecursive = async (
       parentModel
     });
   } else if (itemModel === 'SemiFinishedGood') {
-    const sfg = await SemiFinishedGood.findOne({ _id: itemId, userId });
+    const sfg = await getCachedDoc(SemiFinishedGood, itemId, userId, cache);
     if (sfg) {
       name = sfg.name;
       unit = sfg.yieldUnit;
@@ -109,7 +119,7 @@ export const getRecipeDetailsRecursive = async (
         
         const ingredientPromises = sfgRecipe.ingredients.map(async (ing: any) => {
           const scaledSubQty = ing.quantity * (quantityNeeded / yieldQty);
-          const resolved = await getRecipeDetailsRecursive(ing.itemModel, ing.itemId, scaledSubQty, userId, name, itemId.toString(), 'SemiFinishedGood');
+          const resolved = await getRecipeDetailsRecursive(cache, ing.itemModel, ing.itemId, scaledSubQty, userId, name, itemId.toString(), 'SemiFinishedGood');
           return { ing, resolved };
         });
 
@@ -161,7 +171,7 @@ export const getRecipeDetailsRecursive = async (
       }
     }
   } else if (itemModel === 'PreparationMaster') {
-    const prep = await PreparationMaster.findOne({ _id: itemId, userId });
+    const prep = await getCachedDoc(PreparationMaster, itemId, userId, cache);
     if (prep) {
       name = prep.name;
       unit = prep.outputUnit;
@@ -186,7 +196,7 @@ export const getRecipeDetailsRecursive = async (
       });
     }
   } else if (itemModel === 'PortionMaster') {
-    const portion = await PortionMaster.findOne({ _id: itemId, userId });
+    const portion = await getCachedDoc(PortionMaster, itemId, userId, cache);
     if (portion) {
       name = portion.name;
       unit = portion.ingredients.length > 0 ? portion.ingredients[0].unit : 'unit'; // Approx unit based on first ingredient
@@ -198,19 +208,23 @@ export const getRecipeDetailsRecursive = async (
       const ingredientPromises = portion.ingredients.map(async (ing: any) => {
         const scaledSubQty = ing.quantity * quantityNeeded;
         
-        const [prep, sfg, rm] = await Promise.all([
-          PreparationMaster.exists({ _id: ing.sfgId, userId }),
-          SemiFinishedGood.exists({ _id: ing.sfgId, userId }),
-          RawMaterial.exists({ _id: ing.sfgId, userId })
-        ]);
         
-        console.log(`PortionMaster Ing Check for ${ing.sfgId}: prep=${!!prep}, sfg=${!!sfg}, rm=${!!rm}`);
+        const sfgIdStr = ing.sfgId.toString();
+        let itemModel = cache.get(`model_of_${sfgIdStr}`);
+        if (!itemModel) {
+            const [prep, sfg, rm] = await Promise.all([
+              PreparationMaster.exists({ _id: ing.sfgId, userId }),
+              SemiFinishedGood.exists({ _id: ing.sfgId, userId }),
+              RawMaterial.exists({ _id: ing.sfgId, userId })
+            ]);
+            if (prep) itemModel = 'PreparationMaster';
+            else if (sfg) itemModel = 'SemiFinishedGood';
+            else itemModel = 'RawMaterial';
+            cache.set(`model_of_${sfgIdStr}`, itemModel);
+        }
+
         
-        let itemModel = 'RawMaterial';
-        if (prep) itemModel = 'PreparationMaster';
-        else if (sfg) itemModel = 'SemiFinishedGood';
-        
-        const resolved = await getRecipeDetailsRecursive(itemModel, ing.sfgId, scaledSubQty, userId, name, itemId.toString(), 'PortionMaster');
+        const resolved = await getRecipeDetailsRecursive(cache, itemModel, ing.sfgId, scaledSubQty, userId, name, itemId.toString(), 'PortionMaster');
         return { ing, resolved };
       });
       
@@ -244,7 +258,7 @@ export const getRecipeDetailsRecursive = async (
       details = details.concat(subDetails);
     }
   } else if (itemModel === 'Packaging') {
-    const pkg = await Packaging.findOne({ _id: itemId, userId });
+    const pkg = await getCachedDoc(Packaging, itemId, userId, cache);
     if (pkg) {
       name = pkg.name;
       unit = pkg.unit;
@@ -292,9 +306,10 @@ export const getDishCosting = async (req: AuthRequest, res: Response): Promise<v
 
     if (recipe) {
       const dishYield = recipe.operationalYield || recipe.targetYield || 1;
+      const cache = new Map<string, any>();
       const ingredientPromises = recipe.ingredients.map(async (ingredient: any) => {
         const scaledQty = ingredient.quantity / dishYield;
-        const resolved = await getRecipeDetailsRecursive(ingredient.itemModel, ingredient.itemId, scaledQty, userId, dish.name, dishId, 'Dish');
+        const resolved = await getRecipeDetailsRecursive(cache, ingredient.itemModel, ingredient.itemId, scaledQty, userId, dish.name, dishId, 'Dish');
         return resolved;
       });
       

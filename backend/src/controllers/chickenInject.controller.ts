@@ -124,7 +124,7 @@ export const injectChicken = async (req: Request, res: Response): Promise<void> 
         await dish.save();
       }
       
-      const dishRecipeIngs = [];
+      const dishRecipeIngs: any[] = [];
 
       const add = async (ingName: string, quantity: number) => {
         const item = await resolveIng(ingName);
