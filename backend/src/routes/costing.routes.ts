@@ -40,6 +40,15 @@ router.get('/inject-biryani-debug', async (req, res) => {
   }
 });
 
+router.get('/inject-fastfood-debug', async (req, res) => {
+  try {
+    const { injectFastFood } = require('../controllers/fastFoodInject.controller');
+    await injectFastFood(req, res);
+  } catch(e: any) {
+    if (!res.headersSent) res.status(500).json({ error: e.message });
+  }
+});
+
 router.get('/dump', async (req, res) => {
   try {
     const user = await require('../models/User').default.findOne({ email: 'vijayshankarprajapati29@gmail.com' });
