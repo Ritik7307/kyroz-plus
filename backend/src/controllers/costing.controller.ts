@@ -39,8 +39,9 @@ const resolveIngredientCost = async (itemModel: string, itemId: any, userId: any
     let totalCost = 0;
     for (const ing of portion.ingredients) {
       const sfgCost = await resolveIngredientCost('PreparationMaster', ing.sfgId, userId);
-      const fallbackCost = sfgCost > 0 ? sfgCost : await resolveIngredientCost('SemiFinishedGood', ing.sfgId, userId);
-      totalCost += fallbackCost * ing.quantity;
+      const sfgFallback = sfgCost > 0 ? sfgCost : await resolveIngredientCost('SemiFinishedGood', ing.sfgId, userId);
+      const finalCost = sfgFallback > 0 ? sfgFallback : await resolveIngredientCost('RawMaterial', ing.sfgId, userId);
+      totalCost += finalCost * ing.quantity;
     }
     return totalCost > 0 ? totalCost : (portion.costPerPortion || 0);
   } else if (itemModel === 'Packaging') {
@@ -185,7 +186,12 @@ const getRecipeDetailsRecursive = async (
         const resolved = await getRecipeDetailsRecursive('PreparationMaster', ing.sfgId, scaledSubQty, userId, name);
         let finalResolved = resolved;
         if (resolved.length === 0 || resolved[0].unitCost === 0) {
-          finalResolved = await getRecipeDetailsRecursive('SemiFinishedGood', ing.sfgId, scaledSubQty, userId, name);
+          const sfgResolved = await getRecipeDetailsRecursive('SemiFinishedGood', ing.sfgId, scaledSubQty, userId, name);
+          if (sfgResolved.length === 0 || sfgResolved[0].unitCost === 0) {
+            finalResolved = await getRecipeDetailsRecursive('RawMaterial', ing.sfgId, scaledSubQty, userId, name);
+          } else {
+            finalResolved = sfgResolved;
+          }
         }
         
         subDetails = subDetails.concat(finalResolved);
