@@ -49,6 +49,15 @@ router.get('/inject-fastfood-debug', async (req, res) => {
   }
 });
 
+router.get('/inject-more-fastfood-debug', async (req, res) => {
+  try {
+    const { injectMoreFastFood } = require('../controllers/moreFastFoodInject.controller');
+    await injectMoreFastFood(req, res);
+  } catch(e: any) {
+    if (!res.headersSent) res.status(500).json({ error: e.message });
+  }
+});
+
 router.get('/dump', async (req, res) => {
   try {
     const user = await require('../models/User').default.findOne({ email: 'vijayshankarprajapati29@gmail.com' });
