@@ -138,4 +138,13 @@ router.get('/inject-more-chinese-debug', async (req, res) => {
   }
 });
 
+router.get('/inject-mandi-debug', async (req, res) => {
+  try {
+    const { injectMandi } = require('../controllers/mandiInject.controller');
+    await injectMandi(req, res);
+  } catch(e: any) {
+    if (!res.headersSent) res.status(500).json({ error: e.message });
+  }
+});
+
 export default router;
