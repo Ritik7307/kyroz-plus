@@ -307,19 +307,39 @@ export default function CostingMaster() {
     setSavingRecipe(true);
     try {
       const token = localStorage.getItem('token');
-      // Only send top-level ingredients to the recipe saver
-      const topLevel = localIngredients.filter(ing => !ing.isSubIngredient);
-      const payload = topLevel.map(ing => ({
-        itemModel: ing.itemModel,
-        itemId: ing.itemId,
-        quantity: Number(ing.quantity) || 1
-      }));
       
-      const res = await fetch(`${API_URL}/api/costing/dish/${selectedDishId}/recipe`, {
+      // Group ingredients by their parent recipe
+      const grouped: Record<string, any> = {};
+      
+      localIngredients.forEach(ing => {
+        const pId = ing.parentId || selectedDishId;
+        const pModel = ing.parentModel || 'Dish';
+        const key = `${pModel}_${pId}`;
+        
+        if (!grouped[key]) {
+          grouped[key] = {
+            targetModel: pModel,
+            targetId: pId,
+            ingredients: []
+          };
+        }
+        
+        grouped[key].ingredients.push({
+          itemModel: ing.itemModel,
+          itemId: ing.itemId,
+          quantity: Number(ing.quantity) || 1,
+          unit: ing.unit
+        });
+      });
+      
+      const bulkUpdates = Object.values(grouped);
+      
+      const res = await fetch(`${API_URL}/api/costing/recipe/bulk`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ ingredients: payload })
+        body: JSON.stringify({ bulkUpdates })
       });
+      
       if (!res.ok) throw new Error('Failed to save recipe');
       await fetchCosting(selectedDishId);
       setSuccessMessage('Recipe saved successfully!');
@@ -357,8 +377,8 @@ export default function CostingMaster() {
     setLocalIngredients(prev => prev.filter(i => i.isSubIngredient || i.itemId !== itemId));
   };
 
-  const handleUpdateIngredientQuantity = (itemId: string, newQty: string) => {
-    setLocalIngredients(prev => prev.map(i => i.itemId === itemId && !i.isSubIngredient ? { ...i, quantity: newQty } : i));
+  const handleUpdateIngredientQuantity = (index: number, newQty: string) => {
+    setLocalIngredients(prev => prev.map((i, idx) => idx === index ? { ...i, quantity: newQty } : i));
   };
 
   const handleCreateNewRawMaterial = async (e: React.FormEvent) => {
@@ -491,31 +511,25 @@ export default function CostingMaster() {
               </div>
 
               {/* Ingredient List */}
-              <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                {localIngredients.length > 0 ? (
-                  localIngredients.map((ing, idx) => (
+              <div className="space-y-4">
+                {localIngredients && localIngredients.length > 0 ? (
+                  localIngredients.map((ing: any, index: number) => (
                     <div 
-                      key={`${ing.itemId}-${idx}`}
-                      className={`flex flex-col md:flex-row md:items-center justify-between p-6 rounded-2xl border transition-all gap-6 ${
+                      key={`${ing.itemId}-${index}`}
+                      className={`group relative p-4 rounded-3xl transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-6 overflow-hidden bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 ${
                         ing.isSubIngredient 
-                          ? 'ml-8 md:ml-12 bg-white/[0.005] border-white/5 opacity-80 border-dashed' 
-                          : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.04] hover:border-white/10'
+                          ? 'ml-8 md:ml-12 border-dashed opacity-80' 
+                          : ''
                       }`}
                     >
                       <div className="flex items-center gap-6">
                         <div className="min-w-[4.5rem] px-2 h-14 bg-white/5 rounded-2xl flex flex-col items-center justify-center border border-white/5 shrink-0">
-                          {ing.isSubIngredient ? (
-                            <span className="text-[14px] font-black text-white">
-                              {typeof ing.quantity === 'number' ? parseFloat(ing.quantity.toFixed(3)) : ing.quantity}
-                            </span>
-                          ) : (
-                            <input
-                              type="number"
-                              value={ing.quantity}
-                              onChange={(e) => handleUpdateIngredientQuantity(ing.itemId, e.target.value)}
-                              className="w-16 bg-transparent text-center text-[14px] font-black text-white outline-none focus:text-gold"
-                            />
-                          )}
+                          <input
+                            type="number"
+                            value={ing.quantity}
+                            onChange={(e) => handleUpdateIngredientQuantity(index, e.target.value)}
+                            className="w-16 bg-transparent text-center text-[14px] font-black text-white outline-none focus:text-gold"
+                          />
                           <span className="text-[8px] font-black text-white/30 uppercase tracking-widest">{ing.unit}</span>
                         </div>
                         <div>

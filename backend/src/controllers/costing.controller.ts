@@ -56,7 +56,9 @@ const getRecipeDetailsRecursive = async (
   itemId: any,
   quantityNeeded: number,
   userId: any,
-  parentName?: string
+  parentName?: string,
+  parentId?: string,
+  parentModel?: string
 ): Promise<any[]> => {
   let details: any[] = [];
 
@@ -87,7 +89,9 @@ const getRecipeDetailsRecursive = async (
       unitCost,
       totalCost: unitCost * quantityNeeded,
       isSubIngredient: !!parentName,
-      parentSfgName: parentName
+      parentSfgName: parentName,
+      parentId,
+      parentModel
     });
   } else if (itemModel === 'SemiFinishedGood') {
     const sfg = await SemiFinishedGood.findOne({ _id: itemId, userId });
@@ -105,7 +109,7 @@ const getRecipeDetailsRecursive = async (
         
         for (const ing of sfgRecipe.ingredients) {
           const scaledSubQty = ing.quantity * (quantityNeeded / yieldQty);
-          const resolved = await getRecipeDetailsRecursive(ing.itemModel, ing.itemId, scaledSubQty, userId, name);
+          const resolved = await getRecipeDetailsRecursive(ing.itemModel, ing.itemId, scaledSubQty, userId, name, itemId.toString(), 'SemiFinishedGood');
           subDetails = subDetails.concat(resolved);
           const subUnitCost = resolved.length > 0 ? resolved[0].unitCost : 0;
           batchCost += subUnitCost * ing.quantity;
@@ -125,7 +129,9 @@ const getRecipeDetailsRecursive = async (
           unitCost,
           totalCost: unitCost * quantityNeeded,
           isSubIngredient: !!parentName,
-          parentSfgName: parentName
+          parentSfgName: parentName,
+          parentId,
+          parentModel
         });
 
         details = details.concat(subDetails);
@@ -142,7 +148,9 @@ const getRecipeDetailsRecursive = async (
           unitCost,
           totalCost: unitCost * quantityNeeded,
           isSubIngredient: !!parentName,
-          parentSfgName: parentName
+          parentSfgName: parentName,
+          parentId,
+          parentModel
         });
       }
     }
@@ -166,7 +174,9 @@ const getRecipeDetailsRecursive = async (
         unitCost,
         totalCost: unitCost * quantityNeeded,
         isSubIngredient: !!parentName,
-        parentSfgName: parentName
+        parentSfgName: parentName,
+        parentId,
+        parentModel
       });
     }
   } else if (itemModel === 'PortionMaster') {
@@ -183,12 +193,12 @@ const getRecipeDetailsRecursive = async (
         // Multiply portion's standard qty by how many portions we need
         const scaledSubQty = ing.quantity * quantityNeeded;
         // Assume SFG/Prep Master
-        const resolved = await getRecipeDetailsRecursive('PreparationMaster', ing.sfgId, scaledSubQty, userId, name);
+        const resolved = await getRecipeDetailsRecursive('PreparationMaster', ing.sfgId, scaledSubQty, userId, name, itemId.toString(), 'PortionMaster');
         let finalResolved = resolved;
         if (resolved.length === 0 || resolved[0].unitCost === 0) {
-          const sfgResolved = await getRecipeDetailsRecursive('SemiFinishedGood', ing.sfgId, scaledSubQty, userId, name);
+          const sfgResolved = await getRecipeDetailsRecursive('SemiFinishedGood', ing.sfgId, scaledSubQty, userId, name, itemId.toString(), 'PortionMaster');
           if (sfgResolved.length === 0 || sfgResolved[0].unitCost === 0) {
-            finalResolved = await getRecipeDetailsRecursive('RawMaterial', ing.sfgId, scaledSubQty, userId, name);
+            finalResolved = await getRecipeDetailsRecursive('RawMaterial', ing.sfgId, scaledSubQty, userId, name, itemId.toString(), 'PortionMaster');
           } else {
             finalResolved = sfgResolved;
           }
@@ -213,7 +223,9 @@ const getRecipeDetailsRecursive = async (
         unitCost,
         totalCost: unitCost * quantityNeeded,
         isSubIngredient: !!parentName,
-        parentSfgName: parentName
+        parentSfgName: parentName,
+        parentId,
+        parentModel
       });
       
       details = details.concat(subDetails);
@@ -238,7 +250,9 @@ const getRecipeDetailsRecursive = async (
       unitCost,
       totalCost: unitCost * quantityNeeded,
       isSubIngredient: !!parentName,
-      parentSfgName: parentName
+      parentSfgName: parentName,
+      parentId,
+      parentModel
     });
   }
 
@@ -392,5 +406,54 @@ export const updateDishRecipe = async (req: AuthRequest, res: Response): Promise
   } catch (error) {
     console.error('Update Recipe Error:', error);
     res.status(500).json({ error: 'Failed to update dish recipe' });
+  }
+};
+
+export const updateBulkRecipes = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { bulkUpdates } = req.body;
+    const userId = req.user?.userId;
+
+    if (!bulkUpdates || !Array.isArray(bulkUpdates) || !userId) {
+      res.status(400).json({ error: 'Missing required fields or invalid format' });
+      return;
+    }
+
+    for (const update of bulkUpdates) {
+      const { targetModel, targetId, ingredients } = update;
+      
+      if (targetModel === 'PortionMaster') {
+        const portion = await PortionMaster.findOne({ _id: targetId, userId });
+        if (portion) {
+          portion.ingredients = ingredients.map((ing: any) => ({
+            sfgId: ing.itemId,
+            quantity: ing.quantity,
+            unit: ing.unit || 'gm'
+          }));
+          await portion.save();
+        }
+      } else {
+        let recipe = await Recipe.findOne({ targetModel, targetId, userId });
+        if (recipe) {
+          recipe.ingredients = ingredients;
+          await recipe.save();
+        } else {
+          recipe = new Recipe({
+            targetModel,
+            targetId,
+            targetYield: 1,
+            operationalYield: 1,
+            ingredients,
+            userId
+          });
+          await recipe.save();
+        }
+      }
+    }
+
+    res.status(200).json({ message: 'Bulk recipes updated successfully' });
+  } catch (error) {
+    console.error('Update Bulk Recipe Error:', error);
+    res.status(500).json({ error: 'Failed to update bulk recipes' });
   }
 };
