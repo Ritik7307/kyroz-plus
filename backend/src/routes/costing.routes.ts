@@ -7,7 +7,42 @@ const router = express.Router();
 router.put('/recipe/bulk', authenticateToken, updateBulkRecipes);
 router.get('/dish/:dishId', authenticateToken, getDishCosting);
 router.put('/dish/:dishId/recipe', authenticateToken, updateDishRecipe);
-router.put('/ingredient', authenticateToken, updateIngredientPrice);
+router.get('/fix-yields', async (req, res) => {
+  try {
+    const Recipe = require('../models/Recipe').default;
+    const SemiFinishedGood = require('../models/SemiFinishedGood').default;
+    const sfgRecipes = await Recipe.find({ targetModel: 'SemiFinishedGood' });
+    let updatedCount = 0;
+    
+    for (const recipe of sfgRecipes) {
+      if (recipe.operationalYield === 1 || recipe.targetYield === 1) {
+        const sfg = await SemiFinishedGood.findById(recipe.targetId);
+        if (sfg && sfg.batchYield && sfg.batchYield > 1) {
+          recipe.operationalYield = sfg.batchYield;
+          recipe.targetYield = sfg.batchYield;
+          await recipe.save();
+          updatedCount++;
+        }
+      }
+    }
+    res.json({ success: true, updatedCount });
+  } catch(e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.get('/dump', async (req, res) => {
+  try {
+    const user = await require('../models/User').default.findOne({ email: 'vijayshankarprajapati29@gmail.com' });
+    const PortionMaster = require('../models/PortionMaster').default;
+    const pt = await PortionMaster.findOne({ name: 'Aloo Gobhi Matar Portion', userId: user._id });
+    if (!pt) return res.json({ error: 'Portion not found' });
+    
+    res.json({ pt });
+  } catch(e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
 router.get('/debug', async (req, res) => {
   try {

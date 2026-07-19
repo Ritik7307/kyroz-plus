@@ -101,7 +101,8 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
         ingredients: [
           { itemModel: 'RawMaterial', itemId: rmIds[rmCode], quantity: sfg.batchYield }
         ],
-        yieldAmount: sfg.batchYield,
+        targetYield: sfg.batchYield,
+        operationalYield: sfg.batchYield,
         userId
       });
     }
