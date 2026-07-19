@@ -583,6 +583,10 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
     { code: 'SFG_KADHAI_VEG_MIX_NEW', name: 'Kadhai Veg Mix New', batchYield: 5000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.10 },
     { code: 'SFG_GOLDEN_GARLIC_TOPPING', name: 'Golden Garlic Topping', batchYield: 1000, yieldUnit: 'gm', currentStock: 1000, costPerUnit: 0.20 },
     { code: 'SFG_FRIED_KOFTA', name: 'Fried Kofta', batchYield: 100, yieldUnit: 'pcs', currentStock: 100, costPerUnit: 18 },
+    // Indian Veg SFGs Part 2
+    { code: 'SFG_BLANCHED_VEG_MIX', name: 'Blanched Veg Mix', batchYield: 5000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.12 },
+    { code: 'SFG_FRIED_MAKHANA', name: 'Fried Makhana', batchYield: 1000, yieldUnit: 'gm', currentStock: 1000, costPerUnit: 0.85 },
+    { code: 'SFG_MALAI_KOFTA', name: 'Malai Kofta', batchYield: 50, yieldUnit: 'pcs', currentStock: 50, costPerUnit: 20 },
     // Chinese SFGs
     { code: 'SFG_SWEET_SOUR_GRAVY', name: 'Master Sweet & Sour Gravy', batchYield: 5000, yieldUnit: 'ml', currentStock: 5000, costPerUnit: 0.20 },
     { code: 'SFG_CHILLI_LIQUID_BASE', name: 'Master Chilli Liquid Base', batchYield: 5000, yieldUnit: 'ml', currentStock: 5000, costPerUnit: 0.25 },
@@ -1111,6 +1115,11 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
     { name: 'Corn Palak Cheese', price: 280, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_OVAL_VEG_DISH']] } },
     { name: 'Kadhai Paneer', price: 320, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_COPPER_KADHAI']] } },
     { name: 'Lehsunia Paneer', price: 310, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Malai Kofta Red', price: 340, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Mushroom Do Pyaza', price: 290, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Navratan Korma', price: 350, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Palak Paneer', price: 300, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Paneer Butter Masala', price: 310, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
     { name: 'Malai Kofta (Ivory)', price: 340, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
     { name: 'Manchow Soup', price: 170, category: 'Soup', packagingLogic: { takeaway: [pkgIds['PKG_SOUP_BOWL'], pkgIds['PKG_SOUP_LID'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_SOUP_BOWL'], pkgIds['PKG_SOUP_LID'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SOUP_BOWL']] } },
     { name: 'Steamed Veg Momos', price: 150, category: 'Starter', packagingLogic: { takeaway: [pkgIds['PKG_SNACK_BOX'], pkgIds['PKG_SAUCE_CUP'], pkgIds['PKG_SAUCE_CUP'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_SNACK_BOX'], pkgIds['PKG_SAUCE_CUP'], pkgIds['PKG_SAUCE_CUP'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SNACK_BOX']] } },
