@@ -156,4 +156,13 @@ router.get('/inject-south-indian-debug', async (req, res) => {
   }
 });
 
+router.get('/inject-tandoor-debug', async (req, res) => {
+  try {
+    const { injectTandoor } = require('../controllers/tandoorInject.controller');
+    await injectTandoor(req, res);
+  } catch(e: any) {
+    if (!res.headersSent) res.status(500).json({ error: e.message });
+  }
+});
+
 export default router;
