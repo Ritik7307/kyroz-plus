@@ -107,9 +107,15 @@ const getRecipeDetailsRecursive = async (
         let batchCost = 0;
         const yieldQty = sfgRecipe.operationalYield || sfg.batchYield || 1;
         
-        for (const ing of sfgRecipe.ingredients) {
+        const ingredientPromises = sfgRecipe.ingredients.map(async (ing: any) => {
           const scaledSubQty = ing.quantity * (quantityNeeded / yieldQty);
           const resolved = await getRecipeDetailsRecursive(ing.itemModel, ing.itemId, scaledSubQty, userId, name, itemId.toString(), 'SemiFinishedGood');
+          return { ing, resolved };
+        });
+
+        const results = await Promise.all(ingredientPromises);
+
+        for (const { ing, resolved } of results) {
           subDetails = subDetails.concat(resolved);
           const subUnitCost = resolved.length > 0 ? resolved[0].unitCost : 0;
           batchCost += subUnitCost * ing.quantity;
@@ -189,23 +195,28 @@ const getRecipeDetailsRecursive = async (
       let subDetails: any[] = [];
       let portionCost = 0;
       
-      for (const ing of portion.ingredients) {
-        // Multiply portion's standard qty by how many portions we need
+      const ingredientPromises = portion.ingredients.map(async (ing: any) => {
         const scaledSubQty = ing.quantity * quantityNeeded;
-        // Assume SFG/Prep Master
-        const resolved = await getRecipeDetailsRecursive('PreparationMaster', ing.sfgId, scaledSubQty, userId, name, itemId.toString(), 'PortionMaster');
-        let finalResolved = resolved;
-        if (resolved.length === 0 || resolved[0].unitCost === 0) {
-          const sfgResolved = await getRecipeDetailsRecursive('SemiFinishedGood', ing.sfgId, scaledSubQty, userId, name, itemId.toString(), 'PortionMaster');
-          if (sfgResolved.length === 0 || sfgResolved[0].unitCost === 0) {
-            finalResolved = await getRecipeDetailsRecursive('RawMaterial', ing.sfgId, scaledSubQty, userId, name, itemId.toString(), 'PortionMaster');
-          } else {
-            finalResolved = sfgResolved;
-          }
-        }
         
-        subDetails = subDetails.concat(finalResolved);
-        const subUnitCost = finalResolved.length > 0 ? finalResolved[0].unitCost : 0;
+        const [prep, sfg, rm] = await Promise.all([
+          PreparationMaster.exists({ _id: ing.sfgId, userId }),
+          SemiFinishedGood.exists({ _id: ing.sfgId, userId }),
+          RawMaterial.exists({ _id: ing.sfgId, userId })
+        ]);
+        
+        let itemModel = 'RawMaterial';
+        if (prep) itemModel = 'PreparationMaster';
+        else if (sfg) itemModel = 'SemiFinishedGood';
+        
+        const resolved = await getRecipeDetailsRecursive(itemModel, ing.sfgId, scaledSubQty, userId, name, itemId.toString(), 'PortionMaster');
+        return { ing, resolved };
+      });
+      
+      const results = await Promise.all(ingredientPromises);
+      
+      for (const { ing, resolved } of results) {
+        subDetails = subDetails.concat(resolved);
+        const subUnitCost = resolved.length > 0 ? resolved[0].unitCost : 0;
         portionCost += subUnitCost * ing.quantity;
       }
       
@@ -279,11 +290,15 @@ export const getDishCosting = async (req: AuthRequest, res: Response): Promise<v
 
     if (recipe) {
       const dishYield = recipe.operationalYield || recipe.targetYield || 1;
-      for (const ingredient of recipe.ingredients) {
+      const ingredientPromises = recipe.ingredients.map(async (ingredient: any) => {
         const scaledQty = ingredient.quantity / dishYield;
-        const resolved = await getRecipeDetailsRecursive(ingredient.itemModel, ingredient.itemId, scaledQty, userId);
+        const resolved = await getRecipeDetailsRecursive(ingredient.itemModel, ingredient.itemId, scaledQty, userId, dish.name, dishId, 'Dish');
+        return resolved;
+      });
+      
+      const results = await Promise.all(ingredientPromises);
+      for (const resolved of results) {
         ingredientsCostDetails = ingredientsCostDetails.concat(resolved);
-        
         const topLevelCost = resolved.length > 0 ? resolved[0].totalCost : 0;
         totalFoodCost += topLevelCost;
       }
