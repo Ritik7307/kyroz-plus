@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { getInventory, updateInventoryItem, deleteInventoryItem, notifyAdminAboutStock, uploadInventoryConfig, updateStock, addPurchaseEntry, addProductionEntry } from '../controllers/inventory.controller';
+import { injectSops } from '../controllers/sopInject.controller';
 import { authenticateToken } from '../middleware/auth.middleware';
 import multer from 'multer';
 
@@ -15,5 +16,6 @@ router.post('/upload', authenticateToken, upload.single('file'), uploadInventory
 router.post('/update-stock', authenticateToken, updateStock);
 router.post('/purchase', authenticateToken, addPurchaseEntry);
 router.post('/produce', authenticateToken, addProductionEntry);
+router.post('/inject-sops', injectSops);
 
 export default router;

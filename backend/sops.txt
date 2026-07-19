@@ -1,0 +1,502 @@
+KYROZ Developer Inventory Architecture
+PANEER DHANIYA ADRAKI (300 g Serving)
+Architecture: Hybrid Mother Gravy Assembly Engine
+Primary: G-205 ROYAL ROGAN (70%)
+Secondary: G-202 IVORY BASE (30%)
+Flavor Engine: Fresh Coriander & Ginger Gravy Architecture
+1. Raw Material Master
+Code	Item	Unit
+RM001	G-205 ROYAL ROGAN	kg
+RM002	G-202 IVORY BASE	kg
+RM003	Paneer Cubes	kg
+RM004	Refined Oil	L
+RM005	Desi Ghee	kg
+RM006	Ginger Juliennes	kg
+RM007	Ginger Garlic Paste	kg
+RM008	Fresh Coriander	kg
+RM009	Fresh Cream	L
+RM010	Kasoori Methi	kg
+RM011	K-801 ROYAL PUNCH	kg
+RM012	K-802 WOK SPICE	kg
+RM013	K-806 ZESTFUL ZING	kg
+RM014	Kashmiri Chilli	kg
+RM015	Water	L
+2. SFG Master
+Code	Item	Batch	Yield
+SFG001	G-205 ROYAL ROGAN	5 kg	50 × 100 gm
+SFG002	G-202 IVORY BASE	5 kg	50 × 100 gm
+3. Portion Master
+Code	Item	Qty	Unit
+PT001	G-205 ROYAL ROGAN	140	gm
+PT002	G-202 IVORY BASE	60	gm
+PT003	Paneer Cubes	150	gm
+PT004	Refined Oil	10	ml
+PT005	Desi Ghee	3	gm
+PT006	Ginger Juliennes	10	gm
+PT007	Ginger Garlic Paste	3	gm
+PT008	Fresh Coriander	10	gm
+PT009	Fresh Cream	15	ml
+PT010	Kasoori Methi	1	gm
+PT011	K-801 ROYAL PUNCH	1	gm
+PT012	K-802 WOK SPICE	0.5	gm
+PT013	K-806 ZESTFUL ZING	0.5	gm
+PT014	Kashmiri Chilli	1	gm
+PT015	Water	30	ml
+4. Packaging Master
+Code	Item	Qty
+PKG001	500 ml Bowl	1 pc
+PKG002	Lid	1 pc
+PKG003	Carry Bag (Takeaway)	1 pc
+5. Billing Deduction Matrix
+Item	Deduction
+G-205 ROYAL ROGAN	140 gm
+G-202 IVORY BASE	60 gm
+Paneer Cubes	150 gm
+Refined Oil	10 ml
+Desi Ghee	3 gm
+Ginger Juliennes	10 gm
+Ginger Garlic Paste	3 gm
+Fresh Coriander	10 gm
+Fresh Cream	15 ml
+Kasoori Methi	1 gm
+K-801 ROYAL PUNCH	1 gm
+K-802 WOK SPICE	0.5 gm
+K-806 ZESTFUL ZING	0.5 gm
+Kashmiri Chilli	1 gm
+Water	30 ml
+Bowl	1 pc
+Lid	1 pc (Takeaway)
+Carry Bag	1 pc (Takeaway)
+6. Inventory Flow
+Purchase Entry → Mother Gravy Production → Portion Creation → Billing → Auto Deduct Linked Portions
+7. Costing Logic
+Food Cost = Royal Rogan + Ivory Base + Paneer + Ginger/Coriander + Finishing Ingredients + Packaging
+8. Software Engine
+Hybrid Mother Gravy + Fresh Herb Engine with exact portion deduction.
+9. Future Expansion
+Supports Paneer Dhaniya Adraki, Mushroom Adraki, Veg Adraki and Chaap Adraki.
+---
+KYROZ Developer Inventory Architecture
+PANEER LABABDAR (300 g Serving)
+Architecture: Hybrid Mother Gravy Assembly Engine
+Primary: G-201 SUNSET BASE (70%)
+Secondary: G-205 ROYAL ROGAN (30%)
+Flavor Engine: Rich Creamy Lababdar Gravy Architecture
+1. Raw Material Master
+Code	Item	Unit
+RM001	G-201 SUNSET BASE	kg
+RM002	G-205 ROYAL ROGAN	kg
+RM003	Paneer Cubes	kg
+RM004	Butter	kg
+RM005	Refined Oil	L
+RM006	Ginger Juliennes	kg
+RM007	Fresh Coriander	kg
+RM008	Fresh Cream	L
+RM009	Kasoori Methi	kg
+RM010	Kashmiri Chilli	kg
+RM011	K-801 ROYAL PUNCH	kg
+RM012	Water	L
+2. SFG Master
+Code	Item	Batch	Yield
+SFG001	G-201 SUNSET BASE	5 kg	50 × 100 gm
+SFG002	G-205 ROYAL ROGAN	5 kg	50 × 100 gm
+3. Portion Master
+Code	Item	Qty	Unit
+PT001	G-201 SUNSET BASE	140	gm
+PT002	G-205 ROYAL ROGAN	60	gm
+PT003	Paneer Cubes	150	gm
+PT004	Butter	8	gm
+PT005	Refined Oil	3	ml
+PT006	Ginger Juliennes	3	gm
+PT007	Fresh Coriander	2	gm
+PT008	Water	30	ml
+PT009	Fresh Cream	15	ml
+PT010	Kasoori Methi	1	gm
+PT011	Kashmiri Chilli	0.5	gm
+PT012	K-801 ROYAL PUNCH	0.5	gm
+4. Packaging Master
+Code	Item	Qty
+PKG001	500 ml Bowl	1 pc
+PKG002	Lid	1 pc
+PKG003	Carry Bag (Takeaway)	1 pc
+5. Billing Deduction Matrix
+Item	Deduction
+G-201 SUNSET BASE	140 gm
+G-205 ROYAL ROGAN	60 gm
+Paneer Cubes	150 gm
+Butter	8 gm
+Refined Oil	3 ml
+Ginger Juliennes	3 gm
+Fresh Coriander	2 gm
+Water	30 ml
+Fresh Cream	15 ml
+Kasoori Methi	1 gm
+Kashmiri Chilli	0.5 gm
+K-801 ROYAL PUNCH	0.5 gm
+Bowl	1 pc
+Lid	1 pc (Takeaway)
+Carry Bag	1 pc (Takeaway)
+6. Inventory Flow
+Purchase Entry → Mother Gravy Production → Portion Creation → Billing → Auto Deduct Linked Portions
+7. Costing Logic
+Food Cost = Sunset Base + Royal Rogan + Paneer + Finishing Ingredients + Packaging
+8. Software Engine
+Hybrid Mother Gravy + Cream Finish Engine with exact portion deduction.
+9. Future Expansion
+Supports Paneer Lababdar, Veg Lababdar, Mushroom Lababdar and Kaju Lababdar.
+---
+KYROZ Developer Inventory Architecture
+PANEER PASANDA (300 g Serving)
+Architecture: Hybrid Mother Gravy Assembly Engine
+Primary: G-202 IVORY BASE (80%)
+Secondary: G-201 SUNSET BASE (20%)
+Flavor Engine: Shahi Stuffed Paneer Cream Architecture
+1. Raw Material Master
+Code	Item	Unit
+RM001	G-202 IVORY BASE	kg
+RM002	G-201 SUNSET BASE	kg
+RM003	Paneer Sandwiches (Stuffed)	pcs
+RM004	Butter	kg
+RM005	Refined Oil	L
+RM006	Ginger Garlic Paste	kg
+RM007	Fresh Coriander	kg
+RM008	Fresh Cream/Curd	L
+RM009	Kasoori Methi	kg
+RM010	K-801 ROYAL PUNCH	kg
+RM011	K-806 ZESTFUL ZING	kg
+RM012	Milk	L
+RM013	Water	L
+2. SFG Master
+Code	Item	Batch	Yield
+SFG001	G-202 IVORY BASE	5 kg	50 × 100 gm
+SFG002	G-201 SUNSET BASE	5 kg	50 × 100 gm
+SFG003	Stuffed Paneer Sandwich	50 pcs	25 portions (2 pcs)
+3. Portion Master
+Code	Item	Qty	Unit
+PT001	G-202 IVORY BASE	160	gm
+PT002	G-201 SUNSET BASE	40	gm
+PT003	Stuffed Paneer Sandwich	2	pcs
+PT004	Butter	8	gm
+PT005	Refined Oil	3	ml
+PT006	Ginger Garlic Paste	2	gm
+PT007	Milk/Water	35	ml
+PT008	Fresh Cream/Curd	15	ml
+PT009	Kasoori Methi	1	gm
+PT010	K-801 ROYAL PUNCH	0.5	gm
+PT011	K-806 ZESTFUL ZING	0.5	gm
+PT012	Fresh Coriander	2	gm
+4. Packaging Master
+Code	Item	Qty
+PKG001	500 ml Bowl	1 pc
+PKG002	Lid	1 pc
+PKG003	Carry Bag (Takeaway)	1 pc
+5. Billing Deduction Matrix
+Item	Deduction
+G-202 IVORY BASE	160 gm
+G-201 SUNSET BASE	40 gm
+Stuffed Paneer Sandwich	2 pcs
+Butter	8 gm
+Refined Oil	3 ml
+Ginger Garlic Paste	2 gm
+Milk/Water	35 ml
+Fresh Cream/Curd	15 ml
+Kasoori Methi	1 gm
+K-801 ROYAL PUNCH	0.5 gm
+K-806 ZESTFUL ZING	0.5 gm
+Fresh Coriander	2 gm
+Bowl	1 pc
+Lid	1 pc (Takeaway)
+Carry Bag	1 pc (Takeaway)
+6. Inventory Flow
+Purchase Entry → Mother Gravy Production → Stuffed Paneer Preparation → Portion Creation → Billing → Auto Deduct Linked Portions
+7. Costing Logic
+Food Cost = Ivory Base + Sunset Base + Stuffed Paneer + Finishing Ingredients + Packaging
+8. Software Engine
+Hybrid Mother Gravy + Stuffed Paneer Assembly Engine with exact portion deduction.
+9. Future Expansion
+Supports Paneer Pasanda, Shahi Paneer Pasanda and Stuffed Veg Pasanda.
+---
+KYROZ Developer Inventory Architecture
+SHAHI PANEER (300 g Serving)
+Architecture: Single Mother Gravy Assembly Engine
+Primary: G-202 IVORY BASE (100%)
+Flavor Engine: Royal Shahi Paneer Architecture
+Code	Item	Unit
+RM001	G-202 IVORY BASE	kg
+RM002	Fresh Paneer	kg
+RM003	Desi Ghee	kg
+RM004	Milk	L
+RM005	Fresh Cream	L
+RM006	K-801 ROYAL PUNCH	kg
+RM007	K-806 ZESTFUL ZING	kg
+RM008	Kasoori Methi	kg
+SFG Master
+G-202 IVORY BASE Batch 5 kg → 50 × 100 gm
+Paneer Cubes Batch 5 kg → 27 × 180 gm
+Portion Master
+G-202 IVORY BASE 200 gm
+Paneer 180 gm
+Desi Ghee 15 gm
+Milk 40 ml
+Fresh Cream 15 ml
+K-801 0.5 gm
+K-806 0.5 gm
+Kasoori Methi 1 gm
+Packaging Master
+Royal Bowl/Handi ×1
+Lid ×1
+Carry Bag ×1
+Billing Deduction Matrix
+Auto deduct all above ingredients with packaging.
+Inventory Flow
+Purchase → Mother Gravy → Portion → Billing → Auto Deduct
+Costing Logic
+Ivory Base + Paneer + Dairy + Finishing + Packaging
+Software Engine
+Single Mother Gravy + Shahi Paneer Assembly Engine
+Future Expansion
+Shahi Paneer, Malai Paneer, Shahi Kofta
+---
+KYROZ Developer Inventory Architecture
+SIGNATURE PANCH-RATAN CURRY VEG (300 g Serving)
+Architecture: Triple Mother Gravy Assembly Engine
+Primary: G-201 SUNSET BASE (40%)
+Secondary: G-202 IVORY BASE (30%)
+Tertiary: G-205 ROYAL ROGAN (30%)
+Flavor Engine: Signature Royal Mixed Vegetable Curry Architecture
+1. Raw Material Master
+Code	Item	Unit
+RM001	G-201 SUNSET BASE	kg
+RM002	G-202 IVORY BASE	kg
+RM003	G-205 ROYAL ROGAN	kg
+RM004	Paneer Cubes	kg
+RM005	Button Mushroom	kg
+RM006	Sweet Corn	kg
+RM007	Green Peas	kg
+RM008	Roasted Makhana	kg
+RM009	Ghee	kg
+RM010	Butter	kg
+RM011	Ginger Garlic Paste	kg
+RM012	K-802 WOK SPICE	kg
+RM013	K-801 ROYAL PUNCH	kg
+RM014	Kashmiri Chilli	kg
+RM015	Fresh Cream	L
+RM016	Milk	L
+RM017	Honey/Sugar	kg
+2. SFG Master
+Code	Item	Batch	Yield
+SFG001	G-201 SUNSET BASE	5 kg	50 × 100 gm
+SFG002	G-202 IVORY BASE	5 kg	50 × 100 gm
+SFG003	G-205 ROYAL ROGAN	5 kg	50 × 100 gm
+SFG004	Roasted Makhana	1 kg	50 × 20 gm
+3. Portion Master
+Code	Item	Qty	Unit
+PT001	G-201 SUNSET BASE	80	gm
+PT002	G-202 IVORY BASE	60	gm
+PT003	G-205 ROYAL ROGAN	60	gm
+PT004	Paneer	40	gm
+PT005	Mushroom	40	gm
+PT006	Sweet Corn	30	gm
+PT007	Green Peas	30	gm
+PT008	Roasted Makhana	20	gm
+PT009	Ghee	10	gm
+PT010	Butter	5	gm
+PT011	Ginger Garlic Paste	3	gm
+PT012	K-802 WOK SPICE	1	gm
+PT013	K-801 ROYAL PUNCH	0.5	gm
+PT014	Kashmiri Chilli	1	gm
+PT015	Fresh Cream	15	ml
+PT016	Milk	40	ml
+PT017	Honey/Sugar	3	gm
+4. Packaging Master
+Code	Item	Qty
+PKG001	500 ml Bowl	1 pc
+PKG002	Lid	1 pc
+PKG003	Carry Bag (Takeaway)	1 pc
+5. Billing Deduction Matrix
+Item	Deduction
+G-201 SUNSET BASE	80 gm
+G-202 IVORY BASE	60 gm
+G-205 ROYAL ROGAN	60 gm
+Paneer	40 gm
+Mushroom	40 gm
+Sweet Corn	30 gm
+Green Peas	30 gm
+Roasted Makhana	20 gm
+Ghee	10 gm
+Butter	5 gm
+Ginger Garlic Paste	3 gm
+K-802 WOK SPICE	1 gm
+K-801 ROYAL PUNCH	0.5 gm
+Kashmiri Chilli	1 gm
+Fresh Cream	15 ml
+Milk	40 ml
+Honey/Sugar	3 gm
+Bowl	1 pc
+Lid	1 pc (Takeaway)
+Carry Bag	1 pc (Takeaway)
+6. Inventory Flow
+Purchase Entry → Mother Gravy Production → Roasted Makhana Production → Portion Creation → Billing → Auto Deduct Linked Portions
+7. Costing Logic
+Food Cost = Triple Gravy Blend + Five Veg Components + Finishing Ingredients + Packaging
+8. Software Engine
+Triple Mother Gravy + Panch-Ratan Assembly Engine with exact portion deduction.
+9. Future Expansion
+Supports Signature Panch-Ratan Curry, Navratan Korma, Mixed Veg Royal Curry and Premium Veg Curry.
+---
+KYROZ Developer Inventory Architecture
+VEG HANDI (300 g Serving)
+Architecture: Triple Mother Gravy Assembly Engine
+Primary: G-204 ROASTED RUST (40%)
+Secondary: G-201 SUNSET BASE (30%)
+Tertiary: G-205 ROYAL ROGAN (30%)
+Flavor Engine: Layered Handi Vegetable Curry Architecture
+1. Raw Material Master
+Code	Item	Unit
+RM001	G-204 ROASTED RUST	kg
+RM002	G-201 SUNSET BASE	kg
+RM003	G-205 ROYAL ROGAN	kg
+RM004	Pre-steamed Mix Veg	kg
+RM005	Paneer Cubes	kg
+RM006	Butter	kg
+RM007	Refined Oil	L
+RM008	Ginger Garlic Paste	kg
+RM009	K-802 WOK SPICE	kg
+RM010	K-801 ROYAL PUNCH	kg
+RM011	K-806 ZESTFUL ZING	kg
+RM012	Curd	kg
+RM013	Fresh Cream	L
+RM014	Kasoori Methi	kg
+RM015	Water	L
+2. SFG Master
+Code	Item	Batch	Yield
+SFG001	G-204 ROASTED RUST	5 kg	50 × 100 gm
+SFG002	G-201 SUNSET BASE	5 kg	50 × 100 gm
+SFG003	G-205 ROYAL ROGAN	5 kg	50 × 100 gm
+SFG004	Pre-steamed Mix Veg	5 kg	50 × 100 gm
+3. Portion Master
+Code	Item	Qty	Unit
+PT001	G-204 ROASTED RUST	80	gm
+PT002	G-201 SUNSET BASE	60	gm
+PT003	G-205 ROYAL ROGAN	60	gm
+PT004	Pre-steamed Mix Veg	100	gm
+PT005	Paneer Cubes	40	gm
+PT006	Butter	15	gm
+PT007	Refined Oil	3	ml
+PT008	Ginger Garlic Paste	3	gm
+PT009	K-802 WOK SPICE	1	gm
+PT010	K-801 ROYAL PUNCH	0.5	gm
+PT011	K-806 ZESTFUL ZING	0.5	gm
+PT012	Curd	15	gm
+PT013	Fresh Cream	15	ml
+PT014	Kasoori Methi	1	gm
+PT015	Water	40	ml
+4. Packaging Master
+Code	Item	Qty
+PKG001	500 ml Handi/Bowl	1 pc
+PKG002	Lid	1 pc
+PKG003	Carry Bag (Takeaway)	1 pc
+5. Billing Deduction Matrix
+Item	Deduction
+G-204 ROASTED RUST	80 gm
+G-201 SUNSET BASE	60 gm
+G-205 ROYAL ROGAN	60 gm
+Pre-steamed Mix Veg	100 gm
+Paneer Cubes	40 gm
+Butter	15 gm
+Refined Oil	3 ml
+Ginger Garlic Paste	3 gm
+K-802 WOK SPICE	1 gm
+K-801 ROYAL PUNCH	0.5 gm
+K-806 ZESTFUL ZING	0.5 gm
+Curd	15 gm
+Fresh Cream	15 ml
+Kasoori Methi	1 gm
+Water	40 ml
+Handi/Bowl	1 pc
+Lid	1 pc (Takeaway)
+Carry Bag	1 pc (Takeaway)
+6. Inventory Flow
+Purchase Entry → Mother Gravy Production → Pre-steamed Veg Production → Portion Creation → Billing → Auto Deduct Linked Portions
+7. Costing Logic
+Food Cost = Triple Gravy Blend + Mix Veg + Paneer + Finishing Ingredients + Packaging
+8. Software Engine
+Triple Mother Gravy + Veg Handi Assembly Engine with exact portion deduction.
+9. Future Expansion
+Supports Veg Handi, Paneer Handi, Mushroom Handi and Mixed Veg Royal Handi.
+---
+KYROZ Developer Inventory Architecture
+VEG JALFREZI (300 g Serving)
+Architecture: Hybrid Mother Gravy Assembly Engine
+Primary: G-204 ROASTED RUST (60%)
+Secondary: G-205 ROYAL ROGAN (40%)
+Flavor Engine: Semi-Dry Jalfrezi Toss Engine
+1. Raw Material Master
+Code	Item	Unit
+RM001	G-204 ROASTED RUST	kg
+RM002	G-205 ROYAL ROGAN	kg
+RM003	Blanched Mix Vegetables	kg
+RM004	Paneer Sticks	kg
+RM005	Refined Oil	L
+RM006	Ginger Garlic Paste	kg
+RM007	K-802 WOK SPICE	kg
+RM008	K-801 ROYAL PUNCH	kg
+RM009	K-806 ZESTFUL ZING	kg
+RM010	Curd	kg
+RM011	Kashmiri Chilli	kg
+RM012	Sugar	kg
+RM013	Vinegar/Lemon Juice	L
+RM014	Water	L
+2. SFG Master
+Code	Item	Batch	Yield
+SFG001	G-204 ROASTED RUST	5 kg	50 × 100 gm
+SFG002	G-205 ROYAL ROGAN	5 kg	50 × 100 gm
+SFG003	Blanched Mix Vegetables	5 kg	50 × 100 gm
+3. Portion Master
+Code	Item	Qty	Unit
+PT001	G-204 ROASTED RUST	120	gm
+PT002	G-205 ROYAL ROGAN	80	gm
+PT003	Blanched Mix Vegetables	100	gm
+PT004	Paneer Sticks	40	gm
+PT005	Refined Oil	10	ml
+PT006	Ginger Garlic Paste	3	gm
+PT007	K-802 WOK SPICE	1	gm
+PT008	K-801 ROYAL PUNCH	0.5	gm
+PT009	K-806 ZESTFUL ZING	0.5	gm
+PT010	Curd	15	gm
+PT011	Kashmiri Chilli	1	gm
+PT012	Sugar	2	gm
+PT013	Vinegar/Lemon Juice	5	ml
+PT014	Water	20	ml
+4. Packaging Master
+Code	Item	Qty
+PKG001	500 ml Bowl	1 pc
+PKG002	Lid	1 pc
+PKG003	Carry Bag (Takeaway)	1 pc
+5. Billing Deduction Matrix
+Item	Deduction
+G-204 ROASTED RUST	120 gm
+G-205 ROYAL ROGAN	80 gm
+Blanched Mix Vegetables	100 gm
+Paneer Sticks	40 gm
+Refined Oil	10 ml
+Ginger Garlic Paste	3 gm
+K-802 WOK SPICE	1 gm
+K-801 ROYAL PUNCH	0.5 gm
+K-806 ZESTFUL ZING	0.5 gm
+Curd	15 gm
+Kashmiri Chilli	1 gm
+Sugar	2 gm
+Vinegar/Lemon Juice	5 ml
+Water	20 ml
+Bowl	1 pc
+Lid	1 pc (Takeaway)
+Carry Bag	1 pc (Takeaway)
+6. Inventory Flow
+Purchase Entry → Mother Gravy Production → Blanched Veg Production → Portion Creation → Billing → Auto Deduct Linked Portions
+7. Costing Logic
+Food Cost = Roasted Rust + Royal Rogan + Mix Vegetables + Paneer + Finishing Ingredients + Packaging
+8. Software Engine
+Hybrid Mother Gravy + Semi-Dry Jalfrezi Toss Engine with exact portion deduction.
+9. Future Expansion
+Supports Veg Jalfrezi, Paneer Jalfrezi, Mushroom Jalfrezi and Mixed Veg Stir Fry.
