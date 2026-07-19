@@ -31,6 +31,15 @@ router.get('/fix-yields', async (req, res) => {
   }
 });
 
+router.get('/inject-biryani-debug', async (req, res) => {
+  try {
+    const { injectBiryani } = require('../controllers/biryaniInject.controller');
+    await injectBiryani(req, res);
+  } catch(e: any) {
+    if (!res.headersSent) res.status(500).json({ error: e.message });
+  }
+});
+
 router.get('/dump', async (req, res) => {
   try {
     const user = await require('../models/User').default.findOne({ email: 'vijayshankarprajapati29@gmail.com' });
