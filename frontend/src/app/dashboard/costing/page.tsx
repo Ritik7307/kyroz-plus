@@ -287,7 +287,9 @@ export default function CostingMaster() {
   // Compute cost per plate locally based on editingPrices and quantities
   const costPerPlate = localIngredients ? localIngredients.reduce((total, ing) => {
     // Top level ingredients only (sub-ingredients are bundled into their parent SFG cost)
-    if (ing.isSubIngredient) return total;
+    // The backend marks dish-level ingredients with isSubIngredient=true (because parent is Dish).
+    // We only want to skip TRUE sub-ingredients (where parent is an SFG/Preparation/etc)
+    if (ing.isSubIngredient && ing.parentModel !== 'Dish') return total;
     
     // Get the current editing price for the purchase unit
     let currentPurchasePrice = editingPrices[ing.itemId] !== undefined ? editingPrices[ing.itemId] : ing.purchasePrice;
