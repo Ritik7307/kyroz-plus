@@ -129,4 +129,13 @@ router.get('/inject-chinese-debug', async (req, res) => {
   }
 });
 
+router.get('/inject-more-chinese-debug', async (req, res) => {
+  try {
+    const { injectMoreChinese } = require('../controllers/moreChineseInject.controller');
+    await injectMoreChinese(req, res);
+  } catch(e: any) {
+    if (!res.headersSent) res.status(500).json({ error: e.message });
+  }
+});
+
 export default router;
