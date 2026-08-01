@@ -18,15 +18,15 @@ export const handleGoogleFormWebhook = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Missing WhatsApp Number" });
     }
 
-    // 1. Send Immediate ETA Acknowledgment
+    // 1. Return 200 OK to the webhook immediately so Google Apps Script doesn't timeout
+    res.status(200).json({ success: true, message: "Processing started" });
+
+    // 2. Send Immediate ETA Acknowledgment
     const etaMessage = `Thank you for completing the KYROZ+ Restaurant Growth Assessment! 🚀\n\nOur expert is currently analyzing your responses. Your customized Restaurant Growth Report is being generated and will be sent to you as a PDF document right here in approximately 10 to 15 minutes.\n\nPlease wait...`;
 
     // We send this asynchronously and don't await it strictly for the response, 
     // but doing so ensures it fires off immediately.
     await sendWhatsAppMessage(phone, etaMessage);
-
-    // 2. Return 200 OK to the webhook immediately so Google Apps Script doesn't timeout
-    res.status(200).json({ success: true, message: "Processing started" });
 
     // 3. Process AI Report in the background after 10 mins
     setTimeout(async () => {

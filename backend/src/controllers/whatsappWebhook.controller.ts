@@ -73,28 +73,27 @@ export const uploadWhatsAppMedia = async (buffer: Buffer, mimetype: string, file
   }
 
   try {
+    const FormData = require('form-data');
     const formData = new FormData();
     formData.append('messaging_product', 'whatsapp');
-    formData.append('file', new Blob([buffer as any], { type: mimetype }), filename);
+    formData.append('file', buffer, { filename, contentType: mimetype });
 
-    const response = await fetch(`https://graph.facebook.com/v17.0/${phoneId}/media`, {
-      method: 'POST',
+    const response = await axios.post(`https://graph.facebook.com/v17.0/${phoneId}/media`, formData, {
       headers: {
-        'Authorization': `Bearer ${token}`
-      },
-      body: formData
+        'Authorization': `Bearer ${token}`,
+        ...formData.getHeaders()
+      }
     });
 
-    const data = await response.json() as any;
-    if (data.id) {
-      console.log(`Successfully uploaded media. ID: ${data.id}`);
-      return data.id;
+    if (response.data && response.data.id) {
+      console.log(`Successfully uploaded media. ID: ${response.data.id}`);
+      return response.data.id;
     } else {
-      console.error('Failed to upload media:', data);
+      console.error('Failed to upload media:', response.data);
       return null;
     }
   } catch (error: any) {
-    console.error('Error uploading WhatsApp media:', error.message);
+    console.error('Error uploading WhatsApp media:', error.response?.data || error.message);
     return null;
   }
 };
