@@ -1,9 +1,13 @@
 import puppeteer from 'puppeteer';
+import path from 'path';
+
+// Force Puppeteer to use the local cache directory where the build script installed Chrome
+process.env.PUPPETEER_CACHE_DIR = path.join(process.cwd(), '.cache', 'puppeteer');
 
 export const generatePdfFromHtml = async (htmlContent: string): Promise<Buffer> => {
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
   });
   const page = await browser.newPage();
   
