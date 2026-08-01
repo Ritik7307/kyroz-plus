@@ -64,6 +64,75 @@ export const sendWhatsAppMessage = async (toPhone: string, text: string) => {
   }
 };
 
+export const uploadWhatsAppMedia = async (buffer: Buffer, mimetype: string, filename: string): Promise<string | null> => {
+  const token = getAccessToken();
+  const phoneId = getPhoneNumberId();
+  if (!token || !phoneId) {
+    console.error('WhatsApp token or phone ID missing. Cannot upload media.');
+    return null;
+  }
+
+  try {
+    const formData = new FormData();
+    formData.append('messaging_product', 'whatsapp');
+    formData.append('file', new Blob([buffer as any], { type: mimetype }), filename);
+
+    const response = await fetch(`https://graph.facebook.com/v17.0/${phoneId}/media`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    const data = await response.json() as any;
+    if (data.id) {
+      console.log(`Successfully uploaded media. ID: ${data.id}`);
+      return data.id;
+    } else {
+      console.error('Failed to upload media:', data);
+      return null;
+    }
+  } catch (error: any) {
+    console.error('Error uploading WhatsApp media:', error.message);
+    return null;
+  }
+};
+
+export const sendWhatsAppDocument = async (toPhone: string, mediaId: string, caption: string, filename: string) => {
+  const token = getAccessToken();
+  const phoneId = getPhoneNumberId();
+  if (!token || !phoneId) {
+    console.error('WhatsApp token or phone ID missing. Cannot send document.');
+    return;
+  }
+
+  try {
+    await axios.post(
+      `https://graph.facebook.com/v17.0/${phoneId}/messages`,
+      {
+        messaging_product: 'whatsapp',
+        to: toPhone,
+        type: 'document',
+        document: {
+          id: mediaId,
+          caption: caption,
+          filename: filename
+        }
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    console.log(`Sent document to ${toPhone}`);
+  } catch (error: any) {
+    console.error('Error sending WhatsApp document:', error.response?.data || error.message);
+  }
+};
+
 export const handleIncomingMessage = async (req: Request, res: Response) => {
   try {
     const body = req.body;

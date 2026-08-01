@@ -38,6 +38,7 @@ interface IngredientCostDetail {
   totalCost: number;
   isSubIngredient?: boolean;
   parentSfgName?: string;
+  conversionFactor?: number;
 }
 
 interface CostingData {
@@ -154,8 +155,8 @@ export default function CostingMaster() {
   const [localIngredients, setLocalIngredients] = useState<any[]>([]);
 
   // Fetch costing for selected dish
-  const fetchCosting = async (dishId: string) => {
-    setLoading(true);
+  const fetchCosting = async (dishId: string, silent = false) => {
+    if (!silent) setLoading(true);
     setError('');
     try {
       const token = localStorage.getItem('token');
@@ -184,7 +185,7 @@ export default function CostingMaster() {
     } catch (err: any) {
       setError(err.message || 'Failed to fetch costing details');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -231,9 +232,9 @@ export default function CostingMaster() {
         throw new Error(errData.error || 'Failed to update ingredient price');
       }
       
-      // Re-fetch costing to update values
+      // Re-fetch costing to update values silently
       if (selectedDishId) {
-        await fetchCosting(selectedDishId);
+        await fetchCosting(selectedDishId, true);
       }
       setSuccessMessage('Ingredient price updated successfully!');
       setTimeout(() => setSuccessMessage(''), 3000);
@@ -272,8 +273,8 @@ export default function CostingMaster() {
       // Update local dishes list
       setDishes(prev => prev.map(d => d.value === selectedDishId ? { ...d, price: Number(sellingPriceInput) } : d));
       
-      // Re-fetch costing to synchronize
-      await fetchCosting(selectedDishId);
+      // Re-fetch costing to synchronize silently
+      await fetchCosting(selectedDishId, true);
       
       setSuccessMessage('Dish selling price updated successfully!');
       setTimeout(() => setSuccessMessage(''), 3000);
@@ -291,16 +292,22 @@ export default function CostingMaster() {
     // We only want to skip TRUE sub-ingredients (where parent is an SFG/Preparation/etc)
     if (ing.isSubIngredient && ing.parentModel !== 'Dish') return total;
     
-    // Get the current editing price for the purchase unit
-    let currentPurchasePrice = editingPrices[ing.itemId] !== undefined ? editingPrices[ing.itemId] : ing.purchasePrice;
+    // Get the current editing price for the display unit
+    let currentPurchasePrice = editingPrices[ing.itemId] !== undefined 
+      ? editingPrices[ing.itemId] 
+      : (ing.rateUnit === 'gm' || ing.rateUnit === 'ml' ? ing.purchasePrice * 1000 : ing.purchasePrice);
     
-    // Convert currentPurchasePrice to unit cost
+    // Convert back to backend actual purchase price
+    let actualPurchasePrice = currentPurchasePrice;
     if (ing.rateUnit === 'gm' || ing.rateUnit === 'ml') {
-        currentPurchasePrice = currentPurchasePrice / 1000;
+        actualPurchasePrice = currentPurchasePrice / 1000;
     }
     
+    const factor = ing.conversionFactor || 1;
+    let localUnitCost = actualPurchasePrice / factor;
+    
     const qty = Number(ing.quantity) || 0;
-    return total + (qty * currentPurchasePrice);
+    return total + (qty * localUnitCost);
   }, 0) : (costingData?.totalFoodCost || 0);
   
   // Psychological Rounding Logic
@@ -343,7 +350,7 @@ export default function CostingMaster() {
         grouped[key].ingredients.push({
           itemModel: ing.itemModel,
           itemId: ing.itemId,
-          quantity: Number(ing.quantity) || 1,
+          quantity: Number(ing.rawRecipeQuantity) || Number(ing.quantity) || 1,
           unit: ing.unit
         });
       });
@@ -357,7 +364,7 @@ export default function CostingMaster() {
       });
       
       if (!res.ok) throw new Error('Failed to save recipe');
-      await fetchCosting(selectedDishId);
+      await fetchCosting(selectedDishId, true);
       setSuccessMessage('Recipe saved successfully!');
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err: any) {
@@ -379,6 +386,8 @@ export default function CostingMaster() {
       itemId: item._id,
       name: item.name,
       quantity: 1,
+      rawRecipeQuantity: 1,
+      parentYieldRatio: 1,
       unit: item.consumptionUnit || item.yieldUnit || item.unit,
       rateUnit: item.purchaseUnit || item.yieldUnit || item.unit,
       purchasePrice: item.costPerPurchaseUnit || item.costPerUnit || 0,
@@ -394,7 +403,14 @@ export default function CostingMaster() {
   };
 
   const handleUpdateIngredientQuantity = (index: number, newQty: string) => {
-    setLocalIngredients(prev => prev.map((i, idx) => idx === index ? { ...i, quantity: newQty } : i));
+    setLocalIngredients(prev => prev.map((i, idx) => {
+      if (idx === index) {
+        const ratio = i.parentYieldRatio || 1;
+        const newRawQty = (Number(newQty) / ratio) || 0;
+        return { ...i, quantity: newQty, rawRecipeQuantity: newRawQty };
+      }
+      return i;
+    }));
   };
 
   const handleCreateNewRawMaterial = async (e: React.FormEvent) => {

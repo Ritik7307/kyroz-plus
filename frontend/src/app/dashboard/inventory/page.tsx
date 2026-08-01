@@ -1117,18 +1117,20 @@ export default function InventoryPage() {
                   const [itemId, itemModel] = productionForm.dishId.split('|');
                   let yieldText = '';
                   if (itemModel === 'Dish') {
-                    const invItem = inventory.find(i => i.dishId?._id === itemId);
-                    const dishName = invItem?.dishId?.name || '';
-                    if (dishName.includes('Biryani')) {
-                      yieldText = `${Number(productionForm.batches) * 9} Portions (1 Batch = 9 Portions)`;
-                    } else if (dishName.includes('Mandi')) {
-                      yieldText = `${Number(productionForm.batches) * 6} Portions (1 Batch = 6 Portions)`;
+                    const recipe = recipes.find(r => r.targetModel === 'Dish' && r.targetId === itemId);
+                    if (recipe) {
+                      const yld = recipe.operationalYield || recipe.targetYield || 1;
+                      yieldText = `${Number(productionForm.batches) * yld} Portions (1 Batch = ${yld} Portions)`;
                     } else {
-                      yieldText = `${Number(productionForm.batches)} Portion(s)`;
+                      yieldText = `${Number(productionForm.batches)} Portion(s) - No recipe found`;
                     }
                   } else if (itemModel === 'SemiFinishedGood') {
                     const sfg = semiFinishedGoods.find(s => s._id === itemId);
-                    if (sfg) {
+                    const recipe = recipes.find(r => r.targetModel === 'SemiFinishedGood' && r.targetId === itemId);
+                    if (recipe && sfg) {
+                      const yld = recipe.operationalYield || recipe.targetYield || sfg.batchYield || 1;
+                      yieldText = `${Number(productionForm.batches) * yld} ${sfg.yieldUnit} (1 Batch = ${yld} ${sfg.yieldUnit})`;
+                    } else if (sfg) {
                       yieldText = `${Number(productionForm.batches) * sfg.batchYield} ${sfg.yieldUnit} (1 Batch = ${sfg.batchYield} ${sfg.yieldUnit})`;
                     }
                   }

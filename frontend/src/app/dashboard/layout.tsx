@@ -330,7 +330,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </header>
 
-      <main className={`flex-1 w-full mx-auto relative ${pathname === '/dashboard/pos' ? 'max-w-[1800px] px-4 md:px-8 py-6' : 'max-w-7xl p-6 md:p-12'}`}>
+      <main className={`flex-1 w-full mx-auto relative ${pathname === '/dashboard/pos' ? 'max-w-[1800px] px-2 md:px-8 py-4 md:py-6' : 'max-w-7xl p-4 md:p-8 lg:p-12'}`}>
         <div className="relative w-full h-full">
           {children}
           {isLocked && (
