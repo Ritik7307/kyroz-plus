@@ -93,9 +93,9 @@ Structure:
           await sendWhatsAppMessage(ownerPhone, `*New Form Submission (Lead)* 🚨\n\n*Phone:* ${phone}\n\n*Note:* The AI failed to generate a report for this user.`);
         }
 
-      } catch (aiError) {
+      } catch (aiError: any) {
         console.error("AI Generation Error:", aiError);
-        await sendWhatsAppMessage(phone, `We successfully analyzed your profile! However, there was a slight issue generating the text report. Please reply with "3" to schedule a demo and our team will present your report on the call!`);
+        await sendWhatsAppMessage(phone, `We successfully analyzed your profile! However, there was a slight issue generating the text report. Error: ${aiError.message}. Please reply with "3" to schedule a demo and our team will present your report on the call!`);
       }
     }, 10 * 60 * 1000); // 10 minutes delay
 
