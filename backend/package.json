@@ -8,7 +8,7 @@
     "dev:server": "ts-node-dev --respawn --transpile-only src/server.ts",
     "dev:ai": "cd python_services && python -m uvicorn main:app --host 0.0.0.0 --port 8000",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:ai\"",
-    "build": "tsc"
+    "build": "tsc && npx puppeteer browsers install chrome"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
