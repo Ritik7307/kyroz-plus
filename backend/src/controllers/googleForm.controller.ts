@@ -19,7 +19,7 @@ export const handleGoogleFormWebhook = async (req: Request, res: Response) => {
     }
 
     // 1. Send Immediate ETA Acknowledgment
-    const etaMessage = `Thank you for completing the KYROZ+ Restaurant Growth Assessment! 🚀\n\nOur expert is currently analyzing your responses. Your customized Restaurant Growth Report is being generated and will be sent to you as a PDF document right here shortly.\n\nPlease wait...`;
+    const etaMessage = `Thank you for completing the KYROZ+ Restaurant Growth Assessment! 🚀\n\nOur expert is currently analyzing your responses. Your customized Restaurant Growth Report is being generated and will be sent to you as a PDF document right here in approximately 10 to 15 minutes.\n\nPlease wait...`;
 
     // We send this asynchronously and don't await it strictly for the response, 
     // but doing so ensures it fires off immediately.
@@ -28,8 +28,8 @@ export const handleGoogleFormWebhook = async (req: Request, res: Response) => {
     // 2. Return 200 OK to the webhook immediately so Google Apps Script doesn't timeout
     res.status(200).json({ success: true, message: "Processing started" });
 
-    // 3. Process AI Report in the background
-    (async () => {
+    // 3. Process AI Report in the background after 10 mins
+    setTimeout(async () => {
       try {
         const completion = await groq.chat.completions.create({
           messages: [
@@ -97,7 +97,7 @@ Structure:
         console.error("AI Generation Error:", aiError);
         await sendWhatsAppMessage(phone, `We successfully analyzed your profile! However, there was a slight issue generating the text report. Error: ${aiError.message}. Please reply with "3" to schedule a demo and our team will present your report on the call!`);
       }
-    })(); // Run immediately in the background
+    }, 10 * 60 * 1000); // 10 minutes delay
 
   } catch (error) {
     console.error('Error handling Google Form webhook:', error);
