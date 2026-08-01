@@ -50,7 +50,7 @@ Structure:
               content: `Here are the responses from the restaurant owner:\n${JSON.stringify(data.responses || data, null, 2)}`
             }
           ],
-          model: "llama3-8b-8192", // Using fast Groq model
+          model: "llama-3.1-8b-instant", // Using fast Groq model
           temperature: 0.5,
         });
 
