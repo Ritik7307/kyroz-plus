@@ -12,15 +12,15 @@ export const handleGoogleFormWebhook = async (req: Request, res: Response) => {
     console.log("[GOOGLE FORM WEBHOOK HIT] Received Data:", JSON.stringify(data, null, 2));
 
     const phone = data.whatsappNumber;
-    
+
     if (!phone) {
       console.error("No WhatsApp number provided in the form submission.");
       return res.status(400).json({ error: "Missing WhatsApp Number" });
     }
 
     // 1. Send Immediate ETA Acknowledgment
-    const etaMessage = `Thank you for completing the KYROZ+ Restaurant Growth Assessment! 🚀\n\nOur AI is currently analyzing your responses. Your customized Restaurant Growth Report is being generated and will be sent to you as a PDF document right here in approximately 10 to 15 minutes.\n\nPlease wait...`;
-    
+    const etaMessage = `Thank you for completing the KYROZ+ Restaurant Growth Assessment! 🚀\n\nOur expert is currently analyzing your responses. Your customized Restaurant Growth Report is being generated and will be sent to you as a PDF document right here in approximately 10 to 15 minutes.\n\nPlease wait...`;
+
     // We send this asynchronously and don't await it strictly for the response, 
     // but doing so ensures it fires off immediately.
     await sendWhatsAppMessage(phone, etaMessage);
@@ -59,7 +59,7 @@ Structure:
         if (reportContent) {
           // Convert Markdown to HTML
           const htmlReport = await marked.parse(reportContent);
-          
+
           // Generate PDF
           const pdfBuffer = await generatePdfFromHtml(`
             <div class="header">
@@ -76,7 +76,7 @@ Structure:
           if (mediaId) {
             // Send the final report via WhatsApp as a document
             await sendWhatsAppDocument(phone, mediaId, `*KYROZ+ Growth Assessment Report* 📊\n\nHere is your customized analysis report in PDF format!\n\n---\n_Reply with "3" to schedule a personalized Demo with our team, or contact us directly at +91 7887009800!_`, 'KYROZ_Growth_Report.pdf');
-            
+
             // Send a copy to the owner
             const ownerPhone = '917307255940';
             await sendWhatsAppDocument(ownerPhone, mediaId, `*New Form Submission (Lead)* 🚨\n\n*Phone:* ${phone}\n\n*Generated Report attached.*`, 'Lead_Report.pdf');
@@ -88,7 +88,7 @@ Structure:
           }
         } else {
           await sendWhatsAppMessage(phone, `We successfully analyzed your profile! However, there was a slight issue generating the report. Please reply with "3" to schedule a demo, or call us at +91 7887009800!`);
-          
+
           const ownerPhone = '917307255940';
           await sendWhatsAppMessage(ownerPhone, `*New Form Submission (Lead)* 🚨\n\n*Phone:* ${phone}\n\n*Note:* The AI failed to generate a report for this user.`);
         }
