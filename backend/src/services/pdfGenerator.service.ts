@@ -10,10 +10,10 @@ export const generatePdfFromHtml = async (htmlContent: string): Promise<Buffer> 
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
   });
   const page = await browser.newPage();
-  
+
   // Set the HTML content
   await page.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
-  
+
   // Add some basic styling if not already present
   await page.addStyleTag({
     content: `
