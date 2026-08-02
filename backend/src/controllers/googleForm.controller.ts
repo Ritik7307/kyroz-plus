@@ -37,21 +37,14 @@ export const handleGoogleFormWebhook = async (req: Request, res: Response) => {
     // 1. Return 200 OK to the webhook immediately so Google Apps Script doesn't timeout
     res.status(200).json({ success: true, message: "Processing started" });
 
-    // 2. Send Immediate ETA Acknowledgment (in Hinglish)
-    const name = data.responses?.Name || data.responses?.name || data.Name || data.name || "Restaurant Owner";
-    const etaMessage = `Hi ${name},\n\nHumein aapka restaurant assessment form mil gaya hai, thank you! 📝\n\nHamari team aapke inputs ke hisab se ek custom Growth & Kitchen Automation Report taiyar kar rahi hai. Kuch hi minton me aapki report isi WhatsApp number par bhej di jayegi.\n\nRegards,\nTeam KYROZ+`;
-
-    // Await this so we don't accidentally start the AI generation before the ETA message is sent,
-    // but doing so ensures it fires off immediately.
-    await sendWhatsAppMessage(phone, etaMessage);
-
-    // 3. Process AI Report IMMEDIATELY
-    try {
-      const completion = await groq.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content: `You are a top-tier, highly analytical Restaurant Business Consultant (like McKinsey or Bain) working for KYROZ+. 
+    // 2. Process AI Report in the background after 30 mins
+    setTimeout(async () => {
+      try {
+        const completion = await groq.chat.completions.create({
+          messages: [
+            {
+              role: "system",
+              content: `You are a top-tier, highly analytical Restaurant Business Consultant (like McKinsey or Bain) working for KYROZ+. 
 Your job is to deeply analyze the following restaurant assessment data and generate an extremely detailed, analytical, and descriptive "Growth Assessment Report" in Hindi-English (Hinglish). 
 
 CRITICAL INSTRUCTIONS:
@@ -87,59 +80,59 @@ Structure the report EXACTLY with these sections:
 
 ## 8. Conclusion & Next Steps
 (Write a compelling, urgent closing paragraph addressing them by name, summarizing the financial impact of taking action, and urging them to schedule a deep-dive consultation by contacting 7307255940.)`
-          },
-          {
-            role: "user",
-            content: `Here are the responses from the restaurant owner:\n${JSON.stringify(data.responses || data, null, 2)}`
+            },
+            {
+              role: "user",
+              content: `Here are the responses from the restaurant owner:\n${JSON.stringify(data.responses || data, null, 2)}`
+            }
+          ],
+          model: "llama-3.3-70b-versatile", // Switched to a much smarter, larger model for highly descriptive analytics
+          temperature: 0.7,
+        });
+
+        const reportContent = completion.choices[0]?.message?.content;
+
+        if (reportContent) {
+          // Convert Markdown to HTML
+          const htmlReport = await marked.parse(reportContent);
+
+          // Generate PDF
+          const pdfBuffer = await generatePdfFromHtml(`
+            <div class="header">
+              <h1>KYROZ+</h1>
+              <p>Restaurant Growth Assessment Report</p>
+            </div>
+            ${htmlReport}
+            <div class="footer">Generated automatically by KYROZ+ AI</div>
+          `);
+
+          // Upload PDF to WhatsApp
+          const mediaId = await uploadWhatsAppMedia(pdfBuffer, 'application/pdf', 'KYROZ_Growth_Report.pdf');
+
+          if (mediaId) {
+            // Send the final report via WhatsApp as a document to the user
+            await sendWhatsAppDocument(phone, mediaId, `Hi,\n\nAapki custom restaurant growth report taiyar ho gayi hai aur niche attach kar di gayi hai.\n\nIs report ko detail me samajhne aur aapke restaurant ke liye next steps discuss karne ke liye, KYROZ+ ki Expert Team aapse contact karegi.\n\nRegards,\nTeam KYROZ+`, 'Kyroz_Growth_Report.pdf');
+
+            // Send a copy to the owner
+            const ownerPhone = '917307255940';
+            await sendWhatsAppDocument(ownerPhone, mediaId, `*New Form Submission (Lead)* 🚨\n\n*Phone:* ${phone}\n\n*Generated Report attached.*`, 'Lead_Report.pdf');
+          } else {
+            // Fallback to text message to owner if PDF upload fails
+            const ownerPhone = '917307255940';
+            await sendWhatsAppMessage(ownerPhone, `*New Form Submission (Lead)* 🚨\n\n*Phone:* ${phone}\n\n*Generated Report:* 👇\n\n${reportContent}`);
           }
-        ],
-        model: "llama-3.3-70b-versatile", // Switched to a much smarter, larger model for highly descriptive analytics
-        temperature: 0.7,
-      });
-
-      const reportContent = completion.choices[0]?.message?.content;
-
-      if (reportContent) {
-        // Convert Markdown to HTML
-        const htmlReport = await marked.parse(reportContent);
-
-        // Generate PDF
-        const pdfBuffer = await generatePdfFromHtml(`
-          <div class="header">
-            <h1>KYROZ+</h1>
-            <p>Restaurant Growth Assessment Report</p>
-          </div>
-          ${htmlReport}
-          <div class="footer">Generated automatically by KYROZ+ AI</div>
-        `);
-
-        // Upload PDF to WhatsApp
-        const mediaId = await uploadWhatsAppMedia(pdfBuffer, 'application/pdf', 'KYROZ_Growth_Report.pdf');
-
-        if (mediaId) {
-          // Send the final report via WhatsApp as a document
-          await sendWhatsAppDocument(phone, mediaId, `Hi,\n\nAapki custom restaurant growth report taiyar ho gayi hai aur niche attach kar di gayi hai.\n\nIs report ko detail me samajhne aur aapke restaurant ke liye next steps discuss karne ke liye, KYROZ+ ki Expert Team aapse contact karegi.\n\nRegards,\nTeam KYROZ+`, 'Kyroz_Growth_Report.pdf');
-
-          // Send a copy to the owner
-          const ownerPhone = '917307255940';
-          await sendWhatsAppDocument(ownerPhone, mediaId, `*New Form Submission (Lead)* 🚨\n\n*Phone:* ${phone}\n\n*Generated Report attached.*`, 'Lead_Report.pdf');
         } else {
-          // Fallback to text message if PDF upload fails
-          await sendWhatsAppMessage(phone, `*KYROZ+ Growth Assessment Report* 📊\n\n${reportContent}\n\n---\n_Reply with "3" to schedule a personalized Demo with our team, or contact us directly at +91 7887009800!_`);
+          // If AI fails, notify owner only
           const ownerPhone = '917307255940';
-          await sendWhatsAppMessage(ownerPhone, `*New Form Submission (Lead)* 🚨\n\n*Phone:* ${phone}\n\n*Generated Report:* 👇\n\n${reportContent}`);
+          await sendWhatsAppMessage(ownerPhone, `*New Form Submission (Lead)* 🚨\n\n*Phone:* ${phone}\n\n*Note:* The AI failed to generate a report for this user.`);
         }
-      } else {
-        await sendWhatsAppMessage(phone, `We successfully analyzed your profile! However, there was a slight issue generating the report. Please reply with "3" to schedule a demo, or call us at +91 7887009800!`);
 
+      } catch (aiError: any) {
+        console.error("AI Generation Error:", aiError);
         const ownerPhone = '917307255940';
-        await sendWhatsAppMessage(ownerPhone, `*New Form Submission (Lead)* 🚨\n\n*Phone:* ${phone}\n\n*Note:* The AI failed to generate a report for this user.`);
+        await sendWhatsAppMessage(ownerPhone, `*New Form Submission (Lead)* 🚨\n\n*Phone:* ${phone}\n\n*Note:* The AI failed with error: ${aiError.message}`);
       }
-
-    } catch (aiError: any) {
-      console.error("AI Generation Error:", aiError);
-      await sendWhatsAppMessage(phone, `We successfully analyzed your profile! However, there was a slight issue generating the text report. Error: ${aiError.message}. Please reply with "3" to schedule a demo and our team will present your report on the call!`);
-    }
+    }, 30 * 60 * 1000); // 30 minutes delay
 
   } catch (error) {
     console.error('Error handling Google Form webhook:', error);
