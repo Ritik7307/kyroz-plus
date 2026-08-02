@@ -114,22 +114,22 @@ Structure the report EXACTLY with these sections:
             await sendWhatsAppDocument(phone, mediaId, `Hi,\n\nAapki custom restaurant growth report taiyar ho gayi hai aur niche attach kar di gayi hai.\n\nIs report ko detail me samajhne aur aapke restaurant ke liye next steps discuss karne ke liye, KYROZ+ ki Expert Team aapse contact karegi.\n\nRegards,\nTeam KYROZ+`, 'Kyroz_Growth_Report.pdf');
 
             // Send a copy to the owner
-            const ownerPhone = '917307255940';
+            const ownerPhone = '918874581717';
             await sendWhatsAppDocument(ownerPhone, mediaId, `*New Form Submission (Lead)* 🚨\n\n*Phone:* ${phone}\n\n*Generated Report attached.*`, 'Lead_Report.pdf');
           } else {
             // Fallback to text message to owner if PDF upload fails
-            const ownerPhone = '917307255940';
+            const ownerPhone = '918874581717';
             await sendWhatsAppMessage(ownerPhone, `*New Form Submission (Lead)* 🚨\n\n*Phone:* ${phone}\n\n*Generated Report:* 👇\n\n${reportContent}`);
           }
         } else {
           // If AI fails, notify owner only
-          const ownerPhone = '917307255940';
+          const ownerPhone = '918874581717';
           await sendWhatsAppMessage(ownerPhone, `*New Form Submission (Lead)* 🚨\n\n*Phone:* ${phone}\n\n*Note:* The AI failed to generate a report for this user.`);
         }
 
       } catch (aiError: any) {
         console.error("AI Generation Error:", aiError);
-        const ownerPhone = '917307255940';
+        const ownerPhone = '918874581717';
         await sendWhatsAppMessage(ownerPhone, `*New Form Submission (Lead)* 🚨\n\n*Phone:* ${phone}\n\n*Note:* The AI failed with error: ${aiError.message}`);
       }
     }, 30 * 60 * 1000); // 30 minutes delay
