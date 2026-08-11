@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 import { CartProvider } from "@/context/CartContext";
 import FloatingCart from "@/components/ui/FloatingCart";
 import FacebookSdk from "@/components/ui/FacebookSdk";
+import InputSanitizer from "@/components/ui/InputSanitizer";
 import { Metadata } from "next";
 
 export default function RootLayout({
@@ -29,6 +30,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
+        <InputSanitizer />
         <CartProvider>
           {children}
           <FloatingCart />

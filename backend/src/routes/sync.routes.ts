@@ -1,11 +1,11 @@
 import express from 'express';
 import { pushKots, pullKots } from '../controllers/sync.controller';
-import authMiddleware from '../middleware/auth.middleware';
+import { authenticateToken } from '../middleware/auth.middleware';
 
 const router = express.Router();
 
 // RxDB Replication endpoints
-router.post('/pull', authMiddleware, pullKots);
-router.post('/push', authMiddleware, pushKots);
+router.post('/pull', authenticateToken, pullKots);
+router.post('/push', authenticateToken, pushKots);
 
 export default router;

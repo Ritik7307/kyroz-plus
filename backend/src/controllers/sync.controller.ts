@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
+import { AuthRequest } from '../middleware/auth.middleware';
 import Kot from '../models/Kot';
 import mongoose from 'mongoose';
 
-export const pushKots = async (req: Request, res: Response): Promise<void> => {
+export const pushKots = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     // We assume the user ID is passed via auth middleware or body for this example
-    const userId = req.user?.id || req.body.userId; 
+    const userId = req.user?.userId || req.body.userId; 
     if (!userId) {
        res.status(401).json({ message: 'Unauthorized' });
        return;
@@ -55,9 +56,9 @@ export const pushKots = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const pullKots = async (req: Request, res: Response): Promise<void> => {
+export const pullKots = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user?.id || req.query.userId;
+    const userId = req.user?.userId || req.query.userId;
     if (!userId) {
        res.status(401).json({ message: 'Unauthorized' });
        return;
