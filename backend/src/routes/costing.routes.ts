@@ -5,6 +5,7 @@ import { authenticateToken } from '../middleware/auth.middleware';
 const router = express.Router();
 
 router.put('/recipe/bulk', authenticateToken, updateBulkRecipes);
+router.put('/ingredient', authenticateToken, updateIngredientPrice);
 router.get('/dish/:dishId', authenticateToken, getDishCosting);
 router.put('/dish/:dishId/recipe', authenticateToken, updateDishRecipe);
 router.get('/fix-yields', async (req, res) => {

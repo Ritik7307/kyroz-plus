@@ -6,7 +6,8 @@ let content = fs.readFileSync(filePath, 'utf8');
 const lastRM = "costPerPurchaseUnit: 100 }"; // RM_FRIED_NOODLES
 const rmInjection = `costPerPurchaseUnit: 100 },
     // Finishing Oils & Momos
-    { code: 'RM_TEJA_CHILLI_FLAKES', name: 'Teja Chilli Flakes', category: 'Spice', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 400 },
+    { code: 'RM_TEJA_CHILLI_FLAKES', name: 'Teja Chilli Flakes', cat
+     egory: 'Spice', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 400 },
     { code: 'RM_KASHMIRI_CHILLI_POWDER', name: 'Kashmiri Chilli Powder', category: 'Spice', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 500 },
     { code: 'RM_STAR_ANISE', name: 'Star Anise', category: 'Spice', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 800 },
     { code: 'RM_SALT', name: 'Salt', category: 'Condiment', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 20 },
@@ -57,7 +58,7 @@ const sfgInjectionStr = `    ,'SFG_MASTER_CHILLI_OIL': [
   for (const sfgCode of Object.keys(sfgRecipeMappings))`;
 
 if (!content.includes("'SFG_MASTER_CHILLI_OIL':")) {
-  content = content.replace("  };\n\n  for (const sfgCode of Object.keys(sfgRecipeMappings)) {", sfgInjectionStr);
+  content = content.replace(/\\};\\s*for \\(const sfgCode of Object.keys\\(sfgRecipeMappings\\)\\)/, sfgInjectionStr);
   console.log('SFG Recipe Inject: true');
 }
 
@@ -128,7 +129,7 @@ const dishRecipeInjectionStr = `    ,'Steamed Veg Momos': [
   for (const dish of dishData) {`;
 
 if (!content.includes("'Steamed Veg Momos':")) {
-  content = content.replace("  };\n\n  for (const dish of dishData) {", dishRecipeInjectionStr);
+  content = content.replace(/\\};\\s*for \\(const dish of dishData\\) \\{/, dishRecipeInjectionStr);
   console.log('Dish Recipe Inject: true');
 }
 

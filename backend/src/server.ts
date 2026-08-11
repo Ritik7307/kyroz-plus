@@ -30,6 +30,7 @@ import uploadRoutes from './routes/upload.routes';
 import inventoryRoutes from './routes/inventory.routes';
 import orderRoutes from './routes/order.routes';
 import kotRoutes from './routes/kot.routes';
+import syncRoutes from './routes/sync.routes';
 import sopPacketRoutes from './routes/sopPacket.routes';
 import testimonialRoutes from './routes/testimonial.routes';
 import notificationRoutes from './routes/notification.routes';
@@ -42,6 +43,8 @@ import whatsappRoutes from './routes/whatsapp.routes';
 import whatsappWebhookRoutes from './routes/whatsappWebhook.routes';
 import googleFormRoutes from './routes/googleForm.routes';
 console.log('All routes imported');
+import startPurchaseReminderCron from './cron/purchaseReminder.cron';
+
 
 import cluster from 'cluster';
 import os from 'os';
@@ -70,6 +73,9 @@ if (cluster.isPrimary && process.env.NODE_ENV === 'production') {
   // Trust proxy is required if you are behind a reverse proxy (like Nginx or a load balancer)
   // This ensures rate limiting works correctly based on the real client IP.
   app.set('trust proxy', 1);
+
+  // Initialize cron jobs
+  startPurchaseReminderCron();
 
 app.use(helmet());
 app.use(compression());
@@ -113,6 +119,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/kots', kotRoutes);
+app.use('/api/sync', syncRoutes);
 app.use('/api/sop-packets', sopPacketRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/notifications', notificationRoutes);

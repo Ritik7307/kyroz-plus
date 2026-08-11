@@ -196,10 +196,15 @@ export default function CostingMaster() {
   }, [selectedDishId]);
 
   const handlePriceChange = (itemId: string, val: string) => {
-    const numeric = parseFloat(val);
+    if (val === '') {
+      setEditingPrices(prev => ({ ...prev, [itemId]: '' }));
+      return;
+    }
+    // Remove leading zeros before any digit
+    const cleanVal = val.replace(/^0+(?=\d)/, '');
     setEditingPrices(prev => ({
       ...prev,
-      [itemId]: isNaN(numeric) ? 0 : numeric
+      [itemId]: cleanVal
     }));
   };
 

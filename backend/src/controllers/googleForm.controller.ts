@@ -3,6 +3,7 @@ import { sendWhatsAppMessage, uploadWhatsAppMedia, sendWhatsAppDocument } from '
 import Groq from 'groq-sdk';
 import { generatePdfFromHtml } from '../services/pdfGenerator.service';
 import { marked } from 'marked';
+import PurchaseReminder from '../models/PurchaseReminder';
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -36,6 +37,19 @@ export const handleGoogleFormWebhook = async (req: Request, res: Response) => {
 
     // 1. Return 200 OK to the webhook immediately so Google Apps Script doesn't timeout
     res.status(200).json({ success: true, message: "Processing started" });
+
+    // 1.5 Setup a purchase reminder to fire in 24 hours if the user hasn't bought the software yet
+    try {
+      const reminderTime = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
+      await PurchaseReminder.findOneAndUpdate(
+        { phone },
+        { phone, reminderTime, status: 'PENDING' },
+        { upsert: true, new: true }
+      );
+      console.log(`[REMINDER SET] 24h purchase reminder set for ${phone}`);
+    } catch (reminderErr) {
+      console.error('[REMINDER ERROR] Failed to set purchase reminder:', reminderErr);
+    }
 
     // 2. Process AI Report in the background after 30 mins
     setTimeout(async () => {

@@ -4,6 +4,7 @@ import Razorpay from 'razorpay';
 import jwt from 'jsonwebtoken';
 import { AuthRequest } from '../middleware/auth.middleware';
 import User from '../models/User';
+import PurchaseReminder from '../models/PurchaseReminder';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'kyroz_super_secret_key_123';
 
@@ -90,6 +91,18 @@ export const verifyPayment = async (req: AuthRequest, res: Response): Promise<vo
 
     user.subscriptionPlan = plan;
     await user.save();
+
+    // Cancel any pending purchase reminders since the user has now purchased
+    if (user.phone) {
+      try {
+        await PurchaseReminder.updateMany(
+          { phone: user.phone, status: 'PENDING' },
+          { $set: { status: 'PURCHASED' } }
+        );
+      } catch (reminderErr) {
+        console.error('Error updating purchase reminder status:', reminderErr);
+      }
+    }
 
     // Generate a new token with the upgraded plan
     // Preserve the old sessionId so we don't log them out

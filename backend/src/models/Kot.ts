@@ -16,6 +16,7 @@ export interface IKot extends Document {
   items: IKotItem[];
   status: 'Pending' | 'Preparing' | 'Ready' | 'Served' | 'Cancelled';
   packaging: { name: string; quantity: number }[];
+  deleted: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,7 +39,8 @@ const KotSchema = new Schema({
   packaging: [{
     name: { type: String, required: true },
     quantity: { type: Number, required: true }
-  }]
+  }],
+  deleted: { type: Boolean, default: false }
 }, { timestamps: true });
 
 // Ensure unique kotNumber per user session/account
