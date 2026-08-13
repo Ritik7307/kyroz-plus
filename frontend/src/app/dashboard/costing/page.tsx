@@ -79,7 +79,7 @@ export default function CostingMaster() {
   const [error, setError] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
-  const [editingPrices, setEditingPrices] = useState<Record<string, number>>({});
+  const [editingPrices, setEditingPrices] = useState<Record<string, number | string>>({});
   const [savingIngredientId, setSavingIngredientId] = useState<string>('');
   const [sellingPriceInput, setSellingPriceInput] = useState<number | ''>('');
   const [savingSellingPrice, setSavingSellingPrice] = useState<boolean>(false);

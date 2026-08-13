@@ -35,7 +35,7 @@ export const useDatabase = () => {
                                 }
                             },
                             pull: {
-                                handler: async (checkpoint) => {
+                                handler: async (checkpoint: any) => {
                                     const minTimestamp = checkpoint ? checkpoint.updatedAt : 0;
                                     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/sync/pull?minTimestamp=${minTimestamp}`, {
                                         method: 'POST', 

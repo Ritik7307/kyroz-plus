@@ -1,0 +1,866 @@
+KYROZ+ DEVELOPER INVENTORY ARCHITECTURE
+SHAHI LUCKNOWI BIRYANI
+
+Architecture: Biryani Production Engine
+Primary Base: B-401 ROYAL AWADH
+
+Purpose:
+Standardized Dum Biryani ke liye batch-based production aur portion-level
+inventory deduction system develop karna.
+
+
+==================================================
+1. RAW MATERIAL MASTER
+==================================================
+
+Code     Item                         Unit
+--------------------------------------------------
+RM001    B-401 ROYAL AWADH Premix    pkt
+RM002    Chicken                      kg
+RM003    Long Grain Basmati Rice      kg
+RM004    Curd                         kg
+RM005    Ghee/Oil                     kg/L
+RM006    Brown Onion (Birista)        kg
+RM007    Ginger-Garlic Paste          kg
+RM008    Milk                         L
+RM009    Kewra + Attar                ml
+RM010    Food Colour                  ml
+
+
+==================================================
+2. SFG MASTER
+SEMI-FINISHED GOODS
+==================================================
+
+Code     Item                         Batch              Yield
+----------------------------------------------------------------
+SFG001   80% Cooked Yakhni Chicken   1 KG Batch         Ready for Dum
+SFG002   70% Boiled Rice             1 KG Raw           Approx. 2.2 KG Cooked
+SFG003   Extracted Rogan              100 ML             Finishing Component
+SFG004   Brown Onion (Birista)        70 GM              Finishing Component
+
+
+==================================================
+3. PORTION MASTER
+==================================================
+
+Code     Item                         Quantity           Unit
+----------------------------------------------------------------
+PT001    Cooked Biryani               350                GM
+PT002    Chicken Pieces                80                GM
+PT003    Rice                          270                GM
+
+
+==================================================
+4. PACKAGING MASTER
+==================================================
+
+Code     Item                         Quantity
+--------------------------------------------------
+PKG001   Biryani Container             1 PC
+PKG002   Lid                           1 PC
+PKG003   Carry Bag                     1 PC
+
+
+==================================================
+5. BILLING DEDUCTION MATRIX
+==================================================
+
+Item                         Deduction Per Portion
+--------------------------------------------------
+Cooked Biryani               350 GM
+Chicken                      80 GM
+Rice                          270 GM
+Packaging                     1 SET
+
+
+IMPORTANT:
+
+POS billing ke time finished-product inventory se required quantity
+automatically deduct honi chahiye.
+
+Raw materials ko direct POS sale ke time deduct nahi karna hai agar
+batch-production model use kiya ja raha hai.
+
+
+==================================================
+6. INVENTORY FLOW
+==================================================
+
+PURCHASE
+    ↓
+RAW MATERIAL INVENTORY
+    ↓
+MARINATION
+    ↓
+YAKHNI PRODUCTION
+    ↓
+SFG001 — 80% COOKED YAKHNI CHICKEN
+    ↓
+RICE BOILING
+    ↓
+SFG002 — 70% BOILED RICE
+    ↓
+DUM COOKING
+    ↓
+FINISHED BIRYANI STOCK
+    ↓
+PORTIONING
+    ↓
+POS / BILLING
+    ↓
+AUTO INVENTORY DEDUCTION
+
+
+==================================================
+7. COSTING LOGIC
+==================================================
+
+Total Biryani Cost should be calculated from:
+
+Chicken
++
+Rice
++
+B-401 ROYAL AWADH Premix
++
+Curd / Dairy
++
+Oil / Ghee
++
+Brown Onion / Birista
++
+Ginger-Garlic Paste
++
+Milk
++
+Kewra / Attar
++
+Food Colour
++
+Packaging
+=
+TOTAL PRODUCTION COST
+
+
+COST PER PORTION
+
+Total Batch Production Cost
+÷
+Total Saleable Portions
+=
+Cost Per Biryani Portion
+
+
+SELLING MARGIN
+
+Selling Price
+−
+Cost Per Portion
+=
+Gross Contribution Per Portion
+
+
+==================================================
+8. SOFTWARE ENGINE
+BATCH PRODUCTION ENGINE
+==================================================
+
+Core Concept:
+
+Ek production batch raw materials ko consume karke ek Finished Biryani
+Stock create karega.
+
+Example:
+
+RAW MATERIALS
+    ↓
+B-401 + Chicken + Rice + Other Ingredients
+    ↓
+PRODUCTION BATCH
+    ↓
+FINISHED BIRYANI
+    ↓
+X Saleable Portions
+    ↓
+POS SALE
+    ↓
+PORTION STOCK DEDUCTION
+
+
+PRODUCTION BATCH SHOULD STORE:
+
+• Batch ID
+• Product ID
+• Production Date
+• Production Time
+• Raw Material Consumption
+• SFG Consumption
+• Total Batch Quantity
+• Total Saleable Portions
+• Production Cost
+• Cost Per Portion
+• Wastage / Loss
+• Prepared By
+• Batch Status
+
+
+==================================================
+9. INVENTORY TRANSACTION LOGIC
+==================================================
+
+Every inventory movement should create a transaction record.
+
+TRANSACTION TYPES:
+
+1. PURCHASE
+   → Raw Material Stock IN
+
+2. PRODUCTION
+   → Raw Material Stock OUT
+   → SFG / Finished Product Stock IN
+
+3. PORTIONING
+   → Finished Batch converted into saleable portions
+
+4. BILLING
+   → Saleable Portion Stock OUT
+
+5. WASTAGE
+   → Inventory Stock OUT
+
+6. STOCK ADJUSTMENT
+   → Manual correction with reason and authorization
+
+
+==================================================
+10. PRODUCTION BATCH EXAMPLE
+==================================================
+
+Product:
+SHAHI LUCKNOWI BIRYANI
+
+Batch:
+1 Production Batch
+
+INPUT:
+
+• Chicken
+• Long Grain Basmati Rice
+• B-401 ROYAL AWADH
+• Curd
+• Ghee/Oil
+• Brown Onion
+• Ginger-Garlic Paste
+• Milk
+• Kewra + Attar
+• Food Colour
+
+PROCESS:
+
+Raw Materials
+→ Yakhni Chicken
+→ Boiled Rice
+→ Dum
+→ Finished Biryani
+
+OUTPUT:
+
+Finished Biryani Stock
+→ Portioning
+→ 350 GM Saleable Portions
+
+
+==================================================
+11. POS DEDUCTION LOGIC
+==================================================
+
+When customer orders:
+
+1 × Shahi Lucknowi Biryani
+
+System checks:
+
+Finished Biryani Stock >= 350 GM
+
+IF YES:
+
+• Deduct 350 GM Finished Biryani
+• Deduct 1 Packaging Set
+• Create POS transaction
+• Reduce available portion count
+• Update inventory ledger
+
+IF NO:
+
+• Show "Insufficient Finished Stock"
+• Do not complete automatic deduction
+
+
+IMPORTANT:
+
+Raw Chicken, Rice aur Premix ko POS sale ke time separately deduct
+nahi karna hai.
+
+Ye ingredients already production batch ke time consume ho chuke hain.
+
+
+==================================================
+12. WASTAGE & YIELD CONTROL
+==================================================
+
+System should compare:
+
+EXPECTED OUTPUT
+vs
+ACTUAL OUTPUT
+
+Example:
+
+Expected Batch Yield:
+X KG
+
+Actual Batch Yield:
+Y KG
+
+Variance:
+X − Y KG
+
+
+Track:
+
+• Cooking Loss
+• Preparation Loss
+• Portioning Loss
+• Wastage
+• Overproduction
+• Unsold Finished Stock
+
+
+==================================================
+13. DASHBOARD REQUIREMENTS
+==================================================
+
+Developer dashboard mein following metrics display kiye ja sakte hain:
+
+• Raw Material Stock
+• SFG Stock
+• Finished Biryani Stock
+• Available Portions
+• Today's Production
+• Today's Sales
+• Today's Wastage
+• Batch Cost
+• Cost Per Portion
+• Food Cost %
+• Low Stock Alerts
+• Production Variance
+
+
+==================================================
+14. FUTURE EXPANSION
+==================================================
+
+Architecture ko modular rakhein taaki future mein easily support ho:
+
+• Chicken Biryani
+• Mutton Biryani
+• Veg Biryani
+• Paneer Biryani
+• Family Packs
+• Half Portions
+• Full Portions
+• Combo Meals
+
+
+FUTURE PRODUCT STRUCTURE:
+
+PRODUCT
+    ↓
+RECIPE / BOM
+    ↓
+RAW MATERIALS + SFG
+    ↓
+PRODUCTION BATCH
+    ↓
+FINISHED STOCK
+    ↓
+PORTION MASTER
+    ↓
+POS
+    ↓
+AUTO DEDUCTION
+
+
+==================================================
+15. DEVELOPER GOLDEN RULE
+==================================================
+
+RAW MATERIAL → PRODUCTION → FINISHED STOCK → PORTION → SALE
+
+Inventory system ka core principle:
+
+"Produce First, Sell From Finished Stock, Deduct Raw Materials at Production."
+
+Is architecture se kitchen production aur POS billing ke beech proper
+inventory traceability, costing aur stock accuracy maintain rahegi.
+
+
+KYROZ+ Systems
+Developer Inventory Architecture
+Shahi Lucknowi Biryani",
+
+---
+
+KYROZ+ DEVELOPER INVENTORY ARCHITECTURE
+शाही लखनवी बिरयानी
+
+Architecture: Biryani Production Engine
+Primary Base: B-401 ROYAL AWADH
+
+Purpose:
+Standardized Dum Biryani के लिए Batch-Based Production और Portion-Level
+Inventory Deduction System तैयार करना।
+
+
+==================================================
+1. RAW MATERIAL MASTER
+कच्चे माल का मास्टर
+==================================================
+
+Code     Item                         Unit
+--------------------------------------------------
+RM001    B-401 ROYAL AWADH Premix    pkt
+RM002    Chicken                      kg
+RM003    Long Grain Basmati Rice      kg
+RM004    Curd                         kg
+RM005    Ghee/Oil                     kg/L
+RM006    Brown Onion (Birista)        kg
+RM007    Ginger-Garlic Paste          kg
+RM008    Milk                         L
+RM009    Kewra + Attar                ml
+RM010    Food Colour                  ml
+
+
+==================================================
+2. SFG MASTER
+SEMI-FINISHED GOODS
+अर्ध-तैयार उत्पाद
+==================================================
+
+Code     Item                         Batch              Yield
+----------------------------------------------------------------
+SFG001   80% Cooked Yakhni Chicken   1 KG Batch         Dum के लिए Ready
+SFG002   70% Boiled Rice              1 KG Raw           लगभग 2.2 KG Cooked
+SFG003   Extracted Rogan               100 ML             Finishing Component
+SFG004   Brown Onion (Birista)        70 GM              Finishing Component
+
+
+==================================================
+3. PORTION MASTER
+पोर्टियन मास्टर
+==================================================
+
+Code     Item                         Quantity           Unit
+----------------------------------------------------------------
+PT001    Cooked Biryani               350                GM
+PT002    Chicken Pieces                80                GM
+PT003    Rice                          270                GM
+
+
+==================================================
+4. PACKAGING MASTER
+पैकिंग मास्टर
+==================================================
+
+Code     Item                         Quantity
+--------------------------------------------------
+PKG001   Biryani Container             1 PC
+PKG002   Lid                           1 PC
+PKG003   Carry Bag                     1 PC
+
+
+==================================================
+5. BILLING DEDUCTION MATRIX
+बिलिंग पर स्टॉक कटौती
+==================================================
+
+Item                         Per Portion Deduction
+--------------------------------------------------
+Cooked Biryani               350 GM
+Chicken                      80 GM
+Rice                          270 GM
+Packaging                     1 SET
+
+
+IMPORTANT:
+
+POS Billing के समय Finished Product Inventory से required quantity
+automatically deduct होनी चाहिए।
+
+अगर Batch Production Model इस्तेमाल किया जा रहा है तो Raw Materials को
+POS Sale के समय सीधे deduct नहीं करना है।
+
+
+==================================================
+6. INVENTORY FLOW
+इन्वेंटरी का पूरा फ्लो
+==================================================
+
+PURCHASE
+    ↓
+RAW MATERIAL INVENTORY
+    ↓
+MARINATION
+    ↓
+YAKHNI PRODUCTION
+    ↓
+SFG001 — 80% COOKED YAKHNI CHICKEN
+    ↓
+RICE BOILING
+    ↓
+SFG002 — 70% BOILED RICE
+    ↓
+DUM COOKING
+    ↓
+FINISHED BIRYANI STOCK
+    ↓
+PORTIONING
+    ↓
+POS / BILLING
+    ↓
+AUTO INVENTORY DEDUCTION
+
+
+==================================================
+7. COSTING LOGIC
+कॉस्टिंग सिस्टम
+==================================================
+
+Total Biryani Cost में निम्नलिखित शामिल होंगे:
+
+Chicken
++
+Rice
++
+B-401 ROYAL AWADH Premix
++
+Curd / Dairy
++
+Oil / Ghee
++
+Brown Onion / Birista
++
+Ginger-Garlic Paste
++
+Milk
++
+Kewra / Attar
++
+Food Colour
++
+Packaging
+=
+TOTAL PRODUCTION COST
+
+
+COST PER PORTION
+
+Total Batch Production Cost
+÷
+Total Saleable Portions
+=
+Cost Per Biryani Portion
+
+
+SELLING MARGIN
+
+Selling Price
+−
+Cost Per Portion
+=
+Gross Contribution Per Portion
+
+
+==================================================
+8. SOFTWARE ENGINE
+BATCH PRODUCTION ENGINE
+==================================================
+
+Core Concept:
+
+एक Production Batch Raw Materials को consume करके Finished Biryani Stock
+create करेगा।
+
+PROCESS:
+
+RAW MATERIALS
+    ↓
+B-401 + Chicken + Rice + Other Ingredients
+    ↓
+PRODUCTION BATCH
+    ↓
+FINISHED BIRYANI
+    ↓
+X SALEABLE PORTIONS
+    ↓
+POS SALE
+    ↓
+PORTION STOCK DEDUCTION
+
+
+हर Production Batch में निम्नलिखित information store होनी चाहिए:
+
+• Batch ID
+• Product ID
+• Production Date
+• Production Time
+• Raw Material Consumption
+• SFG Consumption
+• Total Batch Quantity
+• Total Saleable Portions
+• Production Cost
+• Cost Per Portion
+• Wastage / Loss
+• Prepared By
+• Batch Status
+
+
+==================================================
+9. INVENTORY TRANSACTION LOGIC
+इन्वेंटरी ट्रांजैक्शन
+==================================================
+
+हर Inventory Movement के लिए एक Transaction Record बनना चाहिए।
+
+TRANSACTION TYPES:
+
+1. PURCHASE
+   → Raw Material Stock IN
+
+2. PRODUCTION
+   → Raw Material Stock OUT
+   → SFG / Finished Product Stock IN
+
+3. PORTIONING
+   → Finished Batch को Saleable Portions में Convert करना
+
+4. BILLING
+   → Saleable Portion Stock OUT
+
+5. WASTAGE
+   → Inventory Stock OUT
+
+6. STOCK ADJUSTMENT
+   → Manual Correction
+   → Correction का Reason और Authorization Record होना चाहिए
+
+
+==================================================
+10. PRODUCTION BATCH EXAMPLE
+==================================================
+
+Product:
+SHAHI LUCKNOWI BIRYANI
+
+Batch:
+1 Production Batch
+
+INPUT:
+
+• Chicken
+• Long Grain Basmati Rice
+• B-401 ROYAL AWADH
+• Curd
+• Ghee/Oil
+• Brown Onion
+• Ginger-Garlic Paste
+• Milk
+• Kewra + Attar
+• Food Colour
+
+PROCESS:
+
+Raw Materials
+→ Yakhni Chicken
+→ Boiled Rice
+→ Dum
+→ Finished Biryani
+
+OUTPUT:
+
+Finished Biryani Stock
+→ Portioning
+→ 350 GM Saleable Portions
+
+
+==================================================
+11. POS DEDUCTION LOGIC
+==================================================
+
+जब Customer Order करता है:
+
+1 × Shahi Lucknowi Biryani
+
+System सबसे पहले check करेगा:
+
+Finished Biryani Stock >= 350 GM
+
+IF YES:
+
+• 350 GM Finished Biryani deduct करें
+• 1 Packaging Set deduct करें
+• POS Transaction create करें
+• Available Portion Count update करें
+• Inventory Ledger update करें
+
+IF NO:
+
+• "Insufficient Finished Stock" दिखाएं
+• Automatic deduction complete न करें
+
+
+IMPORTANT:
+
+Raw Chicken, Rice और Premix को POS Sale के समय अलग-अलग deduct नहीं
+करना है।
+
+ये ingredients Production Batch बनाते समय ही consume हो चुके हैं।
+
+
+==================================================
+12. WASTAGE & YIELD CONTROL
+==================================================
+
+System को compare करना चाहिए:
+
+EXPECTED OUTPUT
+vs
+ACTUAL OUTPUT
+
+Example:
+
+Expected Batch Yield:
+X KG
+
+Actual Batch Yield:
+Y KG
+
+Variance:
+X − Y KG
+
+
+System में निम्नलिखित track करें:
+
+• Cooking Loss
+• Preparation Loss
+• Portioning Loss
+• Wastage
+• Overproduction
+• Unsold Finished Stock
+
+
+==================================================
+13. DASHBOARD REQUIREMENTS
+==================================================
+
+Developer Dashboard में निम्नलिखित metrics display किए जा सकते हैं:
+
+• Raw Material Stock
+• SFG Stock
+• Finished Biryani Stock
+• Available Portions
+• Today's Production
+• Today's Sales
+• Today's Wastage
+• Batch Cost
+• Cost Per Portion
+• Food Cost %
+• Low Stock Alerts
+• Production Variance
+
+
+==================================================
+14. FUTURE EXPANSION
+==================================================
+
+Architecture को modular रखना है ताकि future में आसानी से support किया जा सके:
+
+• Chicken Biryani
+• Mutton Biryani
+• Veg Biryani
+• Paneer Biryani
+• Family Packs
+• Half Portions
+• Full Portions
+• Combo Meals
+
+
+FUTURE PRODUCT STRUCTURE:
+
+PRODUCT
+    ↓
+RECIPE / BOM
+    ↓
+RAW MATERIALS + SFG
+    ↓
+PRODUCTION BATCH
+    ↓
+FINISHED STOCK
+    ↓
+PORTION MASTER
+    ↓
+POS
+    ↓
+AUTO DEDUCTION
+
+
+==================================================
+15. DEVELOPER GOLDEN RULE
+==================================================
+
+RAW MATERIAL
+        ↓
+PRODUCTION
+        ↓
+FINISHED STOCK
+        ↓
+PORTION
+        ↓
+SALE
+
+
+INVENTORY SYSTEM का CORE PRINCIPLE:
+
+"पहले Production करें, फिर Finished Stock से Sale करें और Raw Materials
+को Production के समय ही Deduct करें।"
+
+इस Architecture से Kitchen Production और POS Billing के बीच:
+
+• Proper Inventory Traceability
+• Accurate Costing
+• Stock Accuracy
+• Batch Tracking
+• Wastage Tracking
+• Portion-Level Deduction
+
+maintain किया जा सकता है।
+
+
+KYROZ+ Systems
+Developer Inventory Architecture
+शाही लखनवी बिरयानी"
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-08-13T17:04:06+05:30.
+
+The user's current state is as follows:
+Active Document: c:\Users\Ritik prajapati\Desktop\project\kyroz-plus\backend\.gitignore (LANGUAGE_UNSPECIFIED)
+Cursor is on line: 1
+Other open documents:
+- c:\Users\Ritik prajapati\Desktop\project\kyroz-plus\backend\patch-indian-veg-2.js (LANGUAGE_JAVASCRIPT)
+- c:\Users\Ritik prajapati\Desktop\project\kyroz-plus\frontend\src\app\login\page.tsx (LANGUAGE_TSX)
+- c:\Users\Ritik prajapati\Desktop\project\kyroz-plus\backend\check_portion.ts (LANGUAGE_TYPESCRIPT)
+- c:\Users\Ritik prajapati\Desktop\project\kyroz-plus\frontend\src\app\dashboard\membership\page.tsx (LANGUAGE_TSX)
+- c:\Users\Ritik prajapati\Desktop\project\kyroz-plus\frontend\src\app\dashboard\sop\page.tsx (LANGUAGE_TSX)
+</ADDITIONAL_METADATA>
