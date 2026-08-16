@@ -27,8 +27,16 @@ export const getRecipeDetailsRecursive = async (
   parentModel?: string,
   rawRecipeQuantity: number = quantityNeeded,
   recipeYield: number = 1,
-  parentYieldRatio: number = 1
+  parentYieldRatio: number = 1,
+  visited: Set<string> = new Set()
 ): Promise<any[]> => {
+  const visitKey = `${itemModel}_${itemId}`;
+  if (visited.has(visitKey)) {
+    console.warn(`[WARNING] Circular dependency detected for ${visitKey}`);
+    return [];
+  }
+  const newVisited = new Set(visited);
+  newVisited.add(visitKey);
   let details: any[] = [];
 
   let name = 'Unknown Ingredient';
@@ -74,7 +82,6 @@ export const getRecipeDetailsRecursive = async (
       rateUnit = sfg.yieldUnit;
       purchasePrice = sfg.costPerUnit;
 
-      const sfgRecipe = await getCachedDoc(Recipe, itemId, userId, cache); // Wait, Recipe ID is not itemId!
       // We need a helper for recipe
       const recipeKey = `Recipe_target_${itemId}`;
       let sfgRecipeDoc = cache.get(recipeKey);
@@ -91,7 +98,7 @@ export const getRecipeDetailsRecursive = async (
         
         for (const ing of sfgRecipeDoc.ingredients) {
           const scaledSubQty = ing.quantity * currentParentYieldRatio;
-          const resolved = await getRecipeDetailsRecursive(cache, ing.itemModel, ing.itemId, scaledSubQty, userId, name, itemId.toString(), 'SemiFinishedGood', ing.quantity, yieldQty, currentParentYieldRatio);
+          const resolved = await getRecipeDetailsRecursive(cache, ing.itemModel, ing.itemId, scaledSubQty, userId, name, itemId.toString(), 'SemiFinishedGood', ing.quantity, yieldQty, currentParentYieldRatio, newVisited);
           subDetails = subDetails.concat(resolved);
           const subUnitCost = resolved.length > 0 ? resolved[0].unitCost : 0;
           batchCost += subUnitCost * ing.quantity;
@@ -200,7 +207,7 @@ export const getRecipeDetailsRecursive = async (
             cache.set(`model_of_${sfgIdStr}`, childModel);
         }
 
-        const resolved = await getRecipeDetailsRecursive(cache, childModel, ing.sfgId, scaledSubQty, userId, name, itemId.toString(), 'PortionMaster', ing.quantity, 1, quantityNeeded);
+        const resolved = await getRecipeDetailsRecursive(cache, childModel, ing.sfgId, scaledSubQty, userId, name, itemId.toString(), 'PortionMaster', ing.quantity, 1, quantityNeeded, newVisited);
         subDetails = subDetails.concat(resolved);
         const subUnitCost = resolved.length > 0 ? resolved[0].unitCost : 0;
         portionCost += subUnitCost * ing.quantity;
@@ -271,28 +278,6 @@ export const getDishCosting = async (req: AuthRequest, res: Response): Promise<v
     console.log(`[DEBUG] getDishCosting called by userId: ${userId} for dishId: ${dishId}`);
 
     const cache = new Map<string, any>();
-    
-    // PRE-FETCH ALL DATA TO ELIMINATE LATENCY
-    const [allRMs, allSFGs, allPreps, allPortions, allPkgs, allRecipes] = await Promise.all([
-      RawMaterial.find({ userId }).lean(),
-      SemiFinishedGood.find({ userId }).lean(),
-      PreparationMaster.find({ userId }).lean(),
-      PortionMaster.find({ userId }).lean(),
-      Packaging.find({ userId }).lean(),
-      Recipe.find({ userId }).lean()
-    ]);
-
-    allRMs.forEach(doc => cache.set(`RawMaterial_${doc._id}`, doc));
-    allSFGs.forEach(doc => cache.set(`SemiFinishedGood_${doc._id}`, doc));
-    allPreps.forEach(doc => cache.set(`PreparationMaster_${doc._id}`, doc));
-    allPortions.forEach(doc => cache.set(`PortionMaster_${doc._id}`, doc));
-    allPkgs.forEach(doc => cache.set(`Packaging_${doc._id}`, doc));
-    
-    allRecipes.forEach(recipe => {
-      if (recipe.targetModel === 'SemiFinishedGood') {
-        cache.set(`Recipe_target_${recipe.targetId}`, recipe);
-      }
-    });
 
     const dish: any = await Dish.findOne({ _id: dishId, userId }).populate('packagingLogic.dineIn packagingLogic.takeaway packagingLogic.delivery').lean();
     if (!dish) {
@@ -300,7 +285,7 @@ export const getDishCosting = async (req: AuthRequest, res: Response): Promise<v
       return;
     }
 
-    const recipe = allRecipes.find(r => r.targetModel === 'Dish' && r.targetId.toString() === dishId.toString());
+    const recipe = await Recipe.findOne({ targetModel: 'Dish', targetId: dishId, userId }).lean();
     
     let totalFoodCost = 0;
     let ingredientsCostDetails: any[] = [];
@@ -310,7 +295,7 @@ export const getDishCosting = async (req: AuthRequest, res: Response): Promise<v
       const currentParentYieldRatio = 1 / dishYield;
       for (const ingredient of recipe.ingredients) {
         const scaledQty = ingredient.quantity * currentParentYieldRatio;
-        const resolved = await getRecipeDetailsRecursive(cache, ingredient.itemModel, ingredient.itemId, scaledQty, userId, dish.name, dishId, 'Dish', ingredient.quantity, dishYield, currentParentYieldRatio);
+        const resolved = await getRecipeDetailsRecursive(cache, ingredient.itemModel, ingredient.itemId, scaledQty, userId, dish.name, dishId, 'Dish', ingredient.quantity, dishYield, currentParentYieldRatio, new Set([`Dish_${dishId}`]));
         ingredientsCostDetails = ingredientsCostDetails.concat(resolved);
         const topLevelCost = resolved.length > 0 ? resolved[0].totalCost : 0;
         totalFoodCost += topLevelCost;

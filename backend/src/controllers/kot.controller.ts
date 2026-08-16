@@ -4,6 +4,7 @@ import { AuthRequest } from '../middleware/auth.middleware';
 import Kot from '../models/Kot';
 import Dish from '../models/Dish';
 import Packaging from '../models/Packaging';
+import Inventory from '../models/Inventory';
 
 // Create a new Kitchen Order Ticket (KOT)
 export const createKot = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -69,6 +70,15 @@ export const createKot = async (req: AuthRequest, res: Response): Promise<void> 
 
     await newKot.save();
     
+    // Deduct inventory for each item
+    for (const item of items) {
+      const inventory = await Inventory.findOne({ dishId: item.dishId, userId });
+      if (inventory) {
+        inventory.totalPlates -= item.quantity;
+        await inventory.save();
+      }
+    }
+
     // Populate dishId in response items for UI benefit
     const populatedKot = await Kot.findById(newKot._id).populate('items.dishId', 'name category price');
 
@@ -143,20 +153,33 @@ export const updateKotStatus = async (req: AuthRequest, res: Response): Promise<
       return;
     }
 
-    const kot = await Kot.findOneAndUpdate(
-      { _id: id, userId },
-      { status },
-      { new: true }
-    ).populate('items.dishId', 'name category price');
+    const kot = await Kot.findOne({ _id: id, userId });
 
     if (!kot) {
       res.status(404).json({ error: 'KOT not found or unauthorized' });
       return;
     }
+    
+    const oldStatus = kot.status;
+    kot.status = status;
+    await kot.save();
+
+    if (status === 'Cancelled' && oldStatus !== 'Cancelled') {
+      // Refund inventory
+      for (const item of kot.items) {
+        const inventory = await Inventory.findOne({ dishId: item.dishId, userId });
+        if (inventory) {
+          inventory.totalPlates += item.quantity;
+          await inventory.save();
+        }
+      }
+    }
+
+    const populatedKot = await Kot.findById(kot._id).populate('items.dishId', 'name category price');
 
     res.status(200).json({
       message: `KOT status updated to ${status}`,
-      kot
+      kot: populatedKot
     });
   } catch (error) {
     console.error('Update KOT Status Error:', error);

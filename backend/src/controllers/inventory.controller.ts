@@ -303,20 +303,34 @@ export const addProductionEntry = async (req: AuthRequest, res: Response): Promi
     }
 
     const recipe = await Recipe.findOne({ targetModel: itemModel, targetId, userId });
-    if (!recipe) {
-      res.status(404).json({ error: `Recipe not found for ${targetName}. Please define a recipe first.` });
-      return;
-    }
+    
+    let yieldQty = 0;
 
-    // 1. Deduct ingredients only for Semi-Finished Goods production to prevent double deduction
-    if (itemModel === 'SemiFinishedGood') {
-      for (const ingredient of recipe.ingredients) {
-        const deductionQty = ingredient.quantity * batches;
-        await deductInventory(ingredient.itemModel, ingredient.itemId, deductionQty, userId);
+    if (recipe) {
+      // 1. Deduct ingredients only for Semi-Finished Goods production to prevent double deduction
+      if (itemModel === 'SemiFinishedGood') {
+        for (const ingredient of recipe.ingredients) {
+          const deductionQty = ingredient.quantity * batches;
+          await deductInventory(ingredient.itemModel, ingredient.itemId, deductionQty, userId);
+        }
+      }
+      yieldQty = recipe.operationalYield * batches;
+    } else {
+      if (itemModel === 'Dish') {
+        // No strict recipe defined, but we still want to log production for inventory-linked dishes
+        const inventory = await Inventory.findOne({ dishId: targetId, userId });
+        if (inventory) {
+          // Assume 1 batch = 1 packet, so yield is platesPerPacket
+          yieldQty = (inventory.platesPerPacket || 1) * batches;
+        } else {
+          res.status(404).json({ error: `Recipe not found for ${targetName}, and Dish is not linked to inventory.` });
+          return;
+        }
+      } else {
+        res.status(404).json({ error: `Recipe not found for ${targetName}. Please define a recipe first.` });
+        return;
       }
     }
-
-    const yieldQty = recipe.operationalYield * batches;
 
     // 2. Add portions to target stock
     if (itemModel === 'Dish') {
