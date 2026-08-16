@@ -96,12 +96,16 @@ export const getRecipeDetailsRecursive = async (
         const yieldQty = sfgRecipeDoc.operationalYield || sfg.batchYield || 1;
         const currentParentYieldRatio = quantityNeeded / yieldQty;
         
-        for (const ing of sfgRecipeDoc.ingredients) {
+        const promises = sfgRecipeDoc.ingredients.map(async (ing: any) => {
           const scaledSubQty = ing.quantity * currentParentYieldRatio;
           const resolved = await getRecipeDetailsRecursive(cache, ing.itemModel, ing.itemId, scaledSubQty, userId, name, itemId.toString(), 'SemiFinishedGood', ing.quantity, yieldQty, currentParentYieldRatio, newVisited);
-          subDetails = subDetails.concat(resolved);
-          const subUnitCost = resolved.length > 0 ? resolved[0].unitCost : 0;
-          batchCost += subUnitCost * ing.quantity;
+          return { resolved, ing };
+        });
+        const results = await Promise.all(promises);
+        for (const res of results) {
+          subDetails = subDetails.concat(res.resolved);
+          const subUnitCost = res.resolved.length > 0 ? res.resolved[0].unitCost : 0;
+          batchCost += subUnitCost * res.ing.quantity;
         }
 
         unitCost = batchCost / yieldQty;
@@ -190,7 +194,7 @@ export const getRecipeDetailsRecursive = async (
       let subDetails: any[] = [];
       let portionCost = 0;
       
-      for (const ing of portion.ingredients) {
+      const promises = portion.ingredients.map(async (ing: any) => {
         const scaledSubQty = ing.quantity * quantityNeeded;
         
         const sfgIdStr = ing.sfgId.toString();
@@ -208,9 +212,14 @@ export const getRecipeDetailsRecursive = async (
         }
 
         const resolved = await getRecipeDetailsRecursive(cache, childModel, ing.sfgId, scaledSubQty, userId, name, itemId.toString(), 'PortionMaster', ing.quantity, 1, quantityNeeded, newVisited);
-        subDetails = subDetails.concat(resolved);
-        const subUnitCost = resolved.length > 0 ? resolved[0].unitCost : 0;
-        portionCost += subUnitCost * ing.quantity;
+        return { resolved, ing };
+      });
+      
+      const results = await Promise.all(promises);
+      for (const res of results) {
+        subDetails = subDetails.concat(res.resolved);
+        const subUnitCost = res.resolved.length > 0 ? res.resolved[0].unitCost : 0;
+        portionCost += subUnitCost * res.ing.quantity;
       }
       
       unitCost = portionCost;
@@ -293,11 +302,15 @@ export const getDishCosting = async (req: AuthRequest, res: Response): Promise<v
     if (recipe) {
       const dishYield = recipe.operationalYield || recipe.targetYield || 1;
       const currentParentYieldRatio = 1 / dishYield;
-      for (const ingredient of recipe.ingredients) {
+      const promises = recipe.ingredients.map(async (ingredient: any) => {
         const scaledQty = ingredient.quantity * currentParentYieldRatio;
         const resolved = await getRecipeDetailsRecursive(cache, ingredient.itemModel, ingredient.itemId, scaledQty, userId, dish.name, dishId, 'Dish', ingredient.quantity, dishYield, currentParentYieldRatio, new Set([`Dish_${dishId}`]));
-        ingredientsCostDetails = ingredientsCostDetails.concat(resolved);
-        const topLevelCost = resolved.length > 0 ? resolved[0].totalCost : 0;
+        return { resolved };
+      });
+      const results = await Promise.all(promises);
+      for (const res of results) {
+        ingredientsCostDetails = ingredientsCostDetails.concat(res.resolved);
+        const topLevelCost = res.resolved.length > 0 ? res.resolved[0].totalCost : 0;
         totalFoodCost += topLevelCost;
       }
     }
