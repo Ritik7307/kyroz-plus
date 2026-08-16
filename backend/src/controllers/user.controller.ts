@@ -86,7 +86,7 @@ export const addStaff = async (req: AuthRequest, res: Response): Promise<void> =
 export const getStaff = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const managerId = req.user?.userId;
-    const staff = await User.find({ ownerId: managerId }).select('-password -otpHash');
+    const staff = await User.find({ ownerId: managerId }).select('-password -otpHash').lean();
     res.status(200).json(staff);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch staff' });
@@ -183,7 +183,7 @@ export const createLocation = async (req: AuthRequest, res: Response): Promise<v
 export const getLocations = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const ownerId = req.user?.userId;
-    const locations = await User.find({ ownerId, isLocation: true }).select('-password -otpHash');
+    const locations = await User.find({ ownerId, isLocation: true }).select('-password -otpHash').lean();
     res.status(200).json(locations);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch locations' });

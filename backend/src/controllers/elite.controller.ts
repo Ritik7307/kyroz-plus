@@ -15,7 +15,7 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
       return;
     }
 
-    const locations = await User.find({ ownerId, isLocation: true });
+    const locations: any[] = await User.find({ ownerId, isLocation: true }).lean();
     const locationIds = locations.map(loc => loc._id);
 
     if (locationIds.length === 0) {
@@ -30,10 +30,10 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
     }
 
     // 1. Fetch Orders for all locations
-    const orders = await Order.find({ userId: { $in: locationIds } });
+    const orders: any[] = await Order.find({ userId: { $in: locationIds } }).lean();
     
     // 2. Fetch Inventory for all locations
-    const inventoryItems = await Inventory.find({ userId: { $in: locationIds } });
+    const inventoryItems: any[] = await Inventory.find({ userId: { $in: locationIds } }).lean();
 
     // Aggregate Stats
     let totalRevenue = 0;

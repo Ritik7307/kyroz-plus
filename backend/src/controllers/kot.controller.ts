@@ -107,7 +107,8 @@ export const getActiveKots = async (req: AuthRequest, res: Response): Promise<vo
       status: { $in: ['Pending', 'Preparing', 'Ready'] }
     })
       .populate('items.dishId', 'name category price')
-      .sort({ createdAt: 1 }); // Oldest first so kitchen prepares in sequence
+      .sort({ createdAt: 1 })
+      .lean(); // Oldest first so kitchen prepares in sequence
 
     res.status(200).json(kots);
   } catch (error) {
@@ -127,7 +128,8 @@ export const getKotHistory = async (req: AuthRequest, res: Response): Promise<vo
 
     const kots = await Kot.find({ userId })
       .populate('items.dishId', 'name category price')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.status(200).json(kots);
   } catch (error) {

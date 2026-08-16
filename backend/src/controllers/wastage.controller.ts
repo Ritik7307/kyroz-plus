@@ -72,7 +72,7 @@ export const logWastage = async (req: AuthRequest, res: Response): Promise<void>
 
 export const getWastageHistory = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const wastage = await Wastage.find({ userId: req.user?.userId }).sort({ createdAt: -1 });
+    const wastage = await Wastage.find({ userId: req.user?.userId }).sort({ createdAt: -1 }).lean();
     
     const populatedWastage = await Promise.all(wastage.map(async (w) => {
       let name = 'Unknown Item';

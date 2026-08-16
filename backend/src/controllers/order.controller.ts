@@ -206,7 +206,7 @@ export const getDailyProfit = async (req: AuthRequest, res: Response): Promise<v
     const orders = await Order.find({
       userId: req.user?.userId,
       createdAt: { $gte: today }
-    });
+    }).lean();
 
     const dailyProfit = orders.reduce((sum, order) => sum + order.totalProfit, 0);
     const dailyRevenue = orders.reduce((sum, order) => sum + order.totalRevenue, 0);
@@ -222,7 +222,8 @@ export const getOrderHistory = async (req: AuthRequest, res: Response): Promise<
   try {
     const orders = await Order.find({ userId: req.user?.userId })
       .populate('items.dishId', 'name category imageUrl')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.status(200).json(orders);
   } catch (error) {
@@ -311,7 +312,7 @@ export const getEliteAnalytics = async (req: AuthRequest, res: Response): Promis
     }
 
     // Find all location IDs
-    const locations = await User.find({ ownerId, isLocation: true });
+    const locations = await User.find({ ownerId, isLocation: true }).lean();
     const locationIds = locations.map(l => l._id);
 
     const now = new Date();

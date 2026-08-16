@@ -37,12 +37,12 @@ export const getInventory = async (req: AuthRequest, res: Response): Promise<voi
       packaging,
       recipes
     ] = await Promise.all([
-      Inventory.find({ userId }).populate('dishId'),
-      RawMaterial.find({ userId }),
-      SemiFinishedGood.find({ userId }),
-      Premix.find({ userId }),
-      Packaging.find({ userId }),
-      Recipe.find({ userId })
+      Inventory.find({ userId }).populate('dishId').lean(),
+      RawMaterial.find({ userId }).lean(),
+      SemiFinishedGood.find({ userId }).lean(),
+      Premix.find({ userId }).lean(),
+      Packaging.find({ userId }).lean(),
+      Recipe.find({ userId }).lean()
     ]);
 
     res.status(200).json({

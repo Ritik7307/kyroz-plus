@@ -62,7 +62,7 @@ export const createSop = async (req: AuthRequest, res: Response): Promise<void> 
 export const getSops = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId;
-    const sops = await Sop.find({ userId }).sort({ createdAt: -1 });
+    const sops = await Sop.find({ userId }).sort({ createdAt: -1 }).lean();
     res.status(200).json(sops);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch SOPs' });

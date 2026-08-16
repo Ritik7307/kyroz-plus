@@ -47,7 +47,8 @@ export const getDishes = async (req: AuthRequest, res: Response): Promise<void> 
     const dishes = await Dish.find({ userId })
       .populate('packagingLogic.dineIn')
       .populate('packagingLogic.takeaway')
-      .populate('packagingLogic.delivery');
+      .populate('packagingLogic.delivery')
+      .lean();
     res.status(200).json(dishes);
   } catch (error) {
     console.error('getDishes error:', error);
@@ -181,9 +182,10 @@ export const getPublicDishes = async (req: Request, res: Response): Promise<void
     const dishes = await Dish.find({ userId })
       .populate('packagingLogic.dineIn')
       .populate('packagingLogic.takeaway')
-      .populate('packagingLogic.delivery');
+      .populate('packagingLogic.delivery')
+      .lean();
       
-    const user = await User.findById(userId);
+    const user: any = await User.findById(userId).lean();
     
     // Cache the response to prevent DB overload (60 seconds locally, 120 on CDN)
     res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120');
