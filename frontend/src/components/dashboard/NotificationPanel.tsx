@@ -19,12 +19,6 @@ export default function NotificationPanel({ isOpen, setIsOpen, onRefresh }: { is
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchNotifications();
-    }
-  }, [isOpen]);
-
   const fetchNotifications = async () => {
     setIsLoading(true);
     try {
@@ -42,6 +36,13 @@ export default function NotificationPanel({ isOpen, setIsOpen, onRefresh }: { is
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchNotifications();
+    }
+  }, [isOpen]);
 
   const markAsRead = async (id: string) => {
     try {

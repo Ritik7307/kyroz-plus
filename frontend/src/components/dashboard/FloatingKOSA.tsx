@@ -188,6 +188,7 @@ export default function FloatingKOSA() {
         setVisualizerData(prev => prev.map(() => Math.random() * 0.6 + 0.1));
       }, 100);
     } else if (assistantState === 'idle') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVisualizerData(new Array(12).fill(0.1));
     }
     return () => {
