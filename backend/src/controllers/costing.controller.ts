@@ -285,7 +285,7 @@ export const getDishCosting = async (req: AuthRequest, res: Response): Promise<v
       return;
     }
 
-    const recipe = await Recipe.findOne({ targetModel: 'Dish', targetId: dishId, userId }).lean();
+    const recipe: any = await Recipe.findOne({ targetModel: 'Dish', targetId: dishId, userId }).lean();
     
     let totalFoodCost = 0;
     let ingredientsCostDetails: any[] = [];
