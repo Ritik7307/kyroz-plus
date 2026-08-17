@@ -3,8 +3,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Users, TrendingUp, Clock, Calendar, Phone, IndianRupee, Search, MessageSquare, Megaphone, ArrowRight, ImageIcon, X } from 'lucide-react';
+import { Users, TrendingUp, Clock, Calendar, Phone, IndianRupee, Search, MessageSquare, Megaphone, ArrowRight, ImageIcon, X, Edit2, Trash2, Upload } from 'lucide-react';
 import { API_URL } from '@/lib/api';
+import * as XLSX from 'xlsx';
 
 interface Customer {
   _id: string;
@@ -13,6 +14,7 @@ interface Customer {
   totalVisits: number;
   totalSpent: number;
   lastVisit: string;
+  createdAt?: string;
 }
 
 type SortType = 'recent' | 'frequent' | 'spending';
@@ -32,6 +34,23 @@ export default function CustomersPage() {
   const [whatsappImage, setWhatsappImage] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
+
+  // Edit / Delete state
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [deletingCustomer, setDeletingCustomer] = useState<Customer | null>(null);
+  
+  const [isUploading, setIsUploading] = useState(false);
+
+  const isCreatedToday = (dateStr?: string) => {
+    if (!dateStr) return false;
+    const today = new Date();
+    const date = new Date(dateStr);
+    return date.getDate() === today.getDate() &&
+           date.getMonth() === today.getMonth() &&
+           date.getFullYear() === today.getFullYear();
+  };
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -183,6 +202,101 @@ export default function CustomersPage() {
     }
   };
 
+  const handleEditCustomer = async () => {
+    if (!editingCustomer || !editName || !editPhone) return;
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch(`${API_URL}/api/customers/${editingCustomer._id}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editName, phone: editPhone })
+      });
+      if (res.ok) {
+        setCustomers(customers.map(c => c._id === editingCustomer._id ? { ...c, name: editName, phone: editPhone } : c));
+        setEditingCustomer(null);
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to update customer');
+      }
+    } catch (err) {
+      alert('Error updating customer');
+    }
+  };
+
+  const handleDeleteCustomer = async () => {
+    if (!deletingCustomer) return;
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch(`${API_URL}/api/customers/${deletingCustomer._id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setCustomers(customers.filter(c => c._id !== deletingCustomer._id));
+        setDeletingCustomer(null);
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to delete customer');
+      }
+    } catch (err) {
+      alert('Error deleting customer');
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      try {
+        const bstr = evt.target?.result;
+        const wb = XLSX.read(bstr, { type: 'binary' });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const data = XLSX.utils.sheet_to_json(ws);
+        
+        const formattedData = data.map((row: any) => ({
+          name: row.Name || row.name || 'Unknown',
+          phone: row.Phone || row.phone || row['Phone Number'] || ''
+        })).filter(c => c.phone);
+
+        if (formattedData.length === 0) {
+          alert('No valid customer data found. Please ensure your sheet has Name and Phone columns.');
+          setIsUploading(false);
+          return;
+        }
+
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_URL}/api/customers/bulk`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ customers: formattedData })
+        });
+
+        if (res.ok) {
+          const resData = await res.json();
+          alert(resData.message || 'Import successful');
+          const fetchRes = await fetch(`${API_URL}/api/customers`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (fetchRes.ok) {
+            setCustomers(await fetchRes.json());
+          }
+        } else {
+          alert('Failed to import customers');
+        }
+      } catch (err) {
+        alert('Error parsing or uploading file.');
+      } finally {
+        setIsUploading(false);
+      }
+    };
+    reader.readAsBinaryString(file);
+    e.target.value = '';
+  };
+
   const formatCurrency = (amount: number) => {
     return `₹${amount.toFixed(0)}`;
   };
@@ -202,14 +316,27 @@ export default function CustomersPage() {
           <h1 className="text-4xl font-black uppercase tracking-tighter text-white">Customer Directory</h1>
           <p className="text-gold font-bold text-[10px] uppercase tracking-[0.2em] mt-2">Manage Relationships & Track Footfall</p>
         </div>
-        {userPlan === 'Scale' && (
-          <button 
-            onClick={() => router.push('/dashboard/marketing')}
-            className="bg-gold text-black px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-gold/80 transition-colors shadow-lg shadow-gold/20"
-          >
-            <Megaphone size={18} /> Marketing Engine
-          </button>
-        )}
+        
+        <div className="flex gap-4 items-center">
+          <label className="bg-white/5 text-white/80 px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-white/10 transition-colors cursor-pointer border border-white/10">
+            {isUploading ? (
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <Upload size={18} />
+            )}
+            Import CSV/Excel
+            <input type="file" accept=".xlsx, .xls, .csv" className="hidden" onChange={handleFileUpload} disabled={isUploading} />
+          </label>
+          
+          {userPlan === 'Scale' && (
+            <button 
+              onClick={() => router.push('/dashboard/marketing')}
+              className="bg-gold text-black px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-gold/80 transition-colors shadow-lg shadow-gold/20"
+            >
+              <Megaphone size={18} /> Marketing Engine
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6 justify-between items-start lg:items-center bg-card glass-card p-6 rounded-3xl border border-white/5">
@@ -386,6 +513,73 @@ export default function CustomersPage() {
         </div>
       )}
 
+      {/* Edit Customer Modal */}
+      {editingCustomer && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-md">
+          <div className="bg-[#161616] border border-white/10 p-6 rounded-3xl max-w-sm w-full relative shadow-2xl">
+            <h2 className="text-xl font-bold text-white mb-4">Edit Customer</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-white/40 uppercase tracking-widest mb-1 block">Name</label>
+                <input 
+                  type="text" 
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-gold"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-white/40 uppercase tracking-widest mb-1 block">Phone</label>
+                <input 
+                  type="text" 
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-gold"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button 
+                onClick={() => setEditingCustomer(null)} 
+                className="px-4 py-2 text-white/40 hover:text-white font-bold transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleEditCustomer}
+                className="bg-gold text-black px-6 py-2 rounded-xl font-bold hover:bg-gold/80 transition-all"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Customer Modal */}
+      {deletingCustomer && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-md">
+          <div className="bg-[#161616] border border-white/10 p-6 rounded-3xl max-w-sm w-full relative shadow-2xl">
+            <h2 className="text-xl font-bold text-white mb-2">Delete Customer?</h2>
+            <p className="text-white/40 text-sm mb-6">Are you sure you want to delete <strong className="text-white">{deletingCustomer.name}</strong>? This action cannot be undone.</p>
+            <div className="flex justify-end gap-3">
+              <button 
+                onClick={() => setDeletingCustomer(null)} 
+                className="px-4 py-2 text-white/40 hover:text-white font-bold transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleDeleteCustomer}
+                className="bg-red-500 text-white px-6 py-2 rounded-xl font-bold hover:bg-red-600 transition-all shadow-lg shadow-red-500/20"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div className="flex justify-center items-center py-20">
           <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin"></div>
@@ -425,6 +619,29 @@ export default function CustomersPage() {
                       </p>
                     </div>
                   </div>
+                  
+                  {isCreatedToday(customer.createdAt) && (
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => {
+                          setEditName(customer.name);
+                          setEditPhone(customer.phone);
+                          setEditingCustomer(customer);
+                        }}
+                        className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-blue-500/20 text-white/40 hover:text-blue-400 rounded-lg transition-colors border border-transparent hover:border-blue-500/30"
+                        title="Edit Customer"
+                      >
+                        <Edit2 size={14} />
+                      </button>
+                      <button 
+                        onClick={() => setDeletingCustomer(customer)}
+                        className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-red-500/20 text-white/40 hover:text-red-400 rounded-lg transition-colors border border-transparent hover:border-red-500/30"
+                        title="Delete Customer"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 relative z-10 border-t border-white/5 pt-6">
