@@ -96,6 +96,7 @@ export default function HistoryPage() {
     let takeaway = 0;
     let delivery = 0;
     let totalItems = 0;
+    const itemCounts: Record<string, { quantity: number; revenue: number }> = {};
 
     todayOrders.forEach((o: any) => {
       // Payment Method
@@ -114,10 +115,20 @@ export default function HistoryPage() {
         dineIn += o.totalRevenue;
       }
 
-      totalItems += o.items.reduce((sum: number, item: any) => sum + item.quantity, 0);
+      o.items.forEach((item: any) => {
+        totalItems += item.quantity;
+        const name = item.dishId?.name || 'Unknown Item';
+        if (!itemCounts[name]) {
+          itemCounts[name] = { quantity: 0, revenue: 0 };
+        }
+        itemCounts[name].quantity += item.quantity;
+        itemCounts[name].revenue += item.quantity * item.price;
+      });
     });
 
-    return { cash, online, dineIn, takeaway, delivery, totalItems };
+    const sortedItems = Object.entries(itemCounts).sort((a, b) => b[1].quantity - a[1].quantity);
+
+    return { cash, online, dineIn, takeaway, delivery, totalItems, items: sortedItems };
   }, [todayOrders]);
 
   return (
@@ -316,11 +327,11 @@ export default function HistoryPage() {
         </div>
 
         {/* DAILY REPORT PRINT VIEW */}
-        <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 mb-8 print:fixed print:inset-0 print:bg-white print:text-black print:z-[9999] print:block print:rounded-none">
+        <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 mb-8 print:fixed print:inset-0 print:bg-white print:text-black print:z-[9999] print:block print:rounded-none print:overflow-visible">
            <h2 className="text-2xl font-black uppercase tracking-tighter mb-2 print:text-black text-white">Daily Operations Report</h2>
            <p className="text-xs font-bold text-white/40 print:text-black/60 mb-8">{todayStr}</p>
            
-           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8">
               <div>
                  <h4 className="font-bold text-sm text-gold print:text-black uppercase tracking-widest mb-4">Payment Methods</h4>
                  <div className="space-y-2 text-sm font-bold text-white print:text-black">
@@ -337,6 +348,21 @@ export default function HistoryPage() {
                     <div className="flex justify-between"><span className="text-white/60 print:text-black/60">Delivery</span><span>{formatCurrency(todayBreakdown.delivery)}</span></div>
                  </div>
               </div>
+           </div>
+           
+           <div className="mb-8 border-t border-white/10 print:border-black/10 pt-8">
+             <h4 className="font-bold text-sm text-green-500 print:text-black uppercase tracking-widest mb-4">Items Sold Today</h4>
+             <div className="space-y-2 text-sm font-bold text-white print:text-black">
+               {todayBreakdown.items.length === 0 && (
+                 <p className="text-white/40 print:text-black/60 italic text-xs">No items sold today yet.</p>
+               )}
+               {todayBreakdown.items.map(([name, data]) => (
+                 <div key={name} className="flex justify-between border-b border-white/5 print:border-black/5 pb-2">
+                   <span className="text-white/80 print:text-black/80">{name} <span className="text-white/40 print:text-black/40 text-xs ml-2">x{data.quantity}</span></span>
+                   <span>{formatCurrency(data.revenue)}</span>
+                 </div>
+               ))}
+             </div>
            </div>
            
            <div className="mt-8 pt-8 border-t border-white/10 print:border-black/10 flex justify-between">
