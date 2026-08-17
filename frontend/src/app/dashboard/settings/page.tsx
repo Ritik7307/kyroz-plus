@@ -17,6 +17,10 @@ export default function SettingsPage() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [userPlan, setUserPlan] = useState<string>('Basic');
+  
+  // Printer settings state
+  const [sopPrinterSize, setSopPrinterSize] = useState<string>('A4');
+  const [billPrinterSize, setBillPrinterSize] = useState<string>('58mm');
 
   const fetchSessions = async () => {
     setIsLoading(true);
@@ -44,7 +48,27 @@ export default function SettingsPage() {
 
   useEffect(() => {
     fetchSessions();
+    
+    // Load printer settings from local storage
+    if (typeof window !== 'undefined') {
+      const storedSop = localStorage.getItem('printerSize_sop');
+      const storedBill = localStorage.getItem('printerSize_bill');
+      if (storedSop) setSopPrinterSize(storedSop);
+      if (storedBill) setBillPrinterSize(storedBill);
+    }
   }, []);
+
+  const handleSopPrinterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setSopPrinterSize(val);
+    localStorage.setItem('printerSize_sop', val);
+  };
+
+  const handleBillPrinterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setBillPrinterSize(val);
+    localStorage.setItem('printerSize_bill', val);
+  };
 
   const handleLogoutDevice = async (sessionId: string) => {
     try {
@@ -131,6 +155,59 @@ export default function SettingsPage() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Printer Configuration Section */}
+      <div className="bg-[#111111] border border-[#333333] rounded-2xl p-6 shadow-xl mb-8">
+        <div className="flex justify-between items-start mb-6 border-b border-[#222222] pb-6">
+          <div>
+            <h3 className="text-xl font-bold text-white mb-1">Printer Configuration</h3>
+            <p className="text-sm text-gray-400">
+              Configure printer paper sizes for different types of print jobs on this device.
+            </p>
+          </div>
+          <div className="bg-[#222222] px-4 py-2 rounded-lg border border-[#333333] flex items-center justify-center text-2xl">
+            🖨️
+          </div>
+        </div>
+        
+        <div className="space-y-6">
+          <div className="bg-[#0a0a0a] border border-[#222222] p-5 rounded-xl hover:border-[#333333] transition-colors">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h4 className="text-white font-medium">SOP Library Printer</h4>
+                <p className="text-xs text-gray-500 mt-1">Default printer size for SOP documents</p>
+              </div>
+              <select 
+                value={sopPrinterSize}
+                onChange={handleSopPrinterChange}
+                className="bg-[#222222] border border-[#333333] text-white rounded-lg px-4 py-2 focus:outline-none focus:border-[#d4af37]"
+              >
+                <option value="A4">A4</option>
+                <option value="A5">A5</option>
+                <option value="80mm">80mm</option>
+              </select>
+            </div>
+          </div>
+          
+          <div className="bg-[#0a0a0a] border border-[#222222] p-5 rounded-xl hover:border-[#333333] transition-colors">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h4 className="text-white font-medium">Bills & KOT Printer</h4>
+                <p className="text-xs text-gray-500 mt-1">Printer size for receipts and kitchen tickets</p>
+              </div>
+              <select 
+                value={billPrinterSize}
+                onChange={handleBillPrinterChange}
+                className="bg-[#222222] border border-[#333333] text-white rounded-lg px-4 py-2 focus:outline-none focus:border-[#d4af37]"
+              >
+                <option value="58mm">58mm</option>
+                <option value="80mm">80mm</option>
+                <option value="A4">A4</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
