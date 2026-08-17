@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -12,7 +12,8 @@ import {
   Receipt,
   Utensils,
   Plus,
-  X
+  X,
+  Printer
 } from 'lucide-react';
 import { API_URL } from '@/lib/api';
 
@@ -81,6 +82,43 @@ export default function HistoryPage() {
       setExpandedOrderId(orderId);
     }
   };
+
+  const todayStr = new Date().toLocaleDateString('en-IN', {
+    day: 'numeric', month: 'long', year: 'numeric'
+  });
+  
+  const todayOrders = groupedOrders[todayStr] || [];
+  
+  const todayBreakdown = useMemo(() => {
+    let cash = 0;
+    let online = 0;
+    let dineIn = 0;
+    let takeaway = 0;
+    let delivery = 0;
+    let totalItems = 0;
+
+    todayOrders.forEach((o: any) => {
+      // Payment Method
+      if (o.paymentMethod?.toLowerCase() === 'cash') {
+        cash += o.totalRevenue;
+      } else {
+        online += o.totalRevenue;
+      }
+
+      // Order Type
+      if (o.orderType?.toLowerCase() === 'takeaway') {
+        takeaway += o.totalRevenue;
+      } else if (o.orderType?.toLowerCase() === 'delivery') {
+        delivery += o.totalRevenue;
+      } else {
+        dineIn += o.totalRevenue;
+      }
+
+      totalItems += o.items.reduce((sum: number, item: any) => sum + item.quantity, 0);
+    });
+
+    return { cash, online, dineIn, takeaway, delivery, totalItems };
+  }, [todayOrders]);
 
   return (
     <div className="space-y-12 pb-24 max-w-[1200px] mx-auto relative">
@@ -265,9 +303,57 @@ export default function HistoryPage() {
       )}
 
       <div className="pt-12 border-t border-white/5">
-        <h3 className="text-white/40 text-[11px] font-black tracking-[0.4em] uppercase mb-8 flex items-center gap-3">
-           <Receipt size={18} className="text-gold" /> Detailed Sales Ledger
-        </h3>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+          <h3 className="text-white/40 text-[11px] font-black tracking-[0.4em] uppercase flex items-center gap-3">
+             <Receipt size={18} className="text-gold" /> Detailed Sales Ledger
+          </h3>
+          <button 
+             onClick={() => window.print()}
+             className="bg-gold text-black px-6 py-2 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gold/80 transition-colors shadow-lg shadow-gold/20 print:hidden"
+          >
+             <Printer size={18} /> Print Daily Report
+          </button>
+        </div>
+
+        {/* DAILY REPORT PRINT VIEW */}
+        <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 mb-8 print:fixed print:inset-0 print:bg-white print:text-black print:z-[9999] print:block print:rounded-none">
+           <h2 className="text-2xl font-black uppercase tracking-tighter mb-2 print:text-black text-white">Daily Operations Report</h2>
+           <p className="text-xs font-bold text-white/40 print:text-black/60 mb-8">{todayStr}</p>
+           
+           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              <div>
+                 <h4 className="font-bold text-sm text-gold print:text-black uppercase tracking-widest mb-4">Payment Methods</h4>
+                 <div className="space-y-2 text-sm font-bold text-white print:text-black">
+                    <div className="flex justify-between"><span className="text-white/60 print:text-black/60">Cash</span><span>{formatCurrency(todayBreakdown.cash)}</span></div>
+                    <div className="flex justify-between"><span className="text-white/60 print:text-black/60">Online / Card</span><span>{formatCurrency(todayBreakdown.online)}</span></div>
+                    <div className="border-t border-white/10 print:border-black/10 pt-2 mt-2 flex justify-between font-black"><span className="text-white/60 print:text-black/60">Total</span><span>{formatCurrency(todayBreakdown.cash + todayBreakdown.online)}</span></div>
+                 </div>
+              </div>
+              <div>
+                 <h4 className="font-bold text-sm text-blue-400 print:text-black uppercase tracking-widest mb-4">Order Types</h4>
+                 <div className="space-y-2 text-sm font-bold text-white print:text-black">
+                    <div className="flex justify-between"><span className="text-white/60 print:text-black/60">Dine-in</span><span>{formatCurrency(todayBreakdown.dineIn)}</span></div>
+                    <div className="flex justify-between"><span className="text-white/60 print:text-black/60">Takeaway (Pickup)</span><span>{formatCurrency(todayBreakdown.takeaway)}</span></div>
+                    <div className="flex justify-between"><span className="text-white/60 print:text-black/60">Delivery</span><span>{formatCurrency(todayBreakdown.delivery)}</span></div>
+                 </div>
+              </div>
+           </div>
+           
+           <div className="mt-8 pt-8 border-t border-white/10 print:border-black/10 flex justify-between">
+              <div className="text-center">
+                 <p className="text-[10px] text-white/40 print:text-black/60 font-black uppercase tracking-widest mb-1">Total Orders</p>
+                 <p className="text-xl font-black text-white print:text-black">{todayOrders.length}</p>
+              </div>
+              <div className="text-center">
+                 <p className="text-[10px] text-white/40 print:text-black/60 font-black uppercase tracking-widest mb-1">Items Sold</p>
+                 <p className="text-xl font-black text-white print:text-black">{todayBreakdown.totalItems}</p>
+              </div>
+              <div className="text-center">
+                 <p className="text-[10px] text-green-500/80 print:text-black/60 font-black uppercase tracking-widest mb-1">Net Revenue</p>
+                 <p className="text-2xl font-black text-green-500 print:text-black">{formatCurrency(todayBreakdown.cash + todayBreakdown.online)}</p>
+              </div>
+           </div>
+        </div>
       </div>
 
       {loading ? (
