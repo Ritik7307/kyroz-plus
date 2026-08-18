@@ -24,8 +24,15 @@ import {
   ChefHat
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import useSWR from 'swr';
 import { API_URL } from '@/lib/api';
 import CustomDropdown from '@/components/ui/CustomDropdown';
+
+const fetcher = (url: string) => {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+  return fetch(url, { headers: { 'Authorization': `Bearer ${token}` } }).then(res => res.json());
+};
 
 interface InventoryItem {
   _id: string;
@@ -111,7 +118,10 @@ export default function InventoryPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   
   const [dishes, setDishes] = useState<Dish[]>([]);
-  const [loading, setLoading] = useState(true);
+  
+  const { data: invData, mutate: mutateInventory } = useSWR(`${API_URL}/api/inventory`, fetcher);
+  const { data: dishData, mutate: mutateDishes } = useSWR(`${API_URL}/api/dishes`, fetcher);
+  
   const [showAddModal, setShowAddModal] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [showProductionModal, setShowProductionModal] = useState(false);
@@ -145,8 +155,22 @@ export default function InventoryPage() {
   });
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (invData) {
+      if (Array.isArray(invData)) {
+        setInventory(invData);
+      } else {
+        setInventory(invData.dishes || []);
+        setRawMaterials(invData.rawMaterials || []);
+        setSemiFinishedGoods(invData.semiFinishedGoods || []);
+        setPremixes(invData.premixes || []);
+        setPackaging(invData.packaging || []);
+        setRecipes(invData.recipes || []);
+      }
+    }
+    if (dishData) {
+      setDishes(dishData);
+    }
+  }, [invData, dishData]);
 
   const handlePurchaseSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -222,41 +246,7 @@ export default function InventoryPage() {
   };
 
   const fetchData = async () => {
-    setLoading(true);
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const [invRes, dishRes] = await Promise.all([
-        fetch(`${API_URL}/api/inventory`, { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch(`${API_URL}/api/dishes`, { headers: { 'Authorization': `Bearer ${token}` } })
-      ]);
-
-      if (invRes.ok && dishRes.ok) {
-        const invData = await invRes.json();
-        const dishData = await dishRes.json();
-        
-        if (Array.isArray(invData)) {
-          setInventory(invData);
-        } else {
-          setInventory(invData.dishes || []);
-          setRawMaterials(invData.rawMaterials || []);
-          setSemiFinishedGoods(invData.semiFinishedGoods || []);
-          setPremixes(invData.premixes || []);
-          setPackaging(invData.packaging || []);
-          setRecipes(invData.recipes || []);
-        }
-        setDishes(dishData);
-      }
-    } catch (err) {
-      console.error('Fetch error', err);
-    } finally {
-      setLoading(false);
-    }
+    await Promise.all([mutateInventory(), mutateDishes()]);
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -471,10 +461,10 @@ export default function InventoryPage() {
         ))}
       </div>
 
-      {loading ? (
+      {!invData ? (
         <div className="flex flex-col items-center justify-center py-32 text-white/20 gap-6">
           <Loader2 className="animate-spin" size={64} />
-          <p className="font-black uppercase tracking-[0.3em] text-sm">Syncing Inventory...</p>
+          <p className="font-black uppercase tracking-[0.3em] text-sm">Loading Inventory...</p>
         </div>
       ) : (
         <div className="pt-4">

@@ -25,7 +25,13 @@ import {
   ChefHat
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import useSWR from 'swr';
 import { API_URL } from '@/lib/api';
+
+const fetcher = (url: string) => {
+  const token = localStorage.getItem('token');
+  return fetch(url, { headers: { 'Authorization': `Bearer ${token}` } }).then(res => res.json());
+};
 
 interface Dish {
   _id: string;
@@ -91,9 +97,12 @@ export default function POSTerminal() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [isManagementMode, setIsManagementMode] = useState(false);
+  
+  const { data: userData } = useSWR(`${API_URL}/api/auth/me`, fetcher);
+  const { data: dishesData, mutate: mutateDishes } = useSWR(`${API_URL}/api/dishes`, fetcher);
   const [user, setUser] = useState<any>(null);
+
   const [userRole, setUserRole] = useState('');
-  const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [userQrCode, setUserQrCode] = useState<string | null>(null);
@@ -197,9 +206,6 @@ export default function POSTerminal() {
   };
 
   useEffect(() => {
-    fetchDishes();
-    fetchUser();
-    
     // Load custom tables
     const savedCustomTables = localStorage.getItem('pos_custom_tables');
     let loadedTables = INITIAL_TABLES;
@@ -333,43 +339,21 @@ export default function POSTerminal() {
     }, 100);
   };
 
-  const fetchUser = async () => {
-    const token = localStorage.getItem('token');
-    try {
-      const res = await fetch(`${API_URL}/api/auth/me`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await res.json();
-      setUser(data);
-      setUserRole(data.role);
-      if (data.paymentQrCode) setUserQrCode(data.paymentQrCode);
-      if (data.shopName) setUserShopName(data.shopName);
-      if (data.gstPercentage !== undefined) setUserGstRate(data.gstPercentage);
-    } catch (err) {
-      console.error('Failed to fetch user', err);
+  useEffect(() => {
+    if (userData) {
+      setUser(userData);
+      setUserRole(userData.role);
+      if (userData.paymentQrCode) setUserQrCode(userData.paymentQrCode);
+      if (userData.shopName) setUserShopName(userData.shopName);
+      if (userData.gstPercentage !== undefined) setUserGstRate(userData.gstPercentage);
     }
-  };
+  }, [userData]);
 
-  const fetchDishes = async () => {
-    setLoading(true);
-    const token = localStorage.getItem('token');
-    try {
-      const res = await fetch(`${API_URL}/api/dishes`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        setDishes(data);
-      } else {
-        setDishes([]);
-      }
-    } catch (err) {
-      console.error('Failed to fetch dishes', err);
-      setDishes([]);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (dishesData) {
+      setDishes(Array.isArray(dishesData) ? dishesData : []);
     }
-  };
+  }, [dishesData]);
 
   const fetchInventoryForCosting = async () => {
     const token = localStorage.getItem('token');
@@ -537,7 +521,7 @@ export default function POSTerminal() {
         setNewDish({ name: '', price: '', ingredientPrice: '', category: 'Main Course', imageUrl: '' });
         setAdvancedSetupData({ allowedWastagePercentage: 0, platesPerPacket: 10, totalPlates: 0, lowStockThreshold: 5, baseUnitName: 'Packet', subUnitName: 'Plate' });
         setRecipeIngredients([]);
-        fetchDishes();
+        mutateDishes();
       } else {
         alert('Failed to save dish with advanced setup.');
       }
@@ -564,7 +548,7 @@ export default function POSTerminal() {
       });
       if (res.ok) {
         setEditingDish(null);
-        fetchDishes();
+        mutateDishes();
       }
     } catch (err) {
       console.error('Failed to update dish', err);
@@ -579,7 +563,7 @@ export default function POSTerminal() {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (res.ok) fetchDishes();
+      if (res.ok) mutateDishes();
     } catch (err) {
       console.error('Failed to delete dish', err);
     }
@@ -1612,7 +1596,7 @@ export default function POSTerminal() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 pr-1">
-            {loading ? (
+            {!dishesData ? (
               <div className="col-span-full flex flex-col items-center justify-center py-20 text-white/20 gap-4">
                 <Loader2 className="animate-spin" size={48} />
                 <p className="font-black uppercase tracking-widest text-sm">Loading Menu...</p>
