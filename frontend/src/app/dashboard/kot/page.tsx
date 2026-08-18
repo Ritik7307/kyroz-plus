@@ -108,11 +108,11 @@ export default function KitchenOrderQueue() {
     const token = localStorage.getItem('token');
     try {
       const endpoint = viewHistory ? `${API_URL}/api/kots/history` : `${API_URL}/api/kots`;
-      const res = await fetch(endpoint, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      const { dataService } = require('@/lib/dataService');
+      const data = await dataService.get(endpoint, {
+        'Authorization': `Bearer ${token}`
       });
-      const data = await res.json();
-      if (res.ok && Array.isArray(data)) {
+      if (Array.isArray(data)) {
         setKots(data);
       }
     } catch (err) {
@@ -125,22 +125,19 @@ export default function KitchenOrderQueue() {
   const updateStatus = async (kotId: string, newStatus: 'Pending' | 'Preparing' | 'Ready' | 'Served' | 'Cancelled') => {
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`${API_URL}/api/kots/${kotId}/status`, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
-      if (res.ok) {
+      const { dataService } = require('@/lib/dataService');
+      const data = await dataService.put(`${API_URL}/api/kots/${kotId}/status`, 
+        { status: newStatus },
+        { 'Authorization': `Bearer ${token}` }
+      );
+      
+      if (data && !data.error) {
         // Optimistically update status
         setKots(prev => prev.map(k => k._id === kotId ? { ...k, status: newStatus } : k));
         // Refresh to fetch any backend mutations
         fetchKots(false);
       } else {
-        const errData = await res.json();
-        alert(errData.error || 'Failed to update status');
+        alert(data.error || 'Failed to update status');
       }
     } catch (err) {
       console.error('Error updating status', err);

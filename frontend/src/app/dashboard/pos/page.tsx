@@ -795,30 +795,27 @@ export default function POSTerminal() {
     setIsSendingKot(true);
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`${API_URL}/api/kots`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          items: unsentItems.map(item => ({
-            dishId: item.dish._id,
-            quantity: item.quantity,
-            note: item.note
-          })),
-          tableNumber: activeTable === 'quick' ? 'Quick Bill' : tables.find(t => t.id === activeTable)?.name || activeTable,
-          orderType: orderType,
-          customerName: customerName,
-          customerPhone: customerPhone,
-          offline_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2)
-        })
+      const payload = {
+        items: unsentItems.map(item => ({
+          dishId: item.dish._id,
+          quantity: item.quantity,
+          note: item.note
+        })),
+        tableNumber: activeTable === 'quick' ? 'Quick Bill' : tables.find(t => t.id === activeTable)?.name || activeTable,
+        orderType: orderType,
+        customerName: customerName,
+        customerPhone: customerPhone,
+        offline_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2)
+      };
+
+      const data = await dataService.post(`${API_URL}/api/kots`, payload, {
+        'Authorization': `Bearer ${token}`
       });
-      const data = await res.json();
-      if (res.ok) {
+
+      if (data && !data.error) {
         setKotStatus('Pending');
-        setKotId(data.kot?._id || '');
-        setPrintingKot(data.kot);
+        setKotId(data.kot?._id || data.operation_id || ''); // Handle offline queue case
+        setPrintingKot(data.kot || { ...payload, kotNumber: 'OFFLINE', createdAt: new Date().toISOString() });
         setPrintType('kot');
         // Mark all items as sent in state
         setCart(prev => prev.map(item => ({
