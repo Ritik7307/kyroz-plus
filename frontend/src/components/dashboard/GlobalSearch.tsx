@@ -58,7 +58,7 @@ export function GlobalSearch({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
                 placeholder="Search anything... (Recipes, Costs, Inventory)"
                 className="bg-transparent border-none outline-none text-xl w-full text-white placeholder:text-white/20 font-medium"
               />
-              <div className="flex items-center gap-2 px-2 py-1 bg-white/5 rounded-lg border border-white/10 text-[10px] text-white/40 font-bold uppercase">
+              <div className="flex items-center gap-2 px-2 py-1 bg-white/5 rounded-lg border border-white/10 text-xs text-white/40 font-bold uppercase">
                 <Command size={10} /> K
               </div>
             </div>
@@ -76,7 +76,7 @@ export function GlobalSearch({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
                     </div>
                     <div className="text-left">
                       <p className="text-sm font-bold text-white group-hover:text-gold transition-colors">{res.name}</p>
-                      <p className="text-[10px] text-white/40 uppercase tracking-widest">{res.category}</p>
+                      <p className="text-xs text-white/40 uppercase tracking-widest">{res.category}</p>
                     </div>
                   </div>
                   <X size={16} className="text-white/10 group-hover:text-white/40" />

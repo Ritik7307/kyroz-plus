@@ -264,7 +264,7 @@ export default function WastageMaster() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 shadow-xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/5 rounded-full -mr-12 -mt-12 blur-2xl"></div>
-          <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Total Financial Loss</p>
+          <p className="text-xs font-black text-white/30 uppercase tracking-widest mb-4">Total Financial Loss</p>
           <div className="flex items-baseline gap-3">
             <h2 className="text-4xl font-black text-red-500">₹{totalLoss.toFixed(2)}</h2>
             <TrendingDown size={20} className="text-red-500/40" />
@@ -272,7 +272,7 @@ export default function WastageMaster() {
         </div>
         
         <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 shadow-xl relative overflow-hidden">
-          <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Primary Leakage Reason</p>
+          <p className="text-xs font-black text-white/30 uppercase tracking-widest mb-4">Primary Leakage Reason</p>
           <div className="flex items-baseline gap-3">
             <h2 className="text-4xl font-black text-white uppercase">{getTopReason()}</h2>
             <AlertTriangle size={20} className="text-yellow-500/40" />
@@ -280,7 +280,7 @@ export default function WastageMaster() {
         </div>
 
         <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 shadow-xl relative overflow-hidden">
-          <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4">Logs Recorded</p>
+          <p className="text-xs font-black text-white/30 uppercase tracking-widest mb-4">Logs Recorded</p>
           <div className="flex items-baseline gap-3">
             <h2 className="text-4xl font-black text-white">{logs.length}</h2>
             <BarChart3 size={20} className="text-blue-500/40" />
@@ -303,7 +303,7 @@ export default function WastageMaster() {
           {loadingLogs ? (
             <div className="py-24 flex flex-col items-center justify-center space-y-4">
               <Loader2 className="animate-spin text-red-500" size={32} />
-              <p className="text-white/30 font-bold uppercase tracking-widest text-[10px]">Loading history...</p>
+              <p className="text-white/30 font-bold uppercase tracking-widest text-xs">Loading history...</p>
             </div>
           ) : logs.length > 0 ? (
             <AnimatePresence>
@@ -313,7 +313,7 @@ export default function WastageMaster() {
                   className="p-8 flex flex-col md:flex-row md:items-center justify-between hover:bg-white/5 transition-all group gap-6"
                 >
                   <div className="flex items-center gap-6">
-                    <div className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center font-black text-[10px] uppercase border ${
+                    <div className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center font-black text-xs uppercase border ${
                       log.reason === 'Expired' ? 'bg-red-500/10 border-red-500/20 text-red-500' :
                       log.reason === 'Burnt' ? 'bg-orange-500/10 border-orange-500/20 text-orange-500' :
                       log.reason === 'Spilled' ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500' :
@@ -325,14 +325,14 @@ export default function WastageMaster() {
                     <div>
                       <div className="flex items-center gap-2">
                         <h4 className="font-black text-white uppercase tracking-tight text-lg">{log.itemName}</h4>
-                        <span className="text-[9px] font-black uppercase text-white/20">({log.itemModel})</span>
+                        <span className="text-[10px] font-black uppercase text-white/20">({log.itemModel})</span>
                       </div>
                       <div className="flex items-center gap-3 mt-1 text-white/40">
-                        <span className="text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
+                        <span className="text-xs font-black uppercase tracking-widest flex items-center gap-1">
                           <Calendar size={10} /> {new Date(log.createdAt).toLocaleDateString()} at {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                         <span className="w-1.5 h-1.5 rounded-full bg-white/10"></span>
-                        <span className="text-[10px] font-black text-red-500/60 uppercase tracking-widest">
+                        <span className="text-xs font-black text-red-500/60 uppercase tracking-widest">
                           {log.quantity} {log.unit} Wasted
                         </span>
                       </div>
@@ -341,7 +341,7 @@ export default function WastageMaster() {
 
                   <div className="flex items-center justify-between md:justify-end gap-12 border-t md:border-t-0 pt-4 md:pt-0 border-white/5">
                     <div className="text-left md:text-right">
-                      <p className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">Loss Value</p>
+                      <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">Loss Value</p>
                       <p className="text-2xl font-black text-white">₹{log.costLost.toFixed(2)}</p>
                     </div>
                   </div>

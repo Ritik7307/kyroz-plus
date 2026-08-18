@@ -94,7 +94,7 @@ export default function AdminDashboard() {
                 <div className="p-3 bg-white/5 rounded-xl text-gold">
                   <stat.icon size={24} />
                 </div>
-                <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Real-time</span>
+                <span className="text-xs font-bold text-white/30 uppercase tracking-widest">Real-time</span>
               </div>
               <div className="mt-4">
                 <h4 className="text-white/40 text-xs font-bold uppercase tracking-widest">{stat.label}</h4>
@@ -121,7 +121,7 @@ export default function AdminDashboard() {
             <div className="bg-card glass-card rounded-2xl overflow-hidden">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-white/5 text-[10px] uppercase tracking-[0.2em] text-white/40">
+                  <tr className="bg-white/5 text-xs uppercase tracking-[0.2em] text-white/40">
                     <th className="p-4 pl-6 font-bold">User</th>
                     <th className="p-4 font-bold">Shop Name</th>
                     <th className="p-4 font-bold">Plan</th>
@@ -138,7 +138,7 @@ export default function AdminDashboard() {
                       </td>
                       <td className="p-4 text-white/60">{u.shopName || 'N/A'}</td>
                       <td className="p-4">
-                        <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${
+                        <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${
                           u.plan === 'Elite' ? 'bg-gold/20 text-gold border border-gold/30' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
                         }`}>
                           {u.plan || 'Basic'}
@@ -167,7 +167,7 @@ export default function AdminDashboard() {
                 </h3>
                 <button 
                   onClick={() => router.push('/admin/packets')}
-                  className="text-gold text-[10px] font-black uppercase tracking-widest flex items-center gap-1 hover:underline"
+                  className="text-gold text-xs font-black uppercase tracking-widest flex items-center gap-1 hover:underline"
                 >
                   View All Packets <ArrowUpRight size={14} />
                 </button>
@@ -191,7 +191,7 @@ export default function AdminDashboard() {
                     <div className="flex flex-col justify-between">
                       <div>
                         <h4 className="font-bold text-sm">{packet.name}</h4>
-                        <p className="text-[10px] text-white/40 line-clamp-1">{packet.description}</p>
+                        <p className="text-xs text-white/40 line-clamp-1">{packet.description}</p>
                       </div>
                       <div className="flex items-center justify-between mt-2">
                         <span className="text-gold font-black text-xs">₹{packet.price}</span>
@@ -224,7 +224,7 @@ export default function AdminDashboard() {
                   <ChefHat size={28} />
                   <div className="text-center">
                     <span className="block text-xs uppercase tracking-widest leading-none">Global SOPs</span>
-                    <span className="text-[9px] opacity-60">Manage Recipes</span>
+                    <span className="text-[10px] opacity-60">Manage Recipes</span>
                   </div>
                 </button>
 
@@ -234,21 +234,21 @@ export default function AdminDashboard() {
                     className="bg-card glass-card p-4 rounded-2xl text-white font-bold flex flex-col items-center justify-center gap-2 hover:border-gold/50 border border-white/5 transition-all group"
                   >
                     <Package size={20} className="text-gold" />
-                    <span className="text-[9px] uppercase tracking-widest">Packets</span>
+                    <span className="text-[10px] uppercase tracking-widest">Packets</span>
                   </button>
                   <button 
                     onClick={() => router.push('/admin/testimonials')}
                     className="bg-card glass-card p-4 rounded-2xl text-white font-bold flex flex-col items-center justify-center gap-2 hover:border-gold/50 border border-white/5 transition-all group"
                   >
                     <MessageSquare size={20} className="text-gold" />
-                    <span className="text-[9px] uppercase tracking-widest">Testimonials</span>
+                    <span className="text-[10px] uppercase tracking-widest">Testimonials</span>
                   </button>
                   <button 
                     onClick={() => router.push('/admin/pricing')}
                     className="col-span-2 bg-card glass-card p-4 rounded-2xl text-white font-bold flex flex-col items-center justify-center gap-2 hover:border-gold/50 border border-white/5 transition-all group"
                   >
                     <IndianRupee size={20} className="text-gold" />
-                    <span className="text-[9px] uppercase tracking-widest">Plan Pricing & Discounts</span>
+                    <span className="text-[10px] uppercase tracking-widest">Plan Pricing & Discounts</span>
                   </button>
                 </div>
 
@@ -279,7 +279,7 @@ export default function AdminDashboard() {
             </h3>
             <button 
               onClick={() => router.push('/admin/testimonials')}
-              className="text-gold text-[10px] font-black uppercase tracking-widest flex items-center gap-1 hover:underline"
+              className="text-gold text-xs font-black uppercase tracking-widest flex items-center gap-1 hover:underline"
             >
               Manage Testimonials <ArrowUpRight size={14} />
             </button>
@@ -303,7 +303,7 @@ export default function AdminDashboard() {
                   </div>
                   <div>
                     <h4 className="font-bold text-sm text-white">{t.userName}</h4>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-gold">{t.userRole}</p>
+                    <p className="text-xs font-black uppercase tracking-widest text-gold">{t.userRole}</p>
                   </div>
                 </div>
                 <p className="text-sm text-white/60 italic leading-relaxed line-clamp-3">"{t.content}"</p>

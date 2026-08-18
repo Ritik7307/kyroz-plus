@@ -163,7 +163,7 @@ export default function MembershipPage() {
             <h3 className="text-2xl font-bold text-white mb-2 uppercase tracking-widest flex items-center gap-2">
               Starter
               {pricing.starter.discount > 0 && (
-                <span className="bg-green-500/20 text-green-400 text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{pricing.starter.discount}% OFF</span>
+                <span className="bg-green-500/20 text-green-400 text-xs px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{pricing.starter.discount}% OFF</span>
               )}
             </h3>
             <p className="text-gray-500 text-sm">Perfect for getting started.</p>
@@ -213,7 +213,7 @@ export default function MembershipPage() {
             <h3 className="text-2xl font-bold text-[#d4af37] mb-2 uppercase tracking-widest flex items-center gap-2">
               Growth
               {pricing.growth.discount > 0 && (
-                <span className="bg-green-500/20 text-green-400 text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{pricing.growth.discount}% OFF</span>
+                <span className="bg-green-500/20 text-green-400 text-xs px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{pricing.growth.discount}% OFF</span>
               )}
             </h3>
             <p className="text-gray-400 text-sm">For growing restaurants.</p>
@@ -264,7 +264,7 @@ export default function MembershipPage() {
             <h3 className="text-2xl font-bold text-white mb-2 uppercase tracking-widest flex items-center gap-2">
               Scale
               {pricing.scale.discount > 0 && (
-                <span className="bg-green-500/20 text-green-400 text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{pricing.scale.discount}% OFF</span>
+                <span className="bg-green-500/20 text-green-400 text-xs px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{pricing.scale.discount}% OFF</span>
               )}
             </h3>
             <p className="text-gray-500 text-sm">The ultimate restaurant OS.</p>

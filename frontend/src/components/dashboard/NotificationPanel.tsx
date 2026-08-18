@@ -134,7 +134,7 @@ export default function NotificationPanel({ isOpen, setIsOpen, onRefresh }: { is
                           {!n.isRead && <span className="w-2 h-2 rounded-full bg-gold shrink-0" />}
                         </div>
                         <p className="text-xs text-white/40 mt-1 leading-relaxed">{n.message}</p>
-                        <p className="text-[9px] text-white/20 mt-3 font-bold uppercase tracking-tighter">
+                        <p className="text-[10px] text-white/20 mt-3 font-bold uppercase tracking-tighter">
                           {new Date(n.createdAt).toLocaleString()}
                         </p>
                       </div>
@@ -152,7 +152,7 @@ export default function NotificationPanel({ isOpen, setIsOpen, onRefresh }: { is
             <div className="p-4 border-t border-white/5 bg-black/20">
               <button 
                 onClick={clearAll}
-                className="w-full py-4 text-[10px] font-black uppercase tracking-[0.2em] text-white/20 hover:text-gold transition-all"
+                className="w-full py-4 text-xs font-black uppercase tracking-[0.2em] text-white/20 hover:text-gold transition-all"
               >
                 Clear All Notifications
               </button>

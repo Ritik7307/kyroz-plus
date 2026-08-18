@@ -145,8 +145,8 @@ export default function GlobalSopsPage() {
                 </div>
               </div>
               <h3 className="font-bold text-lg mb-1">{sop.title}</h3>
-              <p className="text-[10px] font-black text-gold uppercase tracking-widest">{sop.category}</p>
-              <div className="mt-4 pt-4 border-t border-white/5 flex justify-between items-center text-[10px] text-white/40 font-bold uppercase tracking-widest">
+              <p className="text-xs font-black text-gold uppercase tracking-widest">{sop.category}</p>
+              <div className="mt-4 pt-4 border-t border-white/5 flex justify-between items-center text-xs text-white/40 font-bold uppercase tracking-widest">
                 <span>Last Updated</span>
                 <span>{new Date(sop.updatedAt).toLocaleDateString()}</span>
               </div>
@@ -182,7 +182,7 @@ export default function GlobalSopsPage() {
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40">SOP Title</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-white/40">SOP Title</label>
                   <input 
                     type="text" 
                     value={formData.title}
@@ -215,7 +215,7 @@ export default function GlobalSopsPage() {
 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Content (English)</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-white/40">Content (English)</label>
                     <textarea 
                       value={formData.contentEn}
                       onChange={(e) => setFormData({...formData, contentEn: e.target.value})}
@@ -225,7 +225,7 @@ export default function GlobalSopsPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Content (Hindi)</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-white/40">Content (Hindi)</label>
                     <textarea 
                       value={formData.contentHi}
                       onChange={(e) => setFormData({...formData, contentHi: e.target.value})}

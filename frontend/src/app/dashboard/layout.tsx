@@ -325,7 +325,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {user?.name?.[0] || 'U'}
             </div>
             <div className="text-left hidden md:block">
-              <p className="text-[10px] font-black text-white uppercase leading-none truncate max-w-[80px]">{user?.name || 'User'}</p>
+              <p className="text-xs font-black text-white uppercase leading-none truncate max-w-[80px]">{user?.name || 'User'}</p>
               <p className="text-[8px] text-gold/40 uppercase mt-1 font-bold tracking-tighter">{user?.role || 'Member'}</p>
             </div>
           </div>
@@ -379,10 +379,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <span className="text-black font-black text-xl">K</span>
                 </div>
                 <h3 className="font-black text-lg tracking-normal leading-none text-white text-center sm:text-left">
-                  KYROZ-PLUS <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest ml-1 block sm:inline mt-1 sm:mt-0">powered by AROMA AGRO INTERNATIONAL</span>
+                  KYROZ-PLUS <span className="text-xs font-bold text-white/50 uppercase tracking-widest ml-1 block sm:inline mt-1 sm:mt-0">powered by AROMA AGRO INTERNATIONAL</span>
                 </h3>
               </div>
-              <p className="text-white/40 text-[10px] md:text-xs leading-relaxed max-w-xs font-medium">
+              <p className="text-white/40 text-xs md:text-xs leading-relaxed max-w-xs font-medium">
                 The world's most advanced Kitchen Operating System. Standardizing excellence for elite restaurants globally.
               </p>
               <div className="flex gap-4">
@@ -434,9 +434,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <div className="bg-white/5 rounded-2xl p-4 border border-white/5 w-full max-w-[250px] sm:max-w-none">
                 <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                  <span className="text-[9px] font-black text-white/60 uppercase tracking-widest">Global Status: Active</span>
+                  <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">Global Status: Active</span>
                 </div>
-                <p className="text-[9px] text-white/20 font-bold uppercase tracking-tighter leading-relaxed">
+                <p className="text-[10px] text-white/20 font-bold uppercase tracking-tighter leading-relaxed">
                   256-bit encrypted infrastructure ensuring 99.9% uptime for your kitchen operations.
                 </p>
               </div>
@@ -446,12 +446,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* Bottom Bar */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-10 border-t border-white/5 text-center md:text-left">
-            <p className="text-[9px] md:text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">
+            <p className="text-[10px] md:text-xs font-black text-white/20 uppercase tracking-[0.2em]">
               © 2026 KYROZ TECHNOLOGIES PVT LTD. ALL RIGHTS RESERVED.
             </p>
             <div className="flex gap-6 md:gap-8">
-              <Link href="#" className="text-[9px] font-black text-white/20 hover:text-gold uppercase tracking-widest">Privacy Policy</Link>
-              <Link href="#" className="text-[9px] font-black text-white/20 hover:text-gold uppercase tracking-widest">Terms of Service</Link>
+              <Link href="#" className="text-[10px] font-black text-white/20 hover:text-gold uppercase tracking-widest">Privacy Policy</Link>
+              <Link href="#" className="text-[10px] font-black text-white/20 hover:text-gold uppercase tracking-widest">Terms of Service</Link>
             </div>
           </div>
         </div>

@@ -184,7 +184,7 @@ export default function StaffManagement() {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-white/5 text-[10px] uppercase font-black tracking-[0.2em] text-white/40">
+              <tr className="bg-white/5 text-xs uppercase font-black tracking-[0.2em] text-white/40">
                 <th className="px-8 py-6">Staff Member</th>
                 <th className="px-8 py-6">Role</th>
                 <th className="px-8 py-6">Access Level</th>
@@ -208,7 +208,7 @@ export default function StaffManagement() {
                   <td className="px-8 py-6">
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg border border-white/5 w-fit">
                       {getRoleIcon(member.role)}
-                      <span className="text-[10px] font-black uppercase tracking-widest">{member.role}</span>
+                      <span className="text-xs font-black uppercase tracking-widest">{member.role}</span>
                     </div>
                   </td>
                   <td className="px-8 py-6 min-w-[200px]">

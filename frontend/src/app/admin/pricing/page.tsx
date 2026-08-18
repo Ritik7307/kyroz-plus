@@ -120,7 +120,7 @@ export default function AdminPricingPage() {
               </div>
 
               <div className="pt-4 border-t border-white/10 mt-4">
-                <p className="text-[10px] text-white/40 uppercase tracking-widest mb-1">Final Price</p>
+                <p className="text-xs text-white/40 uppercase tracking-widest mb-1">Final Price</p>
                 <p className="text-2xl font-black text-green-400">
                   ₹{Math.round(pricing[plan].price * (1 - pricing[plan].discount / 100))}
                 </p>

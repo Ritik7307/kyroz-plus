@@ -33,7 +33,7 @@ export default function FloatingCart() {
         className="fixed bottom-32 right-6 z-[80] w-16 h-16 bg-gold rounded-full flex items-center justify-center shadow-2xl text-black"
       >
         <ShoppingCart size={24} />
-        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-6 h-6 flex items-center justify-center rounded-full border-2 border-background">
+        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full border-2 border-background">
           {totalItems}
         </span>
       </motion.button>
@@ -72,7 +72,7 @@ export default function FloatingCart() {
                     )}
                     <div className="flex-1 min-w-0">
                       <h4 className="font-bold text-sm truncate">{item.name}</h4>
-                      <p className="text-[10px] text-white/40 uppercase tracking-widest">{item.category}</p>
+                      <p className="text-xs text-white/40 uppercase tracking-widest">{item.category}</p>
                       <p className="text-gold font-bold mt-1">₹{item.price}</p>
                     </div>
                     <div className="flex flex-col items-end gap-2">
@@ -97,7 +97,7 @@ export default function FloatingCart() {
                 <button onClick={handleCheckout} className="w-full py-4 bg-gold-gradient text-black font-black text-xs uppercase tracking-widest rounded-xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3">
                   CHECKOUT NOW <ArrowRight size={18} />
                 </button>
-                <p className="text-[9px] text-white/20 text-center uppercase tracking-widest font-black">Secure Payment via KYROZ Pay</p>
+                <p className="text-[10px] text-white/20 text-center uppercase tracking-widest font-black">Secure Payment via KYROZ Pay</p>
               </div>
             </motion.div>
           </div>

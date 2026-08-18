@@ -190,7 +190,7 @@ export default function TeamManagement() {
                         {member.name[0]}
                       </div>
                       <div className="flex flex-col items-end">
-                        <span className="px-3 py-1 bg-gold/10 text-gold text-[10px] font-black uppercase tracking-widest rounded-full border border-gold/20">
+                        <span className="px-3 py-1 bg-gold/10 text-gold text-xs font-black uppercase tracking-widest rounded-full border border-gold/20">
                           {member.role}
                         </span>
                         <div className="mt-2 flex gap-2">
@@ -206,19 +206,19 @@ export default function TeamManagement() {
                     </div>
 
                     <div className="mt-auto pt-6 border-t border-white/5">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gold/40 mb-4">Module Access</p>
+                      <p className="text-xs font-black uppercase tracking-widest text-gold/40 mb-4">Module Access</p>
                       <div className="flex flex-wrap gap-2">
                         {member.permissions?.map(p => {
                           const mod = MODULES.find(m => m.id === p);
                           return mod ? (
                             <div key={p} className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-xl border border-white/5">
                               <mod.icon size={10} className="text-gold" />
-                              <span className="text-[9px] font-bold text-white/60 uppercase">{mod.name}</span>
+                              <span className="text-[10px] font-bold text-white/60 uppercase">{mod.name}</span>
                             </div>
                           ) : null;
                         })}
                         {(!member.permissions || member.permissions.length === 0) && (
-                          <p className="text-[10px] text-white/20 italic">No modules assigned</p>
+                          <p className="text-xs text-white/20 italic">No modules assigned</p>
                         )}
                       </div>
                     </div>
@@ -228,7 +228,7 @@ export default function TeamManagement() {
                     <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white/20 mb-4">
                       <Users size={24} />
                     </div>
-                    <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">Available Slot</p>
+                    <p className="text-xs font-black text-white/20 uppercase tracking-widest">Available Slot</p>
                   </div>
                 )}
               </div>
@@ -275,7 +275,7 @@ export default function TeamManagement() {
                     <h2 className="text-2xl font-black text-white uppercase tracking-tight">
                       {editingStaff ? 'Edit Staff Member' : 'Add New Member'}
                     </h2>
-                    <p className="text-gold/40 text-[10px] font-black uppercase tracking-widest mt-1">Configure Enterprise Access</p>
+                    <p className="text-gold/40 text-xs font-black uppercase tracking-widest mt-1">Configure Enterprise Access</p>
                   </div>
                   <button onClick={() => setIsModalOpen(false)} className="text-white/20 hover:text-white transition-all"><XCircle size={24}/></button>
                 </div>
@@ -283,7 +283,7 @@ export default function TeamManagement() {
                 <form onSubmit={handleSubmit} className="space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Full Name</label>
+                      <label className="text-xs font-black uppercase tracking-widest text-white/40 ml-1">Full Name</label>
                       <div className="relative">
                         <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
                         <input 
@@ -297,7 +297,7 @@ export default function TeamManagement() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Email Address</label>
+                      <label className="text-xs font-black uppercase tracking-widest text-white/40 ml-1">Email Address</label>
                       <div className="relative">
                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
                         <input 
@@ -311,7 +311,7 @@ export default function TeamManagement() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Login Password</label>
+                      <label className="text-xs font-black uppercase tracking-widest text-white/40 ml-1">Login Password</label>
                       <div className="relative">
                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
                         <input 
@@ -325,7 +325,7 @@ export default function TeamManagement() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Enterprise Role</label>
+                      <label className="text-xs font-black uppercase tracking-widest text-white/40 ml-1">Enterprise Role</label>
                       <select 
                         value={formData.role}
                         onChange={e => setFormData({...formData, role: e.target.value as any})}
@@ -339,7 +339,7 @@ export default function TeamManagement() {
                   </div>
 
                   <div className="space-y-4">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-1">Module Access Permissions</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-white/40 ml-1">Module Access Permissions</label>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       {MODULES.map(mod => (
                         <button
@@ -353,7 +353,7 @@ export default function TeamManagement() {
                           }`}
                         >
                           <mod.icon size={16} />
-                          <span className="text-[10px] font-black uppercase tracking-tight">{mod.name}</span>
+                          <span className="text-xs font-black uppercase tracking-tight">{mod.name}</span>
                           {formData.permissions.includes(mod.id) && <CheckCircle2 size={12} className="ml-auto" />}
                         </button>
                       ))}

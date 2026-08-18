@@ -198,7 +198,7 @@ export default function KitchenOrderQueue() {
           <div className="text-center border-b-2 border-black pb-2 mb-3">
             <h1 className="text-xl font-black uppercase tracking-tight">KITCHEN ORDER TICKET</h1>
             <p className="text-sm font-bold uppercase tracking-widest text-black mt-1">KOT #{printingKot.kotNumber}</p>
-            <p className="text-[10px] mt-0.5">{new Date(printingKot.createdAt).toLocaleString()}</p>
+            <p className="text-xs mt-0.5">{new Date(printingKot.createdAt).toLocaleString()}</p>
           </div>
 
           <div className="border-b border-black pb-2 mb-3 space-y-1">
@@ -206,14 +206,14 @@ export default function KitchenOrderQueue() {
               <span>SOURCE:</span>
               <span>{printingKot.tableNumber}</span>
             </div>
-            <div className="flex justify-between text-[10px]">
+            <div className="flex justify-between text-xs">
               <span>ORDER TYPE:</span>
               <span className="font-bold uppercase">{printingKot.orderType}</span>
             </div>
             {(printingKot.customerName || printingKot.customerPhone) && (
               <div className="pt-1 border-t border-black/10 mt-1">
-                {printingKot.customerName && <div className="flex justify-between text-[10px]"><span>CUSTOMER:</span><span className="font-bold uppercase">{printingKot.customerName}</span></div>}
-                {printingKot.customerPhone && <div className="flex justify-between text-[10px]"><span>PHONE:</span><span className="font-bold uppercase">{printingKot.customerPhone}</span></div>}
+                {printingKot.customerName && <div className="flex justify-between text-xs"><span>CUSTOMER:</span><span className="font-bold uppercase">{printingKot.customerName}</span></div>}
+                {printingKot.customerPhone && <div className="flex justify-between text-xs"><span>PHONE:</span><span className="font-bold uppercase">{printingKot.customerPhone}</span></div>}
               </div>
             )}
           </div>
@@ -231,7 +231,7 @@ export default function KitchenOrderQueue() {
                    <td className="py-2 pr-2 leading-tight">
                      <span className="font-bold">{item.dishId?.name || 'Unknown Dish'}</span>
                      {item.note && (
-                       <div className="text-[10px] italic mt-0.5 font-bold">
+                       <div className="text-xs italic mt-0.5 font-bold">
                          * Note: {item.note}
                        </div>
                      )}
@@ -244,8 +244,8 @@ export default function KitchenOrderQueue() {
 
           {printingKot.packaging && printingKot.packaging.length > 0 && (
             <div className="border-t border-black pt-2 mt-2">
-              <p className="text-[10px] font-black uppercase tracking-widest mb-1.5">Packaging Items Needed:</p>
-              <div className="space-y-1 text-[10px] font-bold">
+              <p className="text-xs font-black uppercase tracking-widest mb-1.5">Packaging Items Needed:</p>
+              <div className="space-y-1 text-xs font-bold">
                 {printingKot.packaging.map((pkg, idx) => (
                   <div key={idx} className="flex justify-between">
                     <span>[ ] {pkg.name}</span>
@@ -256,7 +256,7 @@ export default function KitchenOrderQueue() {
             </div>
           )}
 
-          <div className="border-t border-dashed border-black pt-3 mt-6 text-center text-[9px] opacity-60">
+          <div className="border-t border-dashed border-black pt-3 mt-6 text-center text-[10px] opacity-60">
             <p className="uppercase tracking-[0.2em]">SOP & Prep Checklist Printed</p>
             <p className="uppercase tracking-[0.3em] font-black mt-0.5 text-[8px]">Powered by KYROZ</p>
           </div>
@@ -301,7 +301,7 @@ export default function KitchenOrderQueue() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-card glass-card p-5 rounded-2xl border border-white/5 flex items-center justify-between">
             <div>
-              <p className="text-[10px] text-white/40 font-black uppercase tracking-widest">Active Tickets</p>
+              <p className="text-xs text-white/40 font-black uppercase tracking-widest">Active Tickets</p>
               <h3 className="text-3xl font-black text-white mt-1">{activeCount}</h3>
             </div>
             <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
@@ -310,7 +310,7 @@ export default function KitchenOrderQueue() {
           </div>
           <div className="bg-card glass-card p-5 rounded-2xl border border-blue-500/10 flex items-center justify-between">
             <div>
-              <p className="text-[10px] text-blue-500/60 font-black uppercase tracking-widest">Pending</p>
+              <p className="text-xs text-blue-500/60 font-black uppercase tracking-widest">Pending</p>
               <h3 className="text-3xl font-black text-blue-400 mt-1">{pendingCount}</h3>
             </div>
             <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
@@ -319,7 +319,7 @@ export default function KitchenOrderQueue() {
           </div>
           <div className="bg-card glass-card p-5 rounded-2xl border border-orange-500/10 flex items-center justify-between">
             <div>
-              <p className="text-[10px] text-orange-500/60 font-black uppercase tracking-widest">Preparing</p>
+              <p className="text-xs text-orange-500/60 font-black uppercase tracking-widest">Preparing</p>
               <h3 className="text-3xl font-black text-orange-400 mt-1">{preparingCount}</h3>
             </div>
             <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-400">
@@ -328,7 +328,7 @@ export default function KitchenOrderQueue() {
           </div>
           <div className="bg-card glass-card p-5 rounded-2xl border border-green-500/10 flex items-center justify-between">
             <div>
-              <p className="text-[10px] text-green-500/60 font-black uppercase tracking-widest">Ready</p>
+              <p className="text-xs text-green-500/60 font-black uppercase tracking-widest">Ready</p>
               <h3 className="text-3xl font-black text-green-400 mt-1">{readyCount}</h3>
             </div>
             <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center text-green-400">
@@ -344,7 +344,7 @@ export default function KitchenOrderQueue() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border whitespace-nowrap ${
+            className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all border whitespace-nowrap ${
               activeTab === tab 
                 ? 'bg-gold text-black border-gold' 
                 : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10'
@@ -389,11 +389,11 @@ export default function KitchenOrderQueue() {
                   <div className="p-6 border-b border-white/5 space-y-3 bg-white/[0.01]">
                     <div className="flex justify-between items-start">
                       <div className="space-y-1">
-                        <span className="text-[10px] font-black text-gold uppercase tracking-widest">KOT #{kot.kotNumber}</span>
+                        <span className="text-xs font-black text-gold uppercase tracking-widest">KOT #{kot.kotNumber}</span>
                         <h4 className="text-lg font-black text-white">{kot.tableNumber}</h4>
                       </div>
                       <div className="flex flex-col items-end gap-1.5">
-                        <span className={`text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider ${getStatusColor(kot.status)}`}>
+                        <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider ${getStatusColor(kot.status)}`}>
                           {kot.status}
                         </span>
                         <span className={`text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-wider ${getOrderTypeBadgeColor(kot.orderType)}`}>
@@ -402,7 +402,7 @@ export default function KitchenOrderQueue() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-[10px] text-white/40 font-bold uppercase tracking-wider pt-1">
+                    <div className="flex items-center justify-between text-xs text-white/40 font-bold uppercase tracking-wider pt-1">
                       <span className="flex items-center gap-1.5">
                         <Clock size={12} />
                         {new Date(kot.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -419,7 +419,7 @@ export default function KitchenOrderQueue() {
                   {/* Card Body - Dish Items List */}
                   <div className="p-6 flex-1 space-y-4">
                     <div className="space-y-3">
-                      <p className="text-[9px] font-black text-white/30 uppercase tracking-widest">Items ({kot.items.length})</p>
+                      <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Items ({kot.items.length})</p>
                       <div className="divide-y divide-white/5">
                         {kot.items.map(item => (
                           <div key={item._id} className="py-2.5 flex items-start justify-between gap-3">
@@ -428,7 +428,7 @@ export default function KitchenOrderQueue() {
                                 {item.dishId?.name || 'Unknown Dish'}
                               </p>
                               {item.note && (
-                                <p className="text-[10px] font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 inline-block">
+                                <p className="text-xs font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 inline-block">
                                   📝 {item.note}
                                 </p>
                               )}
@@ -444,7 +444,7 @@ export default function KitchenOrderQueue() {
                     {/* Packaging Section */}
                     {kot.packaging && kot.packaging.length > 0 && (
                       <div className="pt-4 border-t border-white/5 space-y-2">
-                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest flex items-center gap-1">
+                        <p className="text-[10px] font-black text-white/30 uppercase tracking-widest flex items-center gap-1">
                           <Package size={11} className="text-gold" /> Packaging Checklist
                         </p>
                         <div className="grid grid-cols-1 gap-2.5">
@@ -470,7 +470,7 @@ export default function KitchenOrderQueue() {
                                     {pkg.name}
                                   </span>
                                 </div>
-                                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
+                                <span className={`text-xs font-black px-1.5 py-0.5 rounded-md ${
                                   isChecked ? 'bg-green-500/20 text-green-400' : 'bg-white/10 text-white/80'
                                 }`}>
                                   x{pkg.quantity}
@@ -488,7 +488,7 @@ export default function KitchenOrderQueue() {
                     {kot.status === 'Pending' && (
                       <button
                         onClick={() => updateStatus(kot._id, 'Preparing')}
-                        className="flex-1 py-3 bg-orange-500 hover:bg-orange-600 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-orange-500/10 flex items-center justify-center gap-2"
+                        className="flex-1 py-3 bg-orange-500 hover:bg-orange-600 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-orange-500/10 flex items-center justify-center gap-2"
                       >
                         <Play size={14} /> Start Preparing
                       </button>
@@ -496,7 +496,7 @@ export default function KitchenOrderQueue() {
                     {kot.status === 'Preparing' && (
                       <button
                         onClick={() => updateStatus(kot._id, 'Ready')}
-                        className="flex-1 py-3 bg-green-500 hover:bg-green-600 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-green-500/10 flex items-center justify-center gap-2"
+                        className="flex-1 py-3 bg-green-500 hover:bg-green-600 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-green-500/10 flex items-center justify-center gap-2"
                       >
                         <Check size={14} /> Mark Ready
                       </button>
@@ -504,13 +504,13 @@ export default function KitchenOrderQueue() {
                     {kot.status === 'Ready' && (
                       <button
                         onClick={() => updateStatus(kot._id, 'Served')}
-                        className="flex-1 py-3 bg-gold hover:scale-[1.01] active:scale-95 text-black font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-gold/10 flex items-center justify-center gap-2"
+                        className="flex-1 py-3 bg-gold hover:scale-[1.01] active:scale-95 text-black font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-gold/10 flex items-center justify-center gap-2"
                       >
                         <CheckCircle size={14} /> Mark Served
                       </button>
                     )}
                     {['Served', 'Cancelled'].includes(kot.status) && (
-                      <div className="w-full text-center py-2 text-[10px] font-black uppercase text-white/20 tracking-wider">
+                      <div className="w-full text-center py-2 text-xs font-black uppercase text-white/20 tracking-wider">
                         Archived / Completed
                       </div>
                     )}

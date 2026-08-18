@@ -904,7 +904,7 @@ export default function POSTerminal() {
               >
                 <div className="flex-1 pr-2">
                   <h4 className="font-bold text-xs">{item.dish.name}</h4>
-                  <p className="text-[10px] text-white/40">₹{item.dish.price} x {item.quantity}</p>
+                  <p className="text-xs text-white/40">₹{item.dish.price} x {item.quantity}</p>
                   
                   {/* Sent vs Unsent badges */}
                   {item.sentQty && item.sentQty > 0 ? (
@@ -934,7 +934,7 @@ export default function POSTerminal() {
                       const val = e.target.value;
                       setCart(prev => prev.map(i => i.dish._id === item.dish._id ? { ...i, note: val } : i));
                     }}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-2 py-1 mt-1.5 text-[9px] text-white/60 focus:outline-none focus:border-gold/30"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-2 py-1 mt-1.5 text-[10px] text-white/60 focus:outline-none focus:border-gold/30"
                   />
                 </div>
                 <div className="flex items-center gap-2 bg-black/40 rounded-xl p-1 border border-white/5 shrink-0">
@@ -950,7 +950,7 @@ export default function POSTerminal() {
           {cart.length === 0 && (
             <div className="h-full flex flex-col items-center justify-center text-white/5 space-y-4 py-10">
               <Utensils size={48} />
-              <p className="font-black uppercase tracking-widest text-[10px]">Select items to begin bill</p>
+              <p className="font-black uppercase tracking-widest text-xs">Select items to begin bill</p>
             </div>
           )}
         </div>
@@ -960,7 +960,7 @@ export default function POSTerminal() {
           
           <button 
             onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
-            className="w-full flex items-center justify-between text-[10px] font-black text-white/40 uppercase tracking-widest hover:text-white transition-colors py-1"
+            className="w-full flex items-center justify-between text-xs font-black text-white/40 uppercase tracking-widest hover:text-white transition-colors py-1"
           >
             <span>More Checkout Options</span>
             <ChevronRight className={`transform transition-transform ${showAdvancedOptions ? 'rotate-90' : ''}`} size={14} />
@@ -998,8 +998,8 @@ export default function POSTerminal() {
 
                 <div className="flex justify-between items-center pt-2 border-t border-white/5">
                   <div className="flex items-center gap-2">
-                    <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">Discount</span>
-                    <div className="flex rounded-md overflow-hidden border border-white/10 bg-white/5 text-[9px] font-black">
+                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Discount</span>
+                    <div className="flex rounded-md overflow-hidden border border-white/10 bg-white/5 text-[10px] font-black">
                       <button 
                         onClick={() => setDiscountType('percentage')} 
                         type="button"
@@ -1031,7 +1031,7 @@ export default function POSTerminal() {
                 </div>
 
                 <div className="flex justify-between items-center">
-                  <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">Add. Charge (₹)</span>
+                  <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Add. Charge (₹)</span>
                   <input 
                     type="text" 
                     value={additionalCharge}
@@ -1047,7 +1047,7 @@ export default function POSTerminal() {
                 </div>
 
                 <div className="flex justify-between items-center">
-                  <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">Apply GST ({userGstRate}%)</span>
+                  <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Apply GST ({userGstRate}%)</span>
                   <button 
                     onClick={() => setApplyGst(!applyGst)}
                     className={`w-12 h-6 rounded-full transition-all relative ${applyGst ? 'bg-gold' : 'bg-white/10'}`}
@@ -1057,11 +1057,11 @@ export default function POSTerminal() {
                 </div>
 
                 <div className="space-y-1.5 pt-2 border-t border-white/5">
-                  <span className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1">Order Type</span>
+                  <span className="text-[10px] font-black text-white/40 uppercase tracking-widest pl-1">Order Type</span>
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={() => setOrderType('DineIn')}
-                      className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                      className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-widest border transition-all ${
                         orderType === 'DineIn' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
                       }`}
                     >
@@ -1069,7 +1069,7 @@ export default function POSTerminal() {
                     </button>
                     <button 
                       onClick={() => setOrderType('Takeaway')}
-                      className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                      className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-widest border transition-all ${
                         orderType === 'Takeaway' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
                       }`}
                     >
@@ -1077,7 +1077,7 @@ export default function POSTerminal() {
                     </button>
                     <button 
                       onClick={() => setOrderType('Delivery')}
-                      className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                      className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-widest border transition-all ${
                         orderType === 'Delivery' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
                       }`}
                     >
@@ -1089,7 +1089,7 @@ export default function POSTerminal() {
                 <div className="flex items-center gap-2 pb-2">
                   <button 
                     onClick={() => setPaymentMethod('Cash')}
-                    className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                    className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-widest border transition-all ${
                       paymentMethod === 'Cash' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
                     }`}
                   >
@@ -1097,7 +1097,7 @@ export default function POSTerminal() {
                   </button>
                   <button 
                     onClick={() => setPaymentMethod('Online')}
-                    className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                    className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-widest border transition-all ${
                       paymentMethod === 'Online' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
                     }`}
                   >
@@ -1112,7 +1112,7 @@ export default function POSTerminal() {
               <span className="text-sm font-black uppercase tracking-widest">Grand Total</span>
               <div className="text-right">
                 {discountAmount > 0 && (
-                  <p className="text-[10px] text-red-500 font-bold line-through mb-1">₹{Math.round(total * (applyGst ? (1 + userGstRate / 100) : 1))}</p>
+                  <p className="text-xs text-red-500 font-bold line-through mb-1">₹{Math.round(total * (applyGst ? (1 + userGstRate / 100) : 1))}</p>
                 )}
                 <span className="text-3xl font-black text-gold">
                   ₹{grandTotal}
@@ -1134,12 +1134,12 @@ export default function POSTerminal() {
                       : 'bg-blue-500 animate-pulse'
                 }`} />
                 <div className="text-left">
-                  <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">KOT Pipeline</p>
+                  <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">KOT Pipeline</p>
                   <p className="text-xs font-black text-gold uppercase mt-0.5">{kotStatus}</p>
                 </div>
               </div>
               {kotStatus === 'Ready' && (
-                <span className="text-[9px] bg-green-500 text-black px-2.5 py-1 rounded-full font-black animate-bounce tracking-wider">
+                <span className="text-[10px] bg-green-500 text-black px-2.5 py-1 rounded-full font-black animate-bounce tracking-wider">
                   READY TO SERVE
                 </span>
               )}
@@ -1162,7 +1162,7 @@ export default function POSTerminal() {
                 setKotStatus('None');
                 setKotId('');
               }}
-              className="w-full py-3.5 rounded-xl border border-red-500/20 text-red-500 font-bold text-[10px] uppercase tracking-widest hover:bg-red-500/5 transition-all"
+              className="w-full py-3.5 rounded-xl border border-red-500/20 text-red-500 font-bold text-xs uppercase tracking-widest hover:bg-red-500/5 transition-all"
             >
               Clear
             </button>
@@ -1176,7 +1176,7 @@ export default function POSTerminal() {
                     <button 
                       onClick={handleSendKot}
                       disabled={cart.length === 0 || isSendingKot || !hasUnsentItems}
-                      className={`flex-1 py-3.5 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all border flex items-center justify-center gap-2 ${
+                      className={`flex-1 py-3.5 rounded-xl font-black text-xs sm:text-xs uppercase tracking-widest transition-all border flex items-center justify-center gap-2 ${
                         !hasUnsentItems && cart.length > 0
                           ? 'bg-green-500/10 border-green-500/20 text-green-500 cursor-not-allowed'
                           : 'bg-white/5 border-gold/30 text-gold hover:bg-gold hover:text-black hover:border-gold hover:scale-[1.01]'
@@ -1190,7 +1190,7 @@ export default function POSTerminal() {
                 <button 
                   onClick={handleCheckout}
                   disabled={cart.length === 0}
-                  className="flex-1 py-3.5 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all shadow-xl disabled:opacity-50 bg-gold text-black hover:scale-[1.02] active:scale-95"
+                  className="flex-1 py-3.5 rounded-xl font-black text-xs sm:text-xs uppercase tracking-widest transition-all shadow-xl disabled:opacity-50 bg-gold text-black hover:scale-[1.02] active:scale-95"
                 >
                   Checkout
                 </button>
@@ -1206,8 +1206,8 @@ export default function POSTerminal() {
                     <CheckCircle size={16} />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-green-500 uppercase tracking-widest">Order Processed Successfully</p>
-                    <p className="text-[9px] text-green-500/60 font-bold">Receipt printed & data saved.</p>
+                    <p className="text-xs font-black text-green-500 uppercase tracking-widest">Order Processed Successfully</p>
+                    <p className="text-[10px] text-green-500/60 font-bold">Receipt printed & data saved.</p>
                   </div>
                 </motion.div>
 
@@ -1236,7 +1236,7 @@ export default function POSTerminal() {
 
             {userQrCode && (
               <div className="flex flex-col items-center p-4 bg-white/5 rounded-2xl border border-white/10 mt-4 mb-4">
-                <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-3">Shop Payment QR</p>
+                <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-3">Shop Payment QR</p>
                 <img src={userQrCode} alt="Payment QR" className="w-24 h-24 object-contain rounded-lg" />
               </div>
             )}
@@ -1302,7 +1302,7 @@ export default function POSTerminal() {
             <div className="text-center border-b-2 border-black pb-2 mb-3">
               <h1 className="text-xl font-black uppercase tracking-tight text-center">KITCHEN ORDER TICKET</h1>
               <p className="text-sm font-bold uppercase tracking-widest text-black mt-1">KOT #{printingKot.kotNumber}</p>
-              <p className="text-[10px] mt-0.5">{new Date(printingKot.createdAt).toLocaleString()}</p>
+              <p className="text-xs mt-0.5">{new Date(printingKot.createdAt).toLocaleString()}</p>
             </div>
 
             <div className="border-b border-black pb-2 mb-3 space-y-1">
@@ -1310,14 +1310,14 @@ export default function POSTerminal() {
                 <span>SOURCE:</span>
                 <span>{printingKot.tableNumber}</span>
               </div>
-              <div className="flex justify-between text-[10px]">
+              <div className="flex justify-between text-xs">
                 <span>ORDER TYPE:</span>
                 <span className="font-bold uppercase">{printingKot.orderType}</span>
               </div>
               {(printingKot.customerName || printingKot.customerPhone) && (
                 <div className="pt-1 border-t border-black/10 mt-1">
-                  {printingKot.customerName && <div className="flex justify-between text-[10px]"><span>CUSTOMER:</span><span className="font-bold uppercase">{printingKot.customerName}</span></div>}
-                  {printingKot.customerPhone && <div className="flex justify-between text-[10px]"><span>PHONE:</span><span className="font-bold uppercase">{printingKot.customerPhone}</span></div>}
+                  {printingKot.customerName && <div className="flex justify-between text-xs"><span>CUSTOMER:</span><span className="font-bold uppercase">{printingKot.customerName}</span></div>}
+                  {printingKot.customerPhone && <div className="flex justify-between text-xs"><span>PHONE:</span><span className="font-bold uppercase">{printingKot.customerPhone}</span></div>}
                 </div>
               )}
             </div>
@@ -1335,7 +1335,7 @@ export default function POSTerminal() {
                     <td className="py-2 pr-2 leading-tight">
                       <span className="font-bold">{item.dishId?.name || 'Unknown Dish'}</span>
                       {item.note && (
-                        <div className="text-[10px] italic mt-0.5 font-bold">
+                        <div className="text-xs italic mt-0.5 font-bold">
                           * Note: {item.note}
                         </div>
                       )}
@@ -1348,8 +1348,8 @@ export default function POSTerminal() {
 
             {printingKot.packaging && printingKot.packaging.length > 0 && (
               <div className="border-t border-black pt-2 mt-2">
-                <p className="text-[10px] font-black uppercase tracking-widest mb-1.5">Packaging Items Needed:</p>
-                <div className="space-y-1 text-[10px] font-bold">
+                <p className="text-xs font-black uppercase tracking-widest mb-1.5">Packaging Items Needed:</p>
+                <div className="space-y-1 text-xs font-bold">
                   {printingKot.packaging.map((pkg: any, idx: number) => (
                     <div key={idx} className="flex justify-between">
                       <span>[ ] {pkg.name}</span>
@@ -1360,7 +1360,7 @@ export default function POSTerminal() {
               </div>
             )}
 
-            <div className="border-t border-dashed border-black pt-3 mt-6 text-center text-[9px] opacity-60">
+            <div className="border-t border-dashed border-black pt-3 mt-6 text-center text-[10px] opacity-60">
               <p className="uppercase tracking-[0.2em]">SOP & Prep Checklist Printed</p>
               <p className="uppercase tracking-[0.3em] font-black mt-0.5 text-[8px]">Powered by KYROZ</p>
             </div>
@@ -1370,15 +1370,15 @@ export default function POSTerminal() {
             {/* Header section - All Centered like screenshot */}
             <div className="text-center mb-6 space-y-1">
               <h1 className="text-2xl font-black uppercase tracking-tight">{userShopName}</h1>
-              {user?.shopAddress && <p className="text-[10px] uppercase font-bold">{user.shopAddress}</p>}
-              <p className="text-[10px] font-bold">Receipt / Bill {printedBillNo ? `#${printedBillNo}` : ''}</p>
-              <p className="text-[10px]">{new Date().toLocaleString()}</p>
+              {user?.shopAddress && <p className="text-xs uppercase font-bold">{user.shopAddress}</p>}
+              <p className="text-xs font-bold">Receipt / Bill {printedBillNo ? `#${printedBillNo}` : ''}</p>
+              <p className="text-xs">{new Date().toLocaleString()}</p>
               
               {/* Customer Details - Centered as well for clean look */}
               {(customerName || customerPhone) && (
                 <div className="pt-2 border-t border-black/10 mt-2">
                   {customerName && <p className="font-black uppercase tracking-tighter text-[11px]">{customerName}</p>}
-                  {customerPhone && <p className="text-[10px]">{customerPhone}</p>}
+                  {customerPhone && <p className="text-xs">{customerPhone}</p>}
                 </div>
               )}
             </div>
@@ -1442,8 +1442,8 @@ export default function POSTerminal() {
             </div>
 
             <div className="border-t border-dashed border-black pt-4 mb-8 text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em]">Order Type: {orderType}</p>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em]">Payment Method: {paymentMethod}</p>
+              <p className="text-xs font-black uppercase tracking-[0.2em]">Order Type: {orderType}</p>
+              <p className="text-xs font-black uppercase tracking-[0.2em]">Payment Method: {paymentMethod}</p>
             </div>
 
             {userQrCode && (
@@ -1455,7 +1455,7 @@ export default function POSTerminal() {
               </div>
             )}
 
-            <div className="text-center text-[10px] space-y-1 opacity-60 font-bold">
+            <div className="text-center text-xs space-y-1 opacity-60 font-bold">
               <p className="uppercase tracking-widest">Thank you for visiting!</p>
               <p className="uppercase tracking-[0.3em] text-[8px]">Powered by KYROZ</p>
             </div>
@@ -1472,7 +1472,7 @@ export default function POSTerminal() {
           >
             <ShoppingCart size={24} className="group-hover:rotate-12 transition-transform" />
             {cart.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-6 h-6 flex items-center justify-center rounded-full border-2 border-background">
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full border-2 border-background">
                 {cart.reduce((s, i) => s + i.quantity, 0)}
               </span>
             )}
@@ -1501,13 +1501,13 @@ export default function POSTerminal() {
                   <>
                     <button 
                       onClick={() => setShowShareMenuModal(true)}
-                      className="p-2.5 md:p-3 rounded-xl border border-white/10 bg-white/5 text-white/70 hover:text-white transition-all flex items-center gap-2 text-[9px] md:text-[10px] font-black uppercase tracking-widest shrink-0"
+                      className="p-2.5 md:p-3 rounded-xl border border-white/10 bg-white/5 text-white/70 hover:text-white transition-all flex items-center gap-2 text-[10px] md:text-xs font-black uppercase tracking-widest shrink-0"
                     >
                       <Share2 size={16} /> Share Menu
                     </button>
                     <button 
                       onClick={() => setIsManagementMode(!isManagementMode)}
-                      className={`p-2.5 md:p-3 rounded-xl border transition-all flex items-center gap-2 text-[9px] md:text-[10px] font-black uppercase tracking-widest shrink-0 ${
+                      className={`p-2.5 md:p-3 rounded-xl border transition-all flex items-center gap-2 text-[10px] md:text-xs font-black uppercase tracking-widest shrink-0 ${
                         isManagementMode ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
                       }`}
                     >
@@ -1522,19 +1522,19 @@ export default function POSTerminal() {
             {!isManagementMode && (
               <div className="border-b border-white/5 pb-4 space-y-2">
                 <div className="flex justify-between items-center">
-                  <label className="text-[9px] font-black text-white/40 uppercase tracking-widest pl-1">TABLE SELECTION (BILLING SESSION)</label>
+                  <label className="text-[10px] font-black text-white/40 uppercase tracking-widest pl-1">TABLE SELECTION (BILLING SESSION)</label>
                   {isManager && (
                     <div className="flex items-center gap-2">
                       <button 
                         onClick={handleAddTable}
-                        className="text-[9px] font-black text-gold uppercase tracking-widest hover:text-white transition-colors flex items-center gap-1"
+                        className="text-[10px] font-black text-gold uppercase tracking-widest hover:text-white transition-colors flex items-center gap-1"
                       >
                         <Plus size={10} /> Add Table
                       </button>
                       <button 
                         onClick={handleRemoveLastTable}
                         disabled={tables.length <= 1}
-                        className="text-[9px] font-black text-red-500 uppercase tracking-widest hover:text-red-400 transition-colors flex items-center gap-1 disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="text-[10px] font-black text-red-500 uppercase tracking-widest hover:text-red-400 transition-colors flex items-center gap-1 disabled:opacity-30 disabled:cursor-not-allowed"
                       >
                         <Minus size={10} /> Remove Table
                       </button>
@@ -1556,7 +1556,7 @@ export default function POSTerminal() {
                       <button
                         key={t.id}
                         onClick={() => switchTable(t.id)}
-                        className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border flex items-center gap-2 relative group ${
+                        className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap border flex items-center gap-2 relative group ${
                           isActive
                             ? 'bg-gold text-black border-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]'
                             : hasItems
@@ -1592,7 +1592,7 @@ export default function POSTerminal() {
                   <button
                     key={cat}
                     onClick={() => setActiveCategory(cat)}
-                    className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border ${
+                    className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap border ${
                       activeCategory === cat ? 'bg-gold text-black border-gold' : 'bg-white/10 text-white/70 border-white/10'
                     }`}
                   >
@@ -1603,7 +1603,7 @@ export default function POSTerminal() {
               {isManagementMode && (
                 <button 
                   onClick={() => setShowAddModal(true)}
-                  className="px-6 py-2 bg-green-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2"
+                  className="px-6 py-2 bg-green-500 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2"
                 >
                   <Plus size={16} /> Add
                 </button>
@@ -1655,7 +1655,7 @@ export default function POSTerminal() {
                               <button onClick={() => addToCart(dish)} className="w-6 h-6 bg-gold/10 rounded-lg flex items-center justify-center text-gold"><Plus size={12} /></button>
                             </>
                           ) : (
-                            <button onClick={() => addToCart(dish)} className="px-3 py-1 bg-gold/10 text-gold rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-gold hover:text-black">Add</button>
+                            <button onClick={() => addToCart(dish)} className="px-3 py-1 bg-gold/10 text-gold rounded-lg text-xs font-black uppercase tracking-widest hover:bg-gold hover:text-black">Add</button>
                           )}
                         </div>
                       )}
@@ -1714,7 +1714,7 @@ export default function POSTerminal() {
                       <input type="number" value={editingDish.ingredientPrice} onChange={(e) => setEditingDish({...editingDish, ingredientPrice: Number(e.target.value)})} placeholder="Cost" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
                     </div>
                     {editingDish.ingredientPrice > 0 && (
-                      <p className="text-[10px] text-white/50 italic px-2">
+                      <p className="text-xs text-white/50 italic px-2">
                         💡 Suggested Selling Price: <span className="text-gold font-bold">₹{Math.round(editingDish.ingredientPrice * 2.5)}</span> - <span className="text-gold font-bold">₹{Math.round(editingDish.ingredientPrice * 5)}</span>
                       </p>
                     )}
@@ -1728,7 +1728,7 @@ export default function POSTerminal() {
                         <div key={step} className={`flex-1 h-1 rounded-full ${setupStep >= step ? 'bg-gold' : 'bg-white/10'}`} />
                       ))}
                     </div>
-                    <p className="text-[10px] uppercase font-bold tracking-widest text-gold mb-4">
+                    <p className="text-xs uppercase font-bold tracking-widest text-gold mb-4">
                       {setupStep === 1 && "Step 1: Basic Details"}
                       {setupStep === 2 && "Step 2: Costing & Wastage"}
                       {setupStep === 3 && "Step 3: Inventory Master"}
@@ -1786,7 +1786,7 @@ export default function POSTerminal() {
                       <div className="space-y-4">
                         
                         <div className="space-y-3 bg-white/5 p-4 rounded-xl border border-white/10">
-                          <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold block">Dish Ingredients (Optional)</label>
+                          <label className="text-xs uppercase tracking-widest text-white/50 font-bold block">Dish Ingredients (Optional)</label>
                           
                           {recipeIngredients.length > 0 && (
                             <div className="space-y-2 mb-4">
@@ -1896,12 +1896,12 @@ export default function POSTerminal() {
                         </div>
 
                         <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3">
-                          <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold block">Estimated Dish Cost (₹)</label>
+                          <label className="text-xs uppercase tracking-widest text-white/50 font-bold block">Estimated Dish Cost (₹)</label>
                           <input type="number" value={newDish.ingredientPrice} onChange={(e) => setNewDish({...newDish, ingredientPrice: e.target.value})} placeholder="Costing Amount *" className="w-full bg-black/40 p-3 rounded-lg border border-white/10" />
                         </div>
                         
                         <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3">
-                          <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold block">Allowed Wastage (%)</label>
+                          <label className="text-xs uppercase tracking-widest text-white/50 font-bold block">Allowed Wastage (%)</label>
                           <input type="number" value={advancedSetupData.allowedWastagePercentage} onChange={(e) => setAdvancedSetupData({...advancedSetupData, allowedWastagePercentage: Number(e.target.value)})} placeholder="e.g. 5" className="w-full bg-black/40 p-3 rounded-lg border border-white/10" />
                         </div>
 
@@ -1916,26 +1916,26 @@ export default function POSTerminal() {
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold pl-1">Base Unit Name</label>
+                            <label className="text-xs uppercase tracking-widest text-white/50 font-bold pl-1">Base Unit Name</label>
                             <input type="text" value={advancedSetupData.baseUnitName} onChange={(e) => setAdvancedSetupData({...advancedSetupData, baseUnitName: e.target.value})} placeholder="e.g. Packet, Box" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold pl-1">Sub Unit Name</label>
+                            <label className="text-xs uppercase tracking-widest text-white/50 font-bold pl-1">Sub Unit Name</label>
                             <input type="text" value={advancedSetupData.subUnitName} onChange={(e) => setAdvancedSetupData({...advancedSetupData, subUnitName: e.target.value})} placeholder="e.g. Plate, Pc" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
                           </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold pl-1">Initial Total {advancedSetupData.subUnitName}s</label>
+                            <label className="text-xs uppercase tracking-widest text-white/50 font-bold pl-1">Initial Total {advancedSetupData.subUnitName}s</label>
                             <input type="number" value={advancedSetupData.totalPlates} onChange={(e) => setAdvancedSetupData({...advancedSetupData, totalPlates: Number(e.target.value)})} placeholder="0" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold pl-1">{advancedSetupData.subUnitName}s Per {advancedSetupData.baseUnitName}</label>
+                            <label className="text-xs uppercase tracking-widest text-white/50 font-bold pl-1">{advancedSetupData.subUnitName}s Per {advancedSetupData.baseUnitName}</label>
                             <input type="number" value={advancedSetupData.platesPerPacket} onChange={(e) => setAdvancedSetupData({...advancedSetupData, platesPerPacket: Number(e.target.value)})} placeholder="10" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] uppercase tracking-widest text-white/50 font-bold pl-1">Low Stock Threshold ({advancedSetupData.baseUnitName}s)</label>
+                          <label className="text-xs uppercase tracking-widest text-white/50 font-bold pl-1">Low Stock Threshold ({advancedSetupData.baseUnitName}s)</label>
                           <input type="number" value={advancedSetupData.lowStockThreshold} onChange={(e) => setAdvancedSetupData({...advancedSetupData, lowStockThreshold: Number(e.target.value)})} placeholder="5" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
                         </div>
                         <div className="flex gap-4">
@@ -2026,7 +2026,7 @@ export default function POSTerminal() {
                   navigator.clipboard.writeText(window.location.origin + '/menu/' + user._id);
                   alert('Menu link copied to clipboard!');
                 }}
-                className="text-[10px] font-black uppercase tracking-widest text-gold hover:text-white transition-colors border border-gold/30 px-4 py-2 rounded-xl bg-gold/5"
+                className="text-xs font-black uppercase tracking-widest text-gold hover:text-white transition-colors border border-gold/30 px-4 py-2 rounded-xl bg-gold/5"
               >
                 Copy Link
               </button>

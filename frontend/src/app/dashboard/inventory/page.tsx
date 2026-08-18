@@ -497,22 +497,22 @@ export default function InventoryPage() {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                       <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 relative overflow-hidden group hover:border-gold/30 transition-all">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-gold/10 rounded-full blur-[50px] -mr-16 -mt-16 transition-all group-hover:bg-gold/20"></div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 relative z-10">Total Inventory Valuation</p>
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-white/40 mb-2 relative z-10">Total Inventory Valuation</p>
                         <h3 className="text-4xl font-black text-white tracking-tighter relative z-10">₹{totalValuation.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                       </div>
                       <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 relative overflow-hidden group hover:border-blue-500/30 transition-all">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-[50px] -mr-16 -mt-16 transition-all group-hover:bg-blue-500/20"></div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 relative z-10">Raw Materials Value</p>
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-white/40 mb-2 relative z-10">Raw Materials Value</p>
                         <h3 className="text-3xl font-black text-white tracking-tighter relative z-10">₹{totalRMValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                       </div>
                       <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 relative overflow-hidden group hover:border-green-500/30 transition-all">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-[50px] -mr-16 -mt-16 transition-all group-hover:bg-green-500/20"></div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 relative z-10">SFG Value</p>
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-white/40 mb-2 relative z-10">SFG Value</p>
                         <h3 className="text-3xl font-black text-white tracking-tighter relative z-10">₹{totalSFGValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                       </div>
                       <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 relative overflow-hidden group hover:border-purple-500/30 transition-all">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-[50px] -mr-16 -mt-16 transition-all group-hover:bg-purple-500/20"></div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 relative z-10">Packaging Value</p>
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-white/40 mb-2 relative z-10">Packaging Value</p>
                         <h3 className="text-3xl font-black text-white tracking-tighter relative z-10">₹{totalPkgValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                       </div>
                     </div>
@@ -541,7 +541,7 @@ export default function InventoryPage() {
                   >
                     <div className="flex justify-between items-start relative z-10">
                       <div>
-                        <span className="px-3 py-1 bg-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-white/40 border border-white/5">
+                        <span className="px-3 py-1 bg-white/5 rounded-lg text-[10px] font-black uppercase tracking-widest text-white/40 border border-white/5">
                           {item.dishId?.category || 'General'}
                         </span>
                         <h3 className="text-xl font-black mt-3 leading-tight uppercase tracking-tight">{item.dishId?.name}</h3>
@@ -571,11 +571,11 @@ export default function InventoryPage() {
 
                     <div className="mt-6 grid grid-cols-2 gap-4 relative z-10">
                       <div className="bg-black/40 p-5 rounded-2xl border border-white/5">
-                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">{item.baseUnitName || 'Packets'}</p>
+                        <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">{item.baseUnitName || 'Packets'}</p>
                         <p className={`text-3xl font-black ${isLow ? 'text-red-500' : 'text-gold'}`}>{packets}</p>
                       </div>
                       <div className="bg-black/40 p-5 rounded-2xl border border-white/5">
-                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">{item.subUnitName || 'Plates'}</p>
+                        <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">{item.subUnitName || 'Plates'}</p>
                         <p className="text-3xl font-black text-white">{item.totalPlates}</p>
                       </div>
                     </div>
@@ -583,16 +583,16 @@ export default function InventoryPage() {
                     <div className="mt-6 pt-4 border-t border-white/5 flex flex-col gap-3 relative z-10">
                       <button 
                         onClick={() => openWhatsAppOrder(item)}
-                        className="w-full py-4 bg-green-500/10 hover:bg-green-500 text-green-500 hover:text-black rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 border border-green-500/20"
+                        className="w-full py-4 bg-green-500/10 hover:bg-green-500 text-green-500 hover:text-black rounded-xl text-xs font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 border border-green-500/20"
                       >
                         <ShoppingCart size={14} /> Place Restock Order
                       </button>
                       <div className="flex items-center justify-between px-2">
-                        <div className={`flex items-center gap-2 ${isLow ? 'text-red-500' : 'text-green-500'} text-[9px] font-black uppercase tracking-widest`}>
+                        <div className={`flex items-center gap-2 ${isLow ? 'text-red-500' : 'text-green-500'} text-[10px] font-black uppercase tracking-widest`}>
                           {isLow ? <AlertTriangle size={12} /> : <RefreshCw size={12} />}
                           {isLow ? 'Low Stock' : 'Stock OK'}
                         </div>
-                        <span className="text-[9px] text-white/20 uppercase font-black">{item.platesPerPacket} {item.subUnitName || 'plates'}/{item.baseUnitName || 'pkt'}</span>
+                        <span className="text-[10px] text-white/20 uppercase font-black">{item.platesPerPacket} {item.subUnitName || 'plates'}/{item.baseUnitName || 'pkt'}</span>
                       </div>
                     </div>
                   </motion.div>
@@ -616,17 +616,17 @@ export default function InventoryPage() {
                   >
                     <div>
                       <div className="flex justify-between items-start">
-                        <span className="px-3 py-1 bg-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-gold border border-gold/10">
+                        <span className="px-3 py-1 bg-white/5 rounded-lg text-[10px] font-black uppercase tracking-widest text-gold border border-gold/10">
                           {item.category}
                         </span>
                       </div>
                       <h3 className="text-xl font-black mt-3 uppercase tracking-tight text-white">{item.name}</h3>
-                      <p className="text-[10px] text-white/40 mt-1 uppercase font-bold">Cost: ₹{item.costPerPurchaseUnit} per {item.purchaseUnit}</p>
+                      <p className="text-xs text-white/40 mt-1 uppercase font-bold">Cost: ₹{item.costPerPurchaseUnit} per {item.purchaseUnit}</p>
                     </div>
 
                     <div className="bg-black/40 p-5 rounded-2xl border border-white/5 flex items-center justify-between">
                       <div>
-                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Current Stock</p>
+                        <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Current Stock</p>
                         {isEditing ? (
                           <input 
                             type="number"
@@ -690,7 +690,7 @@ export default function InventoryPage() {
                   >
                     <div>
                       <div className="flex justify-between items-start">
-                        <span className="px-3 py-1 bg-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-white/40 border border-white/5">
+                        <span className="px-3 py-1 bg-white/5 rounded-lg text-[10px] font-black uppercase tracking-widest text-white/40 border border-white/5">
                           Yield: {item.batchYield} {item.yieldUnit}
                         </span>
                         <div className="flex gap-2 items-center">
@@ -710,7 +710,7 @@ export default function InventoryPage() {
 
                     <div className="bg-black/40 p-5 rounded-2xl border border-white/5 flex items-center justify-between">
                       <div>
-                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Current Stock</p>
+                        <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Current Stock</p>
                         {isEditing ? (
                           <input 
                             type="number"
@@ -773,7 +773,7 @@ export default function InventoryPage() {
                   >
                     <div>
                       <div className="flex justify-between items-start">
-                        <span className="px-3 py-1 bg-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-white/40 border border-white/5">
+                        <span className="px-3 py-1 bg-white/5 rounded-lg text-[10px] font-black uppercase tracking-widest text-white/40 border border-white/5">
                           {item.consumptionType}
                         </span>
                       </div>
@@ -782,7 +782,7 @@ export default function InventoryPage() {
 
                     <div className="bg-black/40 p-5 rounded-2xl border border-white/5 flex items-center justify-between">
                       <div>
-                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Current Stock</p>
+                        <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Current Stock</p>
                         {isEditing ? (
                           <input 
                             type="number"
@@ -845,7 +845,7 @@ export default function InventoryPage() {
                   >
                     <div>
                       <div className="flex justify-between items-start">
-                        <span className="px-3 py-1 bg-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-white/40 border border-white/5">
+                        <span className="px-3 py-1 bg-white/5 rounded-lg text-[10px] font-black uppercase tracking-widest text-white/40 border border-white/5">
                           Unit: {item.unit}
                         </span>
                       </div>
@@ -854,7 +854,7 @@ export default function InventoryPage() {
 
                     <div className="bg-black/40 p-5 rounded-2xl border border-white/5 flex items-center justify-between">
                       <div>
-                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Current Stock</p>
+                        <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Current Stock</p>
                         {isEditing ? (
                           <input 
                             type="number"
@@ -987,7 +987,7 @@ export default function InventoryPage() {
                 {viewingRecipe.recipe.ingredients.map((ing) => (
                   <div key={ing._id} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
                     <div>
-                      <span className="text-[10px] font-bold text-white/30 uppercase mr-3 tracking-widest">[{ing.itemModel}]</span>
+                      <span className="text-xs font-bold text-white/30 uppercase mr-3 tracking-widest">[{ing.itemModel}]</span>
                       <span className="text-white font-black text-sm uppercase">{getIngredientName(ing.itemModel, ing.itemId)}</span>
                     </div>
                     <span className="text-gold font-black text-base">
@@ -1146,7 +1146,7 @@ export default function InventoryPage() {
                     <div className="bg-black/40 p-5 rounded-2xl border border-white/5 text-xs text-white/60 space-y-2">
                       <p className="font-bold text-white uppercase tracking-wider">Production Output Estimation:</p>
                       <p>• Yields: <span className="text-gold font-black">{yieldText}</span></p>
-                      <p className="italic text-[10px] text-white/40">Note: Ingredients will be automatically deducted from your raw materials stock.</p>
+                      <p className="italic text-xs text-white/40">Note: Ingredients will be automatically deducted from your raw materials stock.</p>
                     </div>
                   );
                 })()}

@@ -625,7 +625,7 @@ export default function FloatingKOSA() {
                 </div>
                 <div>
                   <h3 className="text-white text-sm font-black tracking-tight uppercase">CHEF PRO</h3>
-                  <p className="text-[9px] text-white/40 font-bold tracking-widest uppercase">
+                  <p className="text-[10px] text-white/40 font-bold tracking-widest uppercase">
                     {assistantState === 'idle' ? 'Idle' : assistantState === 'listening' ? 'Listening...' : assistantState === 'processing' ? 'Processing...' : 'Speaking...'}
                   </p>
                 </div>
@@ -678,7 +678,7 @@ export default function FloatingKOSA() {
                       ))}
                     </div>
                   )}
-                  <div className="mb-3 min-h-4 text-center text-[9px] font-bold uppercase tracking-[0.14em]">
+                  <div className="mb-3 min-h-4 text-center text-[10px] font-bold uppercase tracking-[0.14em]">
                     <span className={errorMessage ? 'text-red-400' : 'text-white/30'}>{errorMessage || voiceHint}</span>
                   </div>
 
@@ -729,8 +729,8 @@ export default function FloatingKOSA() {
 
                   <div className="mt-4 flex items-center justify-between px-2">
                     <div className="flex bg-black/40 rounded-xl p-1 border border-white/5">
-                      <button onClick={() => setSelectedLang('en')} className={`px-3 py-1.5 text-[9px] font-black rounded-lg transition-all ${selectedLang === 'en' ? 'bg-gold text-black' : 'text-white/20'}`}>EN</button>
-                      <button onClick={() => setSelectedLang('hi')} className={`px-3 py-1.5 text-[9px] font-black rounded-lg transition-all ${selectedLang === 'hi' ? 'bg-gold text-black' : 'text-white/20'}`}>HI</button>
+                      <button onClick={() => setSelectedLang('en')} className={`px-3 py-1.5 text-[10px] font-black rounded-lg transition-all ${selectedLang === 'en' ? 'bg-gold text-black' : 'text-white/20'}`}>EN</button>
+                      <button onClick={() => setSelectedLang('hi')} className={`px-3 py-1.5 text-[10px] font-black rounded-lg transition-all ${selectedLang === 'hi' ? 'bg-gold text-black' : 'text-white/20'}`}>HI</button>
                     </div>
                     <div className="flex items-center gap-2">
                       <Sparkles size={12} className="text-gold" />

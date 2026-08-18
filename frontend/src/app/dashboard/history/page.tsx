@@ -136,7 +136,7 @@ export default function HistoryPage() {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div>
           <h1 className="text-4xl font-black uppercase tracking-tighter text-white">Sales Analysis</h1>
-          <p className="text-gold font-bold text-[10px] uppercase tracking-[0.2em] mt-2">Daily, Monthly & Annual Growth Ledger</p>
+          <p className="text-gold font-bold text-xs uppercase tracking-[0.2em] mt-2">Daily, Monthly & Annual Growth Ledger</p>
         </div>
       </div>
 
@@ -148,7 +148,7 @@ export default function HistoryPage() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                className={`px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
                   activeTab === tab ? 'bg-gold text-black shadow-lg shadow-gold/20' : 'text-white/40 hover:text-white'
                 }`}
               >
@@ -159,21 +159,21 @@ export default function HistoryPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 space-y-4">
-              <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Total Revenue</p>
+              <p className="text-xs font-black text-white/40 uppercase tracking-[0.2em]">Total Revenue</p>
               <h3 className="text-3xl font-black text-white">{formatCurrency(summary[activeTab].revenue)}</h3>
-              <div className="flex items-center gap-2 text-[10px] font-bold text-green-500 uppercase tracking-widest">
+              <div className="flex items-center gap-2 text-xs font-bold text-green-500 uppercase tracking-widest">
                 <TrendingUp size={14} /> Tracking Growth
               </div>
             </div>
             <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 space-y-4">
-              <p className="text-[10px] font-black text-gold/60 uppercase tracking-[0.2em]">Gross Profit</p>
+              <p className="text-xs font-black text-gold/60 uppercase tracking-[0.2em]">Gross Profit</p>
               <h3 className="text-3xl font-black text-gold">{formatCurrency(summary[activeTab].profit)}</h3>
-              <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Margin: {summary[activeTab].revenue > 0 ? ((summary[activeTab].profit / summary[activeTab].revenue) * 100).toFixed(1) : 0}%</p>
+              <p className="text-xs font-bold text-white/20 uppercase tracking-widest">Margin: {summary[activeTab].revenue > 0 ? ((summary[activeTab].profit / summary[activeTab].revenue) * 100).toFixed(1) : 0}%</p>
             </div>
             <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 space-y-4">
-              <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Order Count</p>
+              <p className="text-xs font-black text-white/40 uppercase tracking-[0.2em]">Order Count</p>
               <h3 className="text-3xl font-black text-white">{summary[activeTab].count}</h3>
-              <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Processed Transactions</p>
+              <p className="text-xs font-bold text-white/20 uppercase tracking-widest">Processed Transactions</p>
             </div>
           </div>
 
@@ -188,7 +188,7 @@ export default function HistoryPage() {
                   </div>
                   <div>
                      <h4 className="text-white font-black uppercase tracking-widest text-sm">Net Profit Calculator</h4>
-                     <p className="text-white/40 text-[10px] font-bold">Subtract operational spends (Rent, Staff, etc.)</p>
+                     <p className="text-white/40 text-xs font-bold">Subtract operational spends (Rent, Staff, etc.)</p>
                   </div>
                </div>
 
@@ -245,7 +245,7 @@ export default function HistoryPage() {
              </div>
 
              <div className="bg-green-500/10 border border-green-500/20 px-8 py-6 rounded-3xl min-w-[200px] text-center w-full md:w-auto shadow-inner shadow-green-500/5 relative z-10 shrink-0">
-                <p className="text-[10px] font-black text-green-500/60 uppercase tracking-[0.2em] mb-2">Net Profit</p>
+                <p className="text-xs font-black text-green-500/60 uppercase tracking-[0.2em] mb-2">Net Profit</p>
                 <p className="text-4xl font-black text-green-500 tracking-tighter">
                   {formatCurrency(summary[activeTab].profit - expenses.reduce((sum, e) => sum + e.amount, 0))}
                 </p>
@@ -262,19 +262,19 @@ export default function HistoryPage() {
               <div className="flex bg-white/5 rounded-xl overflow-hidden p-1 gap-1">
                 <button 
                   onClick={() => setItemFilter('quantity')}
-                  className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${itemFilter === 'quantity' ? 'bg-gold text-black' : 'text-white/40 hover:text-white'}`}
+                  className={`px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${itemFilter === 'quantity' ? 'bg-gold text-black' : 'text-white/40 hover:text-white'}`}
                 >
                   Most Sold
                 </button>
                 <button 
                   onClick={() => setItemFilter('revenue')}
-                  className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${itemFilter === 'revenue' ? 'bg-gold text-black' : 'text-white/40 hover:text-white'}`}
+                  className={`px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${itemFilter === 'revenue' ? 'bg-gold text-black' : 'text-white/40 hover:text-white'}`}
                 >
                   High Revenue
                 </button>
                 <button 
                   onClick={() => setItemFilter('margin')}
-                  className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${itemFilter === 'margin' ? 'bg-gold text-black' : 'text-white/40 hover:text-white'}`}
+                  className={`px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${itemFilter === 'margin' ? 'bg-gold text-black' : 'text-white/40 hover:text-white'}`}
                 >
                   High Margin
                 </button>
@@ -301,9 +301,9 @@ export default function HistoryPage() {
                     </div>
                     <div className="w-full">
                       <p className="font-bold text-xs text-white uppercase tracking-wider line-clamp-1" title={item.name}>{item.name}</p>
-                      {itemFilter === 'quantity' && <p className="text-[10px] font-black text-gold/60 uppercase tracking-widest mt-1">{item.totalQuantity} Sold</p>}
-                      {itemFilter === 'revenue' && <p className="text-[10px] font-black text-green-500 uppercase tracking-widest mt-1">{formatCurrency(item.totalRevenue)}</p>}
-                      {itemFilter === 'margin' && <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mt-1">{item.profitMargin?.toFixed(1) || 0}% Margin</p>}
+                      {itemFilter === 'quantity' && <p className="text-xs font-black text-gold/60 uppercase tracking-widest mt-1">{item.totalQuantity} Sold</p>}
+                      {itemFilter === 'revenue' && <p className="text-xs font-black text-green-500 uppercase tracking-widest mt-1">{formatCurrency(item.totalRevenue)}</p>}
+                      {itemFilter === 'margin' && <p className="text-xs font-black text-blue-400 uppercase tracking-widest mt-1">{item.profitMargin?.toFixed(1) || 0}% Margin</p>}
                     </div>
                   </div>
                 ));
@@ -367,15 +367,15 @@ export default function HistoryPage() {
            
            <div className="mt-8 pt-8 border-t border-white/10 print:border-black/10 flex justify-between">
               <div className="text-center">
-                 <p className="text-[10px] text-white/40 print:text-black/60 font-black uppercase tracking-widest mb-1">Total Orders</p>
+                 <p className="text-xs text-white/40 print:text-black/60 font-black uppercase tracking-widest mb-1">Total Orders</p>
                  <p className="text-xl font-black text-white print:text-black">{todayOrders.length}</p>
               </div>
               <div className="text-center">
-                 <p className="text-[10px] text-white/40 print:text-black/60 font-black uppercase tracking-widest mb-1">Items Sold</p>
+                 <p className="text-xs text-white/40 print:text-black/60 font-black uppercase tracking-widest mb-1">Items Sold</p>
                  <p className="text-xl font-black text-white print:text-black">{todayBreakdown.totalItems}</p>
               </div>
               <div className="text-center">
-                 <p className="text-[10px] text-green-500/80 print:text-black/60 font-black uppercase tracking-widest mb-1">Net Revenue</p>
+                 <p className="text-xs text-green-500/80 print:text-black/60 font-black uppercase tracking-widest mb-1">Net Revenue</p>
                  <p className="text-2xl font-black text-green-500 print:text-black">{formatCurrency(todayBreakdown.cash + todayBreakdown.online)}</p>
               </div>
            </div>
@@ -411,11 +411,11 @@ export default function HistoryPage() {
                   <h2 className="text-white text-lg font-black tracking-widest uppercase">{date}</h2>
                   <div className="flex gap-6">
                     <div className="text-right hidden sm:block">
-                      <p className="text-[9px] font-black text-white/40 uppercase tracking-widest">Revenue</p>
+                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">Revenue</p>
                       <p className="text-white font-bold">{formatCurrency(dailyRevenue)}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[9px] font-black text-gold/60 uppercase tracking-widest">Daily Gross Profit</p>
+                      <p className="text-[10px] font-black text-gold/60 uppercase tracking-widest">Daily Gross Profit</p>
                       <p className="text-gold font-black flex items-center gap-1">
                         {formatCurrency(dailyProfit)} <TrendingUp size={14} />
                       </p>
@@ -446,7 +446,7 @@ export default function HistoryPage() {
                               <p className="text-white font-bold uppercase tracking-wider text-sm flex items-center gap-2">
                                 <Clock size={12} className="text-gold" /> {time}
                               </p>
-                              <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">
+                              <p className="text-xs text-white/40 uppercase tracking-widest mt-1">
                                 {order.items.length} Items Sold
                               </p>
                             </div>
@@ -454,11 +454,11 @@ export default function HistoryPage() {
 
                           <div className="flex items-center gap-8">
                             <div className="text-right hidden sm:block">
-                              <p className="text-[9px] text-white/40 uppercase tracking-widest">Amount</p>
+                              <p className="text-[10px] text-white/40 uppercase tracking-widest">Amount</p>
                               <p className="text-white font-bold">{formatCurrency(order.totalRevenue)}</p>
                             </div>
                             <div className="text-right">
-                              <p className="text-[9px] text-gold/60 uppercase tracking-widest">Gross Profit</p>
+                              <p className="text-[10px] text-gold/60 uppercase tracking-widest">Gross Profit</p>
                               <p className="text-gold font-black">{formatCurrency(order.totalProfit)}</p>
                             </div>
                             <div className="text-white/20 group-hover:text-white transition-colors">
@@ -477,7 +477,7 @@ export default function HistoryPage() {
                               className="border-t border-white/5 bg-black/40"
                             >
                               <div className="p-6 space-y-4">
-                                <h4 className="text-[10px] font-black text-white/40 uppercase tracking-widest">Itemized Bill</h4>
+                                <h4 className="text-xs font-black text-white/40 uppercase tracking-widest">Itemized Bill</h4>
                                 <div className="space-y-3">
                                   {order.items.map((item: any, i: number) => (
                                     <div key={i} className="flex items-center justify-between bg-white/5 rounded-xl p-4">
@@ -489,7 +489,7 @@ export default function HistoryPage() {
                                           <p className="text-white text-xs font-bold uppercase tracking-wider">
                                             {item.dishId?.name || 'Unknown Item'}
                                           </p>
-                                          <p className="text-[9px] text-white/40 uppercase tracking-widest mt-0.5">
+                                          <p className="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">
                                             Qty: {item.quantity} × {formatCurrency(item.price)}
                                           </p>
                                         </div>
@@ -498,7 +498,7 @@ export default function HistoryPage() {
                                         <p className="text-white text-xs font-bold">
                                           {formatCurrency(item.price * item.quantity)}
                                         </p>
-                                        <p className="text-[9px] text-green-500/80 uppercase tracking-widest mt-0.5">
+                                        <p className="text-[10px] text-green-500/80 uppercase tracking-widest mt-0.5">
                                           +{formatCurrency((item.price - item.ingredientPrice) * item.quantity)} Gross Profit
                                         </p>
                                       </div>
@@ -507,7 +507,7 @@ export default function HistoryPage() {
                                 </div>
                                 
                                 {/* Order Metadata Summary */}
-                                <div className="pt-4 border-t border-white/5 flex flex-wrap gap-x-8 gap-y-3 text-[10px] text-white/60 font-bold uppercase tracking-wider">
+                                <div className="pt-4 border-t border-white/5 flex flex-wrap gap-x-8 gap-y-3 text-xs text-white/60 font-bold uppercase tracking-wider">
                                   {order.tableNumber && (
                                     <div>
                                       <span className="text-white/30">Table:</span> <span className="text-gold">{order.tableNumber}</span>

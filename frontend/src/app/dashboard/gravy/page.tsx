@@ -63,7 +63,7 @@ export default function GravyMaster() {
            <div className="bg-black/40 p-6 rounded-3xl border border-white/5 flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-gold/10 flex items-center justify-center text-gold"><Clock size={24} /></div>
               <div>
-                <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Active Prep</p>
+                <p className="text-xs font-black text-white/30 uppercase tracking-widest">Active Prep</p>
                 <p className="text-xl font-black text-white uppercase tracking-tight">Morning Shift</p>
               </div>
            </div>
@@ -95,7 +95,7 @@ export default function GravyMaster() {
                   </div>
                   <div>
                     <h4 className={`font-black text-lg transition-colors ${activeGravy === g.name ? 'text-white' : 'text-white/40'}`}>{g.name}</h4>
-                    <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Standard Batch: {g.qtyPerBatch}kg</p>
+                    <p className="text-xs font-bold text-white/20 uppercase tracking-widest">Standard Batch: {g.qtyPerBatch}kg</p>
                   </div>
                 </div>
                 <ChevronRight size={20} className={activeGravy === g.name ? 'text-gold' : 'text-white/5'} />
@@ -128,11 +128,11 @@ export default function GravyMaster() {
 
               <div className="bg-gold-gradient p-1 rounded-[2rem] min-w-[280px]">
                 <div className="bg-[#111] rounded-[1.9rem] p-8 flex flex-col items-center text-center">
-                   <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] mb-2">Total Expected Yield</p>
+                   <p className="text-xs font-black text-white/40 uppercase tracking-[0.3em] mb-2">Total Expected Yield</p>
                    <h2 className="text-6xl font-black text-gold tracking-tighter">{calculatedYield.toFixed(1)}</h2>
                    <p className="text-xl font-black text-white mt-1 uppercase tracking-widest">LITERS</p>
                    <div className="w-full h-[1px] bg-white/5 my-6"></div>
-                   <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] leading-relaxed">
+                   <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] leading-relaxed">
                      Ensures consistent thickness and seasoning for {currentGravy.name}
                    </p>
                 </div>
@@ -146,7 +146,7 @@ export default function GravyMaster() {
                 <Thermometer size={32} />
               </div>
               <div>
-                <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Storage Temperature</p>
+                <p className="text-xs font-black text-white/30 uppercase tracking-widest mb-1">Storage Temperature</p>
                 <p className="text-2xl font-black text-white">{currentGravy.storageTemp}</p>
               </div>
             </div>
@@ -156,7 +156,7 @@ export default function GravyMaster() {
                 <Droplets size={32} />
               </div>
               <div>
-                <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Shelf Life (Max)</p>
+                <p className="text-xs font-black text-white/30 uppercase tracking-widest mb-1">Shelf Life (Max)</p>
                 <p className="text-2xl font-black text-white">{currentGravy.shelfLife}</p>
               </div>
             </div>
@@ -174,7 +174,7 @@ export default function GravyMaster() {
             </div>
             <button 
               onClick={() => router.push(`/dashboard/sop?search=${encodeURIComponent(currentGravy.name)}`)}
-              className="px-8 py-4 bg-white/10 hover:bg-gold hover:text-black rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+              className="px-8 py-4 bg-white/10 hover:bg-gold hover:text-black rounded-xl text-xs font-black uppercase tracking-widest transition-all"
             >
               View Full SOP
             </button>

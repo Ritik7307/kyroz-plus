@@ -153,7 +153,7 @@ export default function PublicMembershipPage() {
 
       {/* Footer */}
       <footer className="w-full border-t border-white/5 bg-black/50 py-10 px-6 text-center">
-        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">
+        <p className="text-xs font-black text-white/20 uppercase tracking-[0.2em]">
           © 2026 KYROZ TECHNOLOGIES PVT LTD. ALL RIGHTS RESERVED.
         </p>
       </footer>

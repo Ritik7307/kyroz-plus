@@ -463,7 +463,7 @@ export default function CostingMaster() {
         </div>
         
         <div className="space-y-4 relative z-10 text-center lg:text-left">
-          <div className="flex items-center justify-center lg:justify-start gap-3 text-gold text-[10px] md:text-xs font-bold uppercase tracking-[0.4em]">
+          <div className="flex items-center justify-center lg:justify-start gap-3 text-gold text-xs md:text-xs font-bold uppercase tracking-[0.4em]">
             <span className="w-6 md:w-10 h-[2px] bg-gold"></span>
             Financial Intelligence
           </div>
@@ -542,7 +542,7 @@ export default function CostingMaster() {
                   </div>
                   Standard Recipe Ledger
                 </h3>
-                <span className="text-[10px] bg-gold/20 border border-gold/30 px-3 py-1.5 rounded-full font-black text-gold uppercase tracking-widest flex items-center gap-2">
+                <span className="text-xs bg-gold/20 border border-gold/30 px-3 py-1.5 rounded-full font-black text-gold uppercase tracking-widest flex items-center gap-2">
                   {savingRecipe ? <Loader2 className="animate-spin" size={10} /> : <CheckCircle size={10} />} Recipe Active
                 </span>
               </div>
@@ -581,7 +581,7 @@ export default function CostingMaster() {
                               {ing.itemModel === 'RawMaterial' ? 'RAW' : ing.itemModel === 'SemiFinishedGood' ? 'SFG' : 'PKG'}
                             </span>
                           </div>
-                          <p className="text-[10px] text-white/20 uppercase font-black tracking-widest mt-1">
+                          <p className="text-xs text-white/20 uppercase font-black tracking-widest mt-1">
                             {ing.isSubIngredient ? `Used in ${ing.parentSfgName} • ` : ''}Calculated contribution: ₹{ing.totalCost.toFixed(2)}
                           </p>
                         </div>
@@ -590,7 +590,7 @@ export default function CostingMaster() {
                       {/* Ingredient Cost Editing Input */}
                       <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 pt-4 md:pt-0 border-white/5">
                         <div className="space-y-1 text-left md:text-right">
-                          <label className="text-[9px] font-black text-white/20 uppercase tracking-widest block">
+                          <label className="text-[10px] font-black text-white/20 uppercase tracking-widest block">
                             Purchase / {ing.rateUnit === 'gm' ? 'kg' : ing.rateUnit === 'ml' ? 'L' : ing.rateUnit}
                           </label>
                           <div className="flex items-center gap-2">
@@ -635,7 +635,7 @@ export default function CostingMaster() {
                     <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-white/10">
                       <Lock size={32} />
                     </div>
-                    <p className="text-white/10 font-black uppercase tracking-[0.4em] text-[10px]">No ingredients mapped to this recipe</p>
+                    <p className="text-white/10 font-black uppercase tracking-[0.4em] text-xs">No ingredients mapped to this recipe</p>
                   </div>
                 )}
                 
@@ -704,7 +704,7 @@ export default function CostingMaster() {
                     }`}
                   >
                     {type}
-                    <div className="text-[9px] font-medium opacity-60 mt-1 uppercase tracking-widest">
+                    <div className="text-[10px] font-medium opacity-60 mt-1 uppercase tracking-widest">
                       {type === 'Street Food / Kiosk' ? '2.5x Multiplier' : type === 'Casual Dining' ? '3.0x Multiplier' : '4.0x Multiplier'}
                     </div>
                   </button>
@@ -720,12 +720,12 @@ export default function CostingMaster() {
                 
                 <div className="space-y-6">
                   <div className="flex justify-between items-center">
-                    <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Cost Per Plate (Raw)</p>
+                    <p className="text-xs font-black text-white/40 uppercase tracking-[0.3em]">Cost Per Plate (Raw)</p>
                     <span className="text-2xl font-black text-white">₹{costPerPlate.toFixed(2)}</span>
                   </div>
                   
                   <div className="pt-6 border-t border-white/5">
-                    <p className="text-[10px] font-black text-gold uppercase tracking-[0.3em] mb-2 text-center">Suggested Selling Price (Rounded)</p>
+                    <p className="text-xs font-black text-gold uppercase tracking-[0.3em] mb-2 text-center">Suggested Selling Price (Rounded)</p>
                     <h2 className="text-6xl font-black tracking-tighter text-white text-center">
                       ₹{suggestedPrice}
                     </h2>
@@ -733,17 +733,17 @@ export default function CostingMaster() {
 
                   <div className="pt-4 border-t border-white/5 flex justify-between gap-4">
                     <div className="text-center flex-1">
-                      <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Min Price (2.5x)</p>
+                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Min Price (2.5x)</p>
                       <span className="text-lg font-black text-green-500">₹{(costPerPlate * 2.5).toFixed(0)}</span>
                     </div>
                     <div className="text-center flex-1 border-l border-white/5">
-                      <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Max Price (5x)</p>
+                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Max Price (5x)</p>
                       <span className="text-lg font-black text-red-500">₹{(costPerPlate * 5.0).toFixed(0)}</span>
                     </div>
                   </div>
 
                   <div className="space-y-4 pt-6 border-t border-white/5">
-                    <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Actual Dish Selling Price</p>
+                    <p className="text-xs font-black text-white/40 uppercase tracking-[0.3em]">Actual Dish Selling Price</p>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gold/40 text-2xl font-black">₹</span>
                       <input 
@@ -770,7 +770,7 @@ export default function CostingMaster() {
                   </div>
                   
                   {foodCostPercentage > 35 && (
-                    <div className="p-3 bg-red-950/20 border border-red-500/20 rounded-xl flex gap-2 text-[10px] text-red-400 font-bold leading-normal">
+                    <div className="p-3 bg-red-950/20 border border-red-500/20 rounded-xl flex gap-2 text-xs text-red-400 font-bold leading-normal">
                       <AlertTriangle className="shrink-0 text-red-400" size={14} />
                       <span>Warning: High food cost! Target less than 35% for maximum profitability.</span>
                     </div>

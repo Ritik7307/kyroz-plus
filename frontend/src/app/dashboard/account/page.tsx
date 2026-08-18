@@ -152,7 +152,7 @@ return (
                 <Mail size={18} />
               </div>
               <div>
-                <p className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Email Address</p>
+                <p className="text-xs text-white/30 uppercase font-bold tracking-tighter">Email Address</p>
                 <p className="text-sm font-medium">{user?.email || 'N/A'}</p>
               </div>
             </div>
@@ -163,7 +163,7 @@ return (
                   <Store size={18} />
                 </div>
                 <div className="flex-1">
-                  <p className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Shop Name</p>
+                  <p className="text-xs text-white/30 uppercase font-bold tracking-tighter">Shop Name</p>
                   <p className="text-sm font-medium truncate max-w-[120px]">{user?.shopName || 'Not Set'}</p>
                 </div>
               </div>
@@ -172,7 +172,7 @@ return (
                   <QrCode size={18} />
                 </div>
                 <div>
-                  <p className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">GST Number</p>
+                  <p className="text-xs text-white/30 uppercase font-bold tracking-tighter">GST Number</p>
                   <p className="text-sm font-medium">{user?.gstNumber || 'Not Set'}</p>
                 </div>
               </div>
@@ -183,7 +183,7 @@ return (
                 <Store size={18} />
               </div>
               <div>
-                <p className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Shop Address</p>
+                <p className="text-xs text-white/30 uppercase font-bold tracking-tighter">Shop Address</p>
                 <p className="text-sm font-medium leading-relaxed">{user?.shopAddress || 'Not Set'}</p>
               </div>
             </div>
@@ -193,12 +193,12 @@ return (
                 <ShieldCheck size={18} />
               </div>
               <div className="flex-1">
-                <p className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Account Status</p>
+                <p className="text-xs text-white/30 uppercase font-bold tracking-tighter">Account Status</p>
                 <p className="text-sm font-bold text-green-500">Verified & Active</p>
               </div>
               <div className="flex items-center gap-1.5 px-3 py-1 bg-green-500/10 rounded-full border border-green-500/20">
                 <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                <span className="text-[9px] font-black text-green-500 uppercase tracking-widest">Live</span>
+                <span className="text-[10px] font-black text-green-500 uppercase tracking-widest">Live</span>
               </div>
             </div>
 
@@ -208,7 +208,7 @@ return (
                   <Phone size={18} />
                 </div>
                 <div>
-                  <p className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Contact No.</p>
+                  <p className="text-xs text-white/30 uppercase font-bold tracking-tighter">Contact No.</p>
                   <p className="text-sm font-medium">{user?.phone || 'Not Set'}</p>
                 </div>
               </div>
@@ -218,7 +218,7 @@ return (
                   <Settings size={18} />
                 </div>
                 <div>
-                  <p className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Default GST</p>
+                  <p className="text-xs text-white/30 uppercase font-bold tracking-tighter">Default GST</p>
                   <p className="text-sm font-medium">{user?.gstPercentage || 5}%</p>
                 </div>
               </div>
@@ -230,7 +230,7 @@ return (
                   <QrCode size={18} />
                 </div>
                 <div className="flex-1">
-                  <p className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Payment QR Code</p>
+                  <p className="text-xs text-white/30 uppercase font-bold tracking-tighter">Payment QR Code</p>
                   <p className="text-sm font-medium">Uploaded Successfully</p>
                 </div>
                 <img src={user.paymentQrCode} alt="QR Code" className="w-12 h-12 rounded-lg object-cover border border-white/10" />
@@ -255,7 +255,7 @@ return (
           <div className="flex items-center justify-between mb-6">
             <div>
               <p className="text-2xl font-bold text-gold">{user?.subscriptionPlan || 'KYROZ STARTER'}</p>
-              <p className="text-[10px] text-white/30 uppercase mt-1">Billed Monthly</p>
+              <p className="text-xs text-white/30 uppercase mt-1">Billed Monthly</p>
             </div>
             <div className="p-3 bg-gold/10 rounded-2xl text-gold">
               <CreditCard size={24} />
@@ -330,7 +330,7 @@ return (
           <h3 className="text-xl font-bold mb-6">EDIT <span className="text-gold">PROFILE</span></h3>
           <form onSubmit={handleUpdate} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Full Name</label>
+              <label className="text-xs font-black uppercase tracking-widest text-white/40">Full Name</label>
               <input 
                 type="text" 
                 value={formData.name}
@@ -340,7 +340,7 @@ return (
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Restaurant Name</label>
+                <label className="text-xs font-black uppercase tracking-widest text-white/40">Restaurant Name</label>
                 <input 
                   type="text" 
                   value={formData.shopName}
@@ -349,7 +349,7 @@ return (
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-white/40">GST Number</label>
+                <label className="text-xs font-black uppercase tracking-widest text-white/40">GST Number</label>
                 <input 
                   type="text" 
                   value={formData.gstNumber}
@@ -360,7 +360,7 @@ return (
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Shop Address</label>
+              <label className="text-xs font-black uppercase tracking-widest text-white/40">Shop Address</label>
               <textarea 
                 value={formData.shopAddress}
                 onChange={(e) => setFormData({...formData, shopAddress: e.target.value})}
@@ -370,7 +370,7 @@ return (
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Contact Number</label>
+                <label className="text-xs font-black uppercase tracking-widest text-white/40">Contact Number</label>
                 <input 
                   type="tel" 
                   value={formData.phone}
@@ -380,7 +380,7 @@ return (
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-white/40">GST Rate (%)</label>
+                <label className="text-xs font-black uppercase tracking-widest text-white/40">GST Rate (%)</label>
                 <input 
                   type="number" 
                   value={formData.gstPercentage}
@@ -391,7 +391,7 @@ return (
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Payment QR Code (Optional)</label>
+              <label className="text-xs font-black uppercase tracking-widest text-white/40">Payment QR Code (Optional)</label>
               <div className="flex items-center gap-4">
                 {formData.paymentQrCode ? (
                   <div className="relative w-16 h-16 rounded-xl border border-white/10 overflow-hidden bg-white/5">
@@ -401,7 +401,7 @@ return (
                       onClick={() => setFormData({...formData, paymentQrCode: ''})}
                       className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
                     >
-                      <span className="text-[10px] font-bold text-white uppercase">Remove</span>
+                      <span className="text-xs font-bold text-white uppercase">Remove</span>
                     </button>
                   </div>
                 ) : (

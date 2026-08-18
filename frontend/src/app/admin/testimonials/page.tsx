@@ -155,7 +155,7 @@ export default function TestimonialsPage() {
                 </div>
                 <div>
                   <h4 className="font-bold text-white">{t.userName}</h4>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-gold">{t.userRole}</p>
+                  <p className="text-xs font-black uppercase tracking-widest text-gold">{t.userRole}</p>
                 </div>
                 <div className="ml-auto flex gap-1">
                   {[...Array(5)].map((_, i) => (
@@ -200,7 +200,7 @@ export default function TestimonialsPage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40">User Name</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-white/40">User Name</label>
                     <input 
                       type="text" 
                       value={formData.userName}
@@ -211,7 +211,7 @@ export default function TestimonialsPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40">User Role</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-white/40">User Role</label>
                     <input 
                       type="text" 
                       value={formData.userRole}
@@ -224,7 +224,7 @@ export default function TestimonialsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Testimonial Content</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-white/40">Testimonial Content</label>
                   <textarea 
                     value={formData.content}
                     onChange={(e) => setFormData({...formData, content: e.target.value})}
@@ -236,7 +236,7 @@ export default function TestimonialsPage() {
 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Rating (1-5)</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-white/40">Rating (1-5)</label>
                     <div className="flex gap-4 items-center h-[50px]">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
@@ -251,7 +251,7 @@ export default function TestimonialsPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Avatar URL (Optional)</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-white/40">Avatar URL (Optional)</label>
                     <input 
                       type="text" 
                       value={formData.avatarUrl}

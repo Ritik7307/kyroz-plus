@@ -201,7 +201,7 @@ export default function SopPacketsPage() {
                     <Trash2 size={16} />
                   </button>
                 </div>
-                <div className="absolute bottom-4 left-4 bg-gold text-black px-3 py-1 rounded-full text-[10px] font-black uppercase">
+                <div className="absolute bottom-4 left-4 bg-gold text-black px-3 py-1 rounded-full text-xs font-black uppercase">
                   {packet.category}
                 </div>
               </div>
@@ -217,7 +217,7 @@ export default function SopPacketsPage() {
                     <IndianRupee size={14} />
                     <span className="text-xl">{packet.price}</span>
                   </div>
-                  <div className="text-[10px] text-white/20 font-bold uppercase">
+                  <div className="text-xs text-white/20 font-bold uppercase">
                     {packet.images?.length || 0} Images
                   </div>
                 </div>
@@ -261,7 +261,7 @@ export default function SopPacketsPage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Packet Name</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-white/40">Packet Name</label>
                     <input 
                       type="text" 
                       value={formData.name}
@@ -272,7 +272,7 @@ export default function SopPacketsPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Price (INR)</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-white/40">Price (INR)</label>
                     <div className="relative">
                       <IndianRupee size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" />
                       <input 
@@ -303,7 +303,7 @@ export default function SopPacketsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Description (Optional)</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-white/40">Description (Optional)</label>
                   <textarea 
                     value={formData.description}
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
@@ -313,7 +313,7 @@ export default function SopPacketsPage() {
                 </div>
 
                 <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Images</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-white/40">Images</label>
                   <div className="grid grid-cols-4 gap-4">
                     {formData.images.map((img, idx) => (
                       <div key={idx} className="aspect-square rounded-xl bg-white/5 relative group overflow-hidden">

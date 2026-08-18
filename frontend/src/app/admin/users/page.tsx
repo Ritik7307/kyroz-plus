@@ -118,12 +118,12 @@ export default function UserManagementPage() {
         </div>
         
         <div className="flex items-center gap-3">
-          <button className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
+          <button className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2">
             <Filter size={14} /> Filter
           </button>
           <button 
             onClick={fetchUsers}
-            className="px-6 py-3 bg-gold-gradient text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg"
+            className="px-6 py-3 bg-gold-gradient text-black rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg"
           >
             Refresh List
           </button>
@@ -134,7 +134,7 @@ export default function UserManagementPage() {
       {isLoading ? (
         <div className="py-40 text-center">
           <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gold font-black uppercase text-[10px] tracking-widest">Accessing Vault...</p>
+          <p className="text-gold font-black uppercase text-xs tracking-widest">Accessing Vault...</p>
         </div>
       ) : error ? (
         <div className="py-20 text-center bg-red-500/5 rounded-3xl border border-red-500/20">
@@ -147,12 +147,12 @@ export default function UserManagementPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-white/5 border-b border-white/5">
-                  <th className="p-6 pl-10 text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Member Details</th>
-                  <th className="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Establishment</th>
-                  <th className="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Access Level</th>
-                  <th className="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Account Plan</th>
-                  <th className="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Joining Date</th>
-                  <th className="p-6 pr-10 text-right text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Actions</th>
+                  <th className="p-6 pl-10 text-xs font-black uppercase tracking-[0.2em] text-white/30">Member Details</th>
+                  <th className="p-6 text-xs font-black uppercase tracking-[0.2em] text-white/30">Establishment</th>
+                  <th className="p-6 text-xs font-black uppercase tracking-[0.2em] text-white/30">Access Level</th>
+                  <th className="p-6 text-xs font-black uppercase tracking-[0.2em] text-white/30">Account Plan</th>
+                  <th className="p-6 text-xs font-black uppercase tracking-[0.2em] text-white/30">Joining Date</th>
+                  <th className="p-6 pr-10 text-right text-xs font-black uppercase tracking-[0.2em] text-white/30">Actions</th>
                 </tr>
               </thead>
               <tbody className="text-sm">
@@ -196,7 +196,7 @@ export default function UserManagementPage() {
                       />
                     </td>
                     <td className="p-6">
-                      <span className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest border ${
+                      <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border ${
                         u.subscriptionPlan === 'Elite' ? 'bg-gold/10 border-gold/30 text-gold' :
                         u.subscriptionPlan === 'Pro' ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' :
                         'bg-white/5 border-white/10 text-white/40'

@@ -134,7 +134,7 @@ export default function SettingsPage() {
                     <h4 className="text-white font-medium flex items-center gap-2">
                       {session.deviceInfo}
                       {idx === 0 && (
-                        <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">Current</span>
+                        <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">Current</span>
                       )}
                     </h4>
                     <p className="text-xs text-gray-500 mt-1">

@@ -616,7 +616,7 @@ export default function AiDashboard() {
           </div>
           <div>
             <h2 className="text-white font-black text-xs sm:text-lg tracking-tight uppercase">CHEF CORE</h2>
-            <p className="text-white/40 text-[7px] sm:text-[10px] font-bold uppercase tracking-[0.2em]">
+            <p className="text-white/40 text-[7px] sm:text-xs font-bold uppercase tracking-[0.2em]">
               {assistantState === 'idle' ? 'Idle' : assistantState === 'listening' ? 'Listening...' : assistantState === 'processing' ? 'Processing...' : 'Speaking...'}
             </p>
           </div>
@@ -624,8 +624,8 @@ export default function AiDashboard() {
         
         <div className="flex items-center gap-1.5 sm:gap-3">
           <div className="flex bg-black rounded-lg sm:rounded-xl p-0.5 sm:p-1 border border-white/5 shadow-inner">
-            <button onClick={() => setSelectedLang('en')} className={`px-2 py-1 sm:px-4 sm:py-2 text-[8px] sm:text-[10px] font-black rounded-md sm:rounded-lg transition-all ${selectedLang === 'en' ? 'bg-gold text-black shadow-lg' : 'text-white/30'}`}>ENGLISH</button>
-            <button onClick={() => setSelectedLang('hi')} className={`px-2 py-1 sm:px-4 sm:py-2 text-[8px] sm:text-[10px] font-black rounded-md sm:rounded-lg transition-all ${selectedLang === 'hi' ? 'bg-gold text-black shadow-lg' : 'text-white/30'}`}>हिन्दी</button>
+            <button onClick={() => setSelectedLang('en')} className={`px-2 py-1 sm:px-4 sm:py-2 text-[8px] sm:text-xs font-black rounded-md sm:rounded-lg transition-all ${selectedLang === 'en' ? 'bg-gold text-black shadow-lg' : 'text-white/30'}`}>ENGLISH</button>
+            <button onClick={() => setSelectedLang('hi')} className={`px-2 py-1 sm:px-4 sm:py-2 text-[8px] sm:text-xs font-black rounded-md sm:rounded-lg transition-all ${selectedLang === 'hi' ? 'bg-gold text-black shadow-lg' : 'text-white/30'}`}>हिन्दी</button>
           </div>
           <button onClick={() => setIsMuted(!isMuted)} className={`p-2 sm:p-3 rounded-lg sm:rounded-xl border flex items-center justify-center flex-shrink-0 ${isMuted ? 'text-white/20 border-white/5' : 'text-gold border-gold/20'}`}>
             {isMuted ? <VolumeX className="w-4 h-4 sm:w-[18px] sm:h-[18px]" /> : <Volume2 className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />}
@@ -649,7 +649,7 @@ export default function AiDashboard() {
                     key={sIdx}
                     onClick={() => handleSend(suggestion)}
                     disabled={assistantState === 'processing' || assistantState === 'speaking'}
-                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white/5 hover:bg-gold/20 border border-white/10 hover:border-gold/30 text-white/80 hover:text-gold text-[10px] sm:text-xs rounded-full transition-all shadow-md font-medium"
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white/5 hover:bg-gold/20 border border-white/10 hover:border-gold/30 text-white/80 hover:text-gold text-xs sm:text-xs rounded-full transition-all shadow-md font-medium"
                   >
                     {suggestion}
                   </button>
@@ -669,7 +669,7 @@ export default function AiDashboard() {
             ))}
           </div>
         )}
-        <div className="mb-2 sm:mb-4 min-h-4 sm:min-h-5 text-center text-[9px] sm:text-[11px] font-bold uppercase tracking-[0.16em]">
+        <div className="mb-2 sm:mb-4 min-h-4 sm:min-h-5 text-center text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.16em]">
           <span className={errorMessage ? 'text-red-400' : 'text-white/30'}>{errorMessage || voiceHint}</span>
         </div>
 

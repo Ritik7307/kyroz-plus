@@ -131,7 +131,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="text-center">
                   <h3 className="text-gold font-black text-2xl uppercase tracking-widest">POS TERMINAL</h3>
-                  <p className="text-white/40 text-[10px] mt-2 font-black tracking-[0.2em]">OPEN BILLING INTERFACE</p>
+                  <p className="text-white/40 text-xs mt-2 font-black tracking-[0.2em]">OPEN BILLING INTERFACE</p>
                 </div>
               </button>
             </div>
@@ -144,10 +144,10 @@ export default function DashboardPage() {
               <div className="space-y-3 relative z-10 text-center lg:text-left">
                 <h2 className="text-4xl font-black tracking-tighter uppercase leading-none text-white">WELCOME BACK, <span className="text-gold">{user?.name || 'CHEF'}!</span></h2>
                 <div className="flex items-center gap-3 justify-center lg:justify-start">
-                  <span className="px-4 py-1 bg-gold/10 text-gold text-[10px] font-black uppercase tracking-widest rounded-full border border-gold/20">
+                  <span className="px-4 py-1 bg-gold/10 text-gold text-xs font-black uppercase tracking-widest rounded-full border border-gold/20">
                     {user?.role?.toUpperCase()} ACCOUNT
                   </span>
-                  <div className="flex items-center gap-2 text-green-500 font-black text-[10px] uppercase tracking-widest">
+                  <div className="flex items-center gap-2 text-green-500 font-black text-xs uppercase tracking-widest">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                     System Online
                   </div>
@@ -158,14 +158,14 @@ export default function DashboardPage() {
                 {(user?.role === 'manager' || user?.role === 'user') && (
                   <div className="flex gap-4">
                     <div className="bg-black/40 p-4 px-6 rounded-2xl border border-white/10 hidden sm:block">
-                      <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Today's Sale</p>
+                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Today's Sale</p>
                       <div className="flex items-center gap-3">
                         <span className="text-xl font-black text-white">{formatCurrency(dailyRevenue)}</span>
                         <Activity size={14} className="text-blue-500" />
                       </div>
                     </div>
                     <div className="bg-black/40 p-4 px-6 rounded-2xl border border-white/10 hidden sm:block">
-                      <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Daily Gross Profit</p>
+                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Daily Gross Profit</p>
                       <div className="flex items-center gap-3">
                         <span className="text-xl font-black text-white">{formatCurrency(dailyProfit)}</span>
                         <TrendingUp size={14} className="text-green-500" />
@@ -201,7 +201,7 @@ export default function DashboardPage() {
                       <div className="w-12 h-12 bg-gold/10 rounded-xl flex items-center justify-center text-gold"><FileText size={24} /></div>
                       <div>
                         <h4 className="font-bold text-sm text-white line-clamp-1">{sop.title}</h4>
-                        <p className="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">Uploaded {new Date(sop.createdAt).toLocaleDateString()}</p>
+                        <p className="text-xs text-white/40 uppercase tracking-widest mt-0.5">Uploaded {new Date(sop.createdAt).toLocaleDateString()}</p>
                       </div>
                     </div>
                     <ArrowRight size={18} className="text-white/20 group-hover:text-gold transition-colors" />
@@ -226,9 +226,9 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <h4 className="font-black text-lg uppercase tracking-tight text-white">{item.title}</h4>
-                    <p className="text-white/30 text-[10px] mt-1 font-bold uppercase tracking-widest">{item.sub}</p>
+                    <p className="text-white/30 text-xs mt-1 font-bold uppercase tracking-widest">{item.sub}</p>
                   </div>
-                  <div className="text-gold text-[10px] font-black flex items-center gap-2 uppercase tracking-widest mt-2 group-hover:gap-3 transition-all">
+                  <div className="text-gold text-xs font-black flex items-center gap-2 uppercase tracking-widest mt-2 group-hover:gap-3 transition-all">
                     OPEN <ArrowRight size={14} />
                   </div>
                 </div>
@@ -266,7 +266,7 @@ export default function DashboardPage() {
               </h3>
               <button 
                 onClick={() => router.push('/dashboard/packets')}
-                className="text-gold text-[10px] font-black uppercase tracking-widest flex items-center gap-2 group hover:underline"
+                className="text-gold text-xs font-black uppercase tracking-widest flex items-center gap-2 group hover:underline"
               >
                 VIEW FULL STORE <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
               </button>
@@ -283,12 +283,12 @@ export default function DashboardPage() {
                         <Package size={32} />
                       </div>
                     )}
-                    <div className="absolute top-4 right-4 px-3 py-1 bg-black/60 backdrop-blur-md rounded-lg text-[9px] font-black text-gold uppercase tracking-widest border border-white/10">{packet.category}</div>
+                    <div className="absolute top-4 right-4 px-3 py-1 bg-black/60 backdrop-blur-md rounded-lg text-[10px] font-black text-gold uppercase tracking-widest border border-white/10">{packet.category}</div>
                   </div>
                   <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
                     <div>
                       <h5 className="font-black text-xs leading-tight text-white uppercase tracking-tight line-clamp-2">{packet.name}</h5>
-                      <p className="text-[10px] text-white/30 mt-2 line-clamp-2 font-medium">{packet.description || 'Professional commercial collection.'}</p>
+                      <p className="text-xs text-white/30 mt-2 line-clamp-2 font-medium">{packet.description || 'Professional commercial collection.'}</p>
                     </div>
                     <div className="flex items-center justify-between pt-4">
                       <span className="text-xl font-black text-white flex items-center gap-1">
@@ -296,7 +296,7 @@ export default function DashboardPage() {
                       </span>
                       <button 
                         onClick={() => router.push('/dashboard/packets')}
-                        className="bg-white/5 hover:bg-gold hover:text-black transition-all px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/10"
+                        className="bg-white/5 hover:bg-gold hover:text-black transition-all px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border border-white/10"
                       >
                         Details
                       </button>
@@ -338,7 +338,7 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <h4 className="font-bold text-sm text-white">{t.userName}</h4>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gold">{t.userRole}</p>
+                      <p className="text-xs font-black uppercase tracking-widest text-gold">{t.userRole}</p>
                     </div>
                   </div>
                   <p className="text-xs text-white/60 italic leading-relaxed line-clamp-4">"{t.content}"</p>

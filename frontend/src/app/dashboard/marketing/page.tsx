@@ -608,7 +608,7 @@ export default function MarketingCRM() {
                             <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-white font-bold text-xs">ABC</div>
                             <div className="text-white">
                               <p className="font-bold text-sm leading-tight">{waStatus.businessName}</p>
-                              <p className="text-[10px] text-white/70 flex items-center gap-1"><CheckCircle2 size={10} className="text-green-300"/> Verified Business</p>
+                              <p className="text-xs text-white/70 flex items-center gap-1"><CheckCircle2 size={10} className="text-green-300"/> Verified Business</p>
                             </div>
                           </div>
                           
@@ -644,7 +644,7 @@ export default function MarketingCRM() {
                                 <p className="text-xs text-gray-500">Show this message to redeem 10% off your next bill!</p>
                               </>
                             )}
-                            <span className="text-[9px] text-gray-400 absolute bottom-1 right-2">{new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                            <span className="text-[10px] text-gray-400 absolute bottom-1 right-2">{new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                           </div>
                         </div>
                       </div>
@@ -657,23 +657,23 @@ export default function MarketingCRM() {
                         
                         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
                           <div className="bg-white/5 border border-white/5 p-4 rounded-xl">
-                            <p className="text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">Sent (This Month)</p>
+                            <p className="text-xs text-white/40 uppercase font-bold tracking-widest mb-1">Sent (This Month)</p>
                             <p className="text-xl font-black text-white">{waAnalytics.messagesSent}</p>
                           </div>
                           <div className="bg-white/5 border border-white/5 p-4 rounded-xl">
-                            <p className="text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">Delivered</p>
+                            <p className="text-xs text-white/40 uppercase font-bold tracking-widest mb-1">Delivered</p>
                             <p className="text-xl font-black text-green-400">{waAnalytics.messagesDelivered}</p>
                           </div>
                           <div className="bg-white/5 border border-white/5 p-4 rounded-xl">
-                            <p className="text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">Read Rate</p>
+                            <p className="text-xs text-white/40 uppercase font-bold tracking-widest mb-1">Read Rate</p>
                             <p className="text-xl font-black text-blue-400">{waAnalytics.readRate}%</p>
                           </div>
                           <div className="bg-white/5 border border-white/5 p-4 rounded-xl">
-                            <p className="text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">Response Rate</p>
+                            <p className="text-xs text-white/40 uppercase font-bold tracking-widest mb-1">Response Rate</p>
                             <p className="text-xl font-black text-purple-400">{waAnalytics.responseRate}%</p>
                           </div>
                           <div className="bg-white/5 border border-white/5 p-4 rounded-xl">
-                            <p className="text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">Success Rate</p>
+                            <p className="text-xs text-white/40 uppercase font-bold tracking-widest mb-1">Success Rate</p>
                             <p className="text-xl font-black text-gold">{waAnalytics.campaignSuccessRate}%</p>
                           </div>
                         </div>
@@ -730,7 +730,7 @@ export default function MarketingCRM() {
               <card.icon size={16} />
             </div>
             <div>
-              <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">{card.label}</p>
+              <p className="text-xs text-white/40 font-bold uppercase tracking-widest">{card.label}</p>
               <p className="text-2xl font-black text-white mt-1">{card.count}</p>
             </div>
           </div>
@@ -805,10 +805,10 @@ export default function MarketingCRM() {
                         <div className="w-3 h-3 rounded-full bg-yellow-500/20" />
                         <div className="w-3 h-3 rounded-full bg-green-500/20" />
                       </div>
-                      <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest ml-2">Message Preview</span>
+                      <span className="text-xs text-white/30 font-bold uppercase tracking-widest ml-2">Message Preview</span>
                     </div>
                     
-                    <label className="cursor-pointer text-white/40 hover:text-white transition-colors flex items-center gap-1 text-[10px] uppercase font-bold tracking-widest">
+                    <label className="cursor-pointer text-white/40 hover:text-white transition-colors flex items-center gap-1 text-xs uppercase font-bold tracking-widest">
                       {uploadingImage ? (
                         <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       ) : (
@@ -882,7 +882,7 @@ export default function MarketingCRM() {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-white/5 text-[10px] uppercase tracking-[0.2em] text-white/40">
+              <tr className="bg-white/5 text-xs uppercase tracking-[0.2em] text-white/40">
                 <th className="p-4 pl-6 w-12">
                   <input 
                     type="checkbox" 
@@ -931,7 +931,7 @@ export default function MarketingCRM() {
                         {customer.segments.map((seg: string) => (
                           <span 
                             key={seg} 
-                            className={`text-[9px] px-2 py-0.5 rounded font-bold uppercase tracking-widest ${
+                            className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-widest ${
                               seg === 'VIP' ? 'bg-gold/20 text-gold' :
                               seg === 'Lost' ? 'bg-red-500/20 text-red-400' :
                               seg === 'New' ? 'bg-pink-500/20 text-pink-400' :

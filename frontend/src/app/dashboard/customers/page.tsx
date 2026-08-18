@@ -314,7 +314,7 @@ export default function CustomersPage() {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div>
           <h1 className="text-4xl font-black uppercase tracking-tighter text-white">Customer Directory</h1>
-          <p className="text-gold font-bold text-[10px] uppercase tracking-[0.2em] mt-2">Manage Relationships & Track Footfall</p>
+          <p className="text-gold font-bold text-xs uppercase tracking-[0.2em] mt-2">Manage Relationships & Track Footfall</p>
         </div>
         
         <div className="flex gap-4 items-center">
@@ -359,7 +359,7 @@ export default function CustomersPage() {
               <button
                 key={f}
                 onClick={() => setFilterBy(f)}
-                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                   filterBy === f ? 'bg-gold text-black shadow-lg shadow-gold/20' : 'text-white/40 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -373,7 +373,7 @@ export default function CustomersPage() {
         <div className="flex gap-2 w-full lg:w-auto overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
           <button
             onClick={() => setSortBy('recent')}
-            className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
+            className={`px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
               sortBy === 'recent' ? 'bg-white/10 text-white border border-white/20' : 'bg-white/5 text-white/40 hover:text-white border border-transparent hover:border-white/10'
             }`}
           >
@@ -381,7 +381,7 @@ export default function CustomersPage() {
           </button>
           <button
             onClick={() => setSortBy('frequent')}
-            className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
+            className={`px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
               sortBy === 'frequent' ? 'bg-white/10 text-white border border-white/20' : 'bg-white/5 text-white/40 hover:text-white border border-transparent hover:border-white/10'
             }`}
           >
@@ -389,7 +389,7 @@ export default function CustomersPage() {
           </button>
           <button
             onClick={() => setSortBy('spending')}
-            className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
+            className={`px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
               sortBy === 'spending' ? 'bg-white/10 text-white border border-white/20' : 'bg-white/5 text-white/40 hover:text-white border border-transparent hover:border-white/10'
             }`}
           >
@@ -441,10 +441,10 @@ export default function CustomersPage() {
                         <div className="w-3 h-3 rounded-full bg-yellow-500/20" />
                         <div className="w-3 h-3 rounded-full bg-green-500/20" />
                       </div>
-                      <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest ml-2">Message Preview</span>
+                      <span className="text-xs text-white/30 font-bold uppercase tracking-widest ml-2">Message Preview</span>
                     </div>
                     
-                    <label className="cursor-pointer text-white/40 hover:text-white transition-colors flex items-center gap-1 text-[10px] uppercase font-bold tracking-widest">
+                    <label className="cursor-pointer text-white/40 hover:text-white transition-colors flex items-center gap-1 text-xs uppercase font-bold tracking-widest">
                       {uploadingImage ? (
                         <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       ) : (
@@ -614,7 +614,7 @@ export default function CustomersPage() {
                     </div>
                     <div>
                       <h3 className="text-white font-black text-sm uppercase tracking-wider">{customer.name || 'Unknown'}</h3>
-                      <p className="text-[10px] text-white/40 font-bold tracking-widest flex items-center gap-1 mt-1">
+                      <p className="text-xs text-white/40 font-bold tracking-widest flex items-center gap-1 mt-1">
                         <Phone size={10} /> {customer.phone}
                       </p>
                     </div>
@@ -646,18 +646,18 @@ export default function CustomersPage() {
 
                 <div className="grid grid-cols-2 gap-4 relative z-10 border-t border-white/5 pt-6">
                   <div>
-                    <p className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">Total Visits</p>
+                    <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">Total Visits</p>
                     <p className="text-white font-bold text-lg">{customer.totalVisits}</p>
                   </div>
                   <div>
-                    <p className="text-[9px] font-black text-gold/40 uppercase tracking-widest mb-1">Total Spent</p>
+                    <p className="text-[10px] font-black text-gold/40 uppercase tracking-widest mb-1">Total Spent</p>
                     <p className="text-gold font-black text-lg flex items-center">
                       {formatCurrency(customer.totalSpent)}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-white/40 group-hover:text-white/60 transition-colors relative z-10">
+                <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-xs font-bold uppercase tracking-widest text-white/40 group-hover:text-white/60 transition-colors relative z-10">
                   <div className="flex items-center gap-2">
                     <Calendar size={12} className="text-gold/60" /> {date}
                   </div>

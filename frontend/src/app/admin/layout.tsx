@@ -100,7 +100,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             <div className="hidden sm:block">
               <h1 className="font-black text-xl tracking-tighter leading-none">KYROZ-PLUS</h1>
-              <p className="text-gold font-black uppercase text-[9px] tracking-[0.3em] mt-1 opacity-60">Admin Central</p>
+              <p className="text-gold font-black uppercase text-[10px] tracking-[0.3em] mt-1 opacity-60">Admin Central</p>
             </div>
           </div>
         </div>
@@ -129,7 +129,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-white/40 hover:text-gold transition-all flex items-center gap-3 border border-white/5"
             >
               <SearchIcon size={18} />
-              <div className="hidden xl:flex items-center gap-1.5 opacity-40 text-[9px] font-black uppercase">
+              <div className="hidden xl:flex items-center gap-1.5 opacity-40 text-[10px] font-black uppercase">
                 <Command size={10} /> K
               </div>
             </button>

@@ -135,7 +135,7 @@ export default function AdminSettingsPage() {
                         <h4 className="text-lg font-black text-white uppercase tracking-widest mb-4">{planKey} Plan</h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                           <div className="space-y-3">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Base Price (₹)</label>
+                            <label className="text-xs font-black uppercase tracking-[0.2em] text-white/30">Base Price (₹)</label>
                             <input 
                               type="number"
                               value={plan.price === 0 && !String(plan.price).includes('0') ? '' : plan.price}
@@ -154,7 +154,7 @@ export default function AdminSettingsPage() {
                             />
                           </div>
                           <div className="space-y-3">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Discount (%)</label>
+                            <label className="text-xs font-black uppercase tracking-[0.2em] text-white/30">Discount (%)</label>
                             <input 
                               type="number"
                               min="0"
@@ -175,7 +175,7 @@ export default function AdminSettingsPage() {
                             />
                           </div>
                           <div className="space-y-3">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Final Price (₹)</label>
+                            <label className="text-xs font-black uppercase tracking-[0.2em] text-white/30">Final Price (₹)</label>
                             <input 
                               type="number"
                               value={plan.finalPrice === undefined ? Math.round(plan.price * (1 - plan.discount / 100)) : (plan.finalPrice === 0 && !String(plan.finalPrice).includes('0') ? '' : plan.finalPrice)}
@@ -207,7 +207,7 @@ export default function AdminSettingsPage() {
                 <div className="space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Platform Mode</label>
+                      <label className="text-xs font-black uppercase tracking-[0.2em] text-white/30">Platform Mode</label>
                       <select className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm font-bold focus:outline-none focus:border-gold transition-all text-white">
                         <option>Production (Stable)</option>
                         <option>Maintenance Mode</option>
@@ -215,7 +215,7 @@ export default function AdminSettingsPage() {
                       </select>
                     </div>
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Global API Cache</label>
+                      <label className="text-xs font-black uppercase tracking-[0.2em] text-white/30">Global API Cache</label>
                       <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl p-4">
                         <div className="flex-1 text-sm font-bold">Enabled (Redis 7.0)</div>
                         <div className="w-12 h-6 bg-gold rounded-full relative">
@@ -226,12 +226,12 @@ export default function AdminSettingsPage() {
                   </div>
 
                   <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Master Security Level</label>
+                    <label className="text-xs font-black uppercase tracking-[0.2em] text-white/30">Master Security Level</label>
                     <div className="grid grid-cols-3 gap-4">
                       {['Standard', 'High', 'Maximum'].map((level) => (
                         <button 
                           key={level}
-                          className={`py-4 rounded-2xl border text-[10px] font-black uppercase tracking-widest transition-all ${
+                          className={`py-4 rounded-2xl border text-xs font-black uppercase tracking-widest transition-all ${
                             level === 'High' 
                             ? 'bg-gold/10 border-gold text-gold' 
                             : 'bg-white/5 border-white/5 text-white/40 hover:bg-white/10'
@@ -255,7 +255,7 @@ export default function AdminSettingsPage() {
               )}
 
               {/* Status Footer */}
-              <div className="pt-12 flex items-center gap-8 text-[9px] font-black uppercase tracking-[0.2em] text-white/20">
+              <div className="pt-12 flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-white/20">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   Database: Connected

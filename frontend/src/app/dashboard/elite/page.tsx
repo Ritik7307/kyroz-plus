@@ -121,7 +121,7 @@ export default function EliteDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl"></div>
-          <h3 className="text-white/40 text-[10px] font-black tracking-widest uppercase flex items-center gap-2 mb-4">
+          <h3 className="text-white/40 text-xs font-black tracking-widest uppercase flex items-center gap-2 mb-4">
             <Activity size={14} className="text-blue-500" /> Total Network Sales
           </h3>
           <div className="text-4xl font-black text-white">{formatCurrency(analytics?.totalRevenue || 0)}</div>
@@ -130,7 +130,7 @@ export default function EliteDashboardPage() {
         
         <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-gold/10 rounded-full blur-3xl"></div>
-          <h3 className="text-white/40 text-[10px] font-black tracking-widest uppercase flex items-center gap-2 mb-4">
+          <h3 className="text-white/40 text-xs font-black tracking-widest uppercase flex items-center gap-2 mb-4">
             <TrendingUp size={14} className="text-gold" /> Total Network Orders
           </h3>
           <div className="text-4xl font-black text-white">{analytics?.totalOrders || 0}</div>
@@ -162,7 +162,7 @@ export default function EliteDashboardPage() {
                       <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-gold border border-white/5 group-hover:bg-gold/10 transition-colors">
                         <Store size={20} />
                       </div>
-                      <span className="bg-green-500/10 text-green-500 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1">
+                      <span className="bg-green-500/10 text-green-500 text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1">
                         <CheckCircle2 size={12} /> Active
                       </span>
                     </div>

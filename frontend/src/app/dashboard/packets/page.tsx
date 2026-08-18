@@ -62,7 +62,7 @@ export default function UserSopPacketsPage() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-[10px] font-black uppercase tracking-[0.2em]"
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-xs font-black uppercase tracking-[0.2em]"
         >
           <Zap size={12} className="fill-gold" /> Exclusive Collections
         </motion.div>
@@ -120,7 +120,7 @@ export default function UserSopPacketsPage() {
                     <Package size={64} />
                   </div>
                 )}
-                <div className="absolute top-6 left-6 px-4 py-1.5 bg-black/60 backdrop-blur-xl rounded-full text-[10px] font-black text-gold uppercase tracking-widest border border-gold/20 shadow-xl">
+                <div className="absolute top-6 left-6 px-4 py-1.5 bg-black/60 backdrop-blur-xl rounded-full text-xs font-black text-gold uppercase tracking-widest border border-gold/20 shadow-xl">
                   {packet.category}
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
@@ -130,7 +130,7 @@ export default function UserSopPacketsPage() {
                 <div>
                   <div className="flex items-center gap-1 text-gold mb-2">
                     {[1,2,3,4,5].map(s => <Star key={s} size={10} className="fill-gold" />)}
-                    <span className="text-[10px] font-black ml-2 uppercase opacity-60 tracking-widest">Premium Grade</span>
+                    <span className="text-xs font-black ml-2 uppercase opacity-60 tracking-widest">Premium Grade</span>
                   </div>
                   <h3 className="text-xl font-black text-white group-hover:text-gold transition-colors">{packet.name}</h3>
                   <p className="text-white/40 text-sm mt-3 leading-relaxed line-clamp-3 font-medium">
@@ -140,7 +140,7 @@ export default function UserSopPacketsPage() {
 
                 <div className="pt-6 border-t border-white/5 flex items-center justify-between">
                   <div className="flex flex-col">
-                    <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mb-1">Packet Price</span>
+                    <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] mb-1">Packet Price</span>
                     <div className="flex items-center gap-1 text-2xl font-black text-white">
                       <IndianRupee size={18} className="text-gold" />
                       {packet.price}
@@ -175,7 +175,7 @@ export default function UserSopPacketsPage() {
           <ShieldCheck className="text-gold" size={32} />
           <div>
             <h4 className="text-white font-black text-sm uppercase">Verified Standards</h4>
-            <p className="text-white/40 text-[10px] uppercase font-bold tracking-widest">100% Industry Standard SOPs</p>
+            <p className="text-white/40 text-xs uppercase font-bold tracking-widest">100% Industry Standard SOPs</p>
           </div>
         </div>
         <div className="w-px h-12 bg-white/10 hidden md:block"></div>
@@ -183,7 +183,7 @@ export default function UserSopPacketsPage() {
           <Zap className="text-gold" size={32} />
           <div>
             <h4 className="text-white font-black text-sm uppercase">Instant Access</h4>
-            <p className="text-white/40 text-[10px] uppercase font-bold tracking-widest">Digital Download available</p>
+            <p className="text-white/40 text-xs uppercase font-bold tracking-widest">Digital Download available</p>
           </div>
         </div>
       </div>
