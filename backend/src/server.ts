@@ -44,8 +44,7 @@ import whatsappWebhookRoutes from './routes/whatsappWebhook.routes';
 import googleFormRoutes from './routes/googleForm.routes';
 console.log('All routes imported');
 import startPurchaseReminderCron from './cron/purchaseReminder.cron';
-
-
+import SyncWorker from './services/SyncWorker';
 import cluster from 'cluster';
 import os from 'os';
 
@@ -76,6 +75,7 @@ if (cluster.isPrimary && process.env.NODE_ENV === 'production') {
 
   // Initialize cron jobs
   startPurchaseReminderCron();
+  SyncWorker.start();
 
 app.use(helmet());
 app.use(compression());
@@ -137,6 +137,25 @@ app.get('/api/debug-routes', (req, res) => {
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'KYROZ API is running' });
+});
+
+app.get('/api/health/connectivity', async (req, res) => {
+  const IS_LOCAL_SERVER = process.env.IS_LOCAL_SERVER === 'true';
+  const CLOUD_API_URL = process.env.CLOUD_API_URL || 'https://api.kyrozplus.com';
+  
+  if (!IS_LOCAL_SERVER) {
+    return res.json({ status: 'online', type: 'cloud' });
+  }
+
+  try {
+    const response = await fetch(`${CLOUD_API_URL}/api/health`, { method: 'GET', timeout: 5000 } as any);
+    if (response.ok) {
+      return res.json({ status: 'online', type: 'local', cloudReachable: true });
+    }
+    return res.json({ status: 'offline', type: 'local', cloudReachable: false });
+  } catch (error) {
+    return res.json({ status: 'offline', type: 'local', cloudReachable: false });
+  }
 });
 
 app.get("/api/test", (req, res) => {
