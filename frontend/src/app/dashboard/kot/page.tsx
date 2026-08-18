@@ -65,17 +65,41 @@ export default function KitchenOrderQueue() {
 
   useEffect(() => {
     fetchKots();
-    const interval = setInterval(() => {
-      fetchKots(false);
-    }, 10000); // Auto-poll every 10 seconds
 
     const clockInterval = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000); // Update relative time counters every second
 
+    // Setup WebSocket listener
+    const socket = require('socket.io-client')(API_URL);
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        if (user && user.userId) {
+          socket.emit('joinRestaurant', user.userId);
+        }
+      } catch (e) {}
+    }
+
+    socket.on('KOT_CREATED', (newKot: Kot) => {
+      if (!viewHistory) {
+        setKots(prev => {
+          if (!prev.find(k => k._id === newKot._id)) {
+            return [...prev, newKot];
+          }
+          return prev;
+        });
+      }
+    });
+
+    socket.on('KOT_UPDATED', (updatedKot: Kot) => {
+      setKots(prev => prev.map(k => k._id === updatedKot._id ? updatedKot : k));
+    });
+
     return () => {
-      clearInterval(interval);
       clearInterval(clockInterval);
+      socket.disconnect();
     };
   }, [viewHistory]);
 

@@ -21,6 +21,10 @@ export default function SettingsPage() {
   // Printer settings state
   const [sopPrinterSize, setSopPrinterSize] = useState<string>('A4');
   const [billPrinterSize, setBillPrinterSize] = useState<string>('58mm');
+  
+  // Local Hub settings state
+  const [localHubUrl, setLocalHubUrl] = useState<string>('');
+  const [isSavingHub, setIsSavingHub] = useState(false);
 
   const fetchSessions = async () => {
     setIsLoading(true);
@@ -53,8 +57,10 @@ export default function SettingsPage() {
     if (typeof window !== 'undefined') {
       const storedSop = localStorage.getItem('printerSize_sop');
       const storedBill = localStorage.getItem('printerSize_bill');
+      const storedHub = localStorage.getItem('localHubUrl');
       if (storedSop) setSopPrinterSize(storedSop);
       if (storedBill) setBillPrinterSize(storedBill);
+      if (storedHub) setLocalHubUrl(storedHub);
     }
   }, []);
 
@@ -92,12 +98,53 @@ export default function SettingsPage() {
     return 1;
   };
 
+  const handleHubUrlSave = () => {
+    setIsSavingHub(true);
+    if (!localHubUrl) {
+      localStorage.removeItem('localHubUrl');
+    } else {
+      localStorage.setItem('localHubUrl', localHubUrl);
+    }
+    setTimeout(() => {
+      setIsSavingHub(false);
+      window.location.reload(); // Reload to apply new API_URL
+    }, 500);
+  };
+
   return (
     <div className="flex flex-col h-full max-w-4xl">
       <header className="mb-8">
         <h2 className="text-3xl font-bold text-white">Settings & Security</h2>
-        <p className="text-gray-400 mt-2">Manage your account security and active devices.</p>
+        <p className="text-gray-400 mt-2">Manage your account security, active devices, and local hub configuration.</p>
       </header>
+
+      <div className="bg-[#111111] border border-[#333333] rounded-2xl p-6 shadow-xl mb-8">
+        <div className="flex justify-between items-start mb-6 border-b border-[#222222] pb-6">
+          <div>
+            <h3 className="text-xl font-bold text-white mb-1">Local Hub (Offline POS)</h3>
+            <p className="text-sm text-gray-400">
+              Configure this device to point to your restaurant's Local Hub Server. 
+              Leave empty to use the Cloud version.
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-4 items-center">
+          <input
+            type="text"
+            value={localHubUrl}
+            onChange={(e) => setLocalHubUrl(e.target.value)}
+            placeholder="e.g. http://192.168.1.100:5000"
+            className="flex-1 bg-[#1a1a1a] border border-[#333333] rounded-lg px-4 py-2 text-white outline-none focus:border-[#d4af37]"
+          />
+          <button 
+            onClick={handleHubUrlSave}
+            disabled={isSavingHub}
+            className="bg-[#d4af37] text-black px-6 py-2 rounded-lg font-bold hover:bg-[#b5952f] transition disabled:opacity-50"
+          >
+            {isSavingHub ? 'Saving...' : 'Save & Reload'}
+          </button>
+        </div>
+      </div>
 
       <div className="bg-[#111111] border border-[#333333] rounded-2xl p-6 shadow-xl mb-8">
         <div className="flex justify-between items-start mb-6 border-b border-[#222222] pb-6">

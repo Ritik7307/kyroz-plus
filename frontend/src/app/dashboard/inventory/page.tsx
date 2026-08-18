@@ -27,11 +27,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import useSWR from 'swr';
 import { API_URL } from '@/lib/api';
 import CustomDropdown from '@/components/ui/CustomDropdown';
+import { dataService } from '@/lib/dataService';
 
 const fetcher = (url: string) => {
   const token = localStorage.getItem('token');
   if (!token) return null;
-  return fetch(url, { headers: { 'Authorization': `Bearer ${token}` } }).then(res => res.json());
+  return dataService.get(url, { 'Authorization': `Bearer ${token}` });
 };
 
 interface InventoryItem {

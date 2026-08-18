@@ -111,6 +111,14 @@ export const createKot = async (req: AuthRequest, res: Response): Promise<void> 
     // Populate dishId in response items for UI benefit
     const populatedKot = await Kot.findById(newKot._id).populate('items.dishId', 'name category price');
 
+    try {
+      const { getIo } = require('../socket');
+      const io = getIo();
+      io.to(userId).emit('KOT_CREATED', populatedKot);
+    } catch (e) {
+      console.error('Socket.io error emitting KOT_CREATED', e);
+    }
+
     res.status(201).json({
       message: 'KOT sent to kitchen successfully',
       kot: populatedKot
@@ -217,6 +225,14 @@ export const updateKotStatus = async (req: AuthRequest, res: Response): Promise<
     }
 
     const populatedKot = await Kot.findById(kot._id).populate('items.dishId', 'name category price');
+
+    try {
+      const { getIo } = require('../socket');
+      const io = getIo();
+      io.to(userId).emit('KOT_UPDATED', populatedKot);
+    } catch (e) {
+      console.error('Socket.io error emitting KOT_UPDATED', e);
+    }
 
     res.status(200).json({
       message: `KOT status updated to ${status}`,

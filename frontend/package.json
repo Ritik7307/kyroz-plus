@@ -19,7 +19,9 @@
     "recharts": "^3.8.1",
     "rxdb": "^17.4.0",
     "rxjs": "^7.8.2",
+    "socket.io-client": "^4.8.3",
     "swr": "^2.5.1",
+    "uuid": "^14.0.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
@@ -27,6 +29,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/uuid": "^10.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "tailwindcss": "^4",

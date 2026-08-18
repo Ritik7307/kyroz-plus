@@ -27,10 +27,11 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import useSWR from 'swr';
 import { API_URL } from '@/lib/api';
+import { dataService } from '@/lib/dataService';
 
 const fetcher = (url: string) => {
   const token = localStorage.getItem('token');
-  return fetch(url, { headers: { 'Authorization': `Bearer ${token}` } }).then(res => res.json());
+  return dataService.get(url, { 'Authorization': `Bearer ${token}` });
 };
 
 interface Dish {
@@ -685,20 +686,17 @@ export default function POSTerminal() {
 
         // Process the checkout in the background
         const token = localStorage.getItem('token');
-        fetch(`${API_URL}/api/orders/checkout`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-          body: JSON.stringify({
-            items: cart.map(item => ({ dishId: item.dish._id, quantity: item.quantity, note: item.note })),
-            customerName, customerPhone, discount: Number(discount) || 0, discountType, additionalCharge: Number(additionalCharge) || 0,
-            applyGst, paymentMethod, orderType,
-            kotId, // Send KOT ID if it exists so backend can link them
-            tempBillNo, // Send temp bill no so backend can use it
-            offline_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2)
-          })
-        }).then(res => {
-          if (!res.ok) console.error('Background checkout failed');
-        }).catch(err => console.error('Background checkout error', err));
+        const checkoutPayload = {
+          items: cart.map(item => ({ dishId: item.dish._id, quantity: item.quantity, note: item.note })),
+          customerName, customerPhone, discount: Number(discount) || 0, discountType, additionalCharge: Number(additionalCharge) || 0,
+          applyGst, paymentMethod, orderType,
+          kotId, 
+          tempBillNo, 
+          offline_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2)
+        };
+
+        dataService.post(`${API_URL}/api/orders/checkout`, checkoutPayload, { 'Authorization': `Bearer ${token}` })
+          .catch(err => console.error('Background checkout error', err));
       } else {
         // User cancelled, clear the printed bill number but keep the cart
         setPrintedBillNo('');
@@ -706,7 +704,7 @@ export default function POSTerminal() {
     }, 100);
   };
 
-  // Poll active KOT status
+  // WebSocket for active KOT status
   useEffect(() => {
     if (!kotId || kotId === '') return;
     
@@ -714,42 +712,49 @@ export default function POSTerminal() {
     const pollKotStatus = async () => {
       const token = localStorage.getItem('token');
       try {
-        const res = await fetch(`${API_URL}/api/kots`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+        const res = await dataService.get(`${API_URL}/api/kots`, {
+          'Authorization': `Bearer ${token}`
         });
-        if (res.ok) {
-          const activeKots = await res.json();
-          if (Array.isArray(activeKots)) {
-            const currentKot = activeKots.find((k: any) => k._id === kotId);
-            if (currentKot && active) {
-              setKotStatus(currentKot.status);
-            } else if (!currentKot && active) {
-              // If not active, check history to see if it became Served/Cancelled
-              const histRes = await fetch(`${API_URL}/api/kots/history`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-              });
-              if (histRes.ok) {
-                const historyKots = await histRes.json();
-                const matched = historyKots.find((k: any) => k._id === kotId);
-                if (matched && active) {
-                  setKotStatus(matched.status);
-                }
-              }
+        const activeKots = res;
+        if (Array.isArray(activeKots)) {
+          const currentKot = activeKots.find((k: any) => k._id === kotId);
+          if (currentKot && active) {
+            setKotStatus(currentKot.status);
+          } else if (!currentKot && active) {
+            // If not active, check history to see if it became Served/Cancelled
+            const historyKots = await dataService.get(`${API_URL}/api/kots/history`, {
+              'Authorization': `Bearer ${token}`
+            });
+            const matched = Array.isArray(historyKots) ? historyKots.find((k: any) => k._id === kotId) : null;
+            if (matched && active) {
+              setKotStatus(matched.status);
             }
           }
         }
       } catch (err) {
-        console.error('Error polling KOT status:', err);
+        console.error('Error fetching KOT status:', err);
       }
     };
     
     pollKotStatus();
-    const interval = setInterval(pollKotStatus, 8000);
+
+    // Setup WebSocket listener
+    const socket = require('socket.io-client')(API_URL);
+    if (userData && userData.userId) {
+      socket.emit('joinRestaurant', userData.userId);
+    }
+    
+    socket.on('KOT_UPDATED', (updatedKot: any) => {
+      if (updatedKot._id === kotId && active) {
+        setKotStatus(updatedKot.status);
+      }
+    });
+
     return () => {
       active = false;
-      clearInterval(interval);
+      socket.disconnect();
     };
-  }, [kotId]);
+  }, [kotId, userData]);
 
   const getRequiredPackaging = () => {
     const packagingMap: { [name: string]: number } = {};

@@ -216,6 +216,16 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
       }
     }
 
+    try {
+      const { getIo } = require('../socket');
+      const io = getIo();
+      if (req.user?.userId) {
+        io.to(req.user.userId).emit('NEW_ORDER', order);
+      }
+    } catch (e) {
+      console.error('Socket.io error emitting NEW_ORDER', e);
+    }
+
     res.status(200).json({
       message: 'Checkout successful and inventory updated',
       order,

@@ -54,6 +54,9 @@ const PORT = process.env.PORT || 5000;
 
 const numWorkers = process.env.WEB_CONCURRENCY ? parseInt(process.env.WEB_CONCURRENCY, 10) : numCPUs;
 
+import http from 'http';
+import { initSocket } from './socket';
+
 if (cluster.isPrimary && process.env.NODE_ENV === 'production') {
   console.log(`Primary ${process.pid} is running`);
 
@@ -68,6 +71,10 @@ if (cluster.isPrimary && process.env.NODE_ENV === 'production') {
   });
 } else {
   const app = express();
+  const server = http.createServer(app);
+  
+  // Initialize Socket.io
+  initSocket(server);
   
   // Trust proxy is required if you are behind a reverse proxy (like Nginx or a load balancer)
   // This ensures rate limiting works correctly based on the real client IP.
@@ -158,6 +165,10 @@ app.get('/api/health/connectivity', async (req, res) => {
   }
 });
 
+app.get('/api/config/hub', (req, res) => {
+  res.json({ isLocalHub: process.env.IS_LOCAL_SERVER === 'true' });
+});
+
 app.get("/api/test", (req, res) => {
   res.json({ message: "API working ✅" });
 });
@@ -170,7 +181,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   res.status(status).json({ error: message });
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 } // End of worker process block
