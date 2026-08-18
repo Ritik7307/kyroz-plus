@@ -2,6 +2,10 @@ import { Request, Response } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import Kot from '../models/Kot';
 import mongoose from 'mongoose';
+import SyncHistory from '../models/SyncHistory';
+import { processCheckout } from './order.controller';
+import { createKot, updateKotStatus } from './kot.controller';
+import { updateStock, addPurchaseEntry, addProductionEntry } from './inventory.controller';
 
 export const pushKots = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -97,5 +101,80 @@ export const pullKots = async (req: AuthRequest, res: Response): Promise<void> =
   } catch (error) {
     console.error('Error pulling KOTs:', error);
     res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+export const processSyncQueueTask = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { operation_id, entity_type, entity_id, operation, payload } = req.body;
+
+    if (!operation_id) {
+      res.status(400).json({ error: 'Missing operation_id' });
+      return;
+    }
+
+    // Check idempotency on cloud
+    const history = await SyncHistory.findOne({ operation_id });
+    if (history) {
+      res.status(200).json({ message: 'Already processed (idempotent)' });
+      return;
+    }
+
+    // Mock Express Request and Response to reuse existing controllers
+    const mockReq = {
+      ...req,
+      body: payload || {},
+      params: { id: entity_id }
+    } as any;
+
+    let successResponseData: any = null;
+    let errorResponseData: any = null;
+    let statusCode = 200;
+
+    const mockRes = {
+      status: (code: number) => {
+        statusCode = code;
+        return mockRes;
+      },
+      json: (data: any) => {
+        if (statusCode >= 200 && statusCode < 300) {
+          successResponseData = data;
+        } else {
+          errorResponseData = data;
+        }
+        return mockRes;
+      }
+    } as any;
+
+    // Dispatch to appropriate controller based on entity_type and operation
+    if (entity_type === 'Order' && operation === 'CREATE') {
+      await processCheckout(mockReq, mockRes);
+    } else if (entity_type === 'KOT' && operation === 'CREATE') {
+      await createKot(mockReq, mockRes);
+    } else if (entity_type === 'KOT' && operation === 'UPDATE') {
+      await updateKotStatus(mockReq, mockRes);
+    } else if (entity_type === 'Inventory' && operation === 'UPDATE_STOCK') {
+      await updateStock(mockReq, mockRes);
+    } else if (entity_type === 'Inventory' && operation === 'PURCHASE') {
+      await addPurchaseEntry(mockReq, mockRes);
+    } else if (entity_type === 'Inventory' && operation === 'PRODUCTION') {
+      await addProductionEntry(mockReq, mockRes);
+    } else {
+      res.status(400).json({ error: 'Unsupported entity_type or operation' });
+      return;
+    }
+
+    if (errorResponseData) {
+      res.status(statusCode).json(errorResponseData);
+      return;
+    }
+
+    // Mark as processed
+    await SyncHistory.create({ operation_id });
+    res.status(200).json({ message: 'Synced successfully', data: successResponseData });
+
+  } catch (error) {
+    console.error('Process Sync Task Error:', error);
+    res.status(500).json({ error: 'Failed to process sync task' });
   }
 };

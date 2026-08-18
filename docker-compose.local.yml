@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  mongodb_local:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: always
+
+  backend_local:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongodb_local:27017/kyroz_local
+      - JWT_SECRET=local_secret_key_change_me
+      - IS_LOCAL_SERVER=true
+      - CLOUD_API_URL=https://api.kyroz-plus.com  # Replace with actual cloud API URL
+    depends_on:
+      - mongodb_local
+    restart: always
+
+  frontend_local:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5000
+    depends_on:
+      - backend_local
+    restart: always
+
+volumes:
+  mongodb_data:

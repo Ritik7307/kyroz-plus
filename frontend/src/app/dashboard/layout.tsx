@@ -29,6 +29,7 @@ import NotificationPanel from '@/components/dashboard/NotificationPanel';
 import FloatingKOSA from '@/components/dashboard/FloatingKOSA';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_URL } from '@/lib/api';
+import ConnectivityStatus from '@/components/ConnectivityStatus';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -183,6 +184,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col relative">
+      <ConnectivityStatus />
       <GlobalSearch isOpen={isSearchOpen} setIsOpen={setIsSearchOpen} />
       <ToastContainer toasts={toasts} removeToast={removeToast} />
 

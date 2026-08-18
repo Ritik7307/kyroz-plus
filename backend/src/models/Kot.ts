@@ -17,6 +17,7 @@ export interface IKot extends Document {
   status: 'Pending' | 'Preparing' | 'Ready' | 'Served' | 'Cancelled';
   packaging: { name: string; quantity: number }[];
   deleted: boolean;
+  offline_id?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -40,10 +41,12 @@ const KotSchema = new Schema({
     name: { type: String, required: true },
     quantity: { type: Number, required: true }
   }],
-  deleted: { type: Boolean, default: false }
+  deleted: { type: Boolean, default: false },
+  offline_id: { type: String }
 }, { timestamps: true });
 
 // Ensure unique kotNumber per user session/account
 KotSchema.index({ userId: 1, kotNumber: 1 }, { unique: true });
+KotSchema.index({ offline_id: 1 }, { unique: true, sparse: true });
 
 export default mongoose.models.Kot || mongoose.model<IKot>('Kot', KotSchema);

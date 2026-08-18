@@ -21,6 +21,7 @@ export interface IOrder extends Document {
   tableNumber?: string;
   paymentMethod?: 'Cash' | 'Online';
   orderType?: 'DineIn' | 'Takeaway' | 'Delivery';
+  offline_id?: string;
   createdAt: Date;
 }
 
@@ -45,8 +46,11 @@ const OrderSchema: Schema = new Schema({
   tableNumber: { type: String },
   paymentMethod: { type: String, enum: ['Cash', 'Online'], default: 'Cash' },
   orderType: { type: String, enum: ['DineIn', 'Takeaway', 'Delivery'], default: 'DineIn' },
+  offline_id: { type: String },
   createdAt: { type: Date, default: Date.now }
 });
+
+OrderSchema.index({ offline_id: 1 }, { unique: true, sparse: true });
 
 OrderSchema.index({ userId: 1, createdAt: -1 });
 

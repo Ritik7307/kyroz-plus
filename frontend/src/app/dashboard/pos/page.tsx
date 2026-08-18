@@ -709,7 +709,8 @@ export default function POSTerminal() {
             customerName, customerPhone, discount: Number(discount) || 0, discountType, additionalCharge: Number(additionalCharge) || 0,
             applyGst, paymentMethod, orderType,
             kotId, // Send KOT ID if it exists so backend can link them
-            tempBillNo // Send temp bill no so backend can use it
+            tempBillNo, // Send temp bill no so backend can use it
+            offline_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2)
           })
         }).then(res => {
           if (!res.ok) console.error('Background checkout failed');
@@ -820,7 +821,8 @@ export default function POSTerminal() {
           tableNumber: activeTable === 'quick' ? 'Quick Bill' : tables.find(t => t.id === activeTable)?.name || activeTable,
           orderType: orderType,
           customerName: customerName,
-          customerPhone: customerPhone
+          customerPhone: customerPhone,
+          offline_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2)
         })
       });
       const data = await res.json();

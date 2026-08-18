@@ -5,12 +5,15 @@ import Kot from '../models/Kot';
 import Dish from '../models/Dish';
 import Packaging from '../models/Packaging';
 import Inventory from '../models/Inventory';
+import SyncQueue from '../models/SyncQueue';
+
 
 // Create a new Kitchen Order Ticket (KOT)
 export const createKot = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { items, tableNumber = 'Quick Bill', orderType = 'DineIn', customerName = '', customerPhone = '' } = req.body;
+    const { items, tableNumber = 'Quick Bill', orderType = 'DineIn', customerName = '', customerPhone = '', offline_id } = req.body;
     const userId = req.user?.userId;
+
 
     if (!userId) {
       res.status(401).json({ error: 'Unauthorized' });
@@ -22,7 +25,20 @@ export const createKot = async (req: AuthRequest, res: Response): Promise<void> 
       return;
     }
 
+    if (offline_id) {
+      const existingKot = await Kot.findOne({ offline_id });
+      if (existingKot) {
+        const populatedKot = await Kot.findById(existingKot._id).populate('items.dishId', 'name category price');
+        res.status(200).json({
+          message: 'KOT sent to kitchen successfully (idempotent)',
+          kot: populatedKot
+        });
+        return;
+      }
+    }
+
     // Generate KOT number (sequential per user/restaurant)
+
     const lastKot = await Kot.findOne({ userId }).sort({ kotNumber: -1 });
     const kotNumber = lastKot ? lastKot.kotNumber + 1 : 1;
 
@@ -56,7 +72,7 @@ export const createKot = async (req: AuthRequest, res: Response): Promise<void> 
       orderType,
       customerName,
       customerPhone,
-      items: items.map(item => ({
+      items: items.map((item: any) => ({
         dishId: item.dishId,
         quantity: item.quantity,
         note: item.note || ''
@@ -65,10 +81,23 @@ export const createKot = async (req: AuthRequest, res: Response): Promise<void> 
       packaging: Object.keys(resolvedPackaging).map(name => ({
         name,
         quantity: resolvedPackaging[name]
-      }))
+      })),
+      offline_id
     });
 
     await newKot.save();
+    
+    if (process.env.IS_LOCAL_SERVER === 'true') {
+      const syncId = offline_id || new mongoose.Types.ObjectId().toString();
+      await SyncQueue.create({
+        operation_id: syncId,
+        entity_type: 'KOT',
+        entity_id: newKot._id.toString(),
+        operation: 'CREATE',
+        payload: { ...req.body, offline_id: syncId }
+      });
+    }
+
     
     // Deduct inventory for each item
     for (const item of items) {
@@ -175,6 +204,16 @@ export const updateKotStatus = async (req: AuthRequest, res: Response): Promise<
           await inventory.save();
         }
       }
+    }
+
+    if (process.env.IS_LOCAL_SERVER === 'true') {
+      await SyncQueue.create({
+        operation_id: new mongoose.Types.ObjectId().toString(),
+        entity_type: 'KOT',
+        entity_id: kot._id.toString(),
+        operation: 'UPDATE',
+        payload: { id, status }
+      });
     }
 
     const populatedKot = await Kot.findById(kot._id).populate('items.dishId', 'name category price');

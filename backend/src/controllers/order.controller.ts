@@ -12,6 +12,8 @@ import Notification from '../models/Notification';
 import MarketingSettings from '../models/MarketingSettings';
 import { sendLowStockAlert, sendCustomerFeedbackWhatsApp, sendAutomatedOrderConfirmation } from '../services/whatsapp.service';
 import { deductInventory, calculateDishCost } from '../services/inventory.service';
+import SyncQueue from '../models/SyncQueue';
+
 
 export const processCheckout = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -25,13 +27,28 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
       additionalCharge = 0,
       tableNumber,
       paymentMethod,
-      orderType = 'DineIn'
+      orderType = 'DineIn',
+      offline_id
     } = req.body; // Array of { dishId, quantity }
 
     if (!items || !Array.isArray(items)) {
       res.status(400).json({ error: 'Invalid items format' });
       return;
     } 
+
+    if (offline_id) {
+      const existingOrder = await Order.findOne({ offline_id });
+      if (existingOrder) {
+        res.status(200).json({
+          message: 'Checkout successful (idempotent)',
+          order: existingOrder,
+          updates: [],
+          alerts: []
+        });
+        return;
+      }
+    }
+
 
     const updates = [];
     const alerts = [];
@@ -151,9 +168,22 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
         additionalCharge: charge,
         tableNumber,
         paymentMethod: paymentMethod || 'Cash',
-        orderType
+        orderType,
+        offline_id
       });
       order = await newOrder.save();
+
+      if (process.env.IS_LOCAL_SERVER === 'true') {
+        const syncId = offline_id || new mongoose.Types.ObjectId().toString();
+        await SyncQueue.create({
+          operation_id: syncId,
+          entity_type: 'Order',
+          entity_id: order._id.toString(),
+          operation: 'CREATE',
+          payload: { ...req.body, offline_id: syncId }
+        });
+      }
+
 
       // Manage customer for future offers
       if (customerPhone && customerName) {

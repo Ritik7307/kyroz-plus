@@ -1,8 +1,11 @@
 import express from 'express';
-import { pushKots, pullKots } from '../controllers/sync.controller';
+import { pushKots, pullKots, processSyncQueueTask } from '../controllers/sync.controller';
 import { authenticateToken } from '../middleware/auth.middleware';
 
 const router = express.Router();
+
+// General offline sync endpoint
+router.post('/', processSyncQueueTask);
 
 // RxDB Replication endpoints
 router.post('/pull', authenticateToken, pullKots);

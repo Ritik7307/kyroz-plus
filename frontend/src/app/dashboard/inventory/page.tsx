@@ -167,7 +167,8 @@ export default function InventoryPage() {
           itemId,
           itemModel,
           quantity: Number(purchaseForm.quantity),
-          cost: Number(purchaseForm.cost)
+          cost: Number(purchaseForm.cost),
+          offline_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2)
         })
       });
       if (res.ok) {
@@ -202,7 +203,8 @@ export default function InventoryPage() {
         body: JSON.stringify({
           itemId,
           itemModel,
-          batches: Number(productionForm.batches)
+          batches: Number(productionForm.batches),
+          offline_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2)
         })
       });
       if (res.ok) {
@@ -359,7 +361,12 @@ export default function InventoryPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}` 
         },
-        body: JSON.stringify({ model, id, currentStock: editingStockVal })
+        body: JSON.stringify({ 
+            model, 
+            id, 
+            currentStock: editingStockVal,
+            offline_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2)
+        })
       });
       if (res.ok) {
         setEditingItemId(null);
