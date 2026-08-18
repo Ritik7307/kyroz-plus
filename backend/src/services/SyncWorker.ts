@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import fetch from 'node-fetch';
+
 import SyncQueue from '../models/SyncQueue';
 
 const CLOUD_API_URL = process.env.CLOUD_API_URL || 'https://api.kyrozplus.com';
