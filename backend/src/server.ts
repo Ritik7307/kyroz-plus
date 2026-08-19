@@ -42,6 +42,7 @@ import marketingRoutes from './routes/marketing.routes';
 import whatsappRoutes from './routes/whatsapp.routes';
 import whatsappWebhookRoutes from './routes/whatsappWebhook.routes';
 import googleFormRoutes from './routes/googleForm.routes';
+import businessAiRoutes from './routes/businessAi.routes';
 console.log('All routes imported');
 import startPurchaseReminderCron from './cron/purchaseReminder.cron';
 import SyncWorker from './services/SyncWorker';
@@ -138,6 +139,7 @@ app.use('/api/marketing', marketingRoutes);
 app.use('/api/whatsapp/webhook', whatsappWebhookRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
 app.use('/api/google-form', googleFormRoutes);
+app.use('/api/business-ai', businessAiRoutes);
 app.get('/api/debug-routes', (req, res) => {
   res.json({ message: 'Routes are active' });
 });

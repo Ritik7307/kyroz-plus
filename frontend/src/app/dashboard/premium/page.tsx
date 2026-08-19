@@ -2,14 +2,14 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Sparkles, ChefHat, BarChart3, Megaphone, Network, Crown, ArrowRight } from 'lucide-react';
+import { Sparkles, ChefHat, BarChart3, Megaphone, Network, Crown, ArrowRight, Bot } from 'lucide-react';
 
 const premiumFeatures = [
   {
     title: 'AI Assistance',
-    description: 'Interact with your dedicated AI Restaurant Consultant for instant, data-driven decisions.',
-    icon: Sparkles,
-    href: '/dashboard/ai',
+    description: 'Ask your AI assistant for real-time insights on daily sales, most sold dishes, customer analytics, and complete business data.',
+    icon: Bot,
+    href: '/dashboard/business-ai',
     status: 'Active',
   },
   {
