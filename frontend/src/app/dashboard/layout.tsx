@@ -22,7 +22,8 @@ import {
   Users,
   ChevronDown,
   ClipboardList,
-  Lock
+  Lock,
+  Crown
 } from 'lucide-react';
 import { GlobalSearch, ToastContainer, Toast } from '@/components/dashboard/GlobalSearch';
 import NotificationPanel from '@/components/dashboard/NotificationPanel';
@@ -132,6 +133,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Costing Master', path: '/dashboard/costing', id: 'costing', icon: IndianRupee },
     { name: 'Customers', path: '/dashboard/customers', id: 'customers', icon: Users },
     { name: 'Manage Team', path: '/dashboard/team', id: 'team', ownerOnly: true, icon: Users },
+    { name: 'Premium', path: '/dashboard/membership', id: 'membership', icon: Crown },
     { name: 'Account', path: '/dashboard/account', id: 'account', icon: User },
   ];
 
@@ -149,7 +151,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
 
     // Default for staff with no explicit permissions
-    return ['account'].includes(link.id);
+    return ['account', 'membership'].includes(link.id);
   });
 
   let currentPlan = user?.plan || user?.subscriptionPlan || 'None';
@@ -162,6 +164,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isMoreActive = moreLinks.some((link) => pathname === link.path);
   
   let isLocked = false;
+  let isChefLocked = false;
   if (user?.role === 'user') { // Only apply locks to the owner, staff bypass this (their access is dictated by owner's plan theoretically, or they just do their job)
     const isMembershipRoute = pathname.startsWith('/dashboard/membership');
     const isAccountRoute = pathname.startsWith('/dashboard/account');
@@ -172,12 +175,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     
     if (currentPlan === 'None') {
       if (!isMembershipRoute && !isAccountRoute) isLocked = true;
+      isChefLocked = true;
     } else if (currentPlan === 'Starter') {
       // Starter plan doesn't have AI, Costing, Wastage, or Marketing
       if (isAiRoute || isCostingRoute || isWastageRoute || isMarketingRoute) isLocked = true;
+      isChefLocked = true;
     } else if (currentPlan === 'Growth') {
-      // Growth plan doesn't have Marketing
-      if (isMarketingRoute) isLocked = true;
+      // Growth (Premium) plan now has access to everything except maybe some scale-only things.
+      // We will no longer lock marketing.
+      // (Scale has access to everything)
     }
     // Scale has access to everything
   }
@@ -357,7 +363,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </main>
 
-      {pathname === '/dashboard' && <FloatingKOSA />}
+      {pathname === '/dashboard' && <FloatingKOSA isLocked={isChefLocked} />}
       <NotificationPanel 
         isOpen={isNotificationsOpen} 
         setIsOpen={setIsNotificationsOpen} 

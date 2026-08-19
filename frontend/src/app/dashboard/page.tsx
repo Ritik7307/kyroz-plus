@@ -26,7 +26,6 @@ import {
   Package
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import FloatingKOSA from '@/components/dashboard/FloatingKOSA';
 import { useRouter } from 'next/navigation';
 import { API_URL } from '@/lib/api';
 
@@ -358,8 +357,7 @@ export default function DashboardPage() {
           </div>
         </section>
 
-      {/* --- KOSA FLOATING AI --- */}
-      <FloatingKOSA />
+      {/* --- KOSA FLOATING AI HANDLED IN LAYOUT --- */}
     </div>
   );
 }

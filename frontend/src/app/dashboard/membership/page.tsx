@@ -204,14 +204,14 @@ export default function MembershipPage() {
           </button>
         </div>
 
-        {/* Growth Plan */}
-        <div className="bg-[#1a1a1a] border-2 border-[#d4af37] rounded-3xl p-8 flex flex-col relative overflow-hidden shadow-2xl shadow-[#d4af37]/10 transform scale-105 z-10">
+        {/* Premium Plan */}
+        <div className="bg-[#1a1505] border-2 border-[#d4af37] rounded-3xl p-8 flex flex-col relative overflow-hidden shadow-[0_0_30px_rgba(212,175,55,0.15)] transform scale-105 z-10">
           <div className="absolute top-0 right-0 bg-[#d4af37] text-black text-xs font-bold px-4 py-1 rounded-bl-lg uppercase tracking-wider">
             Most Popular
           </div>
           <div className="mb-8">
             <h3 className="text-2xl font-bold text-[#d4af37] mb-2 uppercase tracking-widest flex items-center gap-2">
-              Growth
+              Premium
               {pricing.growth.discount > 0 && (
                 <span className="bg-green-500/20 text-green-400 text-xs px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{pricing.growth.discount}% OFF</span>
               )}
@@ -236,7 +236,7 @@ export default function MembershipPage() {
               <li className="flex items-start gap-3 text-sm text-white font-medium">
                 <span className="text-[#d4af37]">✓</span> Everything in Starter
               </li>
-              {['Full SOP Library', 'Costing Master', 'Inventory Management', 'AI Chef', 'Gross Profit Analytics', 'Food Cost Analysis', 'Advanced Reports', 'Premix Purchase Access', 'Priority Support'].map(feature => (
+              {['Full SOP Library', 'Costing Master', 'Inventory Management', 'AI Assistance', 'Menu Engineering', 'Multi Outlet Dashboard', 'Advance Business Intelligence', 'Marketing Engine', 'Premix Purchase Access', 'Priority Support'].map(feature => (
                 <li key={feature} className="flex items-start gap-3 text-sm text-gray-300">
                   <span className="text-[#d4af37]">✓</span> {feature}
                 </li>
@@ -253,7 +253,7 @@ export default function MembershipPage() {
               : 'bg-[#d4af37] hover:bg-[#c5a028] text-black shadow-[#d4af37]/20 hover:shadow-[#d4af37]/40'
             }`}
           >
-            {isLoading === 'Growth' ? 'Processing...' : (currentPlan === 'Growth' ? 'Current Plan' : (currentPlan === 'Scale' ? 'Included in Scale' : 'Upgrade to Growth'))}
+            {isLoading === 'Growth' ? 'Processing...' : (currentPlan === 'Growth' ? 'Current Plan' : (currentPlan === 'Scale' ? 'Included in Scale' : 'Upgrade to Premium'))}
           </button>
         </div>
 
@@ -285,7 +285,7 @@ export default function MembershipPage() {
             <h4 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-3">Includes:</h4>
             <ul className="space-y-3">
               <li className="flex items-start gap-3 text-sm text-white font-medium">
-                <span className="text-[#d4af37]">✓</span> Everything in Growth
+                <span className="text-[#d4af37]">✓</span> Everything in Premium
               </li>
               {['Multi Outlet Dashboard', 'Menu Engineering', 'Premium AI Restaurant Consultant', 'Marketing Engine', 'Advanced Business Intelligence'].map(feature => (
                 <li key={feature} className="flex items-start gap-3 text-sm text-gray-300">

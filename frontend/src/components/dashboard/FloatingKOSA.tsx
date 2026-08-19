@@ -2,7 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, Mic, MicOff, X, Volume2, VolumeX, Send, Loader2, Sparkles, Minimize2, Maximize2, FileUp, Square } from 'lucide-react';
+import { Bot, Mic, MicOff, X, Volume2, VolumeX, Send, Loader2, Sparkles, Minimize2, Maximize2, FileUp, Square, Lock } from 'lucide-react';
+import Link from 'next/link';
 
 import { API_URL } from '@/lib/api';
 
@@ -69,7 +70,7 @@ const cleanSpeechText = (text: string, forceLang?: 'en' | 'hi'): string => {
     .trim();
 };
 
-export default function FloatingKOSA() {
+export default function FloatingKOSA({ isLocked = false }: { isLocked?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [assistantState, setAssistantState] = useState<AssistantState>('idle');
@@ -645,99 +646,120 @@ export default function FloatingKOSA() {
 
             {!isMinimized && (
               <>
-                {/* Chat Area */}
-                <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar bg-black/20">
-                  {messages.map((msg, idx) => (
-                    <motion.div
-                      key={idx}
-                      initial={{ opacity: 0, x: msg.role === 'user' ? 20 : -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                {isLocked ? (
+                  <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-black/40">
+                    <div className="w-16 h-16 bg-gradient-to-tr from-[#d4af37] to-[#f9e596] rounded-full flex items-center justify-center mb-6 shadow-lg shadow-[#d4af37]/20">
+                      <Lock size={32} className="text-black" />
+                    </div>
+                    <h3 className="text-xl font-black text-white mb-3 tracking-tight uppercase">Chef Pro Locked</h3>
+                    <p className="text-gray-400 mb-8 text-sm font-medium leading-relaxed">
+                      Upgrade to a premium plan to unlock AI Chef capabilities, recipe reading, and voice interaction.
+                    </p>
+                    <Link 
+                      href="/dashboard/membership"
+                      onClick={() => setIsOpen(false)}
+                      className="w-full py-4 rounded-xl font-bold transition-all shadow-lg bg-[#d4af37] hover:bg-[#c5a028] text-black shadow-[#d4af37]/20 hover:shadow-[#d4af37]/40 uppercase tracking-widest text-xs"
                     >
-                      <div className={`max-w-[85%] p-4 rounded-3xl shadow-xl text-sm ${
-                        msg.role === 'user' 
-                        ? 'bg-gold text-black font-bold rounded-tr-none' 
-                        : 'bg-white/5 text-gray-200 border border-white/5 rounded-tl-none'
-                      }`}>
-                        {msg.content}
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-
-                {/* Controls Area */}
-                <div className="p-6 bg-black border-t border-white/5">
-                  {(assistantState === 'listening' || assistantState === 'speaking') && (
-                    <div className="flex items-end justify-center gap-1.5 h-8 mb-4">
-                      {visualizerData.map((val, i) => (
+                      Upgrade to Premium
+                    </Link>
+                  </div>
+                ) : (
+                  <>
+                    {/* Chat Area */}
+                    <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar bg-black/20">
+                      {messages.map((msg, idx) => (
                         <motion.div
-                          key={i}
-                          animate={{ height: `${Math.max(20, val * 100)}%` }}
-                          className="w-2 bg-gold rounded-full"
-                        />
+                          key={idx}
+                          initial={{ opacity: 0, x: msg.role === 'user' ? 20 : -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                        >
+                          <div className={`max-w-[85%] p-4 rounded-3xl shadow-xl text-sm ${
+                            msg.role === 'user' 
+                            ? 'bg-gold text-black font-bold rounded-tr-none' 
+                            : 'bg-white/5 text-gray-200 border border-white/5 rounded-tl-none'
+                          }`}>
+                            {msg.content}
+                          </div>
+                        </motion.div>
                       ))}
                     </div>
-                  )}
-                  <div className="mb-3 min-h-4 text-center text-[10px] font-bold uppercase tracking-[0.14em]">
-                    <span className={errorMessage ? 'text-red-400' : 'text-white/30'}>{errorMessage || voiceHint}</span>
-                  </div>
 
-                  <div className="flex items-center gap-3 bg-white/5 p-2 rounded-[1.8rem] border border-white/10 focus-within:border-gold/30 transition-all">
-                    <button
-                      onClick={() => {
-                        if (assistantState === 'speaking') stopSpeaking();
-                        else if (assistantState === 'processing') stopRequest();
-                        else if (assistantState === 'listening') stopRecording();
-                        else startRecording();
-                      }}
-                      className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
-                        assistantState === 'listening' ? 'bg-red-500 text-white animate-pulse' : 
-                        (assistantState === 'processing' || assistantState === 'speaking') ? 'bg-red-500 hover:bg-red-600 text-white' : 
-                        'bg-gold/10 text-gold hover:bg-gold hover:text-black'
-                      }`}
-                    >
-                      {assistantState === 'listening' ? <MicOff size={20} /> : 
-                       (assistantState === 'processing' || assistantState === 'speaking') ? <Square size={20} className="fill-current text-white" /> : 
-                       <Mic size={20} />}
-                    </button>
-                    
-                    <input
-                      type="text"
-                      value={inputText}
-                      onChange={(e) => setInputText(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                      placeholder="Ask Chef or upload docs..."
-                      className="flex-1 bg-transparent border-none outline-none text-white text-sm placeholder-white/20"
-                    />
+                    {/* Controls Area */}
+                    <div className="p-6 bg-black border-t border-white/5">
+                      {(assistantState === 'listening' || assistantState === 'speaking') && (
+                        <div className="flex items-end justify-center gap-1.5 h-8 mb-4">
+                          {visualizerData.map((val, i) => (
+                            <motion.div
+                              key={i}
+                              animate={{ height: `${Math.max(20, val * 100)}%` }}
+                              className="w-2 bg-gold rounded-full"
+                            />
+                          ))}
+                        </div>
+                      )}
+                      <div className="mb-3 min-h-4 text-center text-[10px] font-bold uppercase tracking-[0.14em]">
+                        <span className={errorMessage ? 'text-red-400' : 'text-white/30'}>{errorMessage || voiceHint}</span>
+                      </div>
 
-                    <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} accept=".pdf,.docx,.txt" />
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className="p-3 text-white/20 hover:text-gold transition-colors"
-                    >
-                      {isUploading ? <Loader2 size={20} className="animate-spin text-gold" /> : <FileUp size={20} />}
-                    </button>
+                      <div className="flex items-center gap-3 bg-white/5 p-2 rounded-[1.8rem] border border-white/10 focus-within:border-gold/30 transition-all">
+                        <button
+                          onClick={() => {
+                            if (assistantState === 'speaking') stopSpeaking();
+                            else if (assistantState === 'processing') stopRequest();
+                            else if (assistantState === 'listening') stopRecording();
+                            else startRecording();
+                          }}
+                          className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
+                            assistantState === 'listening' ? 'bg-red-500 text-white animate-pulse' : 
+                            (assistantState === 'processing' || assistantState === 'speaking') ? 'bg-red-500 hover:bg-red-600 text-white' : 
+                            'bg-gold/10 text-gold hover:bg-gold hover:text-black'
+                          }`}
+                        >
+                          {assistantState === 'listening' ? <MicOff size={20} /> : 
+                          (assistantState === 'processing' || assistantState === 'speaking') ? <Square size={20} className="fill-current text-white" /> : 
+                          <Mic size={20} />}
+                        </button>
+                        
+                        <input
+                          type="text"
+                          value={inputText}
+                          onChange={(e) => setInputText(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                          placeholder="Ask Chef or upload docs..."
+                          className="flex-1 bg-transparent border-none outline-none text-white text-sm placeholder-white/20"
+                        />
 
-                    <button
-                      onClick={() => handleSend()}
-                      disabled={!inputText.trim() || assistantState === 'processing'}
-                      className="w-12 h-12 rounded-2xl bg-gold text-black flex items-center justify-center disabled:opacity-20"
-                    >
-                      <Send size={20} />
-                    </button>
-                  </div>
+                        <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} accept=".pdf,.docx,.txt" />
+                        <button
+                          onClick={() => fileInputRef.current?.click()}
+                          className="p-3 text-white/20 hover:text-gold transition-colors"
+                        >
+                          {isUploading ? <Loader2 size={20} className="animate-spin text-gold" /> : <FileUp size={20} />}
+                        </button>
 
-                  <div className="mt-4 flex items-center justify-between px-2">
-                    <div className="flex bg-black/40 rounded-xl p-1 border border-white/5">
-                      <button onClick={() => setSelectedLang('en')} className={`px-3 py-1.5 text-[10px] font-black rounded-lg transition-all ${selectedLang === 'en' ? 'bg-gold text-black' : 'text-white/20'}`}>EN</button>
-                      <button onClick={() => setSelectedLang('hi')} className={`px-3 py-1.5 text-[10px] font-black rounded-lg transition-all ${selectedLang === 'hi' ? 'bg-gold text-black' : 'text-white/20'}`}>HI</button>
+                        <button
+                          onClick={() => handleSend()}
+                          disabled={!inputText.trim() || assistantState === 'processing'}
+                          className="w-12 h-12 rounded-2xl bg-gold text-black flex items-center justify-center disabled:opacity-20"
+                        >
+                          <Send size={20} />
+                        </button>
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-between px-2">
+                        <div className="flex bg-black/40 rounded-xl p-1 border border-white/5">
+                          <button onClick={() => setSelectedLang('en')} className={`px-3 py-1.5 text-[10px] font-black rounded-lg transition-all ${selectedLang === 'en' ? 'bg-gold text-black' : 'text-white/20'}`}>EN</button>
+                          <button onClick={() => setSelectedLang('hi')} className={`px-3 py-1.5 text-[10px] font-black rounded-lg transition-all ${selectedLang === 'hi' ? 'bg-gold text-black' : 'text-white/20'}`}>HI</button>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Sparkles size={12} className="text-gold" />
+                          <span className="text-[8px] text-white/20 font-black tracking-widest uppercase">Production RAG Engine</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Sparkles size={12} className="text-gold" />
-                      <span className="text-[8px] text-white/20 font-black tracking-widest uppercase">Production RAG Engine</span>
-                    </div>
-                  </div>
-                </div>
+                  </>
+                )}
               </>
             )}
           </motion.div>

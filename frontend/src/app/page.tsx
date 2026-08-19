@@ -194,10 +194,10 @@ export default async function Home() {
               <Link href="/signup" className="w-full block text-center py-3 rounded-xl border border-[#333] hover:bg-[#222] transition font-medium">Get Starter</Link>
             </div>
 
-            {/* Growth Plan */}
+            {/* Premium Plan */}
             <div className="bg-gradient-to-b from-[#1a1505] to-[#111] border border-[#d4af37]/50 rounded-3xl p-8 relative transform md:-translate-y-4 shadow-[0_10px_40px_rgba(212,175,55,0.15)] flex flex-col">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#d4af37] text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Most Popular</div>
-              <h3 className="text-xl font-bold text-[#d4af37] mb-2 uppercase tracking-widest">KYROZ GROWTH</h3>
+              <h3 className="text-xl font-bold text-[#d4af37] mb-2 uppercase tracking-widest">KYROZ PREMIUM</h3>
               <div className="flex flex-col mb-6">
                 <span className="text-xl font-bold text-gray-500 line-through">₹4,999</span>
                 <div className="flex items-baseline gap-2">
@@ -220,14 +220,14 @@ export default async function Home() {
                   <li className="flex items-start gap-3 text-sm text-white font-medium">
                     <span className="text-[#d4af37]">✓</span> Everything in Starter
                   </li>
-                  {['Full SOP Library', 'Costing Master', 'Inventory Management', 'AI Chef', 'Gross Profit Analytics', 'Food Cost Analysis', 'Advanced Reports', 'Premix Purchase Access', 'Priority Support'].map(feature => (
+                  {['Full SOP Library', 'Costing Master', 'Inventory Management', 'AI Assistance', 'Menu Engineering', 'Multi Outlet Dashboard', 'Advance Business Intelligence', 'Marketing Engine', 'Premix Purchase Access', 'Priority Support'].map(feature => (
                     <li key={feature} className="flex items-start gap-3 text-sm text-gray-300">
                       <span className="text-[#d4af37]">✓</span> {feature}
                     </li>
                   ))}
                 </ul>
               </div>
-              <Link href="/signup" className="w-full block text-center py-3 rounded-xl bg-[#d4af37] text-black hover:bg-[#c5a028] transition font-bold">Get Growth</Link>
+              <Link href="/signup" className="w-full block text-center py-3 rounded-xl bg-[#d4af37] text-black hover:bg-[#c5a028] transition font-bold">Get Premium</Link>
             </div>
 
             {/* Scale Plan */}
@@ -251,7 +251,7 @@ export default async function Home() {
                 <h4 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-3">Includes:</h4>
                 <ul className="space-y-3">
                   <li className="flex items-start gap-3 text-sm text-white font-medium">
-                    <span className="text-[#d4af37]">✓</span> Everything in Growth
+                    <span className="text-[#d4af37]">✓</span> Everything in Premium
                   </li>
                   {['Multi Outlet Dashboard', 'Menu Engineering', 'Premium AI Restaurant Consultant', 'Marketing Engine', 'Advanced Business Intelligence'].map(feature => (
                     <li key={feature} className="flex items-start gap-3 text-sm text-gray-300">
@@ -288,7 +288,7 @@ export default async function Home() {
                   <span className="text-2xl font-black text-white">₹999<span className="text-sm text-gray-500 font-normal">/mo</span></span>
                 </div>
                 <div className="flex justify-between items-center bg-black/40 px-6 py-4 rounded-xl border border-white/5">
-                  <span className="text-gray-300 font-bold uppercase tracking-wider">Growth</span>
+                  <span className="text-gray-300 font-bold uppercase tracking-wider">Premium</span>
                   <span className="text-2xl font-black text-[#d4af37]">₹2999<span className="text-sm text-gray-500 font-normal">/mo</span></span>
                 </div>
               </div>

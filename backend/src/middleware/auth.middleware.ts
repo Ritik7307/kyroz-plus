@@ -45,6 +45,22 @@ export const authorizeRoles = (...roles: string[]) => {
   };
 };
 
+export const requirePlan = (...plans: string[]) => {
+  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+    // Admins always bypass this check
+    if (req.user?.role === 'admin' || req.user?.plan === 'Admin') {
+      next();
+      return;
+    }
+    const userPlan = req.user?.plan || 'None';
+    if (!plans.includes(userPlan)) {
+      res.status(403).json({ error: `Access denied. Requires one of these plans: ${plans.join(', ')}` });
+      return;
+    }
+    next();
+  };
+};
+
 export const isAdmin = authorizeRoles('admin');
 export const isManager = authorizeRoles('admin', 'manager', 'user');
 export const isCook = authorizeRoles('admin', 'manager', 'cook');

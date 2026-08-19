@@ -97,7 +97,7 @@ export default function AdminPricingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {(['starter', 'growth', 'scale'] as const).map(plan => (
             <div key={plan} className="bg-white/5 p-6 rounded-2xl border border-white/10 space-y-4">
-              <h3 className="text-xl font-bold text-gold uppercase tracking-widest">{plan} Plan</h3>
+              <h3 className="text-xl font-bold text-gold uppercase tracking-widest">{plan === 'growth' ? 'Premium' : plan} Plan</h3>
               
               <div className="space-y-2">
                 <label className="text-xs font-bold text-white/40 uppercase tracking-widest">Base Price (₹/mo)</label>

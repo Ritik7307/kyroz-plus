@@ -101,8 +101,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       console.log(`[AUTH] User Login: ${email}`);
     }
 
-    // Sync Master SOPs in background
-    syncMasterSopsForUser(user._id as any).catch(err => console.error('BG Sync failed:', err));
+    // Sync Master SOPs in background after response is sent
+    setTimeout(() => {
+      syncMasterSopsForUser(user._id as any).catch(err => console.error('BG Sync failed:', err));
+    }, 2000);
 
     // ----------------------------------------------------
     // SESSION MANAGEMENT & DEVICE LIMIT LOGIC
@@ -117,9 +119,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const limit = PLAN_LIMITS[user.subscriptionPlan as keyof typeof PLAN_LIMITS] || 1;
 
     if (activeSessions.length >= limit) {
-      const oldestSession = activeSessions[0];
-      await Session.findByIdAndDelete(oldestSession._id);
-      console.log(`Removed oldest session for user ${user.email} due to device limits.`);
+      const excessCount = activeSessions.length - limit + 1;
+      const sessionsToDelete = activeSessions.slice(0, excessCount).map(s => s._id);
+      await Session.deleteMany({ _id: { $in: sessionsToDelete } });
+      console.log(`Removed ${excessCount} old session(s) for user ${user.email} due to device limits.`);
     }
 
     const newSession = new Session({
