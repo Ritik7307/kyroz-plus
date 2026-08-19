@@ -12,18 +12,7 @@ export const processSopText = async (userId: string, text: string, language: str
   // 2. Delete old chunks for this dish and language
   await SopChunk.deleteMany({ userId, dish, lang: language });
 
-  // 3. Define Section Keywords
-  const sectionKeywords = [
-    'INITIAL SETUP', 
-    'COOKING PROCESS', 
-    'FINISHING', 
-    'GARNISH', 
-    'TROUBLESHOOTING', 
-    'TIP',
-    'GARNISH & PLATING' // Fallback for variations
-  ];
-
-  // 4. Parse the text into sections
+  // 3. Parse the text into sections dynamically
   const chunks: { dish: string; section: string; content: string }[] = [];
   
   let currentSection = 'GENERAL INFO';
@@ -31,31 +20,55 @@ export const processSopText = async (userId: string, text: string, language: str
   
   const lines = text.split('\n');
 
+  const sectionKeywords = [
+    'INITIAL SETUP', 
+    'COOKING PROCESS', 
+    'FINISHING', 
+    'GARNISH', 
+    'TROUBLESHOOTING', 
+    'TIP',
+    'GARNISH & PLATING'
+  ];
+
+  // Regex to detect a header: 
+  // - Starts with # (Markdown header)
+  // - Starts with a number or letter followed by a dot (e.g., "1. ", "A. ")
+  // - Or matches one of the legacy exact keywords
+  const isHeader = (line: string): boolean => {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('#')) return true;
+    if (/^([0-9]+|[A-Z])\.\s/.test(trimmed) && trimmed.length < 80) return true;
+    
+    const upperLine = trimmed.toUpperCase();
+    if (sectionKeywords.some(keyword => upperLine.startsWith(keyword))) {
+        return true;
+    }
+    
+    return false;
+  };
+
   for (const line of lines) {
     const trimmedLine = line.trim();
     if (!trimmedLine) continue;
-
-    let isSectionHeader = false;
-    for (const keyword of sectionKeywords) {
-      // If the line starts with the keyword (ignoring case)
-      if (trimmedLine.toUpperCase().startsWith(keyword)) {
-        // Save the previous section
-        if (currentContent.length > 0) {
-          chunks.push({
-            dish,
-            section: currentSection,
-            content: currentContent.join('\n')
-          });
-        }
-        // Start new section
-        currentSection = keyword;
-        currentContent = [];
-        isSectionHeader = true;
-        break;
-      }
+    
+    // Skip the injected SOP title line itself so it doesn't become a weird chunk
+    if (trimmedLine.toUpperCase().startsWith('SOP:') && trimmedLine.toUpperCase().includes(dish.toUpperCase())) {
+        continue;
     }
 
-    if (!isSectionHeader) {
+    if (isHeader(trimmedLine)) {
+      // Save the previous section
+      if (currentContent.length > 0) {
+        chunks.push({
+          dish,
+          section: currentSection,
+          content: currentContent.join('\n')
+        });
+      }
+      // Start new section
+      currentSection = trimmedLine.replace(/^#+\s*/, '').trim(); // Remove markdown hashes if any
+      currentContent = [];
+    } else {
       currentContent.push(trimmedLine);
     }
   }
