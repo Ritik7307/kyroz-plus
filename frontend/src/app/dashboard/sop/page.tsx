@@ -197,16 +197,75 @@ function SOPLibraryContent() {
   const renderContentWithHighlights = (text: string) => {
     if (!text) return null;
     const lines = text.split('\n');
-    return lines.map((line, i) => {
+    const elements = [];
+    let i = 0;
+    
+    while (i < lines.length) {
+      const line = lines[i];
       const trimmedLine = line.trim();
-      if (!trimmedLine) return <div key={i} className="h-4" />;
+      
+      if (!trimmedLine) {
+        elements.push(<div key={`empty-${i}`} className="h-4" />);
+        i++;
+        continue;
+      }
+      
+      if (trimmedLine.startsWith('|')) {
+        const tableLines = [];
+        while (i < lines.length && lines[i].trim().startsWith('|')) {
+          tableLines.push(lines[i].trim());
+          i++;
+        }
+        
+        const headerRow = tableLines[0];
+        const bodyRows = tableLines.slice(1).filter(l => !l.includes('|---') && !l.includes('| ---'));
+        
+        const parseRow = (rowStr: string) => {
+          let cells = rowStr.split('|');
+          if (cells[0].trim() === '') cells.shift();
+          if (cells.length > 0 && cells[cells.length-1].trim() === '') cells.pop();
+          return cells.map(c => c.trim());
+        };
+        
+        const headers = parseRow(headerRow);
+        
+        elements.push(
+          <div key={`table-${i}`} className="overflow-x-auto my-6 border border-white/10 rounded-xl bg-black/20">
+            <table className="w-full text-left border-collapse text-sm">
+              <thead className="bg-white/5 border-b border-white/10">
+                <tr>
+                  {headers.map((h, idx) => (
+                    <th key={idx} className="p-4 font-black text-gold uppercase tracking-wider">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {bodyRows.map((row, rIdx) => {
+                  const cells = parseRow(row);
+                  return (
+                    <tr key={rIdx} className="hover:bg-white/5 transition-colors">
+                      {cells.map((cell, cIdx) => (
+                        <td key={cIdx} className="p-4 text-gray-300 font-medium">
+                          {cell}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        );
+        continue;
+      }
+      
       const isHeader = (trimmedLine.toUpperCase().includes(':') && trimmedLine.length < 40) || trimmedLine.startsWith('###');
       const isBullet = trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ') || /^\d+\./.test(trimmedLine);
       const cleanLine = trimmedLine.replace(/^[-*]\s+/, '').replace(/^###\s+/, '');
       const parts = cleanLine.split(/(\bHigh\b|\bMedium\b|\bLow\b|\bOil\b|\bButter\b|\bGhee\b|\*\*[^*]+\*\*)/g);
-
-      return (
-        <div key={i} className={`mb-3 ${isHeader ? 'mt-10 border-b border-white/10 pb-2 mb-6' : ''} ${isBullet ? 'pl-6 relative' : ''}`}>
+      
+      elements.push(
+        <div key={`line-${i}`} className={`mb-3 ${isHeader ? 'mt-10 border-b border-white/10 pb-2 mb-6' : ''} ${isBullet ? 'pl-6 relative' : ''}`}>
           {isBullet && <span className="absolute left-0 text-gold font-bold">{trimmedLine.split(' ')[0]}</span>}
           <p className={`${isHeader ? 'font-black text-lg text-gold uppercase tracking-tight' : 'font-medium text-gray-300 text-sm leading-relaxed'} ${isBullet ? 'pl-2' : ''}`}>
             {parts.map((part, j) => {
@@ -217,7 +276,10 @@ function SOPLibraryContent() {
           </p>
         </div>
       );
-    });
+      i++;
+    }
+    
+    return elements;
   };
 
   return (
