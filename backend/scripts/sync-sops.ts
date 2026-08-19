@@ -2,12 +2,15 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { syncMasterSopsForUser } from '../src/services/sop.service';
 import User from '../src/models/User';
+import MasterSop from '../src/models/MasterSop';
 
 dotenv.config();
 
+const MONGODB_URI = process.env.MONGO_URI || process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/kyroz';
+
 const run = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI as string);
+    await mongoose.connect(MONGODB_URI);
     console.log('Connected to DB');
 
     const users = await User.find({});
