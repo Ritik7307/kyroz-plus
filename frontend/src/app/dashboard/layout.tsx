@@ -133,7 +133,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Costing Master', path: '/dashboard/costing', id: 'costing', icon: IndianRupee },
     { name: 'Customers', path: '/dashboard/customers', id: 'customers', icon: Users },
     { name: 'Manage Team', path: '/dashboard/team', id: 'team', ownerOnly: true, icon: Users },
-    { name: 'Premium', path: '/dashboard/membership', id: 'membership', icon: Crown },
+    { name: 'Premium', path: '/dashboard/premium', id: 'premium', icon: Crown },
     { name: 'Account', path: '/dashboard/account', id: 'account', icon: User },
   ];
 
@@ -151,7 +151,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
 
     // Default for staff with no explicit permissions
-    return ['account', 'membership'].includes(link.id);
+    return ['account', 'premium'].includes(link.id);
   });
 
   let currentPlan = user?.plan || user?.subscriptionPlan || 'None';

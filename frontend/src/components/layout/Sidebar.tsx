@@ -61,7 +61,7 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user', permissi
       { name: 'Inventory', icon: Utensils, path: '/dashboard/inventory', id: 'inventory' },
       { name: 'Costing Master', icon: Calculator, path: '/dashboard/costing', id: 'costing' },
       { name: 'Wastage Master', icon: Trash2, path: '/dashboard/wastage', id: 'wastage' },
-      { name: 'Premium', icon: Crown, path: '/dashboard/membership', id: 'membership' },
+      { name: 'Premium', icon: Crown, path: '/dashboard/premium', id: 'premium' },
       { name: 'Account', icon: Users, path: '/dashboard/account', id: 'account' },
       { name: 'Settings', icon: Settings, path: '/dashboard/settings', id: 'settings' },
       { name: 'Privacy Policy', icon: ShieldCheck, path: '/privacy-policy', id: 'privacy' },
@@ -80,7 +80,7 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user', permissi
       }
 
       // Fallback for staff with no permissions
-      return ['dashboard', 'account', 'privacy', 'terms', 'data', 'membership'].includes(item.id);
+      return ['dashboard', 'account', 'privacy', 'terms', 'data', 'premium'].includes(item.id);
     });
   };
 
