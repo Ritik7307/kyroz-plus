@@ -98,57 +98,6 @@ export default function CostingMaster() {
   const [savingRawMaterial, setSavingRawMaterial] = useState(false);
   const [savingRecipe, setSavingRecipe] = useState(false);
 
-  // Template Import states
-  const [showTemplateModal, setShowTemplateModal] = useState(false);
-  const [selectedTemplateCategory, setSelectedTemplateCategory] = useState<string>('');
-  const [selectedTemplateDishId, setSelectedTemplateDishId] = useState<string>('');
-  const [importingTemplate, setImportingTemplate] = useState(false);
-
-  const handleImportTemplate = async () => {
-    if (!selectedTemplateDishId) return;
-    setImportingTemplate(true);
-    setError('');
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/api/costing/dish/${selectedTemplateDishId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error('Failed to fetch template costing');
-      const data = await res.json();
-      
-      // We map the template's ingredients into the current dish's localIngredients.
-      // We set parentId to undefined so it treats them as belonging to the current dish.
-      const importedIngredients = data.ingredientsCostDetails.map((ing: any) => ({
-        ...ing,
-        parentId: undefined, 
-        parentModel: 'Dish'
-      }));
-      
-      setLocalIngredients(importedIngredients);
-      
-      // Update editingPrices with imported prices
-      const initialPrices: Record<string, number> = { ...editingPrices };
-      importedIngredients.forEach((ing: any) => {
-        let displayPrice = ing.purchasePrice;
-        if (ing.rateUnit === 'gm' || ing.rateUnit === 'ml') {
-          displayPrice = ing.purchasePrice * 1000;
-        }
-        initialPrices[ing.itemId] = displayPrice;
-      });
-      setEditingPrices(initialPrices);
-      
-      setShowTemplateModal(false);
-      setSelectedTemplateCategory('');
-      setSelectedTemplateDishId('');
-      setSuccessMessage('Template loaded! Click "Save Recipe Configuration" to apply.');
-      setTimeout(() => setSuccessMessage(''), 4000);
-    } catch (err: any) {
-      setError(err.message || 'Failed to import template');
-    } finally {
-      setImportingTemplate(false);
-    }
-  };
-
   // Group dishes by category for the template selector
   const groupedDishes = dishes.reduce((acc, dish: any) => {
     const cat = dish.category;
@@ -603,12 +552,6 @@ export default function CostingMaster() {
                   Standard Recipe Ledger
                 </h3>
                 <div className="flex items-center gap-4">
-                  <button
-                    onClick={() => setShowTemplateModal(true)}
-                    className="text-[10px] bg-white/10 hover:bg-white/20 border border-white/20 px-3 py-1.5 rounded-full font-black text-white uppercase tracking-widest transition-all"
-                  >
-                    + Import Template
-                  </button>
                   <span className="text-xs bg-gold/20 border border-gold/30 px-3 py-1.5 rounded-full font-black text-gold uppercase tracking-widest flex items-center gap-2">
                     {savingRecipe ? <Loader2 className="animate-spin" size={10} /> : <CheckCircle size={10} />} Recipe Active
                   </span>
@@ -976,88 +919,7 @@ export default function CostingMaster() {
         )}
       </AnimatePresence>
 
-      {/* Import Template Modal */}
-      <AnimatePresence>
-        {showTemplateModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }} 
-              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-              onClick={() => setShowTemplateModal(false)}
-            />
-            
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg bg-[#0a0a0a] border border-white/10 rounded-[3rem] p-10 md:p-12 shadow-2xl overflow-hidden"
-            >
-              <div className="absolute top-0 left-0 w-full h-1 bg-gold-gradient opacity-50"></div>
-              
-              <div className="space-y-4 mb-10 text-center">
-                <h3 className="text-3xl font-black uppercase tracking-tighter text-white">
-                  Import <span className="text-gold">Template</span>
-                </h3>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/40">
-                  Load a predefined recipe into this dish
-                </p>
-              </div>
 
-              <div className="space-y-6">
-                <div className="space-y-3">
-                  <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 block">Category</label>
-                  <select
-                    value={selectedTemplateCategory}
-                    onChange={(e) => {
-                      setSelectedTemplateCategory(e.target.value);
-                      setSelectedTemplateDishId('');
-                    }}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold outline-none focus:border-gold transition-all cursor-pointer"
-                  >
-                    <option value="" disabled>Select Category</option>
-                    {Object.keys(groupedDishes).sort().map(cat => (
-                      <option key={cat} value={cat} className="bg-[#111]">{cat}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-3">
-                  <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 block">Dish Template</label>
-                  <select
-                    value={selectedTemplateDishId}
-                    onChange={(e) => setSelectedTemplateDishId(e.target.value)}
-                    disabled={!selectedTemplateCategory}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold outline-none focus:border-gold transition-all cursor-pointer disabled:opacity-50"
-                  >
-                    <option value="" disabled>Select Template</option>
-                    {selectedTemplateCategory && groupedDishes[selectedTemplateCategory]?.map(dish => (
-                      <option key={dish.value} value={dish.value} className="bg-[#111]">{dish.label}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="flex gap-4 pt-6">
-                  <button 
-                    onClick={handleImportTemplate}
-                    disabled={!selectedTemplateDishId || importingTemplate}
-                    className="flex-1 py-6 rounded-2xl bg-gold text-black font-black uppercase text-[11px] tracking-widest shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:scale-100"
-                  >
-                    {importingTemplate ? <Loader2 className="animate-spin" size={16} /> : 'Import Template'}
-                  </button>
-                  <button 
-                    onClick={() => setShowTemplateModal(false)} 
-                    className="px-10 py-6 rounded-2xl bg-white/5 text-white/40 font-black uppercase text-[11px] tracking-widest hover:bg-white/10 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
