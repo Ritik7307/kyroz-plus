@@ -734,47 +734,29 @@ const getFallbackResponse = async (userId: string, query: string, lang: string =
 
 
     const bestMatch = relevantChunks[0];
-
     const queryLower = query.toLowerCase();
-
     const dishLower = bestMatch.dish.toLowerCase();
 
-
-
     // Check if the query contains any of the core dish keywords
-
     const cleanedDish = cleanDishNameForMatching(bestMatch.dish);
-
     const dishKeywords = cleanedDish.split(/\s+/).filter(w => w.length > 2);
-
     const hasDishMatch = dishKeywords.some(word => queryLower.includes(word)) || queryLower.includes(cleanedDish) || queryLower.includes(dishLower);
 
-
-
     if (!hasDishMatch) {
-
       return isHi ? "मेरे पास SOP लाइब्रेरी में यह रेसिपी नहीं है।" : "I do not have this recipe in my SOP library.";
-
     }
 
+    const isMatchHi = bestMatch.lang === 'hi';
+    const finalHi = isHi && isMatchHi;
 
-
-    const baseReply = isHi
-
+    const baseReply = finalHi
       ? `बिलकुल! **${bestMatch.dish.toUpperCase()}** के बारे में ये रही जानकारी:\n\n${bestMatch.content}`
-
       : `Sure! Here is the info for **${bestMatch.dish.toUpperCase()}**:\n\n${bestMatch.content}`;
 
-
-
     return baseReply;
-
   } catch (e) {
-
     return lang === 'hi' ? "डेटा प्राप्त करने में त्रुटि हुई।" : "Error retrieving data.";
-
   }
-
 };
 
 
@@ -1036,7 +1018,7 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
 
     const englishSpecific = /\b(recipe|ingredient|make|cook|prepare|cost|price|packaging|sop|method|step|how|what|button|batches|portion|plates|kg|gm|ml|chicken|mutton|veg|rava|onion|masala|white|shahi|lucknowi|arabic|batter|stuffing|mini|regular|large|medium|small|size|about|scale|yield|quantity|ratio|water|tadka|tempering|store|storage|troubleshoot|spoilage|yields|plates|pieces|piece|sops|coconut|red|kara|rice|medu|premium|indo)\b/i.test(queryLower);
 
-    const hindiSpecific = /(विधि|सामग्री|बनाएं|कैसे|मूल्य|कीमत|चिकन|मटन|वेज|रवा|प्याज़|मसाला|सफेद|शाही|लखनऊ|बैटर|स्टफिंग|साइज|मात्रा|अनुपात|पानी|स्टोर|फ्रिज|तापमान|उबाल|पकाना|परोस|नारियल|लाल|कारा|चावल|मेदु|प्रीमियम|इंडो)/i.test(queryLower);
+    const hindiSpecific = /(विधि|सामग्री|बनाएं|बनाएँ|कैसे|मूल्य|कीमत|चिकन|मटन|वेज|रवा|प्याज़|मसाला|सफेद|शाही|लखनऊ|बैटर|स्टफिंग|साइज|मात्रा|अनुपात|पानी|स्टोर|फ्रिज|तापमान|उबाल|पकाना|परोस|नारियल|लाल|कारा|चावल|मेदु|प्रीमियम|इंडो)/i.test(queryLower);
 
     
 
@@ -1177,7 +1159,7 @@ ${languageRule}
 
 SOP CONTEXT:
 
-${contextText || (targetLang === 'hi' ? 'लाइब्रेरी में कोई मिलान SOP नहीं मिला।' : 'No matching SOP found in the library.')}
+${(contextText || (targetLang === 'hi' ? 'लाइब्रेरी में कोई मिलान SOP नहीं मिला।' : 'No matching SOP found in the library.')).replace(/={3,}/g, '').replace(/-{4,}/g, '')}
 
 
 
@@ -1288,35 +1270,28 @@ ${suggestionsInstruction}
 
 
     if (!rawReply) {
-
+      let fallbackReply = await getFallbackResponse(userId, standaloneQuery, targetLang);
+      fallbackReply = fallbackReply.replace(/={3,}/g, '').replace(/-{4,}/g, '').trim();
       return {
-
-        reply: await getFallbackResponse(userId, standaloneQuery, targetLang),
-
+        reply: fallbackReply,
         suggestions: [],
-
         detectedLang: targetLang
-
       };
-
     }
 
 
 
     let reply = rawReply;
-
     let suggestions: string[] = [];
-
     const suggestionMatch = rawReply.match(/\[SUGGESTIONS\](.*)$/is);
-
     if (suggestionMatch) {
-
       reply = rawReply.replace(/\[SUGGESTIONS\].*$/is, '').trim();
-
       suggestions = suggestionMatch[1].split(/[\n,]/).map(s => s.trim().replace(/[*"-]/g, '')).filter(s => s.length > 2);
-
     }
-
+    
+    // Clean up excessive formatting characters that cause TTS issues
+    reply = reply.replace(/={3,}/g, '').replace(/-{4,}/g, '').trim();
+    
     return { reply, suggestions, detectedLang: targetLang };
 
   } catch (err: any) {

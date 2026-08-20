@@ -64,7 +64,7 @@ interface Message {
 const cleanSpeechText = (text: string, forceLang?: 'en' | 'hi'): string => {
   if (!text) return '';
   return text
-    .replace(/[\*#`_\~\+•▪◦●○]/g, '')
+    .replace(/[\*#`_\~\+•▪◦●○=]/g, '')
     .replace(/(?:^|\n)\s*[-–—]\s*/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();

@@ -19,9 +19,10 @@ function cosineSimilarity(vecA: number[], vecB: number[]): number {
 export const retrieveRelevantChunks = async (userId: string, queryEmbedding: number[], topK: number = 3, rawQuery: string = "", lang: string = "en") => {
   let allChunks = await SopChunk.find({ userId, lang }).lean<ISopChunk[]>();
   
-  // Fallback to English if no chunks exist for the requested language
-  if ((!allChunks || allChunks.length === 0) && lang !== 'en') {
-    allChunks = await SopChunk.find({ userId, lang: 'en' }).lean<ISopChunk[]>();
+  // Also fetch English chunks as a fallback source of knowledge to provide to the LLM for translation
+  if (lang !== 'en') {
+    const enChunks = await SopChunk.find({ userId, lang: 'en' }).lean<ISopChunk[]>();
+    allChunks = [...allChunks, ...enChunks];
   }
   
   if (!allChunks || allChunks.length === 0) return [];
@@ -109,9 +110,11 @@ export const searchSopByText = async (userId: string, query: string, topK: numbe
 
   let finalResults = await performSearch(lang);
   
-  // Fallback to English if no results found in the requested language
-  if ((!finalResults || finalResults.length === 0) && lang !== 'en') {
-    finalResults = await performSearch('en');
+  // Also fetch English chunks as a fallback source of knowledge
+  if (lang !== 'en') {
+    const enResults = await performSearch('en');
+    finalResults = [...finalResults, ...enResults];
+    // Deduplicate or just rely on the LLM to process it
   }
 
   return finalResults;

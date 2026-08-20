@@ -8,10 +8,16 @@ import Inventory from '../models/Inventory';
 
 export const injectSouthIndian = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = "test_user_id"; // Same fallback as other scripts
-    const User = require('../models/User').default;
-    const testUser = await User.findOne();
-    const activeUserId = testUser ? testUser._id : "test_user_id";
+    let activeUserId = req.body.userId || (req as any).user?.userId;
+    if (!activeUserId) {
+      const User = require('../models/User').default;
+      const user = await User.findOne({ email: 'vijayshankarprajapati29@gmail.com' });
+      if (!user) {
+        res.status(400).json({ error: 'userId required' });
+        return;
+      }
+      activeUserId = user._id;
+    }
 
     console.log(`Injecting South Indian Architecture for user: ${activeUserId}`);
 

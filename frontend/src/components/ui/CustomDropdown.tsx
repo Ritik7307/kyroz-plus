@@ -7,6 +7,7 @@ import { ChevronDown, Check } from 'lucide-react';
 interface Option {
   label: string;
   value: string;
+  category?: string;
 }
 
 interface CustomDropdownProps {
@@ -77,22 +78,59 @@ export default function CustomDropdown({ options, value, onChange, label, placeh
               </div>
             )}
             <div className="py-2 max-h-60 overflow-y-auto custom-scrollbar">
-              {filteredOptions.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => {
-                    onChange(option.value);
-                    setIsOpen(false);
-                  }}
-                  className={`w-full px-5 py-3 text-left text-sm font-bold flex items-center justify-between transition-colors ${
-                    value === option.value ? 'bg-gold/10 text-gold' : 'text-white/60 hover:bg-white/5 hover:text-white'
-                  }`}
-                >
-                  {option.label}
-                  {value === option.value && <Check size={16} />}
-                </button>
-              ))}
+              {(() => {
+                const hasCategories = filteredOptions.some(opt => opt.category);
+                
+                if (!hasCategories) {
+                  return filteredOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => {
+                        onChange(option.value);
+                        setIsOpen(false);
+                      }}
+                      className={`w-full px-5 py-3 text-left text-sm font-bold flex items-center justify-between transition-colors ${
+                        value === option.value ? 'bg-gold/10 text-gold' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                      }`}
+                    >
+                      {option.label}
+                      {value === option.value && <Check size={16} />}
+                    </button>
+                  ));
+                }
+
+                const groups = filteredOptions.reduce((acc, opt) => {
+                  const cat = opt.category || 'Uncategorized';
+                  if (!acc[cat]) acc[cat] = [];
+                  acc[cat].push(opt);
+                  return acc;
+                }, {} as Record<string, Option[]>);
+
+                return Object.entries(groups).map(([cat, opts]) => (
+                  <div key={cat} className="mb-2">
+                    <div className="px-5 py-1 text-[10px] font-black text-white/40 uppercase tracking-widest bg-white/5 border-y border-white/5">
+                      {cat}
+                    </div>
+                    {opts.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => {
+                          onChange(option.value);
+                          setIsOpen(false);
+                        }}
+                        className={`w-full px-5 pl-8 py-3 text-left text-sm font-bold flex items-center justify-between transition-colors ${
+                          value === option.value ? 'bg-gold/10 text-gold' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                        }`}
+                      >
+                        {option.label}
+                        {value === option.value && <Check size={16} />}
+                      </button>
+                    ))}
+                  </div>
+                ));
+              })()}
             </div>
           </motion.div>
         )}

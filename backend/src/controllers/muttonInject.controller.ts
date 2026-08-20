@@ -8,10 +8,16 @@ import Inventory from '../models/Inventory';
 
 export const debugInjectMuttonDishes = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = "test_user_id"; // For debugging/injection, we can use a fixed ID or let the frontend pass it. Since it's debug, let's look up an existing user.
-    const User = require('../models/User').default;
-    const testUser = await User.findOne();
-    const activeUserId = testUser ? testUser._id : "test_user_id";
+    let activeUserId = req.body.userId || (req as any).user?.userId;
+    if (!activeUserId) {
+      const User = require('../models/User').default;
+      const user = await User.findOne({ email: 'vijayshankarprajapati29@gmail.com' });
+      if (!user) {
+        res.status(400).json({ error: 'userId required' });
+        return;
+      }
+      activeUserId = user._id;
+    }
 
     console.log(`Injecting Mutton/Musallam/Saagwala dishes for user: ${activeUserId}`);
 

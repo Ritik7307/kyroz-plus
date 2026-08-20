@@ -155,7 +155,49 @@ export default function POSTerminal() {
     subUnitName: 'Plate'
   });
   const [availableIngredients, setAvailableIngredients] = useState<any[]>([]);
-  const [recipeIngredients, setRecipeIngredients] = useState<{itemModel: string, itemId: string, name: string, quantity: number, unit: string, costPerUnit: number}[]>([]);
+  const [recipeIngredients, setRecipeIngredients] = useState<any[]>([]);
+  const [selectedTemplateCategory, setSelectedTemplateCategory] = useState<string>('');
+  const [selectedTemplateDishId, setSelectedTemplateDishId] = useState<string>('');
+  const [importingTemplate, setImportingTemplate] = useState(false);
+
+  const handleImportTemplate = async () => {
+    if (!selectedTemplateDishId) return;
+    setImportingTemplate(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/costing/dish/${selectedTemplateDishId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Failed to fetch template costing');
+      const data = await res.json();
+      
+      const newIngredients = data.ingredientsCostDetails
+        .filter((ing: any) => !ing.isSubIngredient) // Only top-level items
+        .map((ing: any) => {
+          return {
+            itemModel: ing.itemModel,
+            itemId: ing.itemId,
+            quantity: ing.quantity,
+            unit: ing.unit,
+            name: ing.name,
+            costPerUnit: ing.purchasePrice // Assuming this gives unit cost
+          };
+        });
+
+      setRecipeIngredients((prev) => [...prev, ...newIngredients]);
+      
+      const totalCost = newIngredients.reduce((sum: number, item: any) => sum + (item.quantity * item.costPerUnit), 0) + Number(newDish.ingredientPrice || 0);
+      setNewDish({...newDish, ingredientPrice: String(totalCost)});
+      
+      setSelectedTemplateCategory('');
+      setSelectedTemplateDishId('');
+    } catch (err: any) {
+      console.error('Failed to import template:', err);
+      alert('Failed to import template: ' + err.message);
+    } finally {
+      setImportingTemplate(false);
+    }
+  };
   const [selectedIngredient, setSelectedIngredient] = useState('');
   const [ingredientQuantity, setIngredientQuantity] = useState('');
   const [ingredientUnit, setIngredientUnit] = useState('unit');
@@ -1770,6 +1812,45 @@ export default function POSTerminal() {
                     {setupStep === 2 && (
                       <div className="space-y-4">
                         
+                        {/* IMPORT TEMPLATE UI */}
+                        <div className="space-y-3 bg-white/5 p-4 rounded-xl border border-gold/30">
+                          <label className="text-xs uppercase tracking-widest text-gold font-bold block">Import Predefined Recipe Template</label>
+                          <div className="grid grid-cols-2 gap-2">
+                            <select
+                              value={selectedTemplateCategory}
+                              onChange={(e) => {
+                                setSelectedTemplateCategory(e.target.value);
+                                setSelectedTemplateDishId('');
+                              }}
+                              className="w-full bg-black/40 p-3 rounded-lg border border-white/10 text-[11px] text-white outline-none focus:border-gold"
+                            >
+                              <option value="" disabled>Select Category</option>
+                              {categories.map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
+                              ))}
+                            </select>
+                            <select
+                              value={selectedTemplateDishId}
+                              onChange={(e) => setSelectedTemplateDishId(e.target.value)}
+                              disabled={!selectedTemplateCategory}
+                              className="w-full bg-black/40 p-3 rounded-lg border border-white/10 text-[11px] text-white outline-none focus:border-gold disabled:opacity-50"
+                            >
+                              <option value="" disabled>Select Template</option>
+                              {selectedTemplateCategory && dishesData?.filter((d: any) => d.category === selectedTemplateCategory).map((dish: any) => (
+                                <option key={dish._id} value={dish._id}>{dish.name}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <button 
+                            type="button"
+                            onClick={handleImportTemplate}
+                            disabled={!selectedTemplateDishId || importingTemplate}
+                            className="w-full py-3 bg-gold/20 hover:bg-gold/40 text-gold text-xs font-bold uppercase rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2 border border-gold/30"
+                          >
+                            {importingTemplate ? <Loader2 className="animate-spin" size={14} /> : 'Load Template Recipe'}
+                          </button>
+                        </div>
+
                         <div className="space-y-3 bg-white/5 p-4 rounded-xl border border-white/10">
                           <label className="text-xs uppercase tracking-widest text-white/50 font-bold block">Dish Ingredients (Optional)</label>
                           
