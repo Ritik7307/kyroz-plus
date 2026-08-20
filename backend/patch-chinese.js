@@ -1,72 +1,12 @@
-import mongoose from 'mongoose';
-import RawMaterial from '../models/RawMaterial';
-import PreparationMaster from '../models/PreparationMaster';
-import SemiFinishedGood from '../models/SemiFinishedGood';
-import PortionMaster from '../models/PortionMaster';
-import Packaging from '../models/Packaging';
-import Dish from '../models/Dish';
-import Recipe from '../models/Recipe';
-import Inventory from '../models/Inventory';
+const fs = require('fs');
+const path = require('path');
+const filePath = path.resolve(__dirname, 'src/services/blueprintSeeder.service.ts');
+let content = fs.readFileSync(filePath, 'utf8');
 
-export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): Promise<void> => {
-  await RawMaterial.deleteMany({ userId });
-  await PreparationMaster.deleteMany({ userId });
-  await SemiFinishedGood.deleteMany({ userId });
-  await PortionMaster.deleteMany({ userId });
-  await Packaging.deleteMany({ userId });
-  await Dish.deleteMany({ userId });
-  await Recipe.deleteMany({ userId });
-  await Inventory.deleteMany({ userId });
+// We will inject everything as per user instruction: prefix + exact codes.
 
-  const rmData = [
-    { code: 'RM_G205', name: 'G-205 ROYAL ROGAN', category: 'Gravy', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 120 },
-    { code: 'RM_PRE_FRIED_POTATO', name: 'Pre-fried Potato Cubes', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 40 },
-    { code: 'RM_PRE_FRIED_CAULIFLOWER', name: 'Pre-fried Cauliflower Florets', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 60 },
-    { code: 'RM_BOILED_GREEN_PEAS', name: 'Boiled Green Peas', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 80 },
-    { code: 'RM_REFINED_OIL', name: 'Refined Oil', category: 'Grocery', purchaseUnit: 'L', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 100 },
-    { code: 'RM_DESI_GHEE', name: 'Desi Ghee', category: 'Dairy', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 450 },
-    { code: 'RM_HOT_WATER', name: 'Hot Water', category: 'Misc', purchaseUnit: 'L', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 0 },
-    { code: 'RM_JEERA', name: 'Jeera', category: 'Spice', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 300 },
-    { code: 'RM_HING', name: 'Hing', category: 'Spice', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 800 },
-    { code: 'RM_GINGER_GARLIC_PASTE', name: 'Ginger Garlic Paste', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 120 },
-    { code: 'RM_GREEN_CHILLI', name: 'Green Chilli', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 60 },
-    { code: 'RM_KASHMIRI_CHILLI', name: 'Kashmiri Chilli', category: 'Spice', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 350 },
-    { code: 'RM_K801', name: 'K-801 ROYAL PUNCH', category: 'Spice', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 350 },
-    { code: 'RM_K806', name: 'K-806 ZESTFUL ZING', category: 'Spice', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 350 },
-    { code: 'RM_KASOORI_METHI', name: 'Kasoori Methi', category: 'Spice', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 200 },
-    { code: 'RM_CRUSHED_BLACK_PEPPER', name: 'Crushed Black Pepper', category: 'Spice', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 500 },
-    { code: 'RM_FRESH_CORIANDER', name: 'Fresh Coriander', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 50 },
-    { code: 'RM_GINGER_JULIENNES', name: 'Ginger Juliennes', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 120 },
-    { code: 'RM_G203', name: 'G-203 EMERALD MIX', category: 'Gravy', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 120 },
-    { code: 'RM_G202', name: 'G-202 IVORY BASE', category: 'Gravy', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 140 },
-    { code: 'RM_BOILED_SWEET_CORN', name: 'Boiled Sweet Corn', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 80 },
-    { code: 'RM_PANEER_CUBES', name: 'Paneer Cubes', category: 'Dairy', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 300 },
-    { code: 'RM_PROCESSED_CHEESE', name: 'Processed Cheese', category: 'Dairy', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 350 },
-    { code: 'RM_BUTTER', name: 'Butter', category: 'Dairy', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 450 },
-    { code: 'RM_FRESH_CREAM', name: 'Fresh Cream', category: 'Dairy', purchaseUnit: 'L', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 180 },
-    { code: 'RM_MILK', name: 'Milk', category: 'Dairy', purchaseUnit: 'L', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 55 },
-    { code: 'RM_SUGAR', name: 'Sugar', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 45 },
-    { code: 'RM_G204', name: 'G-204 ROASTED RUST', category: 'Gravy', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 150 },
-    { code: 'RM_CAPSICUM_CUBES', name: 'Capsicum Cubes', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 50 },
-    { code: 'RM_ONION_CUBES', name: 'Onion Cubes', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 35 },
-    { code: 'RM_CAPSICUM_ONION_STOCK', name: 'Capsicum/Onion Stock', category: 'Misc', purchaseUnit: 'L', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 20 },
-    { code: 'RM_DRY_RED_CHILLI', name: 'Dry Red Chilli', category: 'Spice', purchaseUnit: 'kg', consumptionUnit: 'pcs', conversionFactor: 500, currentStock: 5000, costPerPurchaseUnit: 250 },
-    { code: 'RM_CURD', name: 'Curd', category: 'Dairy', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 70 },
-    { code: 'RM_K802', name: 'K-802 WOK SPICE', category: 'Spice', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 400 },
-    { code: 'RM_GRATED_PANEER', name: 'Grated Paneer', category: 'Dairy', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 300 },
-    { code: 'RM_CHOPPED_GARLIC', name: 'Chopped Garlic', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 100 },
-    { code: 'RM_SALT', name: 'Salt', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 20 },
-    { code: 'RM_GOLDEN_GARLIC_TOPPING', name: 'Golden Garlic Topping', category: 'Condiment', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 250 },
-    { code: 'RM_FRIED_KOFTA', name: 'Premium Fried Stuffed Paneer & Khoya Kofta', category: 'SFG', purchaseUnit: 'pcs', consumptionUnit: 'pcs', conversionFactor: 1, currentStock: 5000, costPerPurchaseUnit: 18 },
-    { code: 'RM_GREEN_CARDAMOM', name: 'Green Cardamom', category: 'Spice', purchaseUnit: 'kg', consumptionUnit: 'pcs', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 2500 },
-    { code: 'RM_MACE', name: 'Mace', category: 'Spice', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 3000 },
-    { code: 'RM_CARDAMOM_POWDER', name: 'Cardamom Powder', category: 'Spice', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 2600 },
-    { code: 'RM_ALMOND_FLAKES', name: 'Almond Flakes', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 1200 },
-    { code: 'RM_GRATED_KHOYA', name: 'Grated Khoya/Paneer', category: 'Dairy', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 400 },
-    { code: 'RM_G201', name: 'G-201 SUNSET BASE', category: 'Gravy', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 170 },
-    { code: 'RM_MUSHROOM', name: 'Mushroom', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 150 },
-    { code: 'RM_JULIENNE_VEG', name: 'Mixed Julienne Vegetables', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 80 },
-    { code: 'RM_PINEAPPLE_PIECES', name: 'Pineapple Pieces', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 100 },
+const lastRM = "{ code: 'RM_PINEAPPLE_PIECES', name: 'Pineapple Pieces', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 100 }";
+const rmInjection = `{ code: 'RM_PINEAPPLE_PIECES', name: 'Pineapple Pieces', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 100 },
     // CHOPSUEY
     { code: 'CHOPSUEY_RM001', name: 'Z-105 TANGY COAT Premix', category: 'Chinese', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 250 },
     { code: 'CHOPSUEY_RM002', name: 'Master Sweet & Sour Gravy', category: 'Chinese', purchaseUnit: 'L', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 150 },
@@ -222,24 +162,15 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
     { code: 'RUBY_RM001', name: 'Z-107 RUBY CONCENTRATE Powder', category: 'Chinese', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 400 },
     { code: 'RUBY_RM002', name: 'Water', category: 'Chinese', purchaseUnit: 'L', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 0 },
     { code: 'RUBY_RM003', name: 'Refined Oil', category: 'Chinese', purchaseUnit: 'L', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 100 },
-    { code: 'RUBY_RM004', name: 'Fresh Chopped Garlic', category: 'Chinese', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 120 }
-  ];
+    { code: 'RUBY_RM004', name: 'Fresh Chopped Garlic', category: 'Chinese', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 120 }`;
 
-  const rmIds: Record<string, mongoose.Types.ObjectId> = {};
-  for (const rm of rmData) {
-    const createdRm = await RawMaterial.create({ ...rm, userId });
-    rmIds[rm.code] = createdRm._id as mongoose.Types.ObjectId;
-  }
+if (!content.includes('CHOPSUEY_RM001')) {
+  content = content.replace(lastRM, rmInjection);
+}
 
-  const sfgData = [
-    { code: 'SFG_G205', name: 'G-205 ROYAL ROGAN', batchYield: 5000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.15 },
-    { code: 'SFG_PRE_FRIED_POTATO', name: 'Pre-fried Potato', batchYield: 5000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.06 },
-    { code: 'SFG_PRE_FRIED_CAULIFLOWER', name: 'Pre-fried Cauliflower', batchYield: 5000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.08 },
-    { code: 'SFG_BOILED_GREEN_PEAS', name: 'Boiled Green Peas', batchYield: 5000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.10 },
-    { code: 'SFG_G203', name: 'G-203 EMERALD MIX', batchYield: 5000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.14 },
-    { code: 'SFG_G202', name: 'G-202 IVORY BASE', batchYield: 5000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.16 },
-    { code: 'SFG_G204', name: 'G-204 ROASTED RUST', batchYield: 5000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.18 },
-    { code: 'SFG_G201', name: 'G-201 SUNSET BASE', batchYield: 5000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.17 },
+// --- SFG Injection ---
+const lastSFG = "{ code: 'SFG_G201', name: 'G-201 SUNSET BASE', batchYield: 5000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.17 },";
+const sfgInjection = `{ code: 'SFG_G201', name: 'G-201 SUNSET BASE', batchYield: 5000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.17 },
     // CHOPSUEY
     { code: 'CHOPSUEY_SFG001', name: 'Master Sweet & Sour Gravy', batchYield: 5000, yieldUnit: 'ml', currentStock: 5000, costPerUnit: 0.12 },
     { code: 'CHOPSUEY_SFG002', name: 'Crispy Noodle Nest', batchYield: 50, yieldUnit: 'pcs', currentStock: 50, costPerUnit: 10 },
@@ -282,267 +213,331 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
     { code: 'UNIFRY_SFG001', name: 'Prepared Batter', batchYield: 1000, yieldUnit: 'gm', currentStock: 1000, costPerUnit: 0.12 },
     { code: 'UNIFRY_SFG002', name: 'Pre-marinated Protein', batchYield: 5000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.30 },
     // RUBY
-    { code: 'RUBY_SFG001', name: 'Prepared Momo Chutney', batchYield: 1000, yieldUnit: 'ml', currentStock: 1000, costPerUnit: 0.20 }
-  ];
+    { code: 'RUBY_SFG001', name: 'Prepared Momo Chutney', batchYield: 1000, yieldUnit: 'ml', currentStock: 1000, costPerUnit: 0.20 }`;
 
-  const sfgIds: Record<string, mongoose.Types.ObjectId> = {};
-  for (const sfg of sfgData) {
-    const createdSfg = await SemiFinishedGood.create({ ...sfg, userId });
-    sfgIds[sfg.code] = createdSfg._id as mongoose.Types.ObjectId;
-  }
+if (!content.includes('CHOPSUEY_SFG001')) {
+  content = content.replace(lastSFG, sfgInjection);
+}
 
-  for (const sfg of sfgData) {
-    const rmCode = 'RM_' + sfg.code.replace('SFG_', '');
-    if (rmIds[rmCode]) {
-      await Recipe.create({
-        targetModel: 'SemiFinishedGood',
-        targetId: sfgIds[sfg.code],
-        ingredients: [
-          { itemModel: 'RawMaterial', itemId: rmIds[rmCode], quantity: sfg.batchYield }
-        ],
-        targetYield: sfg.batchYield,
-        operationalYield: sfg.batchYield,
-        userId
-      });
-    }
-  }
+// --- PT Injection ---
+const ptBlockEnd = `        { sfgId: rmIds['RM_SUGAR'], quantity: 2, unit: 'gm' }
+      ]
+    }`;
+const ptInjection = `        { sfgId: rmIds['RM_SUGAR'], quantity: 2, unit: 'gm' }
+      ]
+    },
+    // CHOPSUEY
+    {
+      code: 'CHOPSUEY_PT001',
+      name: 'American Chopsuey Portion',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['CHOPSUEY_SFG001'], quantity: 350, unit: 'ml' }, // PT001 Master Gravy
+        { sfgId: rmIds['CHOPSUEY_RM004'], quantity: 120, unit: 'gm' }, // PT002 Mixed Veg
+        { sfgId: sfgIds['CHOPSUEY_SFG002'], quantity: 1, unit: 'pcs' }, // PT003 Crispy Noodle Nest
+        { sfgId: rmIds['CHOPSUEY_RM005'], quantity: 30, unit: 'ml' }, // PT004 Tomato Ketchup
+        { sfgId: rmIds['CHOPSUEY_RM006'], quantity: 45, unit: 'ml' }, // PT005 Cornflour Slurry
+        { sfgId: rmIds['CHOPSUEY_RM007'], quantity: 20, unit: 'gm' }, // PT006 Pineapple
+        { sfgId: rmIds['CHOPSUEY_RM008'], quantity: 1, unit: 'pcs' }, // PT007 Egg
+        { sfgId: rmIds['CHOPSUEY_RM009'], quantity: 20, unit: 'ml' }, // PT008 Oil
+      ]
+    },
+    // CHILLI DRY
+    {
+      code: 'CHILLI_PT001',
+      name: 'Chilli Portion Dry',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['CHILLI_SFG001'], quantity: 100, unit: 'ml' }, // PT001
+        { sfgId: sfgIds['CHILLI_SFG002'], quantity: 180, unit: 'gm' }, // PT002
+        { sfgId: rmIds['CHILLI_RM004'], quantity: 50, unit: 'gm' }, // PT003
+        { sfgId: rmIds['CHILLI_RM005'], quantity: 50, unit: 'gm' }, // PT004
+        { sfgId: rmIds['CHILLI_RM006'], quantity: 10, unit: 'ml' }, // PT005
+        { sfgId: rmIds['CHILLI_RM008'], quantity: 5, unit: 'gm' }, // PT006
+        { sfgId: rmIds['CHILLI_RM009'], quantity: 5, unit: 'gm' }, // PT007
+      ]
+    },
+    // CHILLI GRAVY
+    {
+      code: 'CHILLI_PT101',
+      name: 'Chilli Portion Gravy',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['CHILLI_SFG001'], quantity: 300, unit: 'ml' }, // PT101
+        { sfgId: rmIds['CHILLI_RM007'], quantity: 30, unit: 'ml' }, // PT102
+        { sfgId: sfgIds['CHILLI_SFG002'], quantity: 180, unit: 'gm' }, // PT103
+        { sfgId: rmIds['CHILLI_RM004'], quantity: 50, unit: 'gm' }, // PT104
+        { sfgId: rmIds['CHILLI_RM005'], quantity: 50, unit: 'gm' }, // PT105
+        { sfgId: rmIds['CHILLI_RM006'], quantity: 10, unit: 'ml' }, // PT106
+        { sfgId: rmIds['CHILLI_RM008'], quantity: 5, unit: 'gm' }, // PT107
+        { sfgId: rmIds['CHILLI_RM009'], quantity: 5, unit: 'gm' }, // PT108
+      ]
+    },
+    // MANCHURIAN DRY
+    {
+      code: 'MANCHURIAN_PT001',
+      name: 'Manchurian Portion Dry',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['MANCHURIAN_SFG001'], quantity: 100, unit: 'ml' }, // PT001
+        { sfgId: rmIds['MANCHURIAN_RM004'], quantity: 15, unit: 'ml' }, // PT002
+        { sfgId: sfgIds['MANCHURIAN_SFG002'], quantity: 180, unit: 'gm' }, // PT003
+        { sfgId: rmIds['MANCHURIAN_RM005'], quantity: 10, unit: 'ml' }, // PT004
+        { sfgId: rmIds['MANCHURIAN_RM006'], quantity: 5, unit: 'gm' }, // PT005
+      ]
+    },
+    // MANCHURIAN GRAVY
+    {
+      code: 'MANCHURIAN_PT101',
+      name: 'Manchurian Portion Gravy',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['MANCHURIAN_SFG001'], quantity: 275, unit: 'ml' }, // PT101
+        { sfgId: rmIds['MANCHURIAN_RM004'], quantity: 45, unit: 'ml' }, // PT102
+        { sfgId: sfgIds['MANCHURIAN_SFG002'], quantity: 180, unit: 'gm' }, // PT103
+        { sfgId: rmIds['MANCHURIAN_RM005'], quantity: 10, unit: 'ml' }, // PT104
+        { sfgId: rmIds['MANCHURIAN_RM006'], quantity: 5, unit: 'gm' }, // PT105
+      ]
+    },
+    // HONEYCHILLI
+    {
+      code: 'HONEYCHILLI_PT001',
+      name: 'Honey Chilli Portion',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['HONEYCHILLI_SFG001'], quantity: 180, unit: 'gm' }, // PT001
+        { sfgId: sfgIds['HONEYCHILLI_SFG002'], quantity: 120, unit: 'ml' }, // PT002
+        { sfgId: rmIds['HONEYCHILLI_RM003'], quantity: 15, unit: 'ml' }, // PT003
+        { sfgId: rmIds['HONEYCHILLI_RM004'], quantity: 15, unit: 'ml' }, // PT004
+        { sfgId: rmIds['HONEYCHILLI_RM005'], quantity: 15, unit: 'ml' }, // PT005
+        { sfgId: rmIds['HONEYCHILLI_RM007'], quantity: 5, unit: 'gm' }, // PT006
+        { sfgId: rmIds['HONEYCHILLI_RM008'], quantity: 3, unit: 'gm' }, // PT007
+        { sfgId: rmIds['HONEYCHILLI_RM009'], quantity: 5, unit: 'gm' }, // PT008
+        { sfgId: rmIds['HONEYCHILLI_RM006'], quantity: 10, unit: 'ml' }, // PT009
+      ]
+    },
+    // HOTSOUR
+    {
+      code: 'HOTSOUR_PT001',
+      name: 'Hot Sour Soup Portion',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['HOTSOUR_SFG001'], quantity: 120, unit: 'ml' }, // PT001
+        { sfgId: rmIds['HOTSOUR_RM003'], quantity: 180, unit: 'ml' }, // PT002
+        { sfgId: sfgIds['HOTSOUR_SFG002'], quantity: 40, unit: 'gm' }, // PT003
+        { sfgId: rmIds['HOTSOUR_RM004'], quantity: 30, unit: 'ml' }, // PT004
+        { sfgId: rmIds['HOTSOUR_RM005'], quantity: 2.5, unit: 'ml' }, // PT005
+        { sfgId: rmIds['HOTSOUR_RM006'], quantity: 2, unit: 'gm' }, // PT006
+        { sfgId: rmIds['HOTSOUR_RM007'], quantity: 5, unit: 'gm' }, // PT007
+        { sfgId: rmIds['HOTSOUR_RM008'], quantity: 5, unit: 'ml' }, // PT008
+      ]
+    },
+    // MANCHOW
+    {
+      code: 'MANCHOW_PT001',
+      name: 'Manchow Soup Portion',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['MANCHOW_SFG001'], quantity: 100, unit: 'ml' }, // PT001
+        { sfgId: rmIds['MANCHOW_RM003'], quantity: 200, unit: 'ml' }, // PT002
+        { sfgId: sfgIds['MANCHOW_SFG002'], quantity: 40, unit: 'gm' }, // PT003
+        { sfgId: rmIds['MANCHOW_RM004'], quantity: 30, unit: 'ml' }, // PT004
+        { sfgId: rmIds['MANCHOW_RM005'], quantity: 5, unit: 'gm' }, // PT005
+        { sfgId: rmIds['MANCHOW_RM006'], quantity: 2, unit: 'gm' }, // PT006
+        { sfgId: rmIds['MANCHOW_RM007'], quantity: 3, unit: 'gm' }, // PT007
+        { sfgId: rmIds['MANCHOW_RM008'], quantity: 0.5, unit: 'gm' }, // PT008
+        { sfgId: rmIds['MANCHOW_RM009'], quantity: 1, unit: 'ml' }, // PT009
+        { sfgId: sfgIds['MANCHOW_SFG003'], quantity: 10, unit: 'gm' }, // PT010
+        { sfgId: rmIds['MANCHOW_RM011'], quantity: 5, unit: 'gm' }, // PT011
+        { sfgId: rmIds['MANCHOW_RM012'], quantity: 5, unit: 'ml' }, // PT012
+      ]
+    },
+    // CHILLIOIL
+    {
+      code: 'CHILLIOIL_PT001',
+      name: 'Master Chilli Oil (Soup)',
+      costPerPortion: 0,
+      ingredients: [{ sfgId: sfgIds['CHILLIOIL_SFG001'], quantity: 2.5, unit: 'ml' }]
+    },
+    {
+      code: 'CHILLIOIL_PT002',
+      name: 'Master Chilli Oil (Rice)',
+      costPerPortion: 0,
+      ingredients: [{ sfgId: sfgIds['CHILLIOIL_SFG001'], quantity: 5, unit: 'ml' }]
+    },
+    {
+      code: 'CHILLIOIL_PT003',
+      name: 'Master Chilli Oil (Momo)',
+      costPerPortion: 0,
+      ingredients: [{ sfgId: sfgIds['CHILLIOIL_SFG001'], quantity: 5, unit: 'ml' }]
+    },
+    // GARLICOIL
+    {
+      code: 'GARLICOIL_PT001',
+      name: 'Master Garlic Oil (Rice)',
+      costPerPortion: 0,
+      ingredients: [{ sfgId: sfgIds['GARLICOIL_SFG001'], quantity: 15, unit: 'ml' }]
+    },
+    {
+      code: 'GARLICOIL_PT002',
+      name: 'Master Garlic Oil (Soup)',
+      costPerPortion: 0,
+      ingredients: [{ sfgId: sfgIds['GARLICOIL_SFG001'], quantity: 2.5, unit: 'ml' }]
+    },
+    {
+      code: 'GARLICOIL_PT003',
+      name: 'Master Garlic Oil (Dry)',
+      costPerPortion: 0,
+      ingredients: [{ sfgId: sfgIds['GARLICOIL_SFG001'], quantity: 5, unit: 'ml' }]
+    },
+    // MOMOS
+    {
+      code: 'MOMOS_PT001', // Steamed
+      name: 'Momos Portion Steamed',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: rmIds['MOMOS_RM001'], quantity: 6, unit: 'pcs' },
+        { sfgId: sfgIds['MOMOS_SFG001'], quantity: 30, unit: 'ml' },
+        { sfgId: rmIds['MOMOS_RM007'], quantity: 2.5, unit: 'ml' },
+      ]
+    },
+    {
+      code: 'MOMOS_PT002', // Fried
+      name: 'Momos Portion Fried',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: rmIds['MOMOS_RM001'], quantity: 6, unit: 'pcs' },
+        { sfgId: sfgIds['MOMOS_SFG001'], quantity: 30, unit: 'ml' },
+        { sfgId: rmIds['MOMOS_RM004'], quantity: 20, unit: 'ml' },
+      ]
+    },
+    {
+      code: 'MOMOS_PT003', // Kurkure
+      name: 'Momos Portion Kurkure',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: rmIds['MOMOS_RM001'], quantity: 6, unit: 'pcs' },
+        { sfgId: sfgIds['MOMOS_SFG002'], quantity: 25, unit: 'gm' },
+        { sfgId: rmIds['MOMOS_RM005'], quantity: 20, unit: 'gm' },
+        { sfgId: sfgIds['MOMOS_SFG001'], quantity: 30, unit: 'ml' },
+      ]
+    },
+    // UNIMANCH (Z-101 Universal)
+    {
+      code: 'UNIMANCH_PT001',
+      name: 'Uni Manchurian Dry',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['UNIMANCH_SFG001'], quantity: 100, unit: 'ml' },
+        { sfgId: rmIds['UNIMANCH_RM011'], quantity: 15, unit: 'ml' },
+        { sfgId: sfgIds['UNIMANCH_SFG002'], quantity: 180, unit: 'gm' }
+      ]
+    },
+    {
+      code: 'UNIMANCH_PT101',
+      name: 'Uni Manchurian Gravy',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['UNIMANCH_SFG001'], quantity: 275, unit: 'ml' },
+        { sfgId: rmIds['UNIMANCH_RM011'], quantity: 45, unit: 'ml' },
+        { sfgId: sfgIds['UNIMANCH_SFG002'], quantity: 180, unit: 'gm' }
+      ]
+    },
+    // UNICHILLI (Z-102 Universal)
+    {
+      code: 'UNICHILLI_PT001',
+      name: 'Uni Chilli Dry',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['UNICHILLI_SFG001'], quantity: 100, unit: 'ml' },
+        { sfgId: rmIds['UNICHILLI_RM010'], quantity: 15, unit: 'ml' },
+        { sfgId: sfgIds['UNICHILLI_SFG002'], quantity: 180, unit: 'gm' },
+        { sfgId: rmIds['UNICHILLI_RM011'], quantity: 50, unit: 'gm' },
+        { sfgId: rmIds['UNICHILLI_RM012'], quantity: 50, unit: 'gm' },
+        { sfgId: rmIds['UNICHILLI_RM002'], quantity: 10, unit: 'ml' },
+      ]
+    },
+    {
+      code: 'UNICHILLI_PT101',
+      name: 'Uni Chilli Gravy',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['UNICHILLI_SFG001'], quantity: 300, unit: 'ml' },
+        { sfgId: rmIds['UNICHILLI_RM010'], quantity: 30, unit: 'ml' },
+        { sfgId: sfgIds['UNICHILLI_SFG002'], quantity: 180, unit: 'gm' },
+        { sfgId: rmIds['UNICHILLI_RM011'], quantity: 50, unit: 'gm' },
+        { sfgId: rmIds['UNICHILLI_RM012'], quantity: 50, unit: 'gm' },
+        { sfgId: rmIds['UNICHILLI_RM002'], quantity: 10, unit: 'ml' },
+      ]
+    },
+    // UNISCHEZWAN (Z-103)
+    {
+      code: 'UNISCHEZWAN_PT001',
+      name: 'Uni Schezwan Rice',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['UNISCHEZWAN_SFG002'], quantity: 200, unit: 'gm' },
+        { sfgId: sfgIds['UNISCHEZWAN_SFG001'], quantity: 15, unit: 'ml' },
+        { sfgId: rmIds['UNISCHEZWAN_RM010'], quantity: 60, unit: 'gm' },
+        { sfgId: rmIds['UNISCHEZWAN_RM002'], quantity: 15, unit: 'ml' },
+      ]
+    },
+    {
+      code: 'UNISCHEZWAN_PT101',
+      name: 'Uni Schezwan Gravy',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: rmIds['UNISCHEZWAN_RM007'], quantity: 250, unit: 'ml' },
+        { sfgId: sfgIds['UNISCHEZWAN_SFG001'], quantity: 15, unit: 'ml' },
+        { sfgId: rmIds['UNISCHEZWAN_RM008'], quantity: 30, unit: 'ml' },
+        { sfgId: rmIds['UNISCHEZWAN_RM009'], quantity: 180, unit: 'gm' },
+      ]
+    },
+    // UNIWOK (Z-104)
+    {
+      code: 'UNIWOK_PT001',
+      name: 'Uni Wok Noodles',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['UNIWOK_SFG001'], quantity: 200, unit: 'gm' },
+        { sfgId: rmIds['UNIWOK_RM003'], quantity: 60, unit: 'gm' },
+        { sfgId: rmIds['UNIWOK_RM004'], quantity: 5, unit: 'gm' },
+        { sfgId: rmIds['UNIWOK_RM001'], quantity: 5, unit: 'gm' },
+        { sfgId: rmIds['UNIWOK_RM006'], quantity: 5, unit: 'ml' },
+        { sfgId: rmIds['UNIWOK_RM007'], quantity: 15, unit: 'ml' },
+        { sfgId: rmIds['UNIWOK_RM008'], quantity: 5, unit: 'gm' },
+        { sfgId: rmIds['UNIWOK_RM005'], quantity: 5, unit: 'gm' },
+        { sfgId: rmIds['UNIWOK_RM009'], quantity: 60, unit: 'gm' }, // Optional protein
+      ]
+    },
+    // UNIFRY (Z-106)
+    {
+      code: 'UNIFRY_PT001',
+      name: 'Uni Fry Portion',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['UNIFRY_SFG002'], quantity: 180, unit: 'gm' },
+        { sfgId: sfgIds['UNIFRY_SFG001'], quantity: 60, unit: 'gm' },
+        { sfgId: rmIds['UNIFRY_RM009'], quantity: 10, unit: 'ml' },
+      ]
+    },
+    // RUBY (Z-107)
+    {
+      code: 'RUBY_PT001',
+      name: 'Ruby Portion',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['RUBY_SFG001'], quantity: 30, unit: 'ml' },
+      ]
+    }`;
 
-  const portionData = [
-    {
-      code: 'PT_ALOO_GOBHI_MATAR',
-      name: 'Aloo Gobhi Matar Portion',
-      costPerPortion: 0,
-      ingredients: [
-        { sfgId: sfgIds['SFG_G205'], quantity: 150, unit: 'gm' },
-        { sfgId: sfgIds['SFG_PRE_FRIED_POTATO'], quantity: 80, unit: 'gm' },
-        { sfgId: sfgIds['SFG_PRE_FRIED_CAULIFLOWER'], quantity: 80, unit: 'gm' },
-        { sfgId: sfgIds['SFG_BOILED_GREEN_PEAS'], quantity: 40, unit: 'gm' },
-        { sfgId: rmIds['RM_REFINED_OIL'], quantity: 15, unit: 'ml' },
-        { sfgId: rmIds['RM_DESI_GHEE'], quantity: 5, unit: 'gm' },
-        { sfgId: rmIds['RM_HOT_WATER'], quantity: 30, unit: 'ml' },
-        { sfgId: rmIds['RM_JEERA'], quantity: 1, unit: 'gm' },
-        { sfgId: rmIds['RM_HING'], quantity: 0.2, unit: 'gm' },
-        { sfgId: rmIds['RM_GINGER_GARLIC_PASTE'], quantity: 3, unit: 'gm' },
-        { sfgId: rmIds['RM_GREEN_CHILLI'], quantity: 2, unit: 'gm' },
-        { sfgId: rmIds['RM_KASHMIRI_CHILLI'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_K801'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_K806'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_KASOORI_METHI'], quantity: 1, unit: 'gm' },
-        { sfgId: rmIds['RM_CRUSHED_BLACK_PEPPER'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_FRESH_CORIANDER'], quantity: 3, unit: 'gm' },
-        { sfgId: rmIds['RM_GINGER_JULIENNES'], quantity: 5, unit: 'gm' },
-      ]
-    },
-    {
-      code: 'PT_CORN_PALAK_CHEESE',
-      name: 'Corn Palak Cheese Portion',
-      costPerPortion: 0,
-      ingredients: [
-        { sfgId: sfgIds['SFG_G203'], quantity: 140, unit: 'gm' },
-        { sfgId: sfgIds['SFG_G202'], quantity: 60, unit: 'gm' },
-        { sfgId: rmIds['RM_BOILED_SWEET_CORN'], quantity: 40, unit: 'gm' },
-        { sfgId: rmIds['RM_PANEER_CUBES'], quantity: 50, unit: 'gm' },
-        { sfgId: rmIds['RM_PROCESSED_CHEESE'], quantity: 20, unit: 'gm' },
-        { sfgId: rmIds['RM_BUTTER'], quantity: 15, unit: 'gm' },
-        { sfgId: rmIds['RM_MILK'], quantity: 30, unit: 'ml' },
-        { sfgId: rmIds['RM_FRESH_CREAM'], quantity: 15, unit: 'ml' },
-        { sfgId: rmIds['RM_GINGER_GARLIC_PASTE'], quantity: 2, unit: 'gm' },
-        { sfgId: rmIds['RM_GREEN_CHILLI'], quantity: 2, unit: 'gm' },
-        { sfgId: rmIds['RM_K801'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_K806'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_SUGAR'], quantity: 1, unit: 'gm' },
-      ]
-    },
-    {
-      code: 'PT_KADHAI_PANEER',
-      name: 'Kadhai Paneer Portion',
-      costPerPortion: 0,
-      ingredients: [
-        { sfgId: sfgIds['SFG_G204'], quantity: 200, unit: 'gm' },
-        { sfgId: rmIds['RM_PANEER_CUBES'], quantity: 180, unit: 'gm' },
-        { sfgId: rmIds['RM_CAPSICUM_CUBES'], quantity: 20, unit: 'gm' },
-        { sfgId: rmIds['RM_ONION_CUBES'], quantity: 20, unit: 'gm' },
-        { sfgId: rmIds['RM_REFINED_OIL'], quantity: 15, unit: 'ml' },
-        { sfgId: rmIds['RM_DESI_GHEE'], quantity: 5, unit: 'gm' },
-        { sfgId: rmIds['RM_CAPSICUM_ONION_STOCK'], quantity: 40, unit: 'ml' },
-        { sfgId: rmIds['RM_DRY_RED_CHILLI'], quantity: 2, unit: 'pcs' },
-        { sfgId: rmIds['RM_JEERA'], quantity: 1, unit: 'gm' },
-        { sfgId: rmIds['RM_GINGER_GARLIC_PASTE'], quantity: 3, unit: 'gm' },
-        { sfgId: rmIds['RM_CURD'], quantity: 5, unit: 'gm' },
-        { sfgId: rmIds['RM_KASHMIRI_CHILLI'], quantity: 1, unit: 'gm' },
-        { sfgId: rmIds['RM_K801'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_K802'], quantity: 1, unit: 'gm' },
-        { sfgId: rmIds['RM_KASOORI_METHI'], quantity: 1, unit: 'gm' },
-        { sfgId: rmIds['RM_CRUSHED_BLACK_PEPPER'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_GREEN_CHILLI'], quantity: 5, unit: 'gm' },
-        { sfgId: rmIds['RM_GINGER_JULIENNES'], quantity: 5, unit: 'gm' },
-        { sfgId: rmIds['RM_FRESH_CORIANDER'], quantity: 3, unit: 'gm' },
-        { sfgId: rmIds['RM_GRATED_PANEER'], quantity: 5, unit: 'gm' },
-      ]
-    },
-    {
-      code: 'PT_LEHSUNIA_PANEER',
-      name: 'Lehsunia Paneer Portion',
-      costPerPortion: 0,
-      ingredients: [
-        { sfgId: sfgIds['SFG_G203'], quantity: 160, unit: 'gm' },
-        { sfgId: sfgIds['SFG_G202'], quantity: 40, unit: 'gm' },
-        { sfgId: rmIds['RM_PANEER_CUBES'], quantity: 150, unit: 'gm' },
-        { sfgId: rmIds['RM_REFINED_OIL'], quantity: 10, unit: 'ml' },
-        { sfgId: rmIds['RM_DESI_GHEE'], quantity: 5, unit: 'gm' },
-        { sfgId: rmIds['RM_CHOPPED_GARLIC'], quantity: 20, unit: 'gm' },
-        { sfgId: rmIds['RM_GINGER_GARLIC_PASTE'], quantity: 3, unit: 'gm' },
-        { sfgId: rmIds['RM_GREEN_CHILLI'], quantity: 2, unit: 'gm' },
-        { sfgId: rmIds['RM_HOT_WATER'], quantity: 35, unit: 'ml' },
-        { sfgId: rmIds['RM_FRESH_CREAM'], quantity: 15, unit: 'ml' },
-        { sfgId: rmIds['RM_KASOORI_METHI'], quantity: 1, unit: 'gm' },
-        { sfgId: rmIds['RM_K801'], quantity: 1, unit: 'gm' },
-        { sfgId: rmIds['RM_K806'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_SALT'], quantity: 2, unit: 'gm' },
-        { sfgId: rmIds['RM_GOLDEN_GARLIC_TOPPING'], quantity: 10, unit: 'gm' },
-      ]
-    },
-    {
-      code: 'PT_MALAI_KOFTA_IVORY',
-      name: 'Malai Kofta (Ivory) Portion',
-      costPerPortion: 0,
-      ingredients: [
-        { sfgId: sfgIds['SFG_G202'], quantity: 200, unit: 'gm' },
-        { sfgId: rmIds['RM_FRIED_KOFTA'], quantity: 4, unit: 'pcs' },
-        { sfgId: rmIds['RM_DESI_GHEE'], quantity: 15, unit: 'gm' },
-        { sfgId: rmIds['RM_REFINED_OIL'], quantity: 3, unit: 'ml' },
-        { sfgId: rmIds['RM_MILK'], quantity: 40, unit: 'ml' },
-        { sfgId: rmIds['RM_GINGER_GARLIC_PASTE'], quantity: 3, unit: 'gm' },
-        { sfgId: rmIds['RM_GREEN_CARDAMOM'], quantity: 2, unit: 'pcs' },
-        { sfgId: rmIds['RM_MACE'], quantity: 0.25, unit: 'gm' },
-        { sfgId: rmIds['RM_FRESH_CREAM'], quantity: 15, unit: 'ml' },
-        { sfgId: rmIds['RM_SUGAR'], quantity: 3, unit: 'gm' },
-        { sfgId: rmIds['RM_KASOORI_METHI'], quantity: 1, unit: 'gm' },
-        { sfgId: rmIds['RM_K801'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_K806'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_CARDAMOM_POWDER'], quantity: 0.25, unit: 'gm' },
-        { sfgId: rmIds['RM_ALMOND_FLAKES'], quantity: 3, unit: 'gm' },
-        { sfgId: rmIds['RM_GRATED_KHOYA'], quantity: 5, unit: 'gm' },
-      ]
-    },
-    {
-      code: 'PT_MALAI_KOFTA_RED',
-      name: 'Malai Kofta Red Portion',
-      costPerPortion: 0,
-      ingredients: [
-        { sfgId: sfgIds['SFG_G201'], quantity: 120, unit: 'gm' },
-        { sfgId: sfgIds['SFG_G202'], quantity: 80, unit: 'gm' },
-        { sfgId: rmIds['RM_FRIED_KOFTA'], quantity: 2, unit: 'pcs' },
-        { sfgId: rmIds['RM_BUTTER'], quantity: 15, unit: 'gm' },
-        { sfgId: rmIds['RM_REFINED_OIL'], quantity: 3, unit: 'ml' },
-        { sfgId: rmIds['RM_HOT_WATER'], quantity: 45, unit: 'ml' },
-        { sfgId: rmIds['RM_GINGER_GARLIC_PASTE'], quantity: 2, unit: 'gm' },
-        { sfgId: rmIds['RM_FRESH_CREAM'], quantity: 15, unit: 'ml' },
-        { sfgId: rmIds['RM_KASOORI_METHI'], quantity: 1, unit: 'gm' },
-        { sfgId: rmIds['RM_KASHMIRI_CHILLI'], quantity: 1, unit: 'gm' },
-        { sfgId: rmIds['RM_K801'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_K806'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_SUGAR'], quantity: 2, unit: 'gm' },
-      ]
-    },
-    {
-      code: 'PT_MUSHROOM_DO_PYAZA',
-      name: 'Mushroom Do Pyaza Portion',
-      costPerPortion: 0,
-      ingredients: [
-        { sfgId: sfgIds['SFG_G205'], quantity: 150, unit: 'gm' },
-        { sfgId: rmIds['RM_MUSHROOM'], quantity: 150, unit: 'gm' },
-        { sfgId: rmIds['RM_ONION_CUBES'], quantity: 50, unit: 'gm' },
-        { sfgId: rmIds['RM_REFINED_OIL'], quantity: 15, unit: 'ml' },
-        { sfgId: rmIds['RM_DESI_GHEE'], quantity: 5, unit: 'gm' },
-        { sfgId: rmIds['RM_HOT_WATER'], quantity: 30, unit: 'ml' },
-        { sfgId: rmIds['RM_JEERA'], quantity: 1, unit: 'gm' },
-        { sfgId: rmIds['RM_GINGER_GARLIC_PASTE'], quantity: 3, unit: 'gm' },
-        { sfgId: rmIds['RM_GREEN_CHILLI'], quantity: 2, unit: 'gm' },
-        { sfgId: rmIds['RM_KASHMIRI_CHILLI'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_K801'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_K802'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_KASOORI_METHI'], quantity: 1, unit: 'gm' },
-        { sfgId: rmIds['RM_CRUSHED_BLACK_PEPPER'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_FRESH_CORIANDER'], quantity: 3, unit: 'gm' },
-        { sfgId: rmIds['RM_GINGER_JULIENNES'], quantity: 5, unit: 'gm' }
-      ]
-    },
-    {
-      code: 'PT_NAVRATAN_KORMA',
-      name: 'Navratan Korma Portion',
-      costPerPortion: 0,
-      ingredients: [
-        { sfgId: sfgIds['SFG_G202'], quantity: 180, unit: 'gm' },
-        { sfgId: rmIds['RM_JULIENNE_VEG'], quantity: 100, unit: 'gm' },
-        { sfgId: rmIds['RM_PINEAPPLE_PIECES'], quantity: 20, unit: 'gm' },
-        { sfgId: rmIds['RM_PANEER_CUBES'], quantity: 30, unit: 'gm' },
-        { sfgId: rmIds['RM_BUTTER'], quantity: 15, unit: 'gm' },
-        { sfgId: rmIds['RM_REFINED_OIL'], quantity: 3, unit: 'ml' },
-        { sfgId: rmIds['RM_MILK'], quantity: 40, unit: 'ml' },
-        { sfgId: rmIds['RM_GINGER_GARLIC_PASTE'], quantity: 2, unit: 'gm' },
-        { sfgId: rmIds['RM_FRESH_CREAM'], quantity: 15, unit: 'ml' },
-        { sfgId: rmIds['RM_SUGAR'], quantity: 5, unit: 'gm' },
-        { sfgId: rmIds['RM_KASOORI_METHI'], quantity: 1, unit: 'gm' },
-        { sfgId: rmIds['RM_K801'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_CARDAMOM_POWDER'], quantity: 0.25, unit: 'gm' },
-        { sfgId: rmIds['RM_ALMOND_FLAKES'], quantity: 5, unit: 'gm' }
-      ]
-    },
-    {
-      code: 'PT_PALAK_PANEER',
-      name: 'Palak Paneer Portion',
-      costPerPortion: 0,
-      ingredients: [
-        { sfgId: sfgIds['SFG_G203'], quantity: 180, unit: 'gm' },
-        { sfgId: rmIds['RM_PANEER_CUBES'], quantity: 150, unit: 'gm' },
-        { sfgId: rmIds['RM_BUTTER'], quantity: 15, unit: 'gm' },
-        { sfgId: rmIds['RM_REFINED_OIL'], quantity: 5, unit: 'ml' },
-        { sfgId: rmIds['RM_CHOPPED_GARLIC'], quantity: 5, unit: 'gm' },
-        { sfgId: rmIds['RM_GINGER_GARLIC_PASTE'], quantity: 3, unit: 'gm' },
-        { sfgId: rmIds['RM_GREEN_CHILLI'], quantity: 2, unit: 'gm' },
-        { sfgId: rmIds['RM_HOT_WATER'], quantity: 30, unit: 'ml' },
-        { sfgId: rmIds['RM_FRESH_CREAM'], quantity: 15, unit: 'ml' },
-        { sfgId: rmIds['RM_KASOORI_METHI'], quantity: 1, unit: 'gm' },
-        { sfgId: rmIds['RM_K801'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_K806'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_SALT'], quantity: 1, unit: 'gm' }
-      ]
-    },
-    {
-      code: 'PT_PANEER_BUTTER_MASALA',
-      name: 'Paneer Butter Masala Portion',
-      costPerPortion: 0,
-      ingredients: [
-        { sfgId: sfgIds['SFG_G201'], quantity: 160, unit: 'gm' },
-        { sfgId: rmIds['RM_PANEER_CUBES'], quantity: 180, unit: 'gm' },
-        { sfgId: rmIds['RM_BUTTER'], quantity: 20, unit: 'gm' },
-        { sfgId: rmIds['RM_REFINED_OIL'], quantity: 5, unit: 'ml' },
-        { sfgId: rmIds['RM_HOT_WATER'], quantity: 30, unit: 'ml' },
-        { sfgId: rmIds['RM_GINGER_GARLIC_PASTE'], quantity: 2, unit: 'gm' },
-        { sfgId: rmIds['RM_FRESH_CREAM'], quantity: 15, unit: 'ml' },
-        { sfgId: rmIds['RM_KASOORI_METHI'], quantity: 1, unit: 'gm' },
-        { sfgId: rmIds['RM_KASHMIRI_CHILLI'], quantity: 1, unit: 'gm' },
-        { sfgId: rmIds['RM_K801'], quantity: 0.5, unit: 'gm' },
-        { sfgId: rmIds['RM_SUGAR'], quantity: 2, unit: 'gm' }
-      ]
-    }
-  ];
+if (!content.includes('CHOPSUEY_PT001')) {
+  content = content.replace(ptBlockEnd, ptInjection);
+}
 
-  const portionIds: Record<string, mongoose.Types.ObjectId> = {};
-  for (const portion of portionData) {
-    const createdPortion = await PortionMaster.create({ ...portion, userId });
-    portionIds[portion.code] = createdPortion._id as mongoose.Types.ObjectId;
-  }
-
-  const pkgData = [
-    { code: 'PKG_FLAT_CERAMIC_PLATE', name: 'Flat Ceramic Plate / Oval Veg Dish', unit: 'pc', currentStock: 500, costPerUnit: 15 },
-    { code: 'PKG_TAKEAWAY_CONTAINER', name: 'Takeaway Container', unit: 'pc', currentStock: 500, costPerUnit: 5 },
-    { code: 'PKG_CARRY_BAG', name: 'Carry Bag', unit: 'pc', currentStock: 500, costPerUnit: 3 },
-    { code: 'PKG_500ML_BOWL', name: '500 ml Bowl', unit: 'pc', currentStock: 500, costPerUnit: 4 },
-    { code: 'PKG_LID', name: 'Lid', unit: 'pc', currentStock: 500, costPerUnit: 1 },
-    { code: 'PKG_COPPER_KADHAI', name: 'Copper Kadhai / Ceramic Handi', unit: 'pc', currentStock: 500, costPerUnit: 20 },
-    { code: 'PKG_PREMIUM_BOWL', name: 'Premium Deep Bowl/Handi', unit: 'pc', currentStock: 500, costPerUnit: 25 },
+// --- PKG Injection ---
+const lastPKG = "{ code: 'PKG_PREMIUM_BOWL', name: 'Premium Deep Bowl/Handi', unit: 'pc', currentStock: 500, costPerUnit: 25 },";
+const pkgInjection = `{ code: 'PKG_PREMIUM_BOWL', name: 'Premium Deep Bowl/Handi', unit: 'pc', currentStock: 500, costPerUnit: 25 },
     // CHOPSUEY
     { code: 'CHOPSUEY_PKG001', name: 'Large Shallow Bowl', unit: 'pc', currentStock: 500, costPerUnit: 25 },
     { code: 'CHOPSUEY_PKG002', name: 'Lid', unit: 'pc', currentStock: 500, costPerUnit: 5 },
@@ -599,26 +594,15 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
     { code: 'UNIFRY_PKG003', name: 'Carry Bag', unit: 'pc', currentStock: 500, costPerUnit: 3 },
     // RUBY
     { code: 'RUBY_PKG001', name: '1 L Sauce Bottle / Dispenser', unit: 'pc', currentStock: 500, costPerUnit: 20 },
-    { code: 'RUBY_PKG002', name: 'Batch Label', unit: 'pc', currentStock: 500, costPerUnit: 1 },
-  ];
+    { code: 'RUBY_PKG002', name: 'Batch Label', unit: 'pc', currentStock: 500, costPerUnit: 1 },`;
 
-  const pkgIds: Record<string, mongoose.Types.ObjectId> = {};
-  for (const pkg of pkgData) {
-    const createdPkg = await Packaging.create({ ...pkg, userId });
-    pkgIds[pkg.code] = createdPkg._id as mongoose.Types.ObjectId;
-  }
+if (!content.includes('CHOPSUEY_PKG001')) {
+  content = content.replace(lastPKG, pkgInjection);
+}
 
-  const dishData = [
-    { name: 'Aloo Gobhi Matar (Semi-Gravy)', category: 'Indian Veg', price: 249, packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_FLAT_CERAMIC_PLATE']] } },
-    { name: 'Corn Palak Cheese', category: 'Indian Veg', price: 279, packagingLogic: { takeaway: [pkgIds['PKG_500ML_BOWL'], pkgIds['PKG_LID'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_500ML_BOWL'], pkgIds['PKG_LID'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_500ML_BOWL']] } },
-    { name: 'Kadhai Paneer', category: 'Indian Veg', price: 299, packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_COPPER_KADHAI']] } },
-    { name: 'Lehsunia Paneer', category: 'Indian Veg', price: 289, packagingLogic: { takeaway: [pkgIds['PKG_500ML_BOWL'], pkgIds['PKG_LID'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_500ML_BOWL'], pkgIds['PKG_LID'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_500ML_BOWL']] } },
-    { name: 'Malai Kofta (Ivory)', category: 'Indian Veg', price: 319, packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_LID'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_LID'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_BOWL']] } },
-    { name: 'Malai Kofta Red', category: 'Indian Veg', price: 319, packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_LID'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_LID'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_BOWL']] } },
-    { name: 'Mushroom Do Pyaza', category: 'Indian Veg', price: 289, packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_COPPER_KADHAI']] } },
-    { name: 'Navratan Korma', category: 'Indian Veg', price: 329, packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_LID'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_LID'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_BOWL']] } },
-    { name: 'Palak Paneer', category: 'Indian Veg', price: 289, packagingLogic: { takeaway: [pkgIds['PKG_500ML_BOWL'], pkgIds['PKG_LID'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_500ML_BOWL'], pkgIds['PKG_LID'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_500ML_BOWL']] } },
-    { name: 'Paneer Butter Masala', category: 'Indian Veg', price: 299, packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_COPPER_KADHAI']] } },
+// --- Dish Injection ---
+const lastDish = "{ name: 'Paneer Butter Masala', category: 'Indian Veg', price: 299, packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_COPPER_KADHAI']] } }";
+const dishInjection = `{ name: 'Paneer Butter Masala', category: 'Indian Veg', price: 299, packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_COPPER_KADHAI']] } },
     // Chinese Dishes
     { name: 'American Chopsuey', category: 'Chinese', price: 260, packagingLogic: { takeaway: [pkgIds['CHOPSUEY_PKG001'], pkgIds['CHOPSUEY_PKG002'], pkgIds['CHOPSUEY_PKG003']], delivery: [pkgIds['CHOPSUEY_PKG001'], pkgIds['CHOPSUEY_PKG002'], pkgIds['CHOPSUEY_PKG003']], dineIn: [pkgIds['CHOPSUEY_PKG001']] } },
     { name: 'Chilli Paneer Dry', category: 'Chinese', price: 280, packagingLogic: { takeaway: [pkgIds['CHILLI_PKG001'], pkgIds['CHILLI_PKG002'], pkgIds['CHILLI_PKG003']], delivery: [pkgIds['CHILLI_PKG001'], pkgIds['CHILLI_PKG002'], pkgIds['CHILLI_PKG003']], dineIn: [pkgIds['CHILLI_PKG001']] } },
@@ -632,26 +616,15 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
     { name: 'Fried Veg Momos', category: 'Chinese', price: 180, packagingLogic: { takeaway: [pkgIds['MOMOS_PKG001'], pkgIds['MOMOS_PKG002'], pkgIds['MOMOS_PKG003']], delivery: [pkgIds['MOMOS_PKG001'], pkgIds['MOMOS_PKG002'], pkgIds['MOMOS_PKG003']], dineIn: [pkgIds['MOMOS_PKG001']] } },
     { name: 'Kurkure Veg Momos', category: 'Chinese', price: 200, packagingLogic: { takeaway: [pkgIds['MOMOS_PKG001'], pkgIds['MOMOS_PKG002'], pkgIds['MOMOS_PKG003']], delivery: [pkgIds['MOMOS_PKG001'], pkgIds['MOMOS_PKG002'], pkgIds['MOMOS_PKG003']], dineIn: [pkgIds['MOMOS_PKG001']] } },
     { name: 'Schezwan Noodles Veg', category: 'Chinese', price: 230, packagingLogic: { takeaway: [pkgIds['UNISCHEZWAN_PKG001'], pkgIds['UNISCHEZWAN_PKG002'], pkgIds['UNISCHEZWAN_PKG003']], delivery: [pkgIds['UNISCHEZWAN_PKG001'], pkgIds['UNISCHEZWAN_PKG002'], pkgIds['UNISCHEZWAN_PKG003']], dineIn: [pkgIds['UNISCHEZWAN_PKG001']] } },
-    { name: 'Hakka Noodles Veg', category: 'Chinese', price: 220, packagingLogic: { takeaway: [pkgIds['UNIWOK_PKG001'], pkgIds['UNIWOK_PKG002'], pkgIds['UNIWOK_PKG003']], delivery: [pkgIds['UNIWOK_PKG001'], pkgIds['UNIWOK_PKG002'], pkgIds['UNIWOK_PKG003']], dineIn: [pkgIds['UNIWOK_PKG001']] } }
-  ];
+    { name: 'Hakka Noodles Veg', category: 'Chinese', price: 220, packagingLogic: { takeaway: [pkgIds['UNIWOK_PKG001'], pkgIds['UNIWOK_PKG002'], pkgIds['UNIWOK_PKG003']], delivery: [pkgIds['UNIWOK_PKG001'], pkgIds['UNIWOK_PKG002'], pkgIds['UNIWOK_PKG003']], dineIn: [pkgIds['UNIWOK_PKG001']] } }`;
 
-  const dishIds: Record<string, mongoose.Types.ObjectId> = {};
-  for (const dish of dishData) {
-    const createdDish = await Dish.create({ ...dish, userId });
-    dishIds[dish.name] = createdDish._id as mongoose.Types.ObjectId;
-  }
+if (!content.includes('American Chopsuey')) {
+  content = content.replace(lastDish, dishInjection);
+}
 
-  const dishRecipeMappings: Record<string, { itemModel: string, code: string, quantity: number }[]> = {
-    'Aloo Gobhi Matar (Semi-Gravy)': [{ itemModel: 'PortionMaster', code: 'PT_ALOO_GOBHI_MATAR', quantity: 1 }],
-    'Corn Palak Cheese': [{ itemModel: 'PortionMaster', code: 'PT_CORN_PALAK_CHEESE', quantity: 1 }],
-    'Kadhai Paneer': [{ itemModel: 'PortionMaster', code: 'PT_KADHAI_PANEER', quantity: 1 }],
-    'Lehsunia Paneer': [{ itemModel: 'PortionMaster', code: 'PT_LEHSUNIA_PANEER', quantity: 1 }],
-    'Malai Kofta (Ivory)': [{ itemModel: 'PortionMaster', code: 'PT_MALAI_KOFTA_IVORY', quantity: 1 }],
-    'Malai Kofta Red': [{ itemModel: 'PortionMaster', code: 'PT_MALAI_KOFTA_RED', quantity: 1 }],
-    'Mushroom Do Pyaza': [{ itemModel: 'PortionMaster', code: 'PT_MUSHROOM_DO_PYAZA', quantity: 1 }],
-    'Navratan Korma': [{ itemModel: 'PortionMaster', code: 'PT_NAVRATAN_KORMA', quantity: 1 }],
-    'Palak Paneer': [{ itemModel: 'PortionMaster', code: 'PT_PALAK_PANEER', quantity: 1 }],
-    'Paneer Butter Masala': [{ itemModel: 'PortionMaster', code: 'PT_PANEER_BUTTER_MASALA', quantity: 1 }],
+// --- Dish Recipe Mappings Injection ---
+const lastMapping = "'Paneer Butter Masala': [{ itemModel: 'PortionMaster', code: 'PT_PANEER_BUTTER_MASALA', quantity: 1 }],";
+const mappingInjection = `'Paneer Butter Masala': [{ itemModel: 'PortionMaster', code: 'PT_PANEER_BUTTER_MASALA', quantity: 1 }],
     'American Chopsuey': [{ itemModel: 'PortionMaster', code: 'CHOPSUEY_PT001', quantity: 1 }],
     'Chilli Paneer Dry': [{ itemModel: 'PortionMaster', code: 'CHILLI_PT001', quantity: 1 }],
     'Chilli Paneer Gravy': [{ itemModel: 'PortionMaster', code: 'CHILLI_PT101', quantity: 1 }],
@@ -664,23 +637,11 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
     'Fried Veg Momos': [{ itemModel: 'PortionMaster', code: 'MOMOS_PT002', quantity: 1 }],
     'Kurkure Veg Momos': [{ itemModel: 'PortionMaster', code: 'MOMOS_PT003', quantity: 1 }],
     'Schezwan Noodles Veg': [{ itemModel: 'PortionMaster', code: 'UNISCHEZWAN_PT001', quantity: 1 }],
-    'Hakka Noodles Veg': [{ itemModel: 'PortionMaster', code: 'UNIWOK_PT001', quantity: 1 }],
-  };
+    'Hakka Noodles Veg': [{ itemModel: 'PortionMaster', code: 'UNIWOK_PT001', quantity: 1 }],`;
 
-  for (const dish of dishData) {
-    if (dishRecipeMappings[dish.name]) {
-      const ingredients = dishRecipeMappings[dish.name].map(ing => ({
-        itemModel: ing.itemModel,
-        itemId: portionIds[ing.code] || sfgIds[ing.code] || rmIds[ing.code],
-        quantity: ing.quantity
-      }));
-      await Recipe.create({
-        targetModel: 'Dish',
-        targetId: dishIds[dish.name],
-        ingredients,
-        yieldAmount: 1,
-        userId
-      });
-    }
-  }
-};
+if (!content.includes("'American Chopsuey':")) {
+  content = content.replace(lastMapping, mappingInjection);
+}
+
+fs.writeFileSync(filePath, content, 'utf8');
+console.log('Chinese patch applied successfully!');
