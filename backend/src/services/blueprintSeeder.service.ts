@@ -526,6 +526,310 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
         { sfgId: rmIds['RM_K801'], quantity: 0.5, unit: 'gm' },
         { sfgId: rmIds['RM_SUGAR'], quantity: 2, unit: 'gm' }
       ]
+    },
+    // CHOPSUEY
+    {
+      code: 'CHOPSUEY_PT001',
+      name: 'American Chopsuey Portion',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['CHOPSUEY_SFG001'], quantity: 350, unit: 'ml' },
+        { sfgId: rmIds['CHOPSUEY_RM004'], quantity: 120, unit: 'gm' },
+        { sfgId: sfgIds['CHOPSUEY_SFG002'], quantity: 1, unit: 'pcs' },
+        { sfgId: rmIds['CHOPSUEY_RM005'], quantity: 30, unit: 'ml' },
+        { sfgId: rmIds['CHOPSUEY_RM006'], quantity: 45, unit: 'ml' },
+        { sfgId: rmIds['CHOPSUEY_RM007'], quantity: 20, unit: 'gm' },
+        { sfgId: rmIds['CHOPSUEY_RM008'], quantity: 1, unit: 'pcs' },
+        { sfgId: rmIds['CHOPSUEY_RM009'], quantity: 20, unit: 'ml' },
+      ]
+    },
+    // CHILLI DRY
+    {
+      code: 'CHILLI_PT001',
+      name: 'Chilli Portion Dry',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['CHILLI_SFG001'], quantity: 100, unit: 'ml' },
+        { sfgId: sfgIds['CHILLI_SFG002'], quantity: 180, unit: 'gm' },
+        { sfgId: rmIds['CHILLI_RM004'], quantity: 50, unit: 'gm' },
+        { sfgId: rmIds['CHILLI_RM005'], quantity: 50, unit: 'gm' },
+        { sfgId: rmIds['CHILLI_RM006'], quantity: 10, unit: 'ml' },
+        { sfgId: rmIds['CHILLI_RM008'], quantity: 5, unit: 'gm' },
+        { sfgId: rmIds['CHILLI_RM009'], quantity: 5, unit: 'gm' },
+      ]
+    },
+    // CHILLI GRAVY
+    {
+      code: 'CHILLI_PT101',
+      name: 'Chilli Portion Gravy',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['CHILLI_SFG001'], quantity: 300, unit: 'ml' },
+        { sfgId: rmIds['CHILLI_RM007'], quantity: 30, unit: 'ml' },
+        { sfgId: sfgIds['CHILLI_SFG002'], quantity: 180, unit: 'gm' },
+        { sfgId: rmIds['CHILLI_RM004'], quantity: 50, unit: 'gm' },
+        { sfgId: rmIds['CHILLI_RM005'], quantity: 50, unit: 'gm' },
+        { sfgId: rmIds['CHILLI_RM006'], quantity: 10, unit: 'ml' },
+        { sfgId: rmIds['CHILLI_RM008'], quantity: 5, unit: 'gm' },
+        { sfgId: rmIds['CHILLI_RM009'], quantity: 5, unit: 'gm' },
+      ]
+    },
+    // MANCHURIAN DRY
+    {
+      code: 'MANCHURIAN_PT001',
+      name: 'Manchurian Portion Dry',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['MANCHURIAN_SFG001'], quantity: 100, unit: 'ml' },
+        { sfgId: rmIds['MANCHURIAN_RM004'], quantity: 15, unit: 'ml' },
+        { sfgId: sfgIds['MANCHURIAN_SFG002'], quantity: 180, unit: 'gm' },
+        { sfgId: rmIds['MANCHURIAN_RM005'], quantity: 10, unit: 'ml' },
+        { sfgId: rmIds['MANCHURIAN_RM006'], quantity: 5, unit: 'gm' },
+      ]
+    },
+    // MANCHURIAN GRAVY
+    {
+      code: 'MANCHURIAN_PT101',
+      name: 'Manchurian Portion Gravy',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['MANCHURIAN_SFG001'], quantity: 275, unit: 'ml' },
+        { sfgId: rmIds['MANCHURIAN_RM004'], quantity: 45, unit: 'ml' },
+        { sfgId: sfgIds['MANCHURIAN_SFG002'], quantity: 180, unit: 'gm' },
+        { sfgId: rmIds['MANCHURIAN_RM005'], quantity: 10, unit: 'ml' },
+        { sfgId: rmIds['MANCHURIAN_RM006'], quantity: 5, unit: 'gm' },
+      ]
+    },
+    // HONEYCHILLI
+    {
+      code: 'HONEYCHILLI_PT001',
+      name: 'Honey Chilli Portion',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['HONEYCHILLI_SFG001'], quantity: 180, unit: 'gm' },
+        { sfgId: sfgIds['HONEYCHILLI_SFG002'], quantity: 120, unit: 'ml' },
+        { sfgId: rmIds['HONEYCHILLI_RM003'], quantity: 15, unit: 'ml' },
+        { sfgId: rmIds['HONEYCHILLI_RM004'], quantity: 15, unit: 'ml' },
+        { sfgId: rmIds['HONEYCHILLI_RM005'], quantity: 15, unit: 'ml' },
+        { sfgId: rmIds['HONEYCHILLI_RM007'], quantity: 5, unit: 'gm' },
+        { sfgId: rmIds['HONEYCHILLI_RM008'], quantity: 3, unit: 'gm' },
+        { sfgId: rmIds['HONEYCHILLI_RM009'], quantity: 5, unit: 'gm' },
+        { sfgId: rmIds['HONEYCHILLI_RM006'], quantity: 10, unit: 'ml' },
+      ]
+    },
+    // HOTSOUR
+    {
+      code: 'HOTSOUR_PT001',
+      name: 'Hot Sour Soup Portion',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['HOTSOUR_SFG001'], quantity: 120, unit: 'ml' },
+        { sfgId: rmIds['HOTSOUR_RM003'], quantity: 180, unit: 'ml' },
+        { sfgId: sfgIds['HOTSOUR_SFG002'], quantity: 40, unit: 'gm' },
+        { sfgId: rmIds['HOTSOUR_RM004'], quantity: 30, unit: 'ml' },
+        { sfgId: rmIds['HOTSOUR_RM005'], quantity: 2.5, unit: 'ml' },
+        { sfgId: rmIds['HOTSOUR_RM006'], quantity: 2, unit: 'gm' },
+        { sfgId: rmIds['HOTSOUR_RM007'], quantity: 5, unit: 'gm' },
+        { sfgId: rmIds['HOTSOUR_RM008'], quantity: 5, unit: 'ml' },
+      ]
+    },
+    // MANCHOW
+    {
+      code: 'MANCHOW_PT001',
+      name: 'Manchow Soup Portion',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['MANCHOW_SFG001'], quantity: 100, unit: 'ml' },
+        { sfgId: rmIds['MANCHOW_RM003'], quantity: 200, unit: 'ml' },
+        { sfgId: sfgIds['MANCHOW_SFG002'], quantity: 40, unit: 'gm' },
+        { sfgId: rmIds['MANCHOW_RM004'], quantity: 30, unit: 'ml' },
+        { sfgId: rmIds['MANCHOW_RM005'], quantity: 5, unit: 'gm' },
+        { sfgId: rmIds['MANCHOW_RM006'], quantity: 2, unit: 'gm' },
+        { sfgId: rmIds['MANCHOW_RM007'], quantity: 3, unit: 'gm' },
+        { sfgId: rmIds['MANCHOW_RM008'], quantity: 0.5, unit: 'gm' },
+        { sfgId: rmIds['MANCHOW_RM009'], quantity: 1, unit: 'ml' },
+        { sfgId: sfgIds['MANCHOW_SFG003'], quantity: 10, unit: 'gm' },
+        { sfgId: rmIds['MANCHOW_RM011'], quantity: 5, unit: 'gm' },
+        { sfgId: rmIds['MANCHOW_RM012'], quantity: 5, unit: 'ml' },
+      ]
+    },
+    // CHILLIOIL
+    {
+      code: 'CHILLIOIL_PT001',
+      name: 'Master Chilli Oil (Soup)',
+      costPerPortion: 0,
+      ingredients: [{ sfgId: sfgIds['CHILLIOIL_SFG001'], quantity: 2.5, unit: 'ml' }]
+    },
+    {
+      code: 'CHILLIOIL_PT002',
+      name: 'Master Chilli Oil (Rice)',
+      costPerPortion: 0,
+      ingredients: [{ sfgId: sfgIds['CHILLIOIL_SFG001'], quantity: 5, unit: 'ml' }]
+    },
+    {
+      code: 'CHILLIOIL_PT003',
+      name: 'Master Chilli Oil (Momo)',
+      costPerPortion: 0,
+      ingredients: [{ sfgId: sfgIds['CHILLIOIL_SFG001'], quantity: 5, unit: 'ml' }]
+    },
+    // GARLICOIL
+    {
+      code: 'GARLICOIL_PT001',
+      name: 'Master Garlic Oil (Rice)',
+      costPerPortion: 0,
+      ingredients: [{ sfgId: sfgIds['GARLICOIL_SFG001'], quantity: 15, unit: 'ml' }]
+    },
+    {
+      code: 'GARLICOIL_PT002',
+      name: 'Master Garlic Oil (Soup)',
+      costPerPortion: 0,
+      ingredients: [{ sfgId: sfgIds['GARLICOIL_SFG001'], quantity: 2.5, unit: 'ml' }]
+    },
+    {
+      code: 'GARLICOIL_PT003',
+      name: 'Master Garlic Oil (Dry)',
+      costPerPortion: 0,
+      ingredients: [{ sfgId: sfgIds['GARLICOIL_SFG001'], quantity: 5, unit: 'ml' }]
+    },
+    // MOMOS
+    {
+      code: 'MOMOS_PT001',
+      name: 'Momos Portion Steamed',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: rmIds['MOMOS_RM001'], quantity: 6, unit: 'pcs' },
+        { sfgId: sfgIds['MOMOS_SFG001'], quantity: 30, unit: 'ml' },
+        { sfgId: rmIds['MOMOS_RM007'], quantity: 2.5, unit: 'ml' },
+      ]
+    },
+    {
+      code: 'MOMOS_PT002',
+      name: 'Momos Portion Fried',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: rmIds['MOMOS_RM001'], quantity: 6, unit: 'pcs' },
+        { sfgId: sfgIds['MOMOS_SFG001'], quantity: 30, unit: 'ml' },
+        { sfgId: rmIds['MOMOS_RM004'], quantity: 20, unit: 'ml' },
+      ]
+    },
+    {
+      code: 'MOMOS_PT003',
+      name: 'Momos Portion Kurkure',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: rmIds['MOMOS_RM001'], quantity: 6, unit: 'pcs' },
+        { sfgId: sfgIds['MOMOS_SFG002'], quantity: 25, unit: 'gm' },
+        { sfgId: rmIds['MOMOS_RM005'], quantity: 20, unit: 'gm' },
+        { sfgId: sfgIds['MOMOS_SFG001'], quantity: 30, unit: 'ml' },
+      ]
+    },
+    // UNIMANCH (Z-101 Universal)
+    {
+      code: 'UNIMANCH_PT001',
+      name: 'Uni Manchurian Dry',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['UNIMANCH_SFG001'], quantity: 100, unit: 'ml' },
+        { sfgId: rmIds['UNIMANCH_RM011'], quantity: 15, unit: 'ml' },
+        { sfgId: sfgIds['UNIMANCH_SFG002'], quantity: 180, unit: 'gm' }
+      ]
+    },
+    {
+      code: 'UNIMANCH_PT101',
+      name: 'Uni Manchurian Gravy',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['UNIMANCH_SFG001'], quantity: 275, unit: 'ml' },
+        { sfgId: rmIds['UNIMANCH_RM011'], quantity: 45, unit: 'ml' },
+        { sfgId: sfgIds['UNIMANCH_SFG002'], quantity: 180, unit: 'gm' }
+      ]
+    },
+    // UNICHILLI (Z-102 Universal)
+    {
+      code: 'UNICHILLI_PT001',
+      name: 'Uni Chilli Dry',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['UNICHILLI_SFG001'], quantity: 100, unit: 'ml' },
+        { sfgId: rmIds['UNICHILLI_RM010'], quantity: 15, unit: 'ml' },
+        { sfgId: sfgIds['UNICHILLI_SFG002'], quantity: 180, unit: 'gm' },
+        { sfgId: rmIds['UNICHILLI_RM011'], quantity: 50, unit: 'gm' },
+        { sfgId: rmIds['UNICHILLI_RM012'], quantity: 50, unit: 'gm' },
+        { sfgId: rmIds['UNICHILLI_RM002'], quantity: 10, unit: 'ml' },
+      ]
+    },
+    {
+      code: 'UNICHILLI_PT101',
+      name: 'Uni Chilli Gravy',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['UNICHILLI_SFG001'], quantity: 300, unit: 'ml' },
+        { sfgId: rmIds['UNICHILLI_RM010'], quantity: 30, unit: 'ml' },
+        { sfgId: sfgIds['UNICHILLI_SFG002'], quantity: 180, unit: 'gm' },
+        { sfgId: rmIds['UNICHILLI_RM011'], quantity: 50, unit: 'gm' },
+        { sfgId: rmIds['UNICHILLI_RM012'], quantity: 50, unit: 'gm' },
+        { sfgId: rmIds['UNICHILLI_RM002'], quantity: 10, unit: 'ml' },
+      ]
+    },
+    // UNISCHEZWAN (Z-103)
+    {
+      code: 'UNISCHEZWAN_PT001',
+      name: 'Uni Schezwan Rice',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['UNISCHEZWAN_SFG002'], quantity: 200, unit: 'gm' },
+        { sfgId: sfgIds['UNISCHEZWAN_SFG001'], quantity: 15, unit: 'ml' },
+        { sfgId: rmIds['UNISCHEZWAN_RM010'], quantity: 60, unit: 'gm' },
+        { sfgId: rmIds['UNISCHEZWAN_RM002'], quantity: 15, unit: 'ml' },
+      ]
+    },
+    {
+      code: 'UNISCHEZWAN_PT101',
+      name: 'Uni Schezwan Gravy',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: rmIds['UNISCHEZWAN_RM007'], quantity: 250, unit: 'ml' },
+        { sfgId: sfgIds['UNISCHEZWAN_SFG001'], quantity: 15, unit: 'ml' },
+        { sfgId: rmIds['UNISCHEZWAN_RM008'], quantity: 30, unit: 'ml' },
+        { sfgId: rmIds['UNISCHEZWAN_RM009'], quantity: 180, unit: 'gm' },
+      ]
+    },
+    // UNIWOK (Z-104)
+    {
+      code: 'UNIWOK_PT001',
+      name: 'Uni Wok Noodles',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['UNIWOK_SFG001'], quantity: 200, unit: 'gm' },
+        { sfgId: rmIds['UNIWOK_RM003'], quantity: 60, unit: 'gm' },
+        { sfgId: rmIds['UNIWOK_RM004'], quantity: 5, unit: 'gm' },
+        { sfgId: rmIds['UNIWOK_RM001'], quantity: 5, unit: 'gm' },
+        { sfgId: rmIds['UNIWOK_RM006'], quantity: 5, unit: 'ml' },
+        { sfgId: rmIds['UNIWOK_RM007'], quantity: 15, unit: 'ml' },
+        { sfgId: rmIds['UNIWOK_RM008'], quantity: 5, unit: 'gm' },
+        { sfgId: rmIds['UNIWOK_RM005'], quantity: 5, unit: 'gm' },
+        { sfgId: rmIds['UNIWOK_RM009'], quantity: 60, unit: 'gm' },
+      ]
+    },
+    // UNIFRY (Z-106)
+    {
+      code: 'UNIFRY_PT001',
+      name: 'Uni Fry Portion',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['UNIFRY_SFG002'], quantity: 180, unit: 'gm' },
+        { sfgId: sfgIds['UNIFRY_SFG001'], quantity: 60, unit: 'gm' },
+        { sfgId: rmIds['UNIFRY_RM009'], quantity: 10, unit: 'ml' },
+      ]
+    },
+    // RUBY (Z-107)
+    {
+      code: 'RUBY_PT001',
+      name: 'Ruby Portion',
+      costPerPortion: 0,
+      ingredients: [
+        { sfgId: sfgIds['RUBY_SFG001'], quantity: 30, unit: 'ml' },
+      ]
     }
   ];
 
@@ -671,7 +975,7 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
     if (dishRecipeMappings[dish.name]) {
       const ingredients = dishRecipeMappings[dish.name].map(ing => ({
         itemModel: ing.itemModel,
-        itemId: portionIds[ing.code] || sfgIds[ing.code] || rmIds[ing.code],
+        itemId: portionIds[ing.code] || sfgIds[ing.code] || rmIds[ing.code] || (() => { console.error('MISSING ITEM ID FOR', ing.code, 'IN', dish.name); return undefined; })(),
         quantity: ing.quantity
       }));
       await Recipe.create({
