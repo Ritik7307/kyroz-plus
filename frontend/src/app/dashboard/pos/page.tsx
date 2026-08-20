@@ -942,7 +942,7 @@ export default function POSTerminal() {
         </div>
 
         {/* Checkout Form */}
-        <div className={`p-4 sm:p-6 bg-black/40 border-t border-white/5 space-y-3 sm:space-y-4 shrink-0 overflow-y-auto custom-scrollbar transition-all duration-300 ${showAdvancedOptions ? 'max-h-[85%] lg:max-h-[80%]' : 'max-h-[35%] lg:max-h-[30%]'}`}>
+        <div className={`p-4 sm:p-6 bg-black/40 border-t border-white/5 space-y-3 sm:space-y-4 shrink-0 overflow-y-auto custom-scrollbar transition-all duration-300 ${showAdvancedOptions ? 'max-h-[85%] lg:max-h-[80%]' : ''}`}>
           
           <button 
             onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
@@ -1449,9 +1449,9 @@ export default function POSTerminal() {
         )}
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8 no-print items-start w-full">
+      <div className="flex flex-col xl:flex-row gap-8 no-print items-start w-full">
         {/* Floating Cart Button (Mobile & Tablet only) */}
-        <div className="fixed bottom-6 right-6 z-[60] lg:hidden">
+        <div className="fixed bottom-6 right-6 z-[60] xl:hidden">
           <button 
             onClick={() => setIsCartOpen(true)}
             className="w-16 h-16 bg-gold rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(212,175,55,0.4)] text-black relative hover:scale-110 active:scale-95 transition-all group"
@@ -1596,8 +1596,7 @@ export default function POSTerminal() {
               )}
             </div>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 pr-1">
+          <div className="grid gap-4 pr-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))' }}>
             {!dishesData ? (
               <div className="col-span-full flex flex-col items-center justify-center py-20 text-white/20 gap-4">
                 <Loader2 className="animate-spin" size={48} />
@@ -1654,15 +1653,15 @@ export default function POSTerminal() {
         </div>
 
         {/* Right Column: Permanent Sidebar Cart on Desktop */}
-        <div className="hidden lg:flex w-[450px] shrink-0 bg-card glass-card border border-white/10 rounded-[2.5rem] flex-col overflow-hidden h-[calc(100vh-12rem)] sticky top-28 shadow-xl">
+        <div className="hidden xl:flex w-[380px] 2xl:w-[450px] shrink-0 bg-card glass-card border border-white/10 rounded-[2rem] flex-col overflow-hidden h-[calc(100vh-8rem)] sticky top-24 shadow-xl">
           {renderCartContent(false)}
         </div>
       </div>
 
-      {/* CART OVERLAY - Slide from Right for Mobile & Tablet (below lg) */}
+      {/* CART OVERLAY - Slide from Right for Mobile & Tablet (below xl) */}
       <AnimatePresence>
         {isCartOpen && (
-          <div className="fixed inset-0 z-[100] flex justify-end lg:hidden">
+          <div className="fixed inset-0 z-[100] flex justify-end xl:hidden">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
