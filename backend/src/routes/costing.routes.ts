@@ -1,13 +1,13 @@
 import express from 'express';
 import { getDishCosting, updateIngredientPrice, updateDishRecipe, updateBulkRecipes } from '../controllers/costing.controller';
-import { authenticateToken, requirePlan } from '../middleware/auth.middleware';
+import { authenticateToken } from '../middleware/auth.middleware';
 
 const router = express.Router();
 
-router.put('/recipe/bulk', authenticateToken, requirePlan('Growth', 'Scale'), updateBulkRecipes);
-router.put('/ingredient', authenticateToken, requirePlan('Growth', 'Scale'), updateIngredientPrice);
-router.get('/dish/:dishId', authenticateToken, requirePlan('Growth', 'Scale'), getDishCosting);
-router.put('/dish/:dishId/recipe', authenticateToken, requirePlan('Growth', 'Scale'), updateDishRecipe);
+router.put('/recipe/bulk', authenticateToken, updateBulkRecipes);
+router.put('/ingredient', authenticateToken, updateIngredientPrice);
+router.get('/dish/:dishId', authenticateToken, getDishCosting);
+router.put('/dish/:dishId/recipe', authenticateToken, updateDishRecipe);
 router.get('/fix-yields', async (req, res) => {
   try {
     const Recipe = require('../models/Recipe').default;

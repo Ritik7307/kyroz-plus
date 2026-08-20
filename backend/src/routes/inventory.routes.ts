@@ -1,8 +1,11 @@
 import { Router } from 'express';
 import { getInventory, updateInventoryItem, deleteInventoryItem, notifyAdminAboutStock, uploadInventoryConfig, updateStock, addPurchaseEntry, addProductionEntry } from '../controllers/inventory.controller';
 import { injectSops } from '../controllers/sopInject.controller';
+import { injectBiryani } from '../controllers/biryaniInject.controller';
 import { authenticateToken } from '../middleware/auth.middleware';
 import multer from 'multer';
+import User from '../models/User';
+import Dish from '../models/Dish';
 
 const upload = multer();
 
@@ -15,11 +18,6 @@ router.post('/notify/:id', authenticateToken, notifyAdminAboutStock);
 router.post('/upload', authenticateToken, upload.single('file'), uploadInventoryConfig);
 router.post('/update-stock', authenticateToken, updateStock);
 router.post('/purchase', authenticateToken, addPurchaseEntry);
-import User from '../models/User';
-import Dish from '../models/Dish';
-
-import { injectBiryani } from '../controllers/biryaniInject.controller';
-
 router.post('/produce', authenticateToken, addProductionEntry);
 router.post('/inject-sops', authenticateToken, injectSops);
 router.post('/inject-biryani', authenticateToken, injectBiryani);
