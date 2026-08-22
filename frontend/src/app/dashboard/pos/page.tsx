@@ -1079,7 +1079,9 @@ export default function POSTerminal() {
               </button>
             </div>
 
-            <div className="flex w-32 items-center gap-1">
+            <div className="w-px h-6 bg-white/10 shrink-0 mx-1 rounded-full" />
+
+            <div className="flex w-28 items-center gap-1 shrink-0">
               <button 
                 onClick={() => setPaymentMethod('Cash')}
                 className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
