@@ -274,6 +274,7 @@ export const getOrderHistory = async (req: AuthRequest, res: Response): Promise<
     const orders = await Order.find({ userId: req.user?.userId })
       .populate('items.dishId', 'name category imageUrl')
       .sort({ createdAt: -1 })
+      .limit(500) // Added limit to reduce latency and payload size
       .lean();
 
     res.status(200).json(orders);
@@ -316,9 +317,9 @@ export const getSalesSummary = async (req: AuthRequest, res: Response): Promise<
       ])
     ]);
 
-    // Comprehensive Item Analytics
+    // Comprehensive Item Analytics (Limited to this year to prevent huge latency)
     const itemAnalytics = await Order.aggregate([
-      { $match: { userId } },
+      { $match: { userId, createdAt: { $gte: startOfYear } } },
       { $unwind: "$items" },
       {
         $group: {
