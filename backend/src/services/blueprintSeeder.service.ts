@@ -19,6 +19,106 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
   await Inventory.deleteMany({ userId });
 
   const rmData = [
+    // B-401 Biryani RMs
+    { code: 'RM_B401', name: 'B-401 ROYAL AWADH', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 10000, costPerPurchaseUnit: 450 },
+    { code: 'RM_BASMATI_RICE', name: 'Long Grain Basmati Rice', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 50000, costPerPurchaseUnit: 140 },
+    { code: 'RM_GHEE', name: 'Pure Ghee', category: 'Dairy', purchaseUnit: 'litre', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 10000, costPerPurchaseUnit: 600 },
+    { code: 'RM_KEWRA_WATER', name: 'Kewra + Attar', category: 'Grocery', purchaseUnit: 'litre', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 2000, costPerPurchaseUnit: 300 },
+    { code: 'RM_FOOD_COLOUR', name: 'Food Colour', category: 'Grocery', purchaseUnit: 'litre', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 1000, costPerPurchaseUnit: 200 },
+
+    // C-500 Series Master Bases & Raw Materials
+    { code: 'RM_C501', name: 'C-501 DOUGH MASTER', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 20000, costPerPurchaseUnit: 180 },
+    { code: 'RM_C502', name: 'C-502 GRILL DUST', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 10000, costPerPurchaseUnit: 250 },
+    { code: 'RM_C503', name: 'C-503 VELVET GLAZE', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 10000, costPerPurchaseUnit: 300 },
+    { code: 'RM_C504', name: 'C-504 HERB INFUSION', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 400 },
+    { code: 'RM_C505', name: 'C-505 ALFREDO CORE', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 450 },
+    { code: 'RM_C506', name: 'C-506 MARINARA CORE', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 10000, costPerPurchaseUnit: 350 },
+    { code: 'RM_C507', name: 'C-507 SNOW BASE', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 10000, costPerPurchaseUnit: 280 },
+    { code: 'RM_C508', name: 'C-508 COCOA BASE', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 10000, costPerPurchaseUnit: 320 },
+    { code: 'RM_C509', name: 'C-509 FIRE DUST', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 500 },
+    { code: 'RM_C510', name: 'C-510 ZING MASTER', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 15000, costPerPurchaseUnit: 260 },
+    { code: 'RM_DUSTING_FLOUR', name: 'Dusting Flour', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 20000, costPerPurchaseUnit: 40 },
+    { code: 'RM_BREADCRUMBS', name: 'Breadcrumbs', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 10000, costPerPurchaseUnit: 80 },
+    { code: 'RM_LIQUID_CHEESE', name: 'Liquid Cheese', category: 'Dairy', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 15000, costPerPurchaseUnit: 300 },
+    { code: 'RM_VEG_EXTRA_THICK_MAYO', name: 'Veg Extra Thick Mayo', category: 'Dairy', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 20000, costPerPurchaseUnit: 120 },
+    { code: 'RM_TOMATO_KETCHUP', name: 'Tomato Ketchup', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 20000, costPerPurchaseUnit: 90 },
+    { code: 'RM_BURGER_BUN', name: 'Burger Bun', category: 'Bakery', purchaseUnit: 'pcs', consumptionUnit: 'pcs', conversionFactor: 1, currentStock: 500, costPerPurchaseUnit: 8 },
+    { code: 'RM_CHEESE_SLICE', name: 'Cheese Slice', category: 'Dairy', purchaseUnit: 'pcs', consumptionUnit: 'pcs', conversionFactor: 1, currentStock: 1000, costPerPurchaseUnit: 12 },
+    { code: 'RM_TORTILLA', name: '8/10 inch Tortilla', category: 'Bakery', purchaseUnit: 'pcs', consumptionUnit: 'pcs', conversionFactor: 1, currentStock: 500, costPerPurchaseUnit: 10 },
+    { code: 'RM_FRENCH_FRIES', name: 'French Fries (Frozen)', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 50000, costPerPurchaseUnit: 110 },
+    { code: 'RM_CHICKEN_NUGGETS', name: 'Chicken Nuggets (Frozen)', category: 'Non Veg', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 20000, costPerPurchaseUnit: 250 },
+    { code: 'RM_FRUIT_SYRUPS', name: 'Fruit Syrups', category: 'Grocery', purchaseUnit: 'litre', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 200 },
+    { code: 'RM_INSTANT_COFFEE', name: 'Instant Coffee', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 2000, costPerPurchaseUnit: 800 },
+    { code: 'RM_OREO', name: 'Oreo Biscuits', category: 'Grocery', purchaseUnit: 'pcs', consumptionUnit: 'pcs', conversionFactor: 1, currentStock: 1000, costPerPurchaseUnit: 3 },
+    { code: 'RM_HAZELNUT_SYRUP', name: 'Hazelnut Syrup', category: 'Grocery', purchaseUnit: 'litre', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 2000, costPerPurchaseUnit: 400 },
+    { code: 'RM_ICE_CUBES', name: 'Ice Cubes', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 50000, costPerPurchaseUnit: 10 },
+    { code: 'RM_RAW_PASTA', name: 'Raw Pasta', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 20000, costPerPurchaseUnit: 150 },
+    { code: 'RM_CHICKEN_MINCE', name: 'Chicken Mince', category: 'Non Veg', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 10000, costPerPurchaseUnit: 280 },
+
+    // Indo Arabic Mandi RMs
+    { code: 'RM_CHICKEN_MANDI', name: 'Chicken LG + Thigh', category: 'Non Veg', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 20000, costPerPurchaseUnit: 220 },
+    { code: 'RM_MUTTON_MANDI', name: 'Mutton', category: 'Non Veg', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 10000, costPerPurchaseUnit: 800 },
+    { code: 'RM_SELLA_RICE', name: 'Long Grain/Sella Rice', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 50000, costPerPurchaseUnit: 120 },
+    { code: 'RM_B404A', name: 'B-404 A', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 400 },
+    { code: 'RM_B404B', name: 'B-404 B', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 400 },
+    { code: 'RM_COAL', name: 'Coal', category: 'Fuel', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 20000, costPerPurchaseUnit: 30 },
+
+    // Patch Missing RMs from other recipes
+    { code: 'RM_FRYING_OIL', name: 'Frying Oil', category: 'Grocery', purchaseUnit: 'litre', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 120 },
+    { code: 'RM_SHAHI_JEERA', name: 'Shahi Jeera', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 500, costPerPurchaseUnit: 400 },
+    { code: 'RM_FRESH_GINGER', name: 'Fresh Ginger', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 80 },
+    { code: 'RM_KASHMIRI_CHILLI_POWDER', name: 'Kashmiri Chilli Powder', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 2000, costPerPurchaseUnit: 350 },
+    { code: 'RM_ONION_PETALS', name: 'Onion Petals', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 40 },
+    { code: 'RM_CURD_FRESH_CREAM', name: 'Curd / Fresh Cream', category: 'Dairy', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 2000, costPerPurchaseUnit: 150 },
+    { code: 'RM_PINEAPPLE_CHUNKS', name: 'Pineapple Chunks', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 2000, costPerPurchaseUnit: 180 },
+    { code: 'RM_FRIED_CASHEW', name: 'Fried Cashew', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 1000, costPerPurchaseUnit: 800 },
+    { code: 'RM_RAISINS', name: 'Raisins', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 1000, costPerPurchaseUnit: 400 },
+    { code: 'RM_POMEGRANATE_SEEDS', name: 'Pomegranate Seeds', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 1000, costPerPurchaseUnit: 150 },
+    { code: 'RM_VEG_STOCK_WATER', name: 'Veg Stock Water', category: 'Grocery', purchaseUnit: 'litre', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 10 },
+    { code: 'RM_WHOLE_JEERA', name: 'Whole Jeera', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 2000, costPerPurchaseUnit: 300 },
+    { code: 'RM_HONEY', name: 'Honey', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 2000, costPerPurchaseUnit: 400 },
+
+    // South Indian S-300 Series
+    { code: 'RM_S301', name: 'S-301 Coastal Crust', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 180 },
+    { code: 'RM_S302', name: 'S-302 Yellow Temper', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 200 },
+    { code: 'RM_S303', name: 'S-303 Rava Pearl', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 160 },
+    { code: 'RM_S304', name: 'S-304 Crunch Core', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 190 },
+    { code: 'RM_S305', name: 'S-305 Steam Cloud', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 170 },
+    { code: 'RM_S306', name: 'S-306 Tangy Tropic', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 220 },
+    { code: 'RM_S307', name: 'S-307 Kerala Kernel', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 240 },
+    { code: 'RM_S308', name: 'S-308 Lentil Lava', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 210 },
+    { code: 'RM_WATER', name: 'Water', category: 'Grocery', purchaseUnit: 'litre', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 100000, costPerPurchaseUnit: 1 },
+    { code: 'RM_ONION', name: 'Onion', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 10000, costPerPurchaseUnit: 40 },
+    { code: 'RM_TOMATO', name: 'Tomato', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 10000, costPerPurchaseUnit: 50 },
+    { code: 'RM_MUSTARD_SEEDS', name: 'Mustard Seeds', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 150 },
+    { code: 'RM_URAD_DAL', name: 'Urad Dal', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 120 },
+    { code: 'RM_CURRY_LEAVES', name: 'Curry Leaves', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 2000, costPerPurchaseUnit: 80 },
+    { code: 'RM_BOILED_POTATOES', name: 'Boiled Potatoes', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 10000, costPerPurchaseUnit: 60 },
+    { code: 'RM_BOILED_VEGETABLES', name: 'Boiled Vegetables', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 10000, costPerPurchaseUnit: 70 },
+
+    // Tandoor Missing RMs
+    { code: 'RM_LEMON_JUICE', name: 'Lemon Juice', category: 'Grocery', purchaseUnit: 'litre', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 120 },
+    { code: 'RM_OLIVE_OIL', name: 'Olive Oil', category: 'Grocery', purchaseUnit: 'litre', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 800 },
+
+    // T-600 Series Tandoor System
+    { code: 'RM_T604', name: 'T-604 Crimson Coat', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 250 },
+    { code: 'RM_T605', name: 'T-605 Silk Infusion', category: 'Premix', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 280 },
+    { code: 'RM_T606', name: 'T-606 Mince Master', category: 'Premix', purchaseUnit: 'pkt', consumptionUnit: 'pkt', conversionFactor: 1, currentStock: 100, costPerPurchaseUnit: 150 },
+    { code: 'RM_T607', name: 'T-607 Arabian Smoke', category: 'Premix', purchaseUnit: 'pkt', consumptionUnit: 'pkt', conversionFactor: 1, currentStock: 100, costPerPurchaseUnit: 180 },
+    { code: 'RM_T601', name: 'T-601 Classic Char', category: 'Premix', purchaseUnit: 'pkt', consumptionUnit: 'pkt', conversionFactor: 1, currentStock: 100, costPerPurchaseUnit: 120 },
+    { code: 'RM_T602', name: 'T-602 White Velvet', category: 'Premix', purchaseUnit: 'pkt', consumptionUnit: 'pkt', conversionFactor: 1, currentStock: 100, costPerPurchaseUnit: 130 },
+    { code: 'RM_T603', name: 'T-603 Verdant Rub', category: 'Premix', purchaseUnit: 'pkt', consumptionUnit: 'pkt', conversionFactor: 1, currentStock: 100, costPerPurchaseUnit: 140 },
+    { code: 'RM_ACHARI_PASTE', name: 'Achari Paste', category: 'Condiment', purchaseUnit: 'kg', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 1000, costPerPurchaseUnit: 300 },
+    { code: 'RM_RAW_CHICKEN_WHOLE', name: 'Raw Chicken Whole Bird', category: 'Meat', purchaseUnit: 'pcs', consumptionUnit: 'pcs', conversionFactor: 1, currentStock: 100, costPerPurchaseUnit: 160 },
+    { code: 'RM_CHICKEN_FAT', name: 'Chicken Fat', category: 'Fat', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 100 },
+    { code: 'RM_DEWATERED_ONION', name: 'Dewatered Onion', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 80 },
+    { code: 'RM_BESAN', name: 'Besan', category: 'Grocery', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 70 },
+    { code: 'RM_SOYA_CHAAP', name: 'Soya Chaap', category: 'Protein', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 120 },
+    { code: 'RM_BUTTON_MUSHROOM', name: 'Button Mushroom', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 150 },
+    { code: 'RM_MINT_ONION', name: 'Mint Onion', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 60 },
+    { code: 'RM_MOMO_CHUTNEY', name: 'Momo Chutney', category: 'Condiment', purchaseUnit: 'litre', consumptionUnit: 'ml', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 150 },
+    { code: 'RM_VEG_MOMOS', name: 'Veg Momos Raw', category: 'Frozen', purchaseUnit: 'pcs', consumptionUnit: 'pcs', conversionFactor: 1, currentStock: 500, costPerPurchaseUnit: 5 },
+
     { code: 'RM_G205', name: 'G-205 ROYAL ROGAN', category: 'Gravy', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 120 },
     { code: 'RM_PRE_FRIED_POTATO', name: 'Pre-fried Potato Cubes', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 40 },
     { code: 'RM_PRE_FRIED_CAULIFLOWER', name: 'Pre-fried Cauliflower Florets', category: 'Vegetable', purchaseUnit: 'kg', consumptionUnit: 'gm', conversionFactor: 1000, currentStock: 5000, costPerPurchaseUnit: 60 },
@@ -232,6 +332,62 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
   }
 
   const sfgData = [
+    // Biryani Batches & SFGs
+    { code: 'SFG_YAKHNI_CHICKEN', name: '80% Cooked Yakhni Chicken', batchYield: 1000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.28 },
+    { code: 'SFG_70_BOILED_RICE', name: '70% Boiled Rice', batchYield: 2200, yieldUnit: 'gm', currentStock: 10000, costPerUnit: 0.08 },
+    { code: 'SFG_BROWN_ONION', name: 'Brown Onion (Birista)', batchYield: 200, yieldUnit: 'gm', currentStock: 1000, costPerUnit: 0.25 },
+    { code: 'SFG_PREPARED_BIRYANI', name: 'Prepared Biryani (Dum)', batchYield: 3200, yieldUnit: 'gm', currentStock: 15000, costPerUnit: 0.15 },
+
+    // C-500 Series SFGs
+    { code: 'SFG_PREPARED_PIZZA_DOUGH', name: 'Prepared Pizza Dough', batchYield: 1700, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.12 },
+    { code: 'SFG_10_INCH_PIZZA_BASE', name: '10 inch Pizza Base', batchYield: 1, yieldUnit: 'pcs', currentStock: 100, costPerUnit: 25 },
+    { code: 'SFG_12_INCH_PIZZA_BASE', name: '12 inch Pizza Base', batchYield: 1, yieldUnit: 'pcs', currentStock: 100, costPerUnit: 35 },
+    { code: 'SFG_VEG_PATTY', name: 'Prepared Veg Patty', batchYield: 13, yieldUnit: 'pcs', currentStock: 100, costPerUnit: 12 },
+    { code: 'SFG_CHICKEN_PATTY', name: 'Prepared Chicken Patty', batchYield: 13, yieldUnit: 'pcs', currentStock: 100, costPerUnit: 28 },
+    { code: 'SFG_CLASSIC_BURGER_SAUCE', name: 'Classic Burger Sauce', batchYield: 330, yieldUnit: 'gm', currentStock: 1000, costPerUnit: 0.15 },
+    { code: 'SFG_TANDOORI_BURGER_SAUCE', name: 'Tandoori Burger Sauce', batchYield: 360, yieldUnit: 'gm', currentStock: 1000, costPerUnit: 0.16 },
+    { code: 'SFG_CHEESY_GARLIC_DIP', name: 'Cheesy Garlic Dip', batchYield: 330, yieldUnit: 'gm', currentStock: 1000, costPerUnit: 0.20 },
+    { code: 'SFG_HERB_GARLIC_BUTTER', name: 'Herb Garlic Butter', batchYield: 240, yieldUnit: 'gm', currentStock: 500, costPerUnit: 0.45 },
+    { code: 'SFG_HERB_GARLIC_MAYO', name: 'Herb Garlic Mayo', batchYield: 330, yieldUnit: 'gm', currentStock: 1000, costPerUnit: 0.18 },
+    { code: 'SFG_MARINATED_CHICKEN_C510', name: '24-Hour Marinated Chicken (C-510)', batchYield: 5000, yieldUnit: 'gm', currentStock: 10000, costPerUnit: 0.28 },
+    { code: 'SFG_COATED_CHICKEN_C510', name: 'Double Coated Chicken (C-510)', batchYield: 5000, yieldUnit: 'gm', currentStock: 10000, costPerUnit: 0.30 },
+    { code: 'SFG_PREPARED_PIZZA_SAUCE', name: 'Prepared Pizza Sauce', batchYield: 5000, yieldUnit: 'gm', currentStock: 10000, costPerUnit: 0.10 },
+    { code: 'SFG_BOILED_PASTA_C500', name: '80% Boiled Pasta', batchYield: 5000, yieldUnit: 'gm', currentStock: 10000, costPerUnit: 0.15 },
+
+    // Mandi Batches & SFGs
+    { code: 'SFG_STEAMED_CHICKEN_MANDI', name: 'Steamed Chicken Mandi', batchYield: 6, yieldUnit: 'pcs', currentStock: 60, costPerUnit: 45 },
+    { code: 'SFG_STEAMED_MUTTON_MANDI', name: 'Steamed Mutton Mandi', batchYield: 6, yieldUnit: 'pcs', currentStock: 30, costPerUnit: 150 },
+    { code: 'SFG_MANDI_STOCK', name: 'Mandi Stock', batchYield: 2000, yieldUnit: 'ml', currentStock: 5000, costPerUnit: 0 },
+    { code: 'SFG_MANDI_RICE', name: 'Mandi Rice', batchYield: 3200, yieldUnit: 'gm', currentStock: 10000, costPerUnit: 0.1 },
+
+    // Patch Missing SFGs from other recipes
+    { code: 'SFG_PANEER_CUBES', name: 'SFG Paneer Cubes', batchYield: 1000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.35 },
+    { code: 'SFG_GOLDEN_GARLIC_TOPPING', name: 'Golden Garlic Topping', batchYield: 500, yieldUnit: 'gm', currentStock: 1000, costPerUnit: 0.20 },
+    { code: 'SFG_FRIED_KOFTA', name: 'Fried Kofta', batchYield: 1000, yieldUnit: 'gm', currentStock: 2000, costPerUnit: 0.25 },
+    { code: 'SFG_MALAI_KOFTA', name: 'Malai Kofta', batchYield: 1000, yieldUnit: 'gm', currentStock: 2000, costPerUnit: 0.30 },
+    { code: 'SFG_BLANCHED_VEG_MIX', name: 'Blanched Veg Mix', batchYield: 2000, yieldUnit: 'gm', currentStock: 3000, costPerUnit: 0.15 },
+    { code: 'SFG_FRIED_MAKHANA', name: 'Fried Makhana', batchYield: 500, yieldUnit: 'gm', currentStock: 1000, costPerUnit: 0.40 },
+
+    // South Indian Batters and Bases
+    { code: 'SFG_DOSA_BATTER_S301', name: 'Dosa Batter S-301', batchYield: 2500, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.08 },
+    { code: 'SFG_ALOO_MASALA_S302', name: 'Aloo Masala S-302', batchYield: 1500, yieldUnit: 'gm', currentStock: 3000, costPerUnit: 0.15 },
+    { code: 'SFG_RAVA_BATTER_S303', name: 'Rava Batter S-303', batchYield: 3500, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.05 },
+    { code: 'SFG_VADA_BATTER_S304', name: 'Vada Batter S-304', batchYield: 1800, yieldUnit: 'gm', currentStock: 3000, costPerUnit: 0.11 },
+    { code: 'SFG_IDLI_BATTER_S305', name: 'Idli/Uttapam Batter S-305', batchYield: 2200, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.08 },
+    { code: 'SFG_RED_CHUTNEY_S306', name: 'Red Chutney S-306', batchYield: 3500, yieldUnit: 'gm', currentStock: 4000, costPerUnit: 0.07 },
+    { code: 'SFG_COCONUT_CHUTNEY_S307', name: 'Coconut Chutney S-307', batchYield: 3500, yieldUnit: 'gm', currentStock: 4000, costPerUnit: 0.08 },
+    { code: 'SFG_SAMBHAR_S308', name: 'Sambhar S-308', batchYield: 10000, yieldUnit: 'ml', currentStock: 15000, costPerUnit: 0.04 },
+
+    // Tandoor Marination SFGs
+    { code: 'SFG_MARINATED_CHICKEN_T604', name: 'Marinated Chicken T-604', batchYield: 2000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.35 },
+    { code: 'SFG_MARINATED_CHICKEN_T605', name: 'Marinated Chicken T-605', batchYield: 2000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.40 },
+    { code: 'SFG_MARINATED_SEEKH_T606', name: 'Marinated Seekh Mix T-606', batchYield: 1000, yieldUnit: 'gm', currentStock: 2000, costPerUnit: 0.45 },
+    { code: 'SFG_MARINATED_ALFAHAM_T607', name: 'Marinated Al Faham T-607', batchYield: 1, yieldUnit: 'pcs', currentStock: 50, costPerUnit: 180 },
+    { code: 'SFG_T601_PASTE', name: 'T-601 Ready Paste', batchYield: 600, yieldUnit: 'gm', currentStock: 1200, costPerUnit: 0.30 },
+    { code: 'SFG_T602_PASTE', name: 'T-602 Ready Paste', batchYield: 600, yieldUnit: 'gm', currentStock: 1200, costPerUnit: 0.35 },
+    { code: 'SFG_T603_PASTE', name: 'T-603 Ready Paste', batchYield: 600, yieldUnit: 'gm', currentStock: 1200, costPerUnit: 0.32 },
+    { code: 'SFG_T602A_PASTE', name: 'T-602-A Achari Paste', batchYield: 750, yieldUnit: 'gm', currentStock: 1500, costPerUnit: 0.34 },
+
     { code: 'SFG_G205', name: 'G-205 ROYAL ROGAN', batchYield: 5000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.15 },
     { code: 'SFG_PRE_FRIED_POTATO', name: 'Pre-fried Potato', batchYield: 5000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.06 },
     { code: 'SFG_PRE_FRIED_CAULIFLOWER', name: 'Pre-fried Cauliflower', batchYield: 5000, yieldUnit: 'gm', currentStock: 5000, costPerUnit: 0.08 },
@@ -840,6 +996,41 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
   }
 
   const pkgData = [
+    // Biryani Packaging
+    { code: 'PKG_BIRYANI_CONTAINER', name: 'Biryani Container', unit: 'pcs', currentStock: 2000, costPerUnit: 20 },
+
+    // C-500 Series Packaging
+    { code: 'PKG_DOUGH_TRAY', name: 'Food Grade Dough Tray', unit: 'pcs', currentStock: 200, costPerUnit: 50 },
+    { code: 'PKG_PLASTIC_WRAP', name: 'Plastic Wrap', unit: 'pcs', currentStock: 1000, costPerUnit: 2 },
+    { code: 'PKG_SAUCE_BOTTLE', name: '1 L Sauce Bottle', unit: 'pcs', currentStock: 500, costPerUnit: 15 },
+    { code: 'PKG_DIP_CUP', name: 'Dip Cup', unit: 'pcs', currentStock: 5000, costPerUnit: 1 },
+    { code: 'PKG_SEASONING_SACHET', name: 'Seasoning Sachet', unit: 'pcs', currentStock: 10000, costPerUnit: 0.5 },
+    { code: 'PKG_CHICKEN_BUCKET', name: 'Chicken Box/Bucket', unit: 'pcs', currentStock: 1000, costPerUnit: 20 },
+    { code: 'PKG_BURGER_BOX', name: 'Burger Wrap/Box', unit: 'pcs', currentStock: 5000, costPerUnit: 8 },
+    { code: 'PKG_PIZZA_BOX', name: 'Pizza Box', unit: 'pcs', currentStock: 2000, costPerUnit: 18 },
+    { code: 'PKG_SANDWICH_BOX', name: 'Sandwich Box', unit: 'pcs', currentStock: 2000, costPerUnit: 10 },
+    { code: 'PKG_WRAP_BOX', name: 'Wrap Sleeve / Box', unit: 'pcs', currentStock: 3000, costPerUnit: 8 },
+    { code: 'PKG_PASTA_BOWL', name: 'Pasta Bowl', unit: 'pcs', currentStock: 3000, costPerUnit: 15 },
+    { code: 'PKG_BEVERAGE_CUP', name: 'Beverage Cup', unit: 'pcs', currentStock: 5000, costPerUnit: 8 },
+    { code: 'PKG_PAPER_STRAW', name: 'Paper Straw', unit: 'pcs', currentStock: 10000, costPerUnit: 2 },
+
+    // Mandi Packaging
+    { code: 'PKG_MANDI_CONTAINER', name: 'Mandi Container', unit: 'pcs', currentStock: 2000, costPerUnit: 15 },
+    { code: 'PKG_FOIL', name: 'Aluminium Foil', unit: 'pcs', currentStock: 5000, costPerUnit: 2 },
+    { code: 'PKG_SPOON', name: 'Plastic Spoon', unit: 'pcs', currentStock: 10000, costPerUnit: 1 },
+
+    // South Indian Packaging
+    { code: 'PKG_BATTER_CONTAINER', name: 'Batter Container', unit: 'pcs', currentStock: 1000, costPerUnit: 10 },
+    { code: 'PKG_FOOD_GRADE_CONTAINER', name: 'Food Grade Container', unit: 'pcs', currentStock: 1000, costPerUnit: 12 },
+    { code: 'PKG_CHUTNEY_CONTAINER', name: 'Chutney Container', unit: 'pcs', currentStock: 2000, costPerUnit: 5 },
+    { code: 'PKG_SAMBHAR_CONTAINER', name: 'Sambhar Container', unit: 'pcs', currentStock: 2000, costPerUnit: 8 },
+    { code: 'PKG_BATCH_LABEL', name: 'Batch Label', unit: 'pcs', currentStock: 5000, costPerUnit: 1 },
+
+    // Tandoor Missing PKGs
+    { code: 'PKG_ARABIAN_PLATTER', name: 'Arabian Platter', unit: 'pcs', currentStock: 500, costPerUnit: 25 },
+    { code: 'PKG_KHABOOS', name: 'Khaboos Bread', unit: 'pcs', currentStock: 500, costPerUnit: 10 },
+    { code: 'PKG_SERVING_PLATE', name: 'Standard Serving Plate', unit: 'pcs', currentStock: 500, costPerUnit: 15 },
+
     { code: 'PKG_FLAT_CERAMIC_PLATE', name: 'Flat Ceramic Plate / Oval Veg Dish', unit: 'pc', currentStock: 500, costPerUnit: 15 },
     { code: 'PKG_TAKEAWAY_CONTAINER', name: 'Takeaway Container', unit: 'pc', currentStock: 500, costPerUnit: 5 },
     { code: 'PKG_CARRY_BAG', name: 'Carry Bag', unit: 'pc', currentStock: 500, costPerUnit: 3 },
@@ -913,6 +1104,61 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
   }
 
   const dishData = [
+    // Biryani Dishes
+    { name: 'Chicken Biryani', price: 349, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_BIRYANI_CONTAINER'], pkgIds['PKG_LID'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_BIRYANI_CONTAINER'], pkgIds['PKG_LID'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
+
+    // C-500 Cafe Dishes
+    { name: '10 Inch Margherita Pizza', price: 299, category: 'Pizza', packagingLogic: { takeaway: [pkgIds['PKG_PIZZA_BOX'], pkgIds['PKG_SEASONING_SACHET'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_PIZZA_BOX'], pkgIds['PKG_SEASONING_SACHET'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
+    { name: 'Classic Burger', price: 149, category: 'Burger', packagingLogic: { takeaway: [pkgIds['PKG_BURGER_BOX'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_BURGER_BOX'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
+    { name: 'Veg Wrap', price: 179, category: 'Wrap', packagingLogic: { takeaway: [pkgIds['PKG_WRAP_BOX'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_WRAP_BOX'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
+    { name: 'French Fries (Cafe)', price: 99, category: 'Snacks', packagingLogic: { takeaway: [pkgIds['PKG_BURGER_BOX'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_BURGER_BOX'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
+    { name: 'Popcorn Chicken (Cafe)', price: 199, category: 'Snacks', packagingLogic: { takeaway: [pkgIds['PKG_CHICKEN_BUCKET'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_CHICKEN_BUCKET'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
+    { name: 'Pink Sauce Pasta (Cafe)', price: 249, category: 'Pasta', packagingLogic: { takeaway: [pkgIds['PKG_PASTA_BOWL'], pkgIds['PKG_LID'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_PASTA_BOWL'], pkgIds['PKG_LID'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
+    { name: 'Vanilla Shake (Cafe)', price: 149, category: 'Beverages', packagingLogic: { takeaway: [pkgIds['PKG_BEVERAGE_CUP'], pkgIds['PKG_LID'], pkgIds['PKG_PAPER_STRAW'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_BEVERAGE_CUP'], pkgIds['PKG_LID'], pkgIds['PKG_PAPER_STRAW'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_BEVERAGE_CUP'], pkgIds['PKG_PAPER_STRAW']] } },
+    { name: 'Cold Coffee (Cafe)', price: 169, category: 'Beverages', packagingLogic: { takeaway: [pkgIds['PKG_BEVERAGE_CUP'], pkgIds['PKG_LID'], pkgIds['PKG_PAPER_STRAW'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_BEVERAGE_CUP'], pkgIds['PKG_LID'], pkgIds['PKG_PAPER_STRAW'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_BEVERAGE_CUP'], pkgIds['PKG_PAPER_STRAW']] } },
+
+    // Mandi Dishes
+    { name: 'Chicken White Mandi', price: 399, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_MANDI_CONTAINER'], pkgIds['PKG_FOIL'], pkgIds['PKG_SPOON'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_MANDI_CONTAINER'], pkgIds['PKG_FOIL'], pkgIds['PKG_SPOON'], pkgIds['PKG_CARRY_BAG']], dineIn: [] } },
+    { name: 'Mutton White Mandi', price: 599, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_MANDI_CONTAINER'], pkgIds['PKG_FOIL'], pkgIds['PKG_SPOON'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_MANDI_CONTAINER'], pkgIds['PKG_FOIL'], pkgIds['PKG_SPOON'], pkgIds['PKG_CARRY_BAG']], dineIn: [] } },
+
+    // South Indian Dishes
+    { name: 'Mix-Veg Uttapam', price: 179, category: 'South Indian', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
+    { name: 'Plain Dosa', price: 149, category: 'South Indian', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
+    { name: 'Masala Dosa', price: 189, category: 'South Indian', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
+    { name: 'Butter Dosa', price: 169, category: 'South Indian', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
+    { name: 'Onion Rava Dosa', price: 199, category: 'South Indian', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
+    { name: 'Medu Vada', price: 119, category: 'South Indian', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
+    { name: 'Regular Idli', price: 99, category: 'South Indian', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
+    { name: 'Mini Idli', price: 119, category: 'South Indian', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
+
+    // Tandoor Dishes
+    { name: 'Chicken Tikka', price: 299, category: 'Tandoor Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Tandoori Chicken Half', price: 349, category: 'Tandoor Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Tandoori Chicken Full', price: 599, category: 'Tandoor Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Chicken Malai Tikka', price: 329, category: 'Tandoor Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Afghani Chicken Half', price: 369, category: 'Tandoor Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Afghani Chicken Full', price: 629, category: 'Tandoor Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Chicken Seekh Kebab', price: 289, category: 'Tandoor Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Al Faham Chicken', price: 649, category: 'Tandoor Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    
+    // Veg Tandoor
+    { name: 'Tandoori Paneer', price: 249, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Tandoori Chaap', price: 229, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Tandoori Mushroom', price: 259, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Tandoori Momos', price: 199, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    
+    { name: 'Malai Paneer', price: 269, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Malai Chaap', price: 249, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Malai Mushroom', price: 279, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    
+    { name: 'Hariyali Paneer', price: 259, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Hariyali Chaap', price: 239, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Hariyali Mushroom', price: 269, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    
+    { name: 'Achari Paneer', price: 269, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Achari Chaap', price: 249, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+    { name: 'Achari Mushroom', price: 279, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
+
     { name: 'Aloo Gobhi Matar (Semi-Gravy)', price: 250, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_OVAL_VEG_DISH']] } },
     { name: 'Corn Palak Cheese', price: 280, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_OVAL_VEG_DISH']] } },
     { name: 'Kadhai Paneer', price: 320, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_COPPER_KADHAI']] } },
@@ -932,6 +1178,276 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
   }
 
   const dishRecipeMappings: Record<string, { itemModel: string, code: string, quantity: number }[]> = {
+    'Chicken Biryani': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_PREPARED_BIRYANI', quantity: 350 }
+    ],
+
+    '10 Inch Margherita Pizza': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_10_INCH_PIZZA_BASE', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_PREPARED_PIZZA_SAUCE', quantity: 50 },
+      { itemModel: 'RawMaterial', code: 'RM_LIQUID_CHEESE', quantity: 90 },
+      { itemModel: 'RawMaterial', code: 'RM_TOMATO', quantity: 40 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 3 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 1 }
+    ],
+    'Classic Burger': [
+      { itemModel: 'RawMaterial', code: 'RM_BURGER_BUN', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_VEG_PATTY', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_CLASSIC_BURGER_SAUCE', quantity: 30 },
+      { itemModel: 'RawMaterial', code: 'RM_ONION', quantity: 15 },
+      { itemModel: 'RawMaterial', code: 'RM_TOMATO', quantity: 20 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 }
+    ],
+    'Veg Wrap': [
+      { itemModel: 'RawMaterial', code: 'RM_TORTILLA', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_VEG_PATTY', quantity: 1 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_TANDOORI_BURGER_SAUCE', quantity: 30 },
+      { itemModel: 'RawMaterial', code: 'RM_ONION', quantity: 15 },
+      { itemModel: 'RawMaterial', code: 'RM_TOMATO', quantity: 15 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 1 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 }
+    ],
+    'French Fries (Cafe)': [
+      { itemModel: 'RawMaterial', code: 'RM_FRENCH_FRIES', quantity: 200 },
+      { itemModel: 'RawMaterial', code: 'RM_FRYING_OIL', quantity: 15 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 12 }
+    ],
+    'Popcorn Chicken (Cafe)': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_COATED_CHICKEN_C510', quantity: 240 },
+      { itemModel: 'RawMaterial', code: 'RM_FRYING_OIL', quantity: 10 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 1 }
+    ],
+    'Pink Sauce Pasta (Cafe)': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_BOILED_PASTA_C500', quantity: 200 },
+      { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 150 },
+      { itemModel: 'RawMaterial', code: 'RM_WATER', quantity: 50 },
+      { itemModel: 'RawMaterial', code: 'RM_C505', quantity: 30 },
+      { itemModel: 'RawMaterial', code: 'RM_C506', quantity: 20 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 10 },
+      { itemModel: 'RawMaterial', code: 'RM_C509', quantity: 1 }
+    ],
+    'Vanilla Shake (Cafe)': [
+      { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
+      { itemModel: 'RawMaterial', code: 'RM_C507', quantity: 40 },
+      { itemModel: 'RawMaterial', code: 'RM_ICE_CUBES', quantity: 30 }
+    ],
+    'Cold Coffee (Cafe)': [
+      { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 200 },
+      { itemModel: 'RawMaterial', code: 'RM_C507', quantity: 35 },
+      { itemModel: 'RawMaterial', code: 'RM_INSTANT_COFFEE', quantity: 5 },
+      { itemModel: 'RawMaterial', code: 'RM_ICE_CUBES', quantity: 30 }
+    ],
+
+    'Chicken White Mandi': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_MANDI_RICE', quantity: 500 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_STEAMED_CHICKEN_MANDI', quantity: 1 }
+    ],
+    'Mutton White Mandi': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_MANDI_RICE', quantity: 500 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_STEAMED_MUTTON_MANDI', quantity: 1 }
+    ],
+
+    'Mix-Veg Uttapam': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_IDLI_BATTER_S305', quantity: 180 },
+      { itemModel: 'RawMaterial', code: 'RM_ONION', quantity: 15 },
+      { itemModel: 'RawMaterial', code: 'RM_TOMATO', quantity: 15 },
+      { itemModel: 'RawMaterial', code: 'RM_GREEN_CHILLI', quantity: 5 },
+      { itemModel: 'RawMaterial', code: 'RM_FRESH_CORIANDER', quantity: 5 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 8 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Plain Dosa': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_DOSA_BATTER_S301', quantity: 100 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_CHUTNEY_S306', quantity: 30 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_COCONUT_CHUTNEY_S307', quantity: 40 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAMBHAR_S308', quantity: 100 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Masala Dosa': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_DOSA_BATTER_S301', quantity: 100 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_ALOO_MASALA_S302', quantity: 120 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_CHUTNEY_S306', quantity: 30 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_COCONUT_CHUTNEY_S307', quantity: 40 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAMBHAR_S308', quantity: 100 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Butter Dosa': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_DOSA_BATTER_S301', quantity: 100 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 15 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_CHUTNEY_S306', quantity: 30 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_COCONUT_CHUTNEY_S307', quantity: 40 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAMBHAR_S308', quantity: 100 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Onion Rava Dosa': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_RAVA_BATTER_S303', quantity: 120 },
+      { itemModel: 'RawMaterial', code: 'RM_ONION', quantity: 15 },
+      { itemModel: 'RawMaterial', code: 'RM_GREEN_CHILLI', quantity: 2 },
+      { itemModel: 'RawMaterial', code: 'RM_FRESH_CORIANDER', quantity: 3 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 8 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_CHUTNEY_S306', quantity: 30 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_COCONUT_CHUTNEY_S307', quantity: 40 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAMBHAR_S308', quantity: 100 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Medu Vada': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_VADA_BATTER_S304', quantity: 70 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 8 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_CHUTNEY_S306', quantity: 40 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_COCONUT_CHUTNEY_S307', quantity: 50 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAMBHAR_S308', quantity: 120 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Regular Idli': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_IDLI_BATTER_S305', quantity: 50 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_CHUTNEY_S306', quantity: 40 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_COCONUT_CHUTNEY_S307', quantity: 50 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAMBHAR_S308', quantity: 120 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Mini Idli': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_IDLI_BATTER_S305', quantity: 20 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_CHUTNEY_S306', quantity: 20 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_COCONUT_CHUTNEY_S307', quantity: 25 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_SAMBHAR_S308', quantity: 60 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+
+    'Chicken Tikka': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_MARINATED_CHICKEN_T604', quantity: 210 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'RawMaterial', code: 'RM_FRESH_CREAM', quantity: 5 },
+      { itemModel: 'RawMaterial', code: 'RM_LEMON_JUICE', quantity: 5 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Tandoori Chicken Half': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_MARINATED_CHICKEN_T604', quantity: 500 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'RawMaterial', code: 'RM_FRESH_CREAM', quantity: 5 },
+      { itemModel: 'RawMaterial', code: 'RM_LEMON_JUICE', quantity: 5 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Tandoori Chicken Full': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_MARINATED_CHICKEN_T604', quantity: 1000 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 10 },
+      { itemModel: 'RawMaterial', code: 'RM_FRESH_CREAM', quantity: 10 },
+      { itemModel: 'RawMaterial', code: 'RM_LEMON_JUICE', quantity: 5 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Chicken Malai Tikka': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_MARINATED_CHICKEN_T605', quantity: 210 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'RawMaterial', code: 'RM_FRESH_CREAM', quantity: 5 },
+      { itemModel: 'RawMaterial', code: 'RM_LEMON_JUICE', quantity: 5 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Afghani Chicken Half': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_MARINATED_CHICKEN_T605', quantity: 500 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'RawMaterial', code: 'RM_FRESH_CREAM', quantity: 5 },
+      { itemModel: 'RawMaterial', code: 'RM_LEMON_JUICE', quantity: 5 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Afghani Chicken Full': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_MARINATED_CHICKEN_T605', quantity: 1000 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 10 },
+      { itemModel: 'RawMaterial', code: 'RM_FRESH_CREAM', quantity: 10 },
+      { itemModel: 'RawMaterial', code: 'RM_LEMON_JUICE', quantity: 5 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Chicken Seekh Kebab': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_MARINATED_SEEKH_T606', quantity: 90 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'RawMaterial', code: 'RM_LEMON_JUICE', quantity: 5 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Al Faham Chicken': [
+      { itemModel: 'SemiFinishedGood', code: 'SFG_MARINATED_ALFAHAM_T607', quantity: 1 },
+      { itemModel: 'RawMaterial', code: 'RM_OLIVE_OIL', quantity: 10 },
+      { itemModel: 'Packaging', code: 'PKG_ARABIAN_PLATTER', quantity: 1 },
+      { itemModel: 'Packaging', code: 'PKG_KHABOOS', quantity: 1 }
+    ],
+    'Tandoori Paneer': [
+      { itemModel: 'RawMaterial', code: 'RM_PANEER_CUBES', quantity: 150 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_T601_PASTE', quantity: 60 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Tandoori Chaap': [
+      { itemModel: 'RawMaterial', code: 'RM_SOYA_CHAAP', quantity: 150 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_T601_PASTE', quantity: 60 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Tandoori Mushroom': [
+      { itemModel: 'RawMaterial', code: 'RM_BUTTON_MUSHROOM', quantity: 150 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_T601_PASTE', quantity: 60 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Tandoori Momos': [
+      { itemModel: 'RawMaterial', code: 'RM_VEG_MOMOS', quantity: 6 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_T601_PASTE', quantity: 60 },
+      { itemModel: 'RawMaterial', code: 'RM_MOMO_CHUTNEY', quantity: 20 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Malai Paneer': [
+      { itemModel: 'RawMaterial', code: 'RM_PANEER_CUBES', quantity: 150 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_T602_PASTE', quantity: 60 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Malai Chaap': [
+      { itemModel: 'RawMaterial', code: 'RM_SOYA_CHAAP', quantity: 150 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_T602_PASTE', quantity: 60 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Malai Mushroom': [
+      { itemModel: 'RawMaterial', code: 'RM_BUTTON_MUSHROOM', quantity: 150 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_T602_PASTE', quantity: 60 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Hariyali Paneer': [
+      { itemModel: 'RawMaterial', code: 'RM_PANEER_CUBES', quantity: 150 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_T603_PASTE', quantity: 60 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Hariyali Chaap': [
+      { itemModel: 'RawMaterial', code: 'RM_SOYA_CHAAP', quantity: 150 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_T603_PASTE', quantity: 60 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Hariyali Mushroom': [
+      { itemModel: 'RawMaterial', code: 'RM_BUTTON_MUSHROOM', quantity: 150 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_T603_PASTE', quantity: 60 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Achari Paneer': [
+      { itemModel: 'RawMaterial', code: 'RM_PANEER_CUBES', quantity: 150 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_T602A_PASTE', quantity: 60 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Achari Chaap': [
+      { itemModel: 'RawMaterial', code: 'RM_SOYA_CHAAP', quantity: 150 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_T602A_PASTE', quantity: 60 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+    'Achari Mushroom': [
+      { itemModel: 'RawMaterial', code: 'RM_BUTTON_MUSHROOM', quantity: 150 },
+      { itemModel: 'SemiFinishedGood', code: 'SFG_T602A_PASTE', quantity: 60 },
+      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
+      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
+    ],
+
     'Aloo Gobhi Matar (Semi-Gravy)': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_G205', quantity: 150 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_PRE_FRIED_POTATO', quantity: 80 },
@@ -1117,7 +1633,7 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
     if (dishRecipeMappings[dish.name]) {
       const ingredients = dishRecipeMappings[dish.name].map(ing => ({
         itemModel: ing.itemModel,
-        itemId: portionIds[ing.code] || sfgIds[ing.code] || rmIds[ing.code] || (() => { console.error('MISSING ITEM ID FOR', ing.code, 'IN', dish.name); return undefined; })(),
+        itemId: portionIds[ing.code] || sfgIds[ing.code] || rmIds[ing.code] || pkgIds[ing.code] || (() => { console.error('MISSING ITEM ID FOR', ing.code, 'IN', dish.name); return undefined; })(),
         quantity: ing.quantity
       }));
       await Recipe.create({
