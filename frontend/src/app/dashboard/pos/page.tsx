@@ -762,7 +762,7 @@ export default function POSTerminal() {
         setAdditionalCharge('');
         setApplyGst(true);
         setPaymentMethod('Cash');
-        setOrderType('DineIn');
+        setOrderType(activeTable === 'quick' ? 'Takeaway' : 'DineIn');
         setKotStatus('None');
         setKotId('');
         
@@ -965,7 +965,7 @@ export default function POSTerminal() {
                 setAdditionalCharge('');
                 setApplyGst(true);
                 setPaymentMethod('Cash');
-                setOrderType('DineIn');
+                setOrderType(activeTable === 'quick' ? 'Takeaway' : 'DineIn');
                 setCheckoutSuccess(false);
                 setKotStatus('None');
                 setKotId('');
@@ -1428,7 +1428,7 @@ export default function POSTerminal() {
 
             <div className="border-t border-dashed border-black pt-1 text-center">
               <div className="text-[9px] font-black tracking-widest uppercase flex flex-col items-center leading-tight">
-                <span>Order Type: {orderType}</span>
+                <span>Order Type: {orderType === 'Takeaway' ? 'Quick Bill' : orderType === 'DineIn' ? 'Dine In' : orderType}</span>
                 <span>Payment: {paymentMethod}</span>
               </div>
               <p className="mt-1 font-black text-[9px] uppercase tracking-widest leading-tight">Thank you for visiting!</p>

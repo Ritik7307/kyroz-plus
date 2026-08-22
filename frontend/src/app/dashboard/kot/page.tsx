@@ -245,7 +245,7 @@ export default function KitchenOrderQueue() {
             </div>
             <div className="flex justify-between text-[11px] leading-tight">
               <span>ORDER TYPE:</span>
-              <span className="font-bold uppercase">{printingKot.orderType}</span>
+              <span className="font-bold uppercase">{printingKot.orderType === 'Takeaway' ? 'Quick Bill' : printingKot.orderType === 'DineIn' ? 'Dine In' : printingKot.orderType}</span>
             </div>
             {(printingKot.customerName || printingKot.customerPhone) && (
               <div className="border-t border-black/10 mt-0.5 pt-0.5">
@@ -433,7 +433,7 @@ export default function KitchenOrderQueue() {
                           {kot.status}
                         </span>
                         <span className={`text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-wider ${getOrderTypeBadgeColor(kot.orderType)}`}>
-                          {kot.orderType === 'DineIn' ? 'Dine In' : kot.orderType}
+                          {kot.orderType === 'Takeaway' ? 'Quick Bill' : kot.orderType === 'DineIn' ? 'Dine In' : kot.orderType}
                         </span>
                       </div>
                     </div>
