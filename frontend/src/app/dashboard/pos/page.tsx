@@ -356,6 +356,7 @@ export default function POSTerminal() {
       orderType,
       kotStatus,
       kotId,
+      localOrderNo,
     };
     
     const updatedSessions: Record<string, TableSession> = {
