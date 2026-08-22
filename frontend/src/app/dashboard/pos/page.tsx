@@ -79,6 +79,22 @@ const INITIAL_TABLES = [
   { id: 'T8', name: 'Table 8' },
 ];
 
+const generateDailyOrderNo = () => {
+  if (typeof window === 'undefined') return Math.floor(1000 + Math.random() * 9000).toString();
+  const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+  const lastDate = localStorage.getItem('kyroz_order_date');
+  let seq = parseInt(localStorage.getItem('kyroz_order_seq') || '0', 10);
+  
+  if (lastDate !== today) {
+    seq = 0;
+    localStorage.setItem('kyroz_order_date', today);
+  }
+  
+  seq += 1;
+  localStorage.setItem('kyroz_order_seq', seq.toString());
+  return seq.toString();
+};
+
 const defaultSession = (tableId: string): TableSession => ({
   cart: [],
   customerName: '',
@@ -91,7 +107,7 @@ const defaultSession = (tableId: string): TableSession => ({
   orderType: tableId === 'quick' ? 'Takeaway' : 'DineIn',
   kotStatus: 'None',
   kotId: '',
-  localOrderNo: Math.floor(1000 + Math.random() * 9000).toString(),
+  localOrderNo: generateDailyOrderNo(),
 });
 
 export default function POSTerminal() {
@@ -1390,9 +1406,9 @@ export default function POSTerminal() {
             </div>
           </div>
         ) : (
-          <div className="max-w-[80mm] mx-auto font-mono text-black px-2 py-2 bg-white">
+          <div className="max-w-[80mm] mx-auto font-mono text-black px-2 pt-0 pb-2 bg-white">
             {/* Header section - All Centered like screenshot */}
-            <div className="text-center mb-6 space-y-1">
+            <div className="text-center mb-2 space-y-0.5">
               <h1 className="text-2xl font-black uppercase tracking-tight">{userShopName}</h1>
               {user?.shopAddress && <p className="text-xs uppercase font-bold">{user.shopAddress}</p>}
               <p className="text-[11px] font-bold whitespace-nowrap">Receipt / Bill {printedBillNo ? `#${printedBillNo}` : ''}</p>
@@ -1408,7 +1424,7 @@ export default function POSTerminal() {
               )}
             </div>
 
-            <div className="border-t-2 border-b-2 border-black py-2 mb-4">
+            <div className="border-t-2 border-b-2 border-black py-1 mb-2">
               <table className="w-full text-[11px]">
                 <thead>
                   <tr className="text-left border-b border-black">
@@ -1429,7 +1445,7 @@ export default function POSTerminal() {
               </table>
             </div>
 
-            <div className="space-y-1.5 mb-6">
+            <div className="space-y-1 mb-2">
               {activeTable !== 'quick' && (
                 <div className="flex justify-between items-center text-[11px] font-black border-b border-black/10 pb-1 mb-2">
                   <span className="uppercase tracking-widest">TABLE:</span>
@@ -1458,7 +1474,7 @@ export default function POSTerminal() {
                   <span className="font-bold">₹{parsedAdditionalCharge}</span>
                 </div>
               )}
-              <div className="border-t border-black pt-2 mt-2">
+              <div className="border-t border-black pt-1 mt-1">
                 <div className="flex justify-between items-center text-lg font-black tracking-tight">
                   <span>TOTAL:</span>
                   <span>₹{grandTotal}</span>
@@ -1466,14 +1482,14 @@ export default function POSTerminal() {
               </div>
             </div>
 
-            <div className="border-t border-dashed border-black pt-4 mb-8 text-center">
+            <div className="border-t border-dashed border-black pt-1 mb-2 text-center">
               <p className="text-xs font-black uppercase tracking-[0.2em]">Order Type: {orderType}</p>
               <p className="text-xs font-black uppercase tracking-[0.2em]">Payment Method: {paymentMethod}</p>
             </div>
 
             {userQrCode && (
-              <div className="flex flex-col items-center mb-8">
-                <p className="text-[8px] uppercase tracking-widest mb-3 font-bold opacity-60">Scan to Pay Online</p>
+              <div className="flex flex-col items-center mb-4">
+                <p className="text-[8px] uppercase tracking-widest mb-1 font-bold opacity-60">Scan to Pay Online</p>
                 <div className="border-4 border-black p-2 rounded-2xl">
                   <img src={userQrCode} alt="QR Code" className="w-32 h-32" />
                 </div>
