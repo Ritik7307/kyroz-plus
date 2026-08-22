@@ -1054,20 +1054,20 @@ export default function POSTerminal() {
           <div className="flex justify-between items-center gap-2">
             <div className="flex flex-1 items-center gap-1">
               <button 
+                onClick={() => setOrderType('Takeaway')}
+                className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  orderType === 'Takeaway' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                }`}
+              >
+                Quick Bill
+              </button>
+              <button 
                 onClick={() => setOrderType('DineIn')}
                 className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
                   orderType === 'DineIn' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
                 }`}
               >
                 Dine In
-              </button>
-              <button 
-                onClick={() => setOrderType('Takeaway')}
-                className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  orderType === 'Takeaway' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
-                }`}
-              >
-                Takeaway
               </button>
               <button 
                 onClick={() => setOrderType('Delivery')}
