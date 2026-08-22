@@ -1008,172 +1008,126 @@ export default function POSTerminal() {
               <p className="font-black uppercase tracking-widest text-xs">Select items to begin bill</p>
             </div>
           )}
-        </div>
-
-        {/* Checkout Form */}
-        <div className={`p-4 sm:p-6 bg-black/40 border-t border-white/5 space-y-3 sm:space-y-4 shrink-0 overflow-y-auto custom-scrollbar transition-all duration-300 ${showAdvancedOptions ? 'max-h-[85%] lg:max-h-[80%]' : ''}`}>
+        </div>        {/* Checkout Form */}
+        <div className="p-3 sm:p-4 bg-black/40 border-t border-white/5 space-y-2 shrink-0">
           
-          <button 
-            onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
-            className="w-full flex items-center justify-between text-xs font-black text-white/40 uppercase tracking-widest hover:text-white transition-colors py-1"
-          >
-            <span>More Checkout Options</span>
-            <ChevronRight className={`transform transition-transform ${showAdvancedOptions ? 'rotate-90' : ''}`} size={14} />
-          </button>
-
-          <AnimatePresence>
-            {showAdvancedOptions && (
-              <motion.div 
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="space-y-4 overflow-hidden pt-1"
-              >
-                {/* Customer Details */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <input 
-                      type="text" 
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      placeholder="Customer Name"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-gold/50 placeholder:text-white/30"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <input 
-                      type="tel" 
-                      value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value)}
-                      placeholder="Phone No."
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-gold/50 placeholder:text-white/30"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center pt-2 border-t border-white/5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Discount</span>
-                    <div className="flex rounded-md overflow-hidden border border-white/10 bg-white/5 text-[10px] font-black">
-                      <button 
-                        onClick={() => setDiscountType('percentage')} 
-                        type="button"
-                        className={`px-1.5 py-0.5 transition-colors ${discountType === 'percentage' ? 'bg-gold text-black' : 'text-white/40'}`}
-                      >
-                        %
-                      </button>
-                      <button 
-                        onClick={() => setDiscountType('flat')} 
-                        type="button"
-                        className={`px-1.5 py-0.5 transition-colors ${discountType === 'flat' ? 'bg-gold text-black' : 'text-white/40'}`}
-                      >
-                        ₹
-                      </button>
-                    </div>
-                  </div>
-                  <input 
-                    type="text" 
-                    value={discount}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === '' || /^\d*\.?\d*$/.test(val)) {
-                        setDiscount(val);
-                      }
-                    }}
-                    placeholder="0"
-                    className="w-16 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-right text-gold font-bold focus:outline-none"
-                  />
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Add. Charge (₹)</span>
-                  <input 
-                    type="text" 
-                    value={additionalCharge}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === '' || /^\d*\.?\d*$/.test(val)) {
-                        setAdditionalCharge(val);
-                      }
-                    }}
-                    placeholder="0"
-                    className="w-16 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-right text-white font-bold focus:outline-none"
-                  />
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Apply GST ({userGstRate}%)</span>
-                  <button 
-                    onClick={() => setApplyGst(!applyGst)}
-                    className={`w-12 h-6 rounded-full transition-all relative ${applyGst ? 'bg-gold' : 'bg-white/10'}`}
-                  >
-                    <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${applyGst ? 'right-1' : 'left-1'}`} />
-                  </button>
-                </div>
-
-                <div className="space-y-1.5 pt-2 border-t border-white/5">
-                  <span className="text-[10px] font-black text-white/40 uppercase tracking-widest pl-1">Order Type</span>
-                  <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => setOrderType('DineIn')}
-                      className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-widest border transition-all ${
-                        orderType === 'DineIn' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
-                      }`}
-                    >
-                      Dine In
-                    </button>
-                    <button 
-                      onClick={() => setOrderType('Takeaway')}
-                      className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-widest border transition-all ${
-                        orderType === 'Takeaway' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
-                      }`}
-                    >
-                      Takeaway
-                    </button>
-                    <button 
-                      onClick={() => setOrderType('Delivery')}
-                      className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-widest border transition-all ${
-                        orderType === 'Delivery' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
-                      }`}
-                    >
-                      Delivery
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 pb-2">
-                  <button 
-                    onClick={() => setPaymentMethod('Cash')}
-                    className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-widest border transition-all ${
-                      paymentMethod === 'Cash' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
-                    }`}
-                  >
-                    Cash
-                  </button>
-                  <button 
-                    onClick={() => setPaymentMethod('Online')}
-                    className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-widest border transition-all ${
-                      paymentMethod === 'Online' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
-                    }`}
-                  >
-                    Online
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-            <div className="flex justify-between items-end pt-2 border-t border-white/5">
-              <span className="text-sm font-black uppercase tracking-widest">Grand Total</span>
-              <div className="text-right">
-                {discountAmount > 0 && (
-                  <p className="text-xs text-red-500 font-bold line-through mb-1">₹{Math.round(total * (applyGst ? (1 + userGstRate / 100) : 1))}</p>
-                )}
-                <span className="text-3xl font-black text-gold">
-                  ₹{grandTotal}
-                </span>
+          {/* Customer Details & Discount/Charge Toggles */}
+          <div className="grid grid-cols-[1fr_1fr_auto_auto] gap-2 items-center">
+            <input 
+              type="text" 
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+              placeholder="Customer Name"
+              className="w-full bg-transparent border border-white/10 rounded-lg px-2 py-1.5 text-[10px] text-white focus:outline-none focus:border-gold/50 placeholder:text-white/30"
+            />
+            <input 
+              type="tel" 
+              value={customerPhone}
+              onChange={(e) => setCustomerPhone(e.target.value)}
+              placeholder="Phone No."
+              className="w-full bg-transparent border border-white/10 rounded-lg px-2 py-1.5 text-[10px] text-white focus:outline-none focus:border-gold/50 placeholder:text-white/30"
+            />
+            
+            {/* Discount Symbol Input */}
+            <div className="relative group">
+              <div className="flex items-center bg-white/5 border border-white/10 rounded-lg px-1.5 py-1 text-[10px] focus-within:border-gold/50 w-14">
+                <button 
+                  onClick={() => setDiscountType(discountType === 'percentage' ? 'flat' : 'percentage')}
+                  className="text-white/50 hover:text-gold mr-1"
+                >
+                  {discountType === 'percentage' ? '%' : '₹'}
+                </button>
+                <input 
+                  type="text" 
+                  value={discount}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '' || /^\d*\.?\d*$/.test(val)) setDiscount(val);
+                  }}
+                  placeholder="0"
+                  className="w-full bg-transparent text-white font-bold focus:outline-none text-right placeholder:text-white/20"
+                />
               </div>
             </div>
+
+            {/* Additional Charge Symbol Input */}
+            <div className="relative group">
+              <div className="flex items-center bg-white/5 border border-white/10 rounded-lg px-1.5 py-1 text-[10px] focus-within:border-gold/50 w-14">
+                <span className="text-white/50 mr-1">+</span>
+                <input 
+                  type="text" 
+                  value={additionalCharge}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '' || /^\d*\.?\d*$/.test(val)) setAdditionalCharge(val);
+                  }}
+                  placeholder="0"
+                  className="w-full bg-transparent text-white font-bold focus:outline-none text-right placeholder:text-white/20"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center gap-2">
+            <div className="flex flex-1 items-center gap-1">
+              <button 
+                onClick={() => setOrderType('DineIn')}
+                className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  orderType === 'DineIn' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                }`}
+              >
+                Dine In
+              </button>
+              <button 
+                onClick={() => setOrderType('Takeaway')}
+                className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  orderType === 'Takeaway' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                }`}
+              >
+                Takeaway
+              </button>
+              <button 
+                onClick={() => setOrderType('Delivery')}
+                className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  orderType === 'Delivery' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                }`}
+              >
+                Delivery
+              </button>
+            </div>
+
+            <div className="flex w-32 items-center gap-1">
+              <button 
+                onClick={() => setPaymentMethod('Cash')}
+                className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  paymentMethod === 'Cash' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                }`}
+              >
+                Cash
+              </button>
+              <button 
+                onClick={() => setPaymentMethod('Online')}
+                className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  paymentMethod === 'Online' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                }`}
+              >
+                Online
+              </button>
+            </div>
+          </div>
+
+          <div className="flex justify-between items-end pt-1 border-t border-white/5">
+            <span className="text-xs font-black uppercase tracking-widest">Total</span>
+            <div className="text-right">
+              {discountAmount > 0 && (
+                <p className="text-[10px] text-red-500 font-bold line-through leading-none mb-0.5">₹{Math.round(total * (applyGst ? (1 + userGstRate / 100) : 1))}</p>
+              )}
+              <span className="text-2xl font-black text-gold leading-none">
+                ₹{grandTotal}
+              </span>
+            </div>
+          </div>
+        </div>
 
           {/* Packaging Preview Section Hidden (still works in background) */}
 
