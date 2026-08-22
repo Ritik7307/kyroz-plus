@@ -64,6 +64,7 @@ interface TableSession {
   orderType: 'DineIn' | 'Takeaway' | 'Delivery';
   kotStatus?: 'None' | 'Pending' | 'Preparing' | 'Ready' | 'Served';
   kotId?: string;
+  localOrderNo: string;
 }
 
 const INITIAL_TABLES = [
@@ -90,6 +91,7 @@ const defaultSession = (tableId: string): TableSession => ({
   orderType: tableId === 'quick' ? 'Takeaway' : 'DineIn',
   kotStatus: 'None',
   kotId: '',
+  localOrderNo: Math.floor(1000 + Math.random() * 9000).toString(),
 });
 
 export default function POSTerminal() {
@@ -130,6 +132,7 @@ export default function POSTerminal() {
   // KOT State
   const [kotStatus, setKotStatus] = useState<'None' | 'Pending' | 'Preparing' | 'Ready' | 'Served'>('None');
   const [kotId, setKotId] = useState<string>('');
+  const [localOrderNo, setLocalOrderNo] = useState<string>('');
   const [isSendingKot, setIsSendingKot] = useState(false);
   const [printType, setPrintType] = useState<'bill' | 'kot' | null>(null);
   const [printingKot, setPrintingKot] = useState<any | null>(null);
@@ -295,6 +298,7 @@ export default function POSTerminal() {
     setOrderType(activeSession.orderType || (savedActiveTable === 'quick' ? 'Takeaway' : 'DineIn'));
     setKotStatus(activeSession.kotStatus || 'None');
     setKotId(activeSession.kotId || '');
+    setLocalOrderNo(activeSession.localOrderNo || Math.floor(1000 + Math.random() * 9000).toString());
     
     setTimeout(() => {
       isSwitchingTable.current = false;
@@ -323,6 +327,7 @@ export default function POSTerminal() {
       orderType,
       kotStatus,
       kotId,
+      localOrderNo,
     };
     
     setTableSessions(prev => {
@@ -373,6 +378,7 @@ export default function POSTerminal() {
     setOrderType(targetSession.orderType || (targetTableId === 'quick' ? 'Takeaway' : 'DineIn'));
     setKotStatus(targetSession.kotStatus || 'None');
     setKotId(targetSession.kotId || '');
+    setLocalOrderNo(targetSession.localOrderNo || Math.floor(1000 + Math.random() * 9000).toString());
     
     setActiveTable(targetTableId);
     localStorage.setItem('pos_active_table', targetTableId);
@@ -674,8 +680,8 @@ export default function POSTerminal() {
       return;
     }
 
-    // Zero Latency Checkout: Generate bill no locally and print immediately
-    const tempBillNo = `BILL-${Date.now()}`;
+    // Zero Latency Checkout: Use the local order number
+    const tempBillNo = localOrderNo;
     setPrintedBillNo(tempBillNo);
     setPrintType('bill');
     
@@ -722,6 +728,7 @@ export default function POSTerminal() {
         setOrderType('DineIn');
         setKotStatus('None');
         setKotId('');
+        setLocalOrderNo(Math.floor(1000 + Math.random() * 9000).toString());
         
         // Update session for active table is handled automatically by the useEffect
 
@@ -1189,6 +1196,7 @@ export default function POSTerminal() {
                 setCheckoutSuccess(false);
                 setKotStatus('None');
                 setKotId('');
+                setLocalOrderNo(Math.floor(1000 + Math.random() * 9000).toString());
               }}
               className="w-full py-3.5 rounded-xl border border-red-500/20 text-red-500 font-bold text-xs uppercase tracking-widest hover:bg-red-500/5 transition-all"
             >
@@ -1280,6 +1288,7 @@ export default function POSTerminal() {
     <div className="h-full relative">
       <style jsx global>{`
         @media print {
+          @page { margin: 0; }
           /* Hide EVERYTHING in the body using visibility */
           body {
             visibility: hidden !important;
@@ -1326,11 +1335,11 @@ export default function POSTerminal() {
       {/* PRINT RECEIPT - MOVED TO TOP FOR BETTER SELECTIVITY */}
       <div className="receipt-container hidden print:block">
         {printType === 'kot' && printingKot ? (
-          <div className="max-w-[80mm] mx-auto font-mono text-xs text-black p-6 bg-white">
+          <div className="max-w-[80mm] mx-auto font-mono text-black px-2 py-2 bg-white">
             <div className="text-center border-b-2 border-black pb-2 mb-3">
-              <h1 className="text-xl font-black uppercase tracking-tight text-center">KITCHEN ORDER TICKET</h1>
-              <p className="text-sm font-bold uppercase tracking-widest text-black mt-1">KOT #{printingKot.kotNumber}</p>
-              <p className="text-xs mt-0.5">{new Date(printingKot.createdAt).toLocaleString()}</p>
+              <h1 className="text-lg font-black uppercase tracking-tighter text-center whitespace-nowrap">KITCHEN ORDER TICKET</h1>
+              <p className="text-sm font-bold uppercase tracking-widest text-black mt-1">KOT #{localOrderNo}</p>
+              <p className="text-[11px] mt-0.5 whitespace-nowrap">{new Date(printingKot.createdAt).toLocaleString()}</p>
             </div>
 
             <div className="border-b border-black pb-2 mb-3 space-y-1">
@@ -1374,39 +1383,26 @@ export default function POSTerminal() {
               </tbody>
             </table>
 
-            {printingKot.packaging && printingKot.packaging.length > 0 && (
-              <div className="border-t border-black pt-2 mt-2">
-                <p className="text-xs font-black uppercase tracking-widest mb-1.5">Packaging Items Needed:</p>
-                <div className="space-y-1 text-xs font-bold">
-                  {printingKot.packaging.map((pkg: any, idx: number) => (
-                    <div key={idx} className="flex justify-between">
-                      <span>[ ] {pkg.name}</span>
-                      <span>x{pkg.quantity}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="border-t border-dashed border-black pt-3 mt-6 text-center text-[10px] opacity-60">
+            <div className="border-t border-dashed border-black pt-3 mt-6 text-center text-[10px]">
               <p className="uppercase tracking-[0.2em]">SOP & Prep Checklist Printed</p>
               <p className="uppercase tracking-[0.3em] font-black mt-0.5 text-[8px]">Powered by KYROZ</p>
             </div>
           </div>
         ) : (
-          <div className="max-w-[80mm] mx-auto font-mono text-xs text-black p-6 bg-white">
+          <div className="max-w-[80mm] mx-auto font-mono text-black px-2 py-2 bg-white">
             {/* Header section - All Centered like screenshot */}
             <div className="text-center mb-6 space-y-1">
               <h1 className="text-2xl font-black uppercase tracking-tight">{userShopName}</h1>
               {user?.shopAddress && <p className="text-xs uppercase font-bold">{user.shopAddress}</p>}
-              <p className="text-xs font-bold">Receipt / Bill {printedBillNo ? `#${printedBillNo}` : ''}</p>
-              <p className="text-xs">{new Date().toLocaleString()}</p>
+              <p className="text-[11px] font-bold whitespace-nowrap">Receipt / Bill {printedBillNo ? `#${printedBillNo}` : ''}</p>
+              <p className="text-[11px] whitespace-nowrap">{new Date().toLocaleString()}</p>
               
               {/* Customer Details - Centered as well for clean look */}
               {(customerName || customerPhone) && (
-                <div className="pt-2 border-t border-black/10 mt-2">
-                  {customerName && <p className="font-black uppercase tracking-tighter text-[11px]">{customerName}</p>}
-                  {customerPhone && <p className="text-xs">{customerPhone}</p>}
+                <div className="pt-1 border-t border-black/20 mt-1">
+                  <p className="font-black uppercase tracking-tighter text-[11px] whitespace-nowrap">
+                    {customerName} {customerName && customerPhone && '-'} {customerPhone}
+                  </p>
                 </div>
               )}
             </div>
@@ -1483,7 +1479,7 @@ export default function POSTerminal() {
               </div>
             )}
 
-            <div className="text-center text-xs space-y-1 opacity-60 font-bold">
+            <div className="text-center text-xs space-y-1 font-bold">
               <p className="uppercase tracking-widest">Thank you for visiting!</p>
               <p className="uppercase tracking-[0.3em] text-[8px]">Powered by KYROZ</p>
             </div>
