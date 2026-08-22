@@ -1239,13 +1239,209 @@ export default function POSTerminal() {
 
 
           </div>
+            />
+            <input 
+              type="tel" 
+              value={customerPhone}
+              onChange={(e) => setCustomerPhone(e.target.value)}
+              placeholder="Phone No."
+              className="w-full bg-transparent border border-white/10 rounded-lg px-2 py-1.5 text-[10px] text-white focus:outline-none focus:border-gold/50 placeholder:text-white/30"
+            />
+            
+            <button 
+              onClick={() => setModifierModalType('discount')}
+              className={`flex items-center justify-center w-7 h-7 rounded-lg border transition-all ${
+                discount ? 'bg-gold/20 border-gold/50 text-gold' : 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:border-white/30'
+              }`}
+              title="Apply Discount"
+            >
+              <Percent size={12} />
+            </button>
+
+            <button 
+              onClick={() => setModifierModalType('charge')}
+              className={`flex items-center justify-center w-7 h-7 rounded-lg border transition-all ${
+                additionalCharge ? 'bg-gold/20 border-gold/50 text-gold' : 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:border-white/30'
+              }`}
+              title="Add Charge"
+            >
+              <Plus size={12} />
+            </button>
+          </div>
+
+          <div className="flex justify-between items-center gap-2">
+            <div className="flex flex-1 items-center gap-1">
+              <button 
+                onClick={() => setOrderType('Takeaway')}
+                className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  orderType === 'Takeaway' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                }`}
+              >
+                Quick Bill
+              </button>
+              <button 
+                onClick={() => setOrderType('DineIn')}
+                className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  orderType === 'DineIn' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                }`}
+              >
+                Dine In
+              </button>
+              <button 
+                onClick={() => setOrderType('Delivery')}
+                className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  orderType === 'Delivery' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                }`}
+              >
+                Delivery
+              </button>
+            </div>
+
+            <div className="w-px h-6 bg-white/10 shrink-0 mx-1 rounded-full" />
+
+            <div className="flex w-28 items-center gap-1 shrink-0">
+              <button 
+                onClick={() => setPaymentMethod('Cash')}
+                className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  paymentMethod === 'Cash' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                }`}
+              >
+                Cash
+              </button>
+              <button 
+                onClick={() => setPaymentMethod('Online')}
+                className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  paymentMethod === 'Online' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                }`}
+              >
+                Online
+              </button>
+            </div>
+          </div>
+
+          <div className="flex justify-between items-end pt-1 border-t border-white/5">
+            <span className="text-xs font-black uppercase tracking-widest">Total</span>
+            <div className="text-right">
+              {discountAmount > 0 && (
+                <p className="text-[10px] text-red-500 font-bold line-through leading-none mb-0.5">₹{Math.round(total * (applyGst ? (1 + userGstRate / 100) : 1))}</p>
+              )}
+              <span className="text-2xl font-black text-gold leading-none">
+                ₹{grandTotal}
+              </span>
+            </div>
+          </div>
+
+          {/* Packaging Preview Section Hidden (still works in background) */}
+
+          {/* KOT Status Badge */}
+          {kotStatus !== 'None' && (
+            <div className="bg-gold/5 border border-gold/25 p-2 rounded-xl flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-2">
+                <div className={`w-2.5 h-2.5 rounded-full ${
+                  kotStatus === 'Ready' 
+                    ? 'bg-green-500' 
+                    : kotStatus === 'Preparing' 
+                      ? 'bg-orange-500' 
+                      : 'bg-blue-500 animate-pulse'
+                }`} />
+                <div className="text-left">
+                  <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">KOT Pipeline</p>
+                  <p className="text-xs font-black text-gold uppercase mt-0.5">{kotStatus}</p>
+                </div>
+              </div>
+              {kotStatus === 'Ready' && (
+                <span className="text-[10px] bg-green-500 text-black px-2.5 py-1 rounded-full font-black animate-bounce tracking-wider">
+                  READY TO SERVE
+                </span>
+              )}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 gap-2">
+            {/* Checkout & KOT Actions */}
+            {!checkoutSuccess ? (
+              <div className="flex gap-2 items-center w-full">
+                {(() => {
+                  const hasUnsentItems = cart.some(item => item.quantity - (item.sentQty || 0) > 0);
+                  return (
+                    <button 
+                      onClick={handleSendKot}
+                      disabled={cart.length === 0 || isSendingKot || !hasUnsentItems}
+                      className={`flex-1 py-2.5 rounded-lg font-black text-[11px] uppercase tracking-widest transition-all border flex items-center justify-center gap-1.5 ${
+                        !hasUnsentItems && cart.length > 0
+                          ? 'bg-green-500/10 border-green-500/20 text-green-500 cursor-not-allowed'
+                          : 'bg-white/5 border-gold/30 text-gold hover:bg-gold hover:text-black hover:border-gold hover:scale-[1.01]'
+                      }`}
+                    >
+                      {isSendingKot ? 'Sending...' : !hasUnsentItems && cart.length > 0 ? '✔ Sent' : <><ChefHat size={14} /> Send KOT</>}
+                    </button>
+                  );
+                })()}
+
+                <button 
+                  onClick={handleCheckout}
+                  disabled={cart.length === 0}
+                  className="flex-1 py-2.5 rounded-lg font-black text-[11px] uppercase tracking-widest transition-all shadow-xl disabled:opacity-50 bg-gold text-black hover:scale-[1.02] active:scale-95"
+                >
+                  Checkout
+                </button>
+              </div>
+            ) : (
+              <>
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-green-500/10 border border-green-500/30 p-4 rounded-2xl flex items-center gap-3 mb-4"
+                >
+                  <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white shrink-0">
+                    <CheckCircle size={16} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-green-500 uppercase tracking-widest">Order Processed Successfully</p>
+                    <p className="text-[10px] text-green-500/60 font-bold">Receipt printed & data saved.</p>
+                  </div>
+                </motion.div>
+
+                {lastCheckoutData?.customerPhone && lastCheckoutData.customerPhone.length >= 10 && (
+                  <button 
+                    onClick={() => shareOrderOnWhatsApp()}
+                    className="w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-xl bg-green-500 text-white hover:scale-[1.02] active:scale-95 mb-3 flex items-center justify-center gap-2"
+                  >
+                    Send WhatsApp Bill
+                  </button>
+                )}
+
+                <button 
+                  onClick={() => {
+                    setCheckoutSuccess(false);
+                    setLastCheckoutData(null);
+                    setPrintedBillNo('');
+                    if (isDrawer) setIsCartOpen(false);
+                  }}
+                  className="w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-xl bg-white/10 text-white border border-white/10 hover:bg-white/20 mb-3"
+                >
+                  Start New Order
+                </button>
+              </>
+            )}
+
+            {userQrCode && (
+              <div className="flex flex-col items-center p-4 bg-white/5 rounded-2xl border border-white/10 mt-4 mb-4">
+                <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-3">Shop Payment QR</p>
+                <img src={userQrCode} alt="Payment QR" className="w-24 h-24 object-contain rounded-lg" />
+              </div>
+            )}
+
+
+          </div>
         </div>
       </div>
     );
   };
 
   return (
-    <div className="h-full relative">
+    <div className="h-full relative print:static">
+      <div className="h-full print:hidden">
       <style jsx global>{`
         @media print {
           @page { margin: 0 !important; size: auto; }
@@ -1260,7 +1456,7 @@ export default function POSTerminal() {
           /* Show ONLY the receipt container and its children */
           .receipt-container {
             visibility: visible !important;
-            position: fixed !important;
+            position: absolute !important;
             left: 0 !important;
             top: 0 !important;
             width: 100% !important;
@@ -2132,6 +2328,7 @@ export default function POSTerminal() {
           </div>
         )}
       </AnimatePresence>
+      </div>
     </div>
   );
 }

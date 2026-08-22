@@ -213,7 +213,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         permissions={user?.permissions || []}
       />
 
-      <header className="h-24 border-b border-white/5 bg-background/50 backdrop-blur-xl sticky top-0 z-50 px-4 md:px-8 flex items-center justify-between">
+      <header className="h-24 border-b border-white/5 bg-background/50 backdrop-blur-xl sticky top-0 z-50 px-4 md:px-8 flex items-center justify-between print:hidden">
         {/* Left Section: Menu & Logo */}
         <div className="flex items-center gap-4 min-w-fit">
           <button 
@@ -338,8 +338,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </header>
 
-      <main className={`flex-1 w-full mx-auto relative ${pathname === '/dashboard/pos' ? 'max-w-[1800px] px-2 md:px-8 py-4 md:py-6' : 'max-w-7xl p-4 md:p-8 lg:p-12'}`}>
-        <div className="relative w-full h-full">
+      <main className={`flex-1 w-full mx-auto relative print:static print:p-0 print:m-0 ${pathname === '/dashboard/pos' ? 'max-w-[1800px] px-2 md:px-8 py-4 md:py-6' : 'max-w-7xl p-4 md:p-8 lg:p-12'}`}>
+        <div className="relative w-full h-full print:static print:p-0 print:m-0">
           {children}
           {isLocked && (
             <div className="absolute inset-0 z-[60] flex items-center justify-center backdrop-blur-sm bg-black/60 rounded-3xl">
@@ -374,7 +374,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       />
 
       {/* --- PREMIUM FOOTER --- */}
-      <footer className="w-full border-t border-white/5 bg-black/20 backdrop-blur-md pt-12 md:pt-20 pb-8 md:pb-10 px-6 md:px-12 mt-auto">
+      <footer className="w-full border-t border-white/5 bg-black/20 backdrop-blur-md pt-12 md:pt-20 pb-8 md:pb-10 px-6 md:px-12 mt-auto print:hidden">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 mb-12 md:mb-16">
             
