@@ -1216,7 +1216,6 @@ export default function POSTerminal() {
                 setCheckoutSuccess(false);
                 setKotStatus('None');
                 setKotId('');
-                setLocalOrderNo(Math.floor(1000 + Math.random() * 9000).toString());
               }}
               className="w-full py-3.5 rounded-xl border border-red-500/20 text-red-500 font-bold text-xs uppercase tracking-widest hover:bg-red-500/5 transition-all"
             >
