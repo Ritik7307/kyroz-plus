@@ -1127,7 +1127,6 @@ export default function POSTerminal() {
               </span>
             </div>
           </div>
-        </div>
 
           {/* Packaging Preview Section Hidden (still works in background) */}
 
