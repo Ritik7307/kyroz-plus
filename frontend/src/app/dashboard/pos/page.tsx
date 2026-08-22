@@ -23,7 +23,8 @@ import {
   Share2,
   Package,
   ChefHat,
-  FileText
+  FileText,
+  Percent
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useSWR from 'swr';
@@ -146,6 +147,7 @@ export default function POSTerminal() {
   const [discount, setDiscount] = useState<string>(''); // Changed to string for better decimal handling
   const [discountType, setDiscountType] = useState<'percentage' | 'flat'>('percentage');
   const [additionalCharge, setAdditionalCharge] = useState<string>('');
+  const [showModifiersModal, setShowModifiersModal] = useState(false);
   const [applyGst, setApplyGst] = useState(true); // GST Toggle
   const [paymentMethod, setPaymentMethod] = useState<'Cash' | 'Online'>('Cash');
   const [orderType, setOrderType] = useState<'DineIn' | 'Takeaway' | 'Delivery'>('DineIn');
@@ -1028,44 +1030,25 @@ export default function POSTerminal() {
               className="w-full bg-transparent border border-white/10 rounded-lg px-2 py-1.5 text-[10px] text-white focus:outline-none focus:border-gold/50 placeholder:text-white/30"
             />
             
-            {/* Discount Symbol Input */}
-            <div className="relative group">
-              <div className="flex items-center bg-white/5 border border-white/10 rounded-lg px-1.5 py-1 text-[10px] focus-within:border-gold/50 w-14">
-                <button 
-                  onClick={() => setDiscountType(discountType === 'percentage' ? 'flat' : 'percentage')}
-                  className="text-white/50 hover:text-gold mr-1"
-                >
-                  {discountType === 'percentage' ? '%' : '₹'}
-                </button>
-                <input 
-                  type="text" 
-                  value={discount}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === '' || /^\d*\.?\d*$/.test(val)) setDiscount(val);
-                  }}
-                  placeholder="0"
-                  className="w-full bg-transparent text-white font-bold focus:outline-none text-right placeholder:text-white/20"
-                />
-              </div>
-            </div>
+            <button 
+              onClick={() => setShowModifiersModal(true)}
+              className={`flex items-center justify-center w-7 h-7 rounded-lg border transition-all ${
+                discount ? 'bg-gold/20 border-gold/50 text-gold' : 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:border-white/30'
+              }`}
+              title="Apply Discount"
+            >
+              <Percent size={12} />
+            </button>
 
-            {/* Additional Charge Symbol Input */}
-            <div className="relative group">
-              <div className="flex items-center bg-white/5 border border-white/10 rounded-lg px-1.5 py-1 text-[10px] focus-within:border-gold/50 w-14">
-                <span className="text-white/50 mr-1">+</span>
-                <input 
-                  type="text" 
-                  value={additionalCharge}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === '' || /^\d*\.?\d*$/.test(val)) setAdditionalCharge(val);
-                  }}
-                  placeholder="0"
-                  className="w-full bg-transparent text-white font-bold focus:outline-none text-right placeholder:text-white/20"
-                />
-              </div>
-            </div>
+            <button 
+              onClick={() => setShowModifiersModal(true)}
+              className={`flex items-center justify-center w-7 h-7 rounded-lg border transition-all ${
+                additionalCharge ? 'bg-gold/20 border-gold/50 text-gold' : 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:border-white/30'
+              }`}
+              title="Add Charge"
+            >
+              <Plus size={12} />
+            </button>
           </div>
 
           <div className="flex justify-between items-center gap-2">
@@ -2061,6 +2044,73 @@ export default function POSTerminal() {
                 className="text-xs font-black uppercase tracking-widest text-gold hover:text-white transition-colors border border-gold/30 px-4 py-2 rounded-xl bg-gold/5"
               >
                 Copy Link
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Modifiers Modal */}
+      <AnimatePresence>
+        {showModifiersModal && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-white/10 rounded-[2.5rem] p-8 w-full max-w-sm flex flex-col">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-black uppercase tracking-tighter">Discount & Charges</h3>
+                <button onClick={() => setShowModifiersModal(false)} className="text-white/40 hover:text-white"><X size={20} /></button>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="text-xs uppercase tracking-widest text-white/50 font-bold">Discount</label>
+                    <div className="flex rounded-md overflow-hidden border border-white/10 bg-white/5 text-[10px] font-black">
+                      <button 
+                        onClick={() => setDiscountType('percentage')} 
+                        className={`px-2 py-1 transition-colors ${discountType === 'percentage' ? 'bg-gold text-black' : 'text-white/40 hover:text-white'}`}
+                      >
+                        %
+                      </button>
+                      <button 
+                        onClick={() => setDiscountType('flat')} 
+                        className={`px-2 py-1 transition-colors ${discountType === 'flat' ? 'bg-gold text-black' : 'text-white/40 hover:text-white'}`}
+                      >
+                        ₹
+                      </button>
+                    </div>
+                  </div>
+                  <input 
+                    type="text" 
+                    value={discount}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '' || /^\d*\.?\d*$/.test(val)) setDiscount(val);
+                    }}
+                    placeholder="0"
+                    className="w-full bg-white/5 p-4 rounded-xl border border-white/10 text-white font-bold focus:outline-none focus:border-gold/50"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs uppercase tracking-widest text-white/50 font-bold block mb-2">Additional Charge (₹)</label>
+                  <input 
+                    type="text" 
+                    value={additionalCharge}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '' || /^\d*\.?\d*$/.test(val)) setAdditionalCharge(val);
+                    }}
+                    placeholder="0"
+                    className="w-full bg-white/5 p-4 rounded-xl border border-white/10 text-white font-bold focus:outline-none focus:border-gold/50"
+                  />
+                </div>
+              </div>
+
+              <button 
+                onClick={() => setShowModifiersModal(false)}
+                className="w-full py-4 bg-gold text-black font-black uppercase rounded-xl mt-8 hover:scale-[1.02] transition-all"
+              >
+                Apply
               </button>
             </motion.div>
           </div>
