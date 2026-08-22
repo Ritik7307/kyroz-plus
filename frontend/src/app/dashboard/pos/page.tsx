@@ -950,19 +950,40 @@ export default function POSTerminal() {
     return (
       <div className="flex flex-col h-full overflow-hidden">
         {/* Header */}
-        <div className="p-6 border-b border-white/5 shrink-0 flex items-center justify-between">
-          <h2 className="text-xl font-black flex items-center gap-3 text-white">
-            <ShoppingCart className="text-gold" /> ORDER SUMMARY
+        <div className="p-3 border-b border-white/5 shrink-0 flex items-center justify-between">
+          <h2 className="text-sm font-black flex items-center gap-2 text-white">
+            <ShoppingCart className="text-gold" size={16} /> ORDER SUMMARY
           </h2>
-          {isDrawer && (
-            <button onClick={() => setIsCartOpen(false)} className="p-2 text-white/40 hover:text-white transition-colors">
-              <X size={24} />
+          <div className="flex gap-2">
+            <button 
+              onClick={() => {
+                setCart([]);
+                setCustomerName('');
+                setCustomerPhone('');
+                setDiscount('');
+                setDiscountType('percentage');
+                setAdditionalCharge('');
+                setApplyGst(true);
+                setPaymentMethod('Cash');
+                setOrderType('DineIn');
+                setCheckoutSuccess(false);
+                setKotStatus('None');
+                setKotId('');
+              }}
+              className="text-[10px] font-bold uppercase tracking-widest text-red-500 bg-red-500/10 px-2 py-1 rounded hover:bg-red-500/20 transition-all"
+            >
+              Clear
             </button>
-          )}
+            {isDrawer && (
+              <button onClick={() => setIsCartOpen(false)} className="p-1 text-white/40 hover:text-white transition-colors">
+                <X size={16} />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Scrollable Items */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-0 custom-scrollbar">
           <AnimatePresence>
             {cart.map(item => (
               <motion.div
@@ -970,7 +991,7 @@ export default function POSTerminal() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/5"
+                className="flex items-center justify-between bg-white/5 p-2.5 rounded-xl border border-white/5"
               >
                 <div className="flex-1 pr-2">
                   <h4 className="font-bold text-xs">{item.dish.name}</h4>
@@ -1005,13 +1026,15 @@ export default function POSTerminal() {
           </AnimatePresence>
           
           {cart.length === 0 && (
-            <div className="h-full flex flex-col items-center justify-center text-white/5 space-y-4 py-10">
-              <Utensils size={48} />
-              <p className="font-black uppercase tracking-widest text-xs">Select items to begin bill</p>
+            <div className="h-full flex flex-col items-center justify-center text-white/5 space-y-3 py-10">
+              <Utensils size={32} />
+              <p className="font-black uppercase tracking-widest text-[10px]">Select items to begin bill</p>
             </div>
           )}
-        </div>        {/* Checkout Form */}
-        <div className="p-3 sm:p-4 bg-black/40 border-t border-white/5 space-y-2 shrink-0">
+        </div>
+
+        {/* Checkout Form */}
+        <div className="p-2 sm:p-3 bg-black/40 border-t border-white/5 space-y-1.5 shrink-0">
           
           {/* Customer Details & Discount/Charge Toggles */}
           <div className="grid grid-cols-[1fr_1fr_auto_auto] gap-2 items-center">
@@ -1117,8 +1140,8 @@ export default function POSTerminal() {
 
           {/* KOT Status Badge */}
           {kotStatus !== 'None' && (
-            <div className="bg-gold/5 border border-gold/25 p-4 rounded-2xl flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
+            <div className="bg-gold/5 border border-gold/25 p-2 rounded-xl flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-2">
                 <div className={`w-2.5 h-2.5 rounded-full ${
                   kotStatus === 'Ready' 
                     ? 'bg-green-500' 
@@ -1139,37 +1162,17 @@ export default function POSTerminal() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 gap-3">
-            <button 
-              onClick={() => {
-                setCart([]);
-                setCustomerName('');
-                setCustomerPhone('');
-                setDiscount('');
-                setDiscountType('percentage');
-                setAdditionalCharge('');
-                setApplyGst(true);
-                setPaymentMethod('Cash');
-                setOrderType('DineIn');
-                setCheckoutSuccess(false);
-                setKotStatus('None');
-                setKotId('');
-              }}
-              className="w-full py-3.5 rounded-xl border border-red-500/20 text-red-500 font-bold text-xs uppercase tracking-widest hover:bg-red-500/5 transition-all"
-            >
-              Clear
-            </button>
-
+          <div className="grid grid-cols-1 gap-2">
             {/* Checkout & KOT Actions */}
             {!checkoutSuccess ? (
-              <div className="flex gap-3 items-center w-full">
+              <div className="flex gap-2 items-center w-full">
                 {(() => {
                   const hasUnsentItems = cart.some(item => item.quantity - (item.sentQty || 0) > 0);
                   return (
                     <button 
                       onClick={handleSendKot}
                       disabled={cart.length === 0 || isSendingKot || !hasUnsentItems}
-                      className={`flex-1 py-3.5 rounded-xl font-black text-xs sm:text-xs uppercase tracking-widest transition-all border flex items-center justify-center gap-2 ${
+                      className={`flex-1 py-2.5 rounded-lg font-black text-[11px] uppercase tracking-widest transition-all border flex items-center justify-center gap-1.5 ${
                         !hasUnsentItems && cart.length > 0
                           ? 'bg-green-500/10 border-green-500/20 text-green-500 cursor-not-allowed'
                           : 'bg-white/5 border-gold/30 text-gold hover:bg-gold hover:text-black hover:border-gold hover:scale-[1.01]'
@@ -1183,7 +1186,7 @@ export default function POSTerminal() {
                 <button 
                   onClick={handleCheckout}
                   disabled={cart.length === 0}
-                  className="flex-1 py-3.5 rounded-xl font-black text-xs sm:text-xs uppercase tracking-widest transition-all shadow-xl disabled:opacity-50 bg-gold text-black hover:scale-[1.02] active:scale-95"
+                  className="flex-1 py-2.5 rounded-lg font-black text-[11px] uppercase tracking-widest transition-all shadow-xl disabled:opacity-50 bg-gold text-black hover:scale-[1.02] active:scale-95"
                 >
                   Checkout
                 </button>
