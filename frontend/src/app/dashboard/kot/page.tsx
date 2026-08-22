@@ -195,9 +195,13 @@ export default function KitchenOrderQueue() {
     <div className="space-y-8 min-h-screen">
       <style dangerouslySetInnerHTML={{__html: `
         @media print {
-          @page { margin: 0; }
+          @page { margin: 0 !important; size: auto; }
           body * {
             visibility: hidden !important;
+          }
+          body {
+            margin: 0 !important;
+            padding: 0 !important;
           }
           .kot-print-area, .kot-print-area * {
             visibility: visible !important;
@@ -219,62 +223,69 @@ export default function KitchenOrderQueue() {
           .kot-print-area tr { display: table-row !important; }
           .kot-print-area td, .kot-print-area th { 
             display: table-cell !important;
-            padding: 4px !important;
+            padding: 2px !important;
           }
         }
       `}} />
 
       {/* HIDDEN PRINT CONTAINER */}
       {printingKot && (
-        <div className="kot-print-area hidden print:block max-w-[80mm] mx-auto font-mono text-black px-2 py-1 bg-white">
-          <div className="text-center border-b-2 border-black pb-1 mb-1.5">
-            <h1 className="text-base font-black uppercase tracking-tighter text-center whitespace-nowrap">KITCHEN ORDER TICKET</h1>
-            <p className="text-sm font-bold uppercase tracking-widest text-black mt-0.5">KOT #{printingKot.kotNumber}</p>
-            <p className="text-[10px] whitespace-nowrap">{new Date(printingKot.createdAt).toLocaleString()}</p>
+        <div className="kot-print-area hidden print:block max-w-[80mm] mx-auto font-mono text-black px-1 pt-0 pb-1 bg-white leading-tight">
+          <div className="text-center border-b border-black pb-0.5 mb-1">
+            <h1 className="text-sm font-black uppercase tracking-tighter text-center whitespace-nowrap m-0 p-0 leading-none">KITCHEN ORDER TICKET</h1>
+            <p className="text-xs font-bold uppercase tracking-widest text-black m-0 p-0 leading-tight">KOT #{printingKot.kotNumber}</p>
+            <p className="text-[10px] whitespace-nowrap m-0 p-0 leading-tight pb-0.5">{new Date(printingKot.createdAt).toLocaleString()}</p>
           </div>
 
-          <div className="border-b border-black pb-1 mb-1.5 space-y-0.5">
-            <div className="flex justify-between text-[11px] font-black">
+          <div className="border-b border-black pb-0.5 mb-1 space-y-0">
+            <div className="flex justify-between text-[11px] font-black leading-tight">
               <span>SOURCE:</span>
               <span>{printingKot.tableNumber}</span>
             </div>
-            <div className="flex justify-between text-[11px]">
+            <div className="flex justify-between text-[11px] leading-tight">
               <span>ORDER TYPE:</span>
               <span className="font-bold uppercase">{printingKot.orderType}</span>
             </div>
             {(printingKot.customerName || printingKot.customerPhone) && (
-              <div className="pt-0.5 border-t border-black/10 mt-0.5">
-                {printingKot.customerName && <div className="flex justify-between text-[11px]"><span>CUSTOMER:</span><span className="font-bold uppercase">{printingKot.customerName}</span></div>}
-                {printingKot.customerPhone && <div className="flex justify-between text-[11px]"><span>PHONE:</span><span className="font-bold uppercase">{printingKot.customerPhone}</span></div>}
+              <div className="border-t border-black/10 mt-0.5 pt-0.5">
+                {printingKot.customerName && <div className="flex justify-between text-[10px] leading-tight"><span>CUSTOMER:</span><span className="font-bold uppercase">{printingKot.customerName}</span></div>}
+                {printingKot.customerPhone && <div className="flex justify-between text-[10px] leading-tight"><span>PHONE:</span><span className="font-bold uppercase">{printingKot.customerPhone}</span></div>}
               </div>
             )}
           </div>
 
-          <table className="w-full text-[11px] mb-2">
+          <table className="w-full text-[11px] mb-1">
             <thead>
-              <tr className="border-b border-black text-left font-black">
-                <th className="pb-0.5">Item Name</th>
-                <th className="pb-0.5 text-right">Qty</th>
+              <tr className="border-b border-black text-left font-black leading-none">
+                <th className="py-0.5">Item Name</th>
+                <th className="py-0.5 text-right">Qty</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/10">
-               {printingKot.items.map((item, idx) => (
-                 <tr key={idx}>
-                   <td className="py-1 pr-1 leading-tight">
-                     <span className="font-bold">{item.dishId?.name || 'Unknown Dish'}</span>
-                     {item.note && (
-                       <div className="text-[10px] italic mt-0.5 font-bold">
-                         * Note: {item.note}
-                       </div>
-                     )}
-                   </td>
-                   <td className="py-1 text-right font-black text-sm">x{item.quantity}</td>
-                 </tr>
-               ))}
+              {printingKot.items.map((item: any, idx: number) => (
+                <tr key={idx}>
+                  <td className="py-0.5 pr-1 leading-tight">
+                    <span className="font-bold">{item.dishId?.name || 'Unknown Dish'}</span>
+                    {item.note && (
+                      <div className="text-[10px] italic mt-0 font-bold leading-none">
+                        * Note: {item.note}
+                      </div>
+                    )}
+                  </td>
+                  <td className="py-0.5 text-right font-black text-sm align-top">x{item.quantity}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
 
-          {printingKot.packaging && printingKot.packaging.length > 0 && (
+          <div className="border-t border-dashed border-black pt-1 mt-1 text-center text-[9px]">
+            <p className="uppercase tracking-[0.2em] leading-tight">SOP & Prep Checklist Printed</p>
+            <p className="uppercase tracking-[0.3em] font-black mt-0.5 text-[7px] leading-none">Powered by KYROZPLUS</p>
+          </div>
+        </div>
+      )}
+
+      {printingKot && printingKot.packaging && printingKot.packaging.length > 0 && (
             <div className="border-t border-black pt-1.5 mt-1.5">
               <p className="text-[10px] font-black uppercase tracking-widest mb-1">Packaging Items Needed:</p>
               <div className="space-y-0.5 text-[10px] font-bold">

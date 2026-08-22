@@ -1248,11 +1248,13 @@ export default function POSTerminal() {
     <div className="h-full relative">
       <style jsx global>{`
         @media print {
-          @page { margin: 0; }
+          @page { margin: 0 !important; size: auto; }
           /* Hide EVERYTHING in the body using visibility */
           body {
             visibility: hidden !important;
             background: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
           }
           
           /* Show ONLY the receipt container and its children */
@@ -1295,10 +1297,10 @@ export default function POSTerminal() {
       {/* PRINT RECEIPT - MOVED TO TOP FOR BETTER SELECTIVITY */}
       <div className="receipt-container hidden print:block">
         {printType === 'kot' && printingKot ? (
-          <div className="max-w-[80mm] mx-auto font-mono text-black px-2 py-1 bg-white">
-            <div className="text-center border-b-2 border-black pb-1 mb-1.5">
-              <h1 className="text-base font-black uppercase tracking-tighter text-center whitespace-nowrap">KITCHEN ORDER TICKET</h1>
-              <p className="text-sm font-bold uppercase tracking-widest text-black">KOT #{printingKot.kotNumber || 'OFFLINE'}</p>
+          <div className="max-w-[80mm] mx-auto font-mono text-black px-1 pt-0 pb-1 bg-white leading-tight">
+            <div className="text-center border-b border-black pb-0.5 mb-1">
+              <h1 className="text-sm font-black uppercase tracking-tighter text-center whitespace-nowrap m-0 p-0 leading-none">KITCHEN ORDER TICKET</h1>
+              <p className="text-xs font-bold uppercase tracking-widest text-black m-0 p-0 leading-tight">KOT #{printingKot.kotNumber || 'OFFLINE'}</p>
               <p className="text-[10px] whitespace-nowrap">{new Date(printingKot.createdAt).toLocaleString()}</p>
             </div>
 
@@ -1319,25 +1321,25 @@ export default function POSTerminal() {
               )}
             </div>
 
-            <table className="w-full text-[11px] mb-2">
+            <table className="w-full text-[11px] mb-1">
               <thead>
-                <tr className="border-b border-black text-left font-black">
-                  <th className="pb-0.5">Item Name</th>
-                  <th className="pb-0.5 text-right">Qty</th>
+                <tr className="border-b border-black text-left font-black leading-none">
+                  <th className="py-0.5">Item Name</th>
+                  <th className="py-0.5 text-right">Qty</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/10">
                 {printingKot.items.map((item: any, idx: number) => (
                   <tr key={idx}>
-                    <td className="py-1 pr-1 leading-tight">
+                    <td className="py-0.5 pr-1 leading-tight">
                       <span className="font-bold">{item.dishId?.name || 'Unknown Dish'}</span>
                       {item.note && (
-                        <div className="text-[10px] italic mt-0.5 font-bold">
+                        <div className="text-[10px] italic mt-0 font-bold leading-none">
                           * Note: {item.note}
                         </div>
                       )}
                     </td>
-                    <td className="py-1 text-right font-black text-sm">x{item.quantity}</td>
+                    <td className="py-0.5 text-right font-black text-sm align-top">x{item.quantity}</td>
                   </tr>
                 ))}
               </tbody>
@@ -1349,85 +1351,88 @@ export default function POSTerminal() {
             </div>
           </div>
         ) : (
-          <div className="max-w-[80mm] mx-auto font-mono text-black px-2 pt-0 pb-2 bg-white">
+          <div className="max-w-[80mm] mx-auto font-mono text-black px-1 pt-0 pb-1 bg-white leading-tight">
             {/* Header section - All Centered like screenshot */}
-            <div className="text-center mb-2 space-y-0.5">
-              <h1 className="text-2xl font-black uppercase tracking-tight">{userShopName}</h1>
-              {user?.shopAddress && <p className="text-xs uppercase font-bold">{user.shopAddress}</p>}
-              <p className="text-[11px] font-bold whitespace-nowrap">Receipt / Bill {printedBillNo ? `#${printedBillNo}` : ''}</p>
-              <p className="text-[11px] whitespace-nowrap">{new Date().toLocaleString()}</p>
+            <div className="text-center mb-1">
+              <h1 className="text-xl font-black uppercase tracking-tight m-0 leading-none pb-1">{userShopName}</h1>
+              {user?.shopAddress && <p className="text-[10px] uppercase font-bold m-0 leading-tight">{user.shopAddress}</p>}
+              <p className="text-[10px] font-bold whitespace-nowrap m-0 leading-tight">Receipt / Bill {printedBillNo ? `#${printedBillNo}` : ''}</p>
+              <p className="text-[10px] whitespace-nowrap m-0 leading-tight pb-1">{new Date().toLocaleString()}</p>
               
               {/* Customer Details - Centered as well for clean look */}
               {(customerName || customerPhone) && (
-                <div className="pt-1 border-t border-black/20 mt-1">
-                  <p className="font-black uppercase tracking-tighter text-[11px] whitespace-nowrap">
+                <div className="border-t border-black/20">
+                  <p className="font-black uppercase tracking-tighter text-[10px] whitespace-nowrap m-0 leading-tight pt-0.5">
                     {customerName} {customerName && customerPhone && '-'} {customerPhone}
                   </p>
                 </div>
               )}
             </div>
 
-            <div className="border-t-2 border-b-2 border-black py-1 mb-2">
-              <table className="w-full text-[11px]">
+            <div className="border-t-2 border-b-2 border-black py-0.5 mb-1">
+              <table className="w-full text-[10px] leading-tight">
                 <thead>
                   <tr className="text-left border-b border-black">
-                    <th className="pb-1 font-black">Item</th>
-                    <th className="pb-1 text-center font-black">Qty</th>
-                    <th className="pb-1 text-right font-black">Amt</th>
+                    <th className="py-0.5 font-black">Item</th>
+                    <th className="py-0.5 text-center font-black">Qty</th>
+                    <th className="py-0.5 text-right font-black">Amt</th>
                   </tr>
                 </thead>
                 <tbody>
                   {cart.map((item, idx) => (
                     <tr key={idx} className="border-b border-black/5 last:border-0">
-                      <td className="py-2 pr-2 leading-tight">{item.dish.name}</td>
-                      <td className="py-2 text-center">{item.quantity}</td>
-                      <td className="py-2 text-right font-bold">₹{item.dish.price * item.quantity}</td>
+                      <td className="py-0.5 pr-1 leading-tight">{item.dish.name}</td>
+                      <td className="py-0.5 text-center align-top">{item.quantity}</td>
+                  <td className="py-0.5 text-right font-bold align-top">₹{item.dish.price * item.quantity}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
-            <div className="space-y-1 mb-2">
+            <div className="space-y-0 mb-1">
               {activeTable !== 'quick' && (
-                <div className="flex justify-between items-center text-[11px] font-black border-b border-black/10 pb-1 mb-2">
+                <div className="flex justify-between items-center text-[10px] font-black border-b border-black/10 pb-0.5 mb-0.5">
                   <span className="uppercase tracking-widest">TABLE:</span>
                   <span>{tables.find(t => t.id === activeTable)?.name}</span>
                 </div>
               )}
-              <div className="flex justify-between items-center text-[11px]">
+              <div className="flex justify-between items-center text-[10px] leading-tight">
                 <span className="font-bold uppercase tracking-widest">Subtotal:</span>
                 <span className="font-bold">₹{total}</span>
               </div>
               {discountAmount > 0 && (
-                <div className="flex justify-between items-center text-[11px] text-red-600">
+                <div className="flex justify-between items-center text-[10px] text-black leading-tight">
                   <span className="font-bold uppercase tracking-widest">Discount ({discountType === 'flat' ? '₹' : ''}{discount}{discountType === 'percentage' ? '%' : ''}):</span>
                   <span className="font-bold">-₹{Math.round(discountAmount)}</span>
                 </div>
               )}
               {applyGst && (
-                <div className="flex justify-between items-center text-[11px]">
+                <div className="flex justify-between items-center text-[10px] leading-tight">
                   <span className="font-bold uppercase tracking-widest">Taxes ({userGstRate}%):</span>
                   <span className="font-bold">₹{Math.round(gstAmount)}</span>
                 </div>
               )}
               {parsedAdditionalCharge > 0 && (
-                <div className="flex justify-between items-center text-[11px]">
-                  <span className="font-bold uppercase tracking-widest">Add. Charge:</span>
-                  <span className="font-bold">₹{parsedAdditionalCharge}</span>
+                <div className="flex justify-between items-center text-[10px] leading-tight">
+                  <span className="font-bold uppercase tracking-widest">Charges:</span>
+                  <span className="font-bold">₹{Math.round(parsedAdditionalCharge)}</span>
                 </div>
               )}
-              <div className="border-t border-black pt-1 mt-1">
-                <div className="flex justify-between items-center text-lg font-black tracking-tight">
-                  <span>TOTAL:</span>
-                  <span>₹{grandTotal}</span>
-                </div>
-              </div>
             </div>
 
-            <div className="border-t border-dashed border-black pt-1 mb-2 text-center">
-              <p className="text-xs font-black uppercase tracking-[0.2em]">Order Type: {orderType}</p>
-              <p className="text-xs font-black uppercase tracking-[0.2em]">Payment Method: {paymentMethod}</p>
+            <div className="flex justify-between items-center text-sm font-black border-t border-black pt-0.5 pb-0.5 leading-tight">
+              <span>TOTAL:</span>
+              <span>₹{grandTotal}</span>
+            </div>
+
+            <div className="border-t border-dashed border-black pt-1 text-center">
+              <div className="text-[9px] font-black tracking-widest uppercase flex flex-col items-center leading-tight">
+                <span>Order Type: {orderType}</span>
+                <span>Payment: {paymentMethod}</span>
+              </div>
+              <p className="mt-1 font-black text-[9px] uppercase tracking-widest leading-tight">Thank you for visiting!</p>
+              <p className="uppercase tracking-[0.2em] font-bold mt-0.5 text-[6px] leading-none">Powered by KYROZPLUS</p>
             </div>
 
             {userQrCode && (
