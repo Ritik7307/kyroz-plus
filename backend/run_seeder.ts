@@ -9,8 +9,8 @@ const run = async () => {
     await mongoose.connect(mongoUri);
     console.log('Connected to MongoDB');
     
-    const testUserId = new mongoose.Types.ObjectId().toString();
-    console.log('Running seeder for new user:', testUserId);
+    const testUserId = "69f84eb97a1102e857341078"; // Admin User ID
+    console.log('Running seeder for user:', testUserId);
     
     await seedBlueprints(testUserId);
     
