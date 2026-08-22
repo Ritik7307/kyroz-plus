@@ -279,7 +279,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
-                    className="absolute top-full left-0 mt-3 bg-card glass-card border border-white/10 rounded-2xl p-4 w-56 shadow-2xl z-[70] space-y-1.5"
+                    className="absolute top-full right-0 mt-3 bg-card glass-card border border-white/10 rounded-2xl p-4 w-56 shadow-2xl z-[70] space-y-1.5"
                   >
                     {moreLinks.map((link) => {
                       const Icon = (link as any).icon;

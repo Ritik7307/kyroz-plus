@@ -276,10 +276,19 @@ export const getSalesSummary = async (req: AuthRequest, res: Response): Promise<
   try {
     const userId = new mongoose.Types.ObjectId(req.user?.userId);
     const now = new Date();
-
-    const startOfDay = new Date(new Date(now).setHours(0, 0, 0, 0));
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    
+    // Calculate boundaries strictly in IST (UTC+5:30) to avoid server timezone discrepancies
+    const istOffset = 5.5 * 60 * 60 * 1000;
+    const currentIST = new Date(now.getTime() + istOffset);
+    
+    const startOfDayIST = Date.UTC(currentIST.getUTCFullYear(), currentIST.getUTCMonth(), currentIST.getUTCDate(), 0, 0, 0, 0);
+    const startOfDay = new Date(startOfDayIST - istOffset);
+    
+    const startOfMonthIST = Date.UTC(currentIST.getUTCFullYear(), currentIST.getUTCMonth(), 1, 0, 0, 0, 0);
+    const startOfMonth = new Date(startOfMonthIST - istOffset);
+    
+    const startOfYearIST = Date.UTC(currentIST.getUTCFullYear(), 0, 1, 0, 0, 0, 0);
+    const startOfYear = new Date(startOfYearIST - istOffset);
 
     const [daily, monthly, yearly] = await Promise.all([
       Order.aggregate([
