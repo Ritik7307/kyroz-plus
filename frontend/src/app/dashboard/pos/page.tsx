@@ -1260,7 +1260,7 @@ export default function POSTerminal() {
           /* Show ONLY the receipt container and its children */
           .receipt-container {
             visibility: visible !important;
-            position: absolute !important;
+            position: fixed !important;
             left: 0 !important;
             top: 0 !important;
             width: 100% !important;

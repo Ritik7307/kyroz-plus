@@ -1,17 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  ClipboardList, 
-  ChefHat, 
-  Clock, 
-  Package, 
-  CheckCircle, 
-  AlertTriangle, 
-  RefreshCw, 
-  History, 
-  Play, 
-  Check, 
+import {
+  ClipboardList,
+  ChefHat,
+  Clock,
+  Package,
+  CheckCircle,
+  AlertTriangle,
+  RefreshCw,
+  History,
+  Play,
+  Check,
   XCircle,
   Square,
   CheckSquare,
@@ -79,7 +79,7 @@ export default function KitchenOrderQueue() {
         if (user && user.userId) {
           socket.emit('joinRestaurant', user.userId);
         }
-      } catch (e) {}
+      } catch (e) { }
     }
 
     socket.on('KOT_CREATED', (newKot: Kot) => {
@@ -126,11 +126,11 @@ export default function KitchenOrderQueue() {
     const token = localStorage.getItem('token');
     try {
       const { dataService } = require('@/lib/dataService');
-      const data = await dataService.put(`${API_URL}/api/kots/${kotId}/status`, 
+      const data = await dataService.put(`${API_URL}/api/kots/${kotId}/status`,
         { status: newStatus },
         { 'Authorization': `Bearer ${token}` }
       );
-      
+
       if (data && !data.error) {
         // Optimistically update status
         setKots(prev => prev.map(k => k._id === kotId ? { ...k, status: newStatus } : k));
@@ -193,7 +193,8 @@ export default function KitchenOrderQueue() {
 
   return (
     <div className="space-y-8 min-h-screen">
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @media print {
           @page { margin: 0 !important; size: auto; }
           body * {
@@ -207,7 +208,7 @@ export default function KitchenOrderQueue() {
             visibility: visible !important;
           }
           .kot-print-area {
-            position: absolute !important;
+            position: fixed !important;
             left: 0 !important;
             top: 0 !important;
             width: 100% !important;
@@ -265,7 +266,7 @@ export default function KitchenOrderQueue() {
               {printingKot.items.map((item: any, idx: number) => (
                 <tr key={idx}>
                   <td className="py-0.5 pr-1 leading-tight">
-                    <span className="font-bold">{item.dishId?.name || item.dish?.name || item.name || 'Unknown Dish'}</span>
+                    <span className="font-bold">{item.dishId?.name || 'Unknown Dish'}</span>
                     {item.note && (
                       <div className="text-[10px] italic mt-0 font-bold leading-none">
                         * Note: {item.note}
@@ -294,13 +295,15 @@ export default function KitchenOrderQueue() {
 
           <div className="border-t border-dashed border-black pt-1 mt-1 text-center text-[9px]">
             <p className="uppercase tracking-[0.2em] leading-tight">SOP & Prep Checklist Printed</p>
-            <p className="uppercase tracking-[0.3em] font-black mt-0.5 text-[7px] leading-none">Powered by KYROZPLUS</p>
+            <p className="uppercase tracking-[0.3em] font-black mt-0.5 text-[7px] leading-none">Powered by KYROZ+</p>
           </div>
         </div>
       )}
 
       {/* Title Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+
+
         <div>
           <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight flex items-center gap-3 text-white">
             <ChefHat className="text-gold animate-bounce" size={32} /> KITCHEN ORDER DISPLAY (KDS)
@@ -313,11 +316,10 @@ export default function KitchenOrderQueue() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setViewHistory(!viewHistory)}
-            className={`px-5 py-3 rounded-xl border transition-all flex items-center gap-2 text-xs font-black uppercase tracking-widest ${
-              viewHistory 
-                ? 'bg-gold text-black border-gold' 
-                : 'bg-white/5 text-white/50 border-white/10 hover:bg-white/10'
-            }`}
+            className={`px-5 py-3 rounded-xl border transition-all flex items-center gap-2 text-xs font-black uppercase tracking-widest ${viewHistory
+              ? 'bg-gold text-black border-gold'
+              : 'bg-white/5 text-white/50 border-white/10 hover:bg-white/10'
+              }`}
           >
             {viewHistory ? <ClipboardList size={16} /> : <History size={16} />}
             {viewHistory ? 'View Queue' : 'View History'}
@@ -380,11 +382,10 @@ export default function KitchenOrderQueue() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all border whitespace-nowrap ${
-              activeTab === tab 
-                ? 'bg-gold text-black border-gold' 
-                : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10'
-            }`}
+            className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all border whitespace-nowrap ${activeTab === tab
+              ? 'bg-gold text-black border-gold'
+              : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10'
+              }`}
           >
             {tab === 'all' ? 'All Orders' : tab === 'DineIn' ? 'Dine In' : tab}
           </button>
@@ -417,9 +418,8 @@ export default function KitchenOrderQueue() {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className={`bg-card glass-card rounded-[2rem] border overflow-hidden flex flex-col justify-between shadow-xl transition-all ${
-                    isUrgent ? 'border-red-500/40 shadow-[0_0_20px_rgba(239,68,68,0.1)]' : 'border-white/5 hover:border-white/10'
-                  }`}
+                  className={`bg-card glass-card rounded-[2rem] border overflow-hidden flex flex-col justify-between shadow-xl transition-all ${isUrgent ? 'border-red-500/40 shadow-[0_0_20px_rgba(239,68,68,0.1)]' : 'border-white/5 hover:border-white/10'
+                    }`}
                 >
                   {/* Card Header */}
                   <div className="p-6 border-b border-white/5 space-y-3 bg-white/[0.01]">
@@ -461,7 +461,7 @@ export default function KitchenOrderQueue() {
                           <div key={item._id} className="py-2.5 flex items-start justify-between gap-3">
                             <div className="space-y-1">
                               <p className="font-bold text-sm text-white">
-                                {item.dishId?.name || item.dish?.name || item.name || 'Unknown Dish'}
+                                {item.dishId?.name || 'Unknown Dish'}
                               </p>
                               {item.note && (
                                 <p className="text-xs font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 inline-block">
@@ -490,11 +490,10 @@ export default function KitchenOrderQueue() {
                               <button
                                 key={pkg._id}
                                 onClick={() => togglePackageCheck(kot._id, pkg.name)}
-                                className={`flex items-center justify-between p-2.5 rounded-xl border text-left transition-all ${
-                                  isChecked 
-                                    ? 'bg-green-500/5 border-green-500/20 text-green-400' 
-                                    : 'bg-white/5 border-white/5 text-white/60 hover:bg-white/10'
-                                }`}
+                                className={`flex items-center justify-between p-2.5 rounded-xl border text-left transition-all ${isChecked
+                                  ? 'bg-green-500/5 border-green-500/20 text-green-400'
+                                  : 'bg-white/5 border-white/5 text-white/60 hover:bg-white/10'
+                                  }`}
                               >
                                 <div className="flex items-center gap-2">
                                   {isChecked ? (
@@ -506,9 +505,8 @@ export default function KitchenOrderQueue() {
                                     {pkg.name}
                                   </span>
                                 </div>
-                                <span className={`text-xs font-black px-1.5 py-0.5 rounded-md ${
-                                  isChecked ? 'bg-green-500/20 text-green-400' : 'bg-white/10 text-white/80'
-                                }`}>
+                                <span className={`text-xs font-black px-1.5 py-0.5 rounded-md ${isChecked ? 'bg-green-500/20 text-green-400' : 'bg-white/10 text-white/80'
+                                  }`}>
                                   x{pkg.quantity}
                                 </span>
                               </button>
