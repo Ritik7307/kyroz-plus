@@ -196,11 +196,18 @@ export default function KitchenOrderQueue() {
       <style dangerouslySetInnerHTML={{
         __html: `
         @media print {
-          @page { margin: 0 !important; size: auto; }
-          body * {
+          @page { margin: 0mm !important; }
+          html, body, main {
             visibility: hidden !important;
+            background: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            position: static !important;
           }
-          body {
+          /* Ensure wrapper divs don't trap the absolute positioning with padding or relative positioning */
+          main > div, div[class*="relative"] {
+            position: static !important;
             margin: 0 !important;
             padding: 0 !important;
           }

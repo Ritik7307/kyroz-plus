@@ -1248,11 +1248,19 @@ export default function POSTerminal() {
     <div className="h-full relative">
       <style jsx global>{`
         @media print {
-          @page { margin: 0 !important; size: auto; }
+          @page { margin: 0mm !important; }
           /* Hide EVERYTHING in the body using visibility */
-          body {
+          html, body, main {
             visibility: hidden !important;
             background: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            position: static !important;
+          }
+          /* Ensure wrapper divs don't trap the absolute positioning with padding or relative positioning */
+          main > div, div[class*="relative"] {
+            position: static !important;
             margin: 0 !important;
             padding: 0 !important;
           }
