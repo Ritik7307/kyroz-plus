@@ -1504,9 +1504,9 @@ export default function POSTerminal() {
         )}
       </div>
 
-      <div className="flex flex-col xl:flex-row gap-8 no-print items-start w-full">
-        {/* Floating Cart Button (Mobile & Tablet only) */}
-        <div className="fixed bottom-6 right-6 z-[60] xl:hidden">
+      <div className="flex flex-col lg:flex-row gap-4 no-print items-start w-full">
+        {/* Floating Cart Button (Mobile only) */}
+        <div className="fixed bottom-6 right-6 z-[60] lg:hidden">
           <button 
             onClick={() => setIsCartOpen(true)}
             className="w-16 h-16 bg-gold rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(212,175,55,0.4)] text-black relative hover:scale-110 active:scale-95 transition-all group"
@@ -1520,14 +1520,47 @@ export default function POSTerminal() {
           </button>
         </div>
 
-        {/* Left Column: Menu list */}
+        {/* Desktop Vertical Categories Sidebar */}
+        <div className="hidden lg:flex flex-col w-[160px] xl:w-[200px] shrink-0 gap-2 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar">
+          <div className="bg-card glass-card rounded-2xl border border-white/5 p-3 flex flex-col gap-2">
+            <h3 className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2 mb-2">Categories</h3>
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`w-full text-left px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                  activeCategory === cat ? 'bg-gold text-black shadow-md' : 'bg-white/5 text-white/70 hover:bg-white/10'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Mobile Horizontal Categories (hidden on desktop) */}
+        <div className="lg:hidden w-full flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap border ${
+                activeCategory === cat ? 'bg-gold text-black border-gold' : 'bg-white/10 text-white/70 border-white/10'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Middle Column: Menu list */}
         <div className="flex-1 w-full min-w-0 flex flex-col">
-          <div className="bg-card glass-card p-4 md:p-6 rounded-[2rem] border border-white/5 space-y-4 md:space-y-6 mb-6">
+          <div className="bg-card glass-card p-4 rounded-2xl border border-white/5 space-y-4 mb-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <h2 className="text-xl md:text-2xl font-black flex items-center gap-3">
+              <h2 className="text-lg md:text-xl font-black flex items-center gap-3">
                 <Utensils className="text-gold" /> {isManagementMode ? 'SHOP MANAGER' : 'DISH MENU'}
               </h2>
-              <div className="flex items-center gap-2 md:gap-4 w-full sm:w-auto">
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                 <div className="relative flex-1 sm:w-48">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={16} />
                   <input 
@@ -1542,13 +1575,13 @@ export default function POSTerminal() {
                   <>
                     <button 
                       onClick={() => setShowShareMenuModal(true)}
-                      className="p-2.5 md:p-3 rounded-xl border border-white/10 bg-white/5 text-white/70 hover:text-white transition-all flex items-center gap-2 text-[10px] md:text-xs font-black uppercase tracking-widest shrink-0"
+                      className="p-2 rounded-xl border border-white/10 bg-white/5 text-white/70 hover:text-white transition-all flex items-center gap-2 text-[10px] md:text-xs font-black uppercase tracking-widest"
                     >
-                      <Share2 size={16} /> Share Menu
+                      <Share2 size={16} /> Share
                     </button>
                     <button 
                       onClick={() => setIsManagementMode(!isManagementMode)}
-                      className={`p-2.5 md:p-3 rounded-xl border transition-all flex items-center gap-2 text-[10px] md:text-xs font-black uppercase tracking-widest shrink-0 ${
+                      className={`p-2 rounded-xl border transition-all flex items-center gap-2 text-[10px] md:text-xs font-black uppercase tracking-widest ${
                         isManagementMode ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
                       }`}
                     >
@@ -1561,23 +1594,16 @@ export default function POSTerminal() {
             
             {/* Tables Bar */}
             {!isManagementMode && (
-              <div className="border-b border-white/5 pb-4 space-y-2">
+              <div className="border-t border-white/5 pt-3 space-y-2">
                 <div className="flex justify-between items-center">
-                  <label className="text-[10px] font-black text-white/40 uppercase tracking-widest pl-1">TABLE SELECTION (BILLING SESSION)</label>
+                  <label className="text-[10px] font-black text-white/40 uppercase tracking-widest pl-1">TABLE SELECTION</label>
                   {isManager && (
                     <div className="flex items-center gap-2">
-                      <button 
-                        onClick={handleAddTable}
-                        className="text-[10px] font-black text-gold uppercase tracking-widest hover:text-white transition-colors flex items-center gap-1"
-                      >
-                        <Plus size={10} /> Add Table
+                      <button onClick={handleAddTable} className="text-[10px] font-black text-gold uppercase tracking-widest hover:text-white transition-colors flex items-center gap-1">
+                        <Plus size={10} /> Add
                       </button>
-                      <button 
-                        onClick={handleRemoveLastTable}
-                        disabled={tables.length <= 1}
-                        className="text-[10px] font-black text-red-500 uppercase tracking-widest hover:text-red-400 transition-colors flex items-center gap-1 disabled:opacity-30 disabled:cursor-not-allowed"
-                      >
-                        <Minus size={10} /> Remove Table
+                      <button onClick={handleRemoveLastTable} disabled={tables.length <= 1} className="text-[10px] font-black text-red-500 uppercase tracking-widest hover:text-red-400 transition-colors flex items-center gap-1 disabled:opacity-30">
+                        <Minus size={10} /> Remove
                       </button>
                     </div>
                   )}
@@ -1589,34 +1615,22 @@ export default function POSTerminal() {
                     const isActive = activeTable === t.id;
                     const tableKotStatus = session && session.kotStatus;
                     
-                    const tableSubtotal = hasItems 
-                      ? session.cart.reduce((sum, item) => sum + (item.dish.price * item.quantity), 0)
-                      : 0;
+                    const tableSubtotal = hasItems ? session.cart.reduce((sum, item) => sum + (item.dish.price * item.quantity), 0) : 0;
 
                     return (
                       <button
                         key={t.id}
                         onClick={() => switchTable(t.id)}
-                        className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap border flex items-center gap-2 relative group ${
-                          isActive
-                            ? 'bg-gold text-black border-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]'
-                            : hasItems
-                              ? 'bg-red-500/10 text-red-400 border-red-500/30 hover:bg-red-500/20'
-                              : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10'
+                        className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border flex items-center gap-1.5 relative ${
+                          isActive ? 'bg-gold text-black border-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]' : hasItems ? 'bg-red-500/10 text-red-400 border-red-500/30' : 'bg-white/5 text-white/40 border-white/10'
                         }`}
                       >
                         <span>{t.name}</span>
                         {tableKotStatus && tableKotStatus !== 'None' && (
-                          <span className={`w-2 h-2 rounded-full ${
-                            tableKotStatus === 'Ready' 
-                              ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' 
-                              : tableKotStatus === 'Preparing' 
-                                ? 'bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.5)]' 
-                                : 'bg-blue-500 animate-pulse'
-                          }`} title={`KOT: ${tableKotStatus}`} />
+                          <span className={`w-2 h-2 rounded-full ${tableKotStatus === 'Ready' ? 'bg-green-500' : tableKotStatus === 'Preparing' ? 'bg-orange-500' : 'bg-blue-500 animate-pulse'}`} />
                         )}
                         {hasItems && (
-                          <span className={`text-[8px] px-1.5 py-0.5 rounded-md font-bold ${isActive ? 'bg-black text-gold' : 'bg-red-500 text-white'}`}>
+                          <span className={`text-[8px] px-1 py-0.5 rounded-md font-bold ${isActive ? 'bg-black text-gold' : 'bg-red-500 text-white'}`}>
                             ₹{tableSubtotal}
                           </span>
                         )}
@@ -1626,32 +1640,16 @@ export default function POSTerminal() {
                 </div>
               </div>
             )}
-
-            <div className="flex items-center justify-between gap-4 overflow-hidden">
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide flex-1">
-                {categories.map(cat => (
-                  <button
-                    key={cat}
-                    onClick={() => setActiveCategory(cat)}
-                    className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap border ${
-                      activeCategory === cat ? 'bg-gold text-black border-gold' : 'bg-white/10 text-white/70 border-white/10'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-              {isManagementMode && (
-                <button 
-                  onClick={() => setShowAddModal(true)}
-                  className="px-6 py-2 bg-green-500 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2"
-                >
-                  <Plus size={16} /> Add
+            {isManagementMode && (
+              <div className="flex justify-end pt-2 border-t border-white/5">
+                <button onClick={() => setShowAddModal(true)} className="px-4 py-2 bg-green-500 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                  <Plus size={14} /> Add Item
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
-          <div className="grid gap-4 pr-1" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))' }}>
+          
+          <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 pr-1 pb-24">
             {!dishesData ? (
               <div className="col-span-full flex flex-col items-center justify-center py-20 text-white/20 gap-4">
                 <Loader2 className="animate-spin" size={48} />
@@ -1662,40 +1660,40 @@ export default function POSTerminal() {
               return (
                 <motion.div
                   key={dish._id}
-                  className={`bg-card glass-card rounded-3xl border transition-all flex flex-col overflow-hidden h-[280px] ${
+                  className={`bg-card glass-card rounded-2xl border transition-all flex flex-col overflow-hidden min-h-[100px] h-full ${
                     isManagementMode ? 'border-white/10' : 'border-white/5 hover:border-gold/30'
                   }`}
                 >
-                  <div className="h-32 relative overflow-hidden bg-white/5">
+                  <div className="h-16 hidden sm:block relative overflow-hidden bg-white/5 shrink-0">
                     {dish.imageUrl ? (
                       <img src={dish.imageUrl} alt={dish.name} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-white/10">
-                        <ImageIcon size={32} />
+                        <ImageIcon size={20} />
                       </div>
                     )}
                     {isManagementMode && (
-                      <div className="absolute top-2 right-2 flex gap-1.5">
-                        <button onClick={() => setEditingDish(dish)} className="p-2 bg-black/60 rounded-lg text-white hover:text-gold border border-white/10"><Edit size={12}/></button>
-                        <button onClick={() => handleDeleteDish(dish._id)} className="p-2 bg-black/60 rounded-lg text-white hover:text-red-500 border border-white/10"><Trash2 size={12}/></button>
+                      <div className="absolute top-1 right-1 flex gap-1">
+                        <button onClick={() => setEditingDish(dish)} className="p-1.5 bg-black/60 rounded-md text-white hover:text-gold"><Edit size={10}/></button>
+                        <button onClick={() => handleDeleteDish(dish._id)} className="p-1.5 bg-black/60 rounded-md text-white hover:text-red-500"><Trash2 size={10}/></button>
                       </div>
                     )}
                   </div>
                   
-                  <div className="p-4 flex flex-col justify-between flex-1">
-                    <h3 className="font-bold text-sm leading-tight line-clamp-2">{dish.name}</h3>
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-black text-white">₹{dish.price}</span>
+                  <div className="p-2 sm:p-3 flex flex-col justify-between flex-1 gap-2">
+                    <h3 className="font-bold text-[11px] sm:text-xs leading-tight line-clamp-2">{dish.name}</h3>
+                    <div className="flex items-center justify-between mt-auto">
+                      <span className="text-sm font-black text-white">₹{dish.price}</span>
                       {!isManagementMode && (
-                        <div className="flex items-center gap-2 bg-white/5 p-1 rounded-xl border border-white/10">
+                        <div className="flex items-center gap-1.5 bg-white/5 p-1 rounded-lg border border-white/10">
                           {quantity > 0 ? (
                             <>
-                              <button onClick={() => updateQuantity(dish._id, -1)} className="w-6 h-6 bg-white/5 rounded-lg flex items-center justify-center text-white/60"><Minus size={12} /></button>
-                              <span className="text-xs font-black min-w-[16px] text-center">{quantity}</span>
-                              <button onClick={() => addToCart(dish)} className="w-6 h-6 bg-gold/10 rounded-lg flex items-center justify-center text-gold"><Plus size={12} /></button>
+                              <button onClick={() => updateQuantity(dish._id, -1)} className="w-5 h-5 bg-white/5 rounded flex items-center justify-center text-white/60"><Minus size={10} /></button>
+                              <span className="text-[10px] font-black min-w-[12px] text-center">{quantity}</span>
+                              <button onClick={() => addToCart(dish)} className="w-5 h-5 bg-gold/10 rounded flex items-center justify-center text-gold"><Plus size={10} /></button>
                             </>
                           ) : (
-                            <button onClick={() => addToCart(dish)} className="px-3 py-1 bg-gold/10 text-gold rounded-lg text-xs font-black uppercase tracking-widest hover:bg-gold hover:text-black">Add</button>
+                            <button onClick={() => addToCart(dish)} className="px-2 py-1 bg-gold/10 text-gold rounded text-[10px] font-black uppercase tracking-widest hover:bg-gold hover:text-black">Add</button>
                           )}
                         </div>
                       )}
@@ -1707,16 +1705,16 @@ export default function POSTerminal() {
           </div>
         </div>
 
-        {/* Right Column: Permanent Sidebar Cart on Desktop */}
-        <div className="hidden xl:flex w-[380px] 2xl:w-[450px] shrink-0 bg-card glass-card border border-white/10 rounded-[2rem] flex-col overflow-hidden h-[calc(100vh-8rem)] sticky top-24 shadow-xl">
+        {/* Right Column: Permanent Sidebar Cart on Desktop/Tablet */}
+        <div className="hidden lg:flex w-[320px] xl:w-[380px] 2xl:w-[450px] shrink-0 bg-card glass-card border border-white/10 rounded-[2rem] flex-col overflow-hidden h-[calc(100vh-8rem)] sticky top-24 shadow-xl">
           {renderCartContent(false)}
         </div>
       </div>
 
-      {/* CART OVERLAY - Slide from Right for Mobile & Tablet (below xl) */}
+      {/* CART OVERLAY - Slide from Right for Mobile (below lg) */}
       <AnimatePresence>
         {isCartOpen && (
-          <div className="fixed inset-0 z-[100] flex justify-end xl:hidden">
+          <div className="fixed inset-0 z-[100] flex justify-end lg:hidden">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
