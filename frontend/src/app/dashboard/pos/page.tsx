@@ -65,7 +65,7 @@ interface TableSession {
   orderType: 'DineIn' | 'Takeaway' | 'Delivery';
   kotStatus?: 'None' | 'Pending' | 'Preparing' | 'Ready' | 'Served';
   kotId?: string;
-  localOrderNo: string;
+  sequenceNo?: number;
 }
 
 const INITIAL_TABLES = [
@@ -80,20 +80,24 @@ const INITIAL_TABLES = [
   { id: 'T8', name: 'Table 8' },
 ];
 
-const generateDailyOrderNo = () => {
-  if (typeof window === 'undefined') return Math.floor(1000 + Math.random() * 9000).toString();
-  const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
-  const lastDate = localStorage.getItem('kyroz_order_date');
-  let seq = parseInt(localStorage.getItem('kyroz_order_seq') || '0', 10);
+const generateSharedSequence = () => {
+  if (typeof window === 'undefined') return 1;
+  const now = new Date();
+  const istOffset = 5.5 * 60 * 60 * 1000;
+  const currentIST = new Date(now.getTime() + istOffset);
+  const today = currentIST.toISOString().split('T')[0];
+  
+  const lastDate = localStorage.getItem('kyroz_seq_date_v2');
+  let seq = parseInt(localStorage.getItem('kyroz_seq_no_v2') || '0', 10);
   
   if (lastDate !== today) {
     seq = 0;
-    localStorage.setItem('kyroz_order_date', today);
+    localStorage.setItem('kyroz_seq_date_v2', today);
   }
   
   seq += 1;
-  localStorage.setItem('kyroz_order_seq', seq.toString());
-  return seq.toString();
+  localStorage.setItem('kyroz_seq_no_v2', seq.toString());
+  return seq;
 };
 
 const defaultSession = (tableId: string): TableSession => ({
@@ -108,7 +112,7 @@ const defaultSession = (tableId: string): TableSession => ({
   orderType: tableId === 'quick' ? 'Takeaway' : 'DineIn',
   kotStatus: 'None',
   kotId: '',
-  localOrderNo: generateDailyOrderNo(),
+  sequenceNo: undefined,
 });
 
 export default function POSTerminal() {
@@ -315,8 +319,10 @@ export default function POSTerminal() {
     setOrderType(activeSession.orderType || (savedActiveTable === 'quick' ? 'Takeaway' : 'DineIn'));
     setKotStatus(activeSession.kotStatus || 'None');
     setKotId(activeSession.kotId || '');
-    setLocalOrderNo(activeSession.localOrderNo || Math.floor(1000 + Math.random() * 9000).toString());
     
+    // We don't load sequenceNo into a global state, it stays in tableSessions map.
+    // Except, we need it when switching table. But we only need it when sending KOT or Checkout, which reads from tableSessions directly.
+
     setTimeout(() => {
       isSwitchingTable.current = false;
     }, 100);
@@ -332,22 +338,23 @@ export default function POSTerminal() {
   useEffect(() => {
     if (isSwitchingTable.current) return;
     
-    const currentSession: TableSession = {
-      cart,
-      customerName,
-      customerPhone,
-      discount,
-      discountType,
-      additionalCharge,
-      applyGst,
-      paymentMethod,
-      orderType,
-      kotStatus,
-      kotId,
-      localOrderNo,
-    };
-    
     setTableSessions(prev => {
+      const existingSeq = prev[activeTable]?.sequenceNo;
+      const currentSession: TableSession = {
+        cart,
+        customerName,
+        customerPhone,
+        discount,
+        discountType,
+        additionalCharge,
+        applyGst,
+        paymentMethod,
+        orderType,
+        kotStatus,
+        kotId,
+        sequenceNo: existingSeq, // Preserve the sequence number
+      };
+
       const updated = {
         ...prev,
         [activeTable]: currentSession
@@ -361,6 +368,7 @@ export default function POSTerminal() {
     isSwitchingTable.current = true;
     
     // Save current active states into current session
+    const existingSeq = tableSessions[activeTable]?.sequenceNo;
     const currentSession: TableSession = {
       cart,
       customerName,
@@ -373,7 +381,7 @@ export default function POSTerminal() {
       orderType,
       kotStatus,
       kotId,
-      localOrderNo,
+      sequenceNo: existingSeq,
     };
     
     const updatedSessions: Record<string, TableSession> = {
@@ -690,7 +698,7 @@ export default function POSTerminal() {
 
   const isManager = ['admin', 'manager', 'user'].includes(userRole);
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     if (cart.length === 0) return;
 
     if (paymentMethod === 'Online' && userQrCode && !showQrModal) {
@@ -698,72 +706,73 @@ export default function POSTerminal() {
       return;
     }
 
-    setIsProcessingCheckout(true);
-    
-    try {
-      const token = localStorage.getItem('token');
-      const checkoutPayload = {
-        items: cart.map(item => ({ dishId: item.dish._id, quantity: item.quantity, note: item.note })),
-        customerName, customerPhone, discount: Number(discount) || 0, discountType, additionalCharge: Number(additionalCharge) || 0,
-        applyGst, paymentMethod, orderType,
-        kotId, 
-        offline_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2)
-      };
-
-      const data = await dataService.post(`${API_URL}/api/orders/checkout`, checkoutPayload, { 'Authorization': `Bearer ${token}` });
-      
-      if (data && !data.error) {
-        const actualBillNo = data.order?.billNumber || 'OFFLINE';
-        setPrintedBillNo(actualBillNo);
-        setPrintType('bill');
-        
-        setTimeout(() => {
-          window.print();
-          setPrintType(null);
-          setIsProcessingCheckout(false);
-          
-          if (window.confirm("Did the bill print successfully? Click OK to complete the order, or Cancel to go back and edit the cart.")) {
-            setLastCheckoutData({
-              cart: [...cart],
-              customerName,
-              customerPhone,
-              total,
-              discountAmount,
-              discountType,
-              parsedDiscount,
-              applyGst,
-              userGstRate,
-              gstAmount,
-              parsedAdditionalCharge,
-              grandTotal,
-              printedBillNo: actualBillNo
-            });
-            setCheckoutSuccess(true);
-            
-            setCart([]);
-            setCustomerName('');
-            setCustomerPhone('');
-            setDiscount('');
-            setDiscountType('percentage');
-            setAdditionalCharge('');
-            setApplyGst(true);
-            setPaymentMethod('Cash');
-            setOrderType('DineIn');
-            setKotStatus('None');
-            setKotId('');
-          } else {
-            setPrintedBillNo('');
-          }
-        }, 100);
-      } else {
-        alert(data.error || 'Checkout failed');
-        setIsProcessingCheckout(false);
-      }
-    } catch (err) {
-      console.error('Checkout error', err);
-      alert('Checkout failed');
-      setIsProcessingCheckout(false);
+    // Zero Latency Checkout: Generate or get shared sequence
+    let currentSeq = tableSessions[activeTable]?.sequenceNo;
+    if (!currentSeq) {
+      currentSeq = generateSharedSequence();
+      setTableSessions(prev => ({
+        ...prev,
+        [activeTable]: { ...prev[activeTable], sequenceNo: currentSeq }
+      }));
     }
+
+    setIsProcessingCheckout(true);
+    const token = localStorage.getItem('token');
+    
+    const checkoutPayload = {
+      items: cart.map(item => ({ dishId: item.dish._id, quantity: item.quantity, note: item.note })),
+      customerName, customerPhone, discount: Number(discount) || 0, discountType, additionalCharge: Number(additionalCharge) || 0,
+      applyGst, paymentMethod, orderType,
+      kotId, 
+      tempBillNo: currentSeq,
+      offline_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2)
+    };
+
+    setPrintedBillNo(currentSeq.toString());
+    setPrintType('bill');
+    
+    setTimeout(() => {
+      window.print();
+      setPrintType(null);
+      setIsProcessingCheckout(false);
+      
+      if (window.confirm("Did the bill print successfully? Click OK to complete the order, or Cancel to go back and edit the cart.")) {
+        setLastCheckoutData({
+          cart: [...cart],
+          customerName,
+          customerPhone,
+          total,
+          discountAmount,
+          discountType,
+          parsedDiscount,
+          applyGst,
+          userGstRate,
+          gstAmount,
+          parsedAdditionalCharge,
+          grandTotal,
+          printedBillNo: currentSeq
+        });
+        setCheckoutSuccess(true);
+        
+        setCart([]);
+        setCustomerName('');
+        setCustomerPhone('');
+        setDiscount('');
+        setDiscountType('percentage');
+        setAdditionalCharge('');
+        setApplyGst(true);
+        setPaymentMethod('Cash');
+        setOrderType('DineIn');
+        setKotStatus('None');
+        setKotId('');
+        
+        // Background sync
+        dataService.post(`${API_URL}/api/orders/checkout`, checkoutPayload, { 'Authorization': `Bearer ${token}` })
+          .catch((err: any) => console.error('Background checkout error', err));
+      } else {
+        setPrintedBillNo('');
+      }
+    }, 100);
   };
 
   // WebSocket for active KOT status
@@ -838,7 +847,7 @@ export default function POSTerminal() {
     return Object.keys(packagingMap).map(name => ({ name, quantity: packagingMap[name] }));
   };
 
-  const handleSendKot = async () => {
+  const handleSendKot = () => {
     // Filter out items that have unsent quantities
     const unsentItems = cart.map(item => {
       const unsentQty = item.quantity - (item.sentQty || 0);
@@ -854,50 +863,63 @@ export default function POSTerminal() {
       return;
     }
     
+    // Zero Latency KOT: Generate or get shared sequence
+    let currentSeq = tableSessions[activeTable]?.sequenceNo;
+    if (!currentSeq) {
+      currentSeq = generateSharedSequence();
+      setTableSessions(prev => ({
+        ...prev,
+        [activeTable]: { ...prev[activeTable], sequenceNo: currentSeq }
+      }));
+    }
+
     setIsSendingKot(true);
     const token = localStorage.getItem('token');
-    try {
-      const payload = {
-        items: unsentItems.map(item => ({
-          dishId: item.dish._id,
-          quantity: item.quantity,
-          note: item.note
-        })),
-        tableNumber: activeTable === 'quick' ? 'Quick Bill' : tables.find(t => t.id === activeTable)?.name || activeTable,
-        orderType: orderType,
-        customerName: customerName,
-        customerPhone: customerPhone,
-        offline_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2)
-      };
+    
+    const payload = {
+      items: unsentItems.map(item => ({
+        dishId: item.dish._id,
+        quantity: item.quantity,
+        note: item.note
+      })),
+      tableNumber: activeTable === 'quick' ? 'Quick Bill' : tables.find(t => t.id === activeTable)?.name || activeTable,
+      orderType: orderType,
+      customerName: customerName,
+      customerPhone: customerPhone,
+      tempKotNo: currentSeq,
+      offline_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2)
+    };
 
-      const data = await dataService.post(`${API_URL}/api/kots`, payload, {
-        'Authorization': `Bearer ${token}`
-      });
-
-      if (data && !data.error) {
-        setKotStatus('Pending');
-        setKotId(data.kot?._id || data.operation_id || ''); // Handle offline queue case
-        setPrintingKot(data.kot || { ...payload, kotNumber: 'OFFLINE', createdAt: new Date().toISOString() });
-        setPrintType('kot');
-        // Mark all items as sent in state
-        setCart(prev => prev.map(item => ({
-          ...item,
-          sentQty: item.quantity
-        })));
-        
-        // Trigger automatic printing of the KOT ticket
-        setTimeout(() => {
-          window.print();
-        }, 300);
-      } else {
-        alert(data.error || 'Failed to send KOT');
-      }
-    } catch (err) {
-      console.error('Send KOT Error:', err);
-      alert('Failed to send KOT');
-    } finally {
+    setKotStatus('Pending');
+    setPrintingKot({ 
+      ...payload, 
+      kotNumber: currentSeq, 
+      items: unsentItems, 
+      createdAt: new Date().toISOString() 
+    });
+    setPrintType('kot');
+    
+    // Mark all items as sent in state immediately
+    setCart(prev => prev.map(item => ({
+      ...item,
+      sentQty: item.quantity
+    })));
+    
+    // Print instantly
+    setTimeout(() => {
+      window.print();
+      setPrintType(null);
       setIsSendingKot(false);
-    }
+      
+      // Send to backend in background
+      dataService.post(`${API_URL}/api/kots`, payload, {
+        'Authorization': `Bearer ${token}`
+      }).then((data: any) => {
+        if (data && !data.error) {
+          setKotId(data.kot?._id || data.operation_id || '');
+        }
+      }).catch((err: any) => console.error('Background KOT error', err));
+    }, 100);
   };
 
   const shareOrderOnWhatsApp = (billNumberToUse?: string) => {
