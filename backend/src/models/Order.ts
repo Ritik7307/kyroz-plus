@@ -22,6 +22,7 @@ export interface IOrder extends Document {
   paymentMethod?: 'Cash' | 'Online';
   orderType?: 'DineIn' | 'Takeaway' | 'Delivery';
   offline_id?: string;
+  billNumber?: number;
   createdAt: Date;
 }
 
@@ -47,6 +48,7 @@ const OrderSchema: Schema = new Schema({
   paymentMethod: { type: String, enum: ['Cash', 'Online'], default: 'Cash' },
   orderType: { type: String, enum: ['DineIn', 'Takeaway', 'Delivery'], default: 'DineIn' },
   offline_id: { type: String },
+  billNumber: { type: Number },
   createdAt: { type: Date, default: Date.now }
 });
 

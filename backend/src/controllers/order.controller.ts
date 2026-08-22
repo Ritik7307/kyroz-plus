@@ -155,6 +155,16 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
       const charge = additionalCharge || 0;
       const discountedRevenue = totalRevenue - discountAmount + charge;
 
+      // Generate bill number (resets daily per user/restaurant in IST timezone)
+      const now = new Date();
+      const istOffset = 5.5 * 60 * 60 * 1000;
+      const currentIST = new Date(now.getTime() + istOffset);
+      const startOfDayIST = Date.UTC(currentIST.getUTCFullYear(), currentIST.getUTCMonth(), currentIST.getUTCDate(), 0, 0, 0, 0);
+      const startOfDay = new Date(startOfDayIST - istOffset);
+
+      const lastOrderToday = await Order.findOne({ userId: req.user?.userId, createdAt: { $gte: startOfDay } }).sort({ billNumber: -1 });
+      const billNumber = lastOrderToday && lastOrderToday.billNumber ? lastOrderToday.billNumber + 1 : 1;
+
       const newOrder = new Order({
         userId: req.user?.userId,
         items: orderItems,
@@ -169,7 +179,8 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
         tableNumber,
         paymentMethod: paymentMethod || 'Cash',
         orderType,
-        offline_id
+        offline_id,
+        billNumber
       });
       order = await newOrder.save();
 

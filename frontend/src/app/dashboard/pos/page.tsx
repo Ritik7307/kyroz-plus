@@ -690,7 +690,7 @@ export default function POSTerminal() {
 
   const isManager = ['admin', 'manager', 'user'].includes(userRole);
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (cart.length === 0) return;
 
     if (paymentMethod === 'Online' && userQrCode && !showQrModal) {
@@ -698,77 +698,72 @@ export default function POSTerminal() {
       return;
     }
 
-    // Zero Latency Checkout: Use the local order number
-    const tempBillNo = localOrderNo;
-    setPrintedBillNo(tempBillNo);
-    setPrintType('bill');
-    
     setIsProcessingCheckout(true);
     
-    setTimeout(() => {
-      window.print();
-      setPrintType(null);
-      setIsProcessingCheckout(false);
+    try {
+      const token = localStorage.getItem('token');
+      const checkoutPayload = {
+        items: cart.map(item => ({ dishId: item.dish._id, quantity: item.quantity, note: item.note })),
+        customerName, customerPhone, discount: Number(discount) || 0, discountType, additionalCharge: Number(additionalCharge) || 0,
+        applyGst, paymentMethod, orderType,
+        kotId, 
+        offline_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2)
+      };
+
+      const data = await dataService.post(`${API_URL}/api/orders/checkout`, checkoutPayload, { 'Authorization': `Bearer ${token}` });
       
-      // Since browsers don't tell us if the user clicked Print or Cancel,
-      // we ask them if it was successful before finalizing the order.
-      if (window.confirm("Did the bill print successfully? Click OK to complete the order, or Cancel to go back and edit the cart.")) {
+      if (data && !data.error) {
+        const actualBillNo = data.order?.billNumber || 'OFFLINE';
+        setPrintedBillNo(actualBillNo);
+        setPrintType('bill');
         
-        // Browsers block window.open inside setTimeout callbacks. 
-        // A manual "Send WhatsApp Bill" button is now shown on the success screen instead.
-        
-        setLastCheckoutData({
-          cart: [...cart],
-          customerName,
-          customerPhone,
-          total,
-          discountAmount,
-          discountType,
-          parsedDiscount,
-          applyGst,
-          userGstRate,
-          gstAmount,
-          parsedAdditionalCharge,
-          grandTotal,
-          printedBillNo: tempBillNo
-        });
-        setCheckoutSuccess(true);
-        
-        // Clear the cart and table data immediately so the table is freed
-        setCart([]);
-        setCustomerName('');
-        setCustomerPhone('');
-        setDiscount('');
-        setDiscountType('percentage');
-        setAdditionalCharge('');
-        setApplyGst(true);
-        setPaymentMethod('Cash');
-        setOrderType('DineIn');
-        setKotStatus('None');
-        setKotId('');
-        setLocalOrderNo(Math.floor(1000 + Math.random() * 9000).toString());
-        
-        // Update session for active table is handled automatically by the useEffect
-
-
-        // Process the checkout in the background
-        const token = localStorage.getItem('token');
-        const checkoutPayload = {
-          items: cart.map(item => ({ dishId: item.dish._id, quantity: item.quantity, note: item.note })),
-          customerName, customerPhone, discount: Number(discount) || 0, discountType, additionalCharge: Number(additionalCharge) || 0,
-          applyGst, paymentMethod, orderType,
-          kotId, 
-          tempBillNo, 
-          offline_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2)
-        };
-
-        dataService.post(`${API_URL}/api/orders/checkout`, checkoutPayload, { 'Authorization': `Bearer ${token}` })
-          .catch(err => console.error('Background checkout error', err));
+        setTimeout(() => {
+          window.print();
+          setPrintType(null);
+          setIsProcessingCheckout(false);
+          
+          if (window.confirm("Did the bill print successfully? Click OK to complete the order, or Cancel to go back and edit the cart.")) {
+            setLastCheckoutData({
+              cart: [...cart],
+              customerName,
+              customerPhone,
+              total,
+              discountAmount,
+              discountType,
+              parsedDiscount,
+              applyGst,
+              userGstRate,
+              gstAmount,
+              parsedAdditionalCharge,
+              grandTotal,
+              printedBillNo: actualBillNo
+            });
+            setCheckoutSuccess(true);
+            
+            setCart([]);
+            setCustomerName('');
+            setCustomerPhone('');
+            setDiscount('');
+            setDiscountType('percentage');
+            setAdditionalCharge('');
+            setApplyGst(true);
+            setPaymentMethod('Cash');
+            setOrderType('DineIn');
+            setKotStatus('None');
+            setKotId('');
+          } else {
+            setPrintedBillNo('');
+          }
+        }, 100);
       } else {
-        // User cancelled, clear the printed bill number but keep the cart
-        setPrintedBillNo('');
+        alert(data.error || 'Checkout failed');
+        setIsProcessingCheckout(false);
       }
-    }, 100);
+    } catch (err) {
+      console.error('Checkout error', err);
+      alert('Checkout failed');
+      setIsProcessingCheckout(false);
+    }
   };
 
   // WebSocket for active KOT status
