@@ -265,7 +265,7 @@ export default function KitchenOrderQueue() {
               {printingKot.items.map((item: any, idx: number) => (
                 <tr key={idx}>
                   <td className="py-0.5 pr-1 leading-tight">
-                    <span className="font-bold">{item.dishId?.name || 'Unknown Dish'}</span>
+                    <span className="font-bold">{item.dishId?.name || item.dish?.name || item.name || 'Unknown Dish'}</span>
                     {item.note && (
                       <div className="text-[10px] italic mt-0 font-bold leading-none">
                         * Note: {item.note}
@@ -461,7 +461,7 @@ export default function KitchenOrderQueue() {
                           <div key={item._id} className="py-2.5 flex items-start justify-between gap-3">
                             <div className="space-y-1">
                               <p className="font-bold text-sm text-white">
-                                {item.dishId?.name || 'Unknown Dish'}
+                                {item.dishId?.name || item.dish?.name || item.name || 'Unknown Dish'}
                               </p>
                               {item.note && (
                                 <p className="text-xs font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 inline-block">

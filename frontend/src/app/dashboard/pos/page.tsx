@@ -1332,7 +1332,7 @@ export default function POSTerminal() {
                 {printingKot.items.map((item: any, idx: number) => (
                   <tr key={idx}>
                     <td className="py-0.5 pr-1 leading-tight">
-                      <span className="font-bold">{item.dishId?.name || 'Unknown Dish'}</span>
+                      <span className="font-bold">{item.dishId?.name || item.dish?.name || item.name || 'Unknown Dish'}</span>
                       {item.note && (
                         <div className="text-[10px] italic mt-0 font-bold leading-none">
                           * Note: {item.note}
