@@ -37,10 +37,15 @@ export const createKot = async (req: AuthRequest, res: Response): Promise<void> 
       }
     }
 
-    // Generate KOT number (sequential per user/restaurant)
+    // Generate KOT number (resets daily per user/restaurant in IST timezone)
+    const now = new Date();
+    const istOffset = 5.5 * 60 * 60 * 1000;
+    const currentIST = new Date(now.getTime() + istOffset);
+    const startOfDayIST = Date.UTC(currentIST.getUTCFullYear(), currentIST.getUTCMonth(), currentIST.getUTCDate(), 0, 0, 0, 0);
+    const startOfDay = new Date(startOfDayIST - istOffset);
 
-    const lastKot = await Kot.findOne({ userId }).sort({ kotNumber: -1 });
-    const kotNumber = lastKot ? lastKot.kotNumber + 1 : 1;
+    const lastKotToday = await Kot.findOne({ userId, createdAt: { $gte: startOfDay } }).sort({ kotNumber: -1 });
+    const kotNumber = lastKotToday ? lastKotToday.kotNumber + 1 : 1;
 
     // Resolve packaging requirements for items based on orderType
     const resolvedPackaging: { [name: string]: number } = {};

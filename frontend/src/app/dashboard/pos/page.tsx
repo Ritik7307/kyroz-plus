@@ -1340,57 +1340,57 @@ export default function POSTerminal() {
       {/* PRINT RECEIPT - MOVED TO TOP FOR BETTER SELECTIVITY */}
       <div className="receipt-container hidden print:block">
         {printType === 'kot' && printingKot ? (
-          <div className="max-w-[80mm] mx-auto font-mono text-black px-2 py-2 bg-white">
-            <div className="text-center border-b-2 border-black pb-2 mb-3">
-              <h1 className="text-lg font-black uppercase tracking-tighter text-center whitespace-nowrap">KITCHEN ORDER TICKET</h1>
-              <p className="text-sm font-bold uppercase tracking-widest text-black mt-1">KOT #{localOrderNo}</p>
-              <p className="text-[11px] mt-0.5 whitespace-nowrap">{new Date(printingKot.createdAt).toLocaleString()}</p>
+          <div className="max-w-[80mm] mx-auto font-mono text-black px-2 py-1 bg-white">
+            <div className="text-center border-b-2 border-black pb-1 mb-1.5">
+              <h1 className="text-base font-black uppercase tracking-tighter text-center whitespace-nowrap">KITCHEN ORDER TICKET</h1>
+              <p className="text-sm font-bold uppercase tracking-widest text-black">KOT #{printingKot.kotNumber || 'OFFLINE'}</p>
+              <p className="text-[10px] whitespace-nowrap">{new Date(printingKot.createdAt).toLocaleString()}</p>
             </div>
 
-            <div className="border-b border-black pb-2 mb-3 space-y-1">
-              <div className="flex justify-between text-xs font-black">
+            <div className="border-b border-black pb-1 mb-1.5 space-y-0.5">
+              <div className="flex justify-between text-[11px] font-black">
                 <span>SOURCE:</span>
                 <span>{printingKot.tableNumber}</span>
               </div>
-              <div className="flex justify-between text-xs">
+              <div className="flex justify-between text-[11px]">
                 <span>ORDER TYPE:</span>
                 <span className="font-bold uppercase">{printingKot.orderType}</span>
               </div>
               {(printingKot.customerName || printingKot.customerPhone) && (
-                <div className="pt-1 border-t border-black/10 mt-1">
-                  {printingKot.customerName && <div className="flex justify-between text-xs"><span>CUSTOMER:</span><span className="font-bold uppercase">{printingKot.customerName}</span></div>}
-                  {printingKot.customerPhone && <div className="flex justify-between text-xs"><span>PHONE:</span><span className="font-bold uppercase">{printingKot.customerPhone}</span></div>}
+                <div className="pt-0.5 border-t border-black/10 mt-0.5">
+                  {printingKot.customerName && <div className="flex justify-between text-[11px]"><span>CUSTOMER:</span><span className="font-bold uppercase">{printingKot.customerName}</span></div>}
+                  {printingKot.customerPhone && <div className="flex justify-between text-[11px]"><span>PHONE:</span><span className="font-bold uppercase">{printingKot.customerPhone}</span></div>}
                 </div>
               )}
             </div>
 
-            <table className="w-full text-xs mb-4">
+            <table className="w-full text-[11px] mb-2">
               <thead>
                 <tr className="border-b border-black text-left font-black">
-                  <th className="pb-1">Item Name</th>
-                  <th className="pb-1 text-right">Qty</th>
+                  <th className="pb-0.5">Item Name</th>
+                  <th className="pb-0.5 text-right">Qty</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/10">
                 {printingKot.items.map((item: any, idx: number) => (
                   <tr key={idx}>
-                    <td className="py-2 pr-2 leading-tight">
+                    <td className="py-1 pr-1 leading-tight">
                       <span className="font-bold">{item.dishId?.name || 'Unknown Dish'}</span>
                       {item.note && (
-                        <div className="text-xs italic mt-0.5 font-bold">
+                        <div className="text-[10px] italic mt-0.5 font-bold">
                           * Note: {item.note}
                         </div>
                       )}
                     </td>
-                    <td className="py-2 text-right font-black text-sm">x{item.quantity}</td>
+                    <td className="py-1 text-right font-black text-sm">x{item.quantity}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
 
-            <div className="border-t border-dashed border-black pt-3 mt-6 text-center text-[10px]">
+            <div className="border-t border-dashed border-black pt-1.5 mt-2 text-center text-[9px]">
               <p className="uppercase tracking-[0.2em]">SOP & Prep Checklist Printed</p>
-              <p className="uppercase tracking-[0.3em] font-black mt-0.5 text-[8px]">Powered by KYROZPLUS</p>
+              <p className="uppercase tracking-[0.3em] font-black mt-0.5 text-[7px]">Powered by KYROZPLUS</p>
             </div>
           </div>
         ) : (
