@@ -403,7 +403,6 @@ export default function POSTerminal() {
     setOrderType(targetSession.orderType || (targetTableId === 'quick' ? 'Takeaway' : 'DineIn'));
     setKotStatus(targetSession.kotStatus || 'None');
     setKotId(targetSession.kotId || '');
-    setLocalOrderNo(targetSession.localOrderNo || Math.floor(1000 + Math.random() * 9000).toString());
     
     setActiveTable(targetTableId);
     localStorage.setItem('pos_active_table', targetTableId);
