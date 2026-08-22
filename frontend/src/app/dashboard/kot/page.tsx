@@ -278,18 +278,11 @@ export default function KitchenOrderQueue() {
             </tbody>
           </table>
 
-          <div className="border-t border-dashed border-black pt-1 mt-1 text-center text-[9px]">
-            <p className="uppercase tracking-[0.2em] leading-tight">SOP & Prep Checklist Printed</p>
-            <p className="uppercase tracking-[0.3em] font-black mt-0.5 text-[7px] leading-none">Powered by KYROZPLUS</p>
-          </div>
-        </div>
-      )}
-
-      {printingKot && printingKot.packaging && printingKot.packaging.length > 0 && (
-            <div className="border-t border-black pt-1.5 mt-1.5">
-              <p className="text-[10px] font-black uppercase tracking-widest mb-1">Packaging Items Needed:</p>
-              <div className="space-y-0.5 text-[10px] font-bold">
-                {printingKot.packaging.map((pkg, idx) => (
+          {printingKot.packaging && printingKot.packaging.length > 0 && (
+            <div className="border-t border-black pt-1 mt-1">
+              <p className="text-[10px] font-black uppercase tracking-widest mb-1 leading-tight">Packaging Items Needed:</p>
+              <div className="space-y-0 text-[10px] font-bold leading-tight">
+                {printingKot.packaging.map((pkg: any, idx: number) => (
                   <div key={idx} className="flex justify-between">
                     <span>[ ] {pkg.name}</span>
                     <span>x{pkg.quantity}</span>
@@ -299,9 +292,9 @@ export default function KitchenOrderQueue() {
             </div>
           )}
 
-          <div className="border-t border-dashed border-black pt-2 mt-4 text-center text-[9px] opacity-60">
-            <p className="uppercase tracking-[0.1em]">SOP & Prep Checklist Printed</p>
-            <p className="uppercase tracking-[0.2em] font-black mt-0.5 text-[7px]">Powered by KYROZPLUS</p>
+          <div className="border-t border-dashed border-black pt-1 mt-1 text-center text-[9px]">
+            <p className="uppercase tracking-[0.2em] leading-tight">SOP & Prep Checklist Printed</p>
+            <p className="uppercase tracking-[0.3em] font-black mt-0.5 text-[7px] leading-none">Powered by KYROZPLUS</p>
           </div>
         </div>
       )}
