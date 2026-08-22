@@ -686,7 +686,7 @@ export default function POSTerminal() {
   const grandTotal = Math.round(afterDiscount + gstAmount + parsedAdditionalCharge);
 
   const categories = useMemo(() => {
-    return ['All', ...Array.from(new Set(dishes.map(d => d.category)))];
+    return ['All', ...Array.from(new Set(dishes.map(d => d.category?.trim()).filter(Boolean)))];
   }, [dishes]);
 
   const filteredDishes = useMemo(() => {
@@ -1468,7 +1468,7 @@ export default function POSTerminal() {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`w-full text-left px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
                   activeCategory === cat ? 'bg-gold text-black shadow-md' : 'bg-white/5 text-white/70 hover:bg-white/10'
                 }`}
               >
