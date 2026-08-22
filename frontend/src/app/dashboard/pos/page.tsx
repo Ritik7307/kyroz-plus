@@ -153,7 +153,6 @@ export default function POSTerminal() {
   // KOT State
   const [kotStatus, setKotStatus] = useState<'None' | 'Pending' | 'Preparing' | 'Ready' | 'Served'>('None');
   const [kotId, setKotId] = useState<string>('');
-  const [localOrderNo, setLocalOrderNo] = useState<string>('');
   const [isSendingKot, setIsSendingKot] = useState(false);
   const [printType, setPrintType] = useState<'bill' | 'kot' | null>(null);
   const [printingKot, setPrintingKot] = useState<any | null>(null);
