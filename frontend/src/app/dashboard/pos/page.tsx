@@ -22,7 +22,8 @@ import {
   MessageCircle,
   Share2,
   Package,
-  ChefHat
+  ChefHat,
+  FileText
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useSWR from 'swr';
@@ -958,41 +959,28 @@ export default function POSTerminal() {
                   <h4 className="font-bold text-xs">{item.dish.name}</h4>
                   <p className="text-xs text-white/40">₹{item.dish.price} x {item.quantity}</p>
                   
-                  {/* Sent vs Unsent badges */}
-                  {item.sentQty && item.sentQty > 0 ? (
-                    <div className="flex items-center gap-1.5 mt-1.5">
-                      <span className="text-[8px] bg-green-500/10 border border-green-500/20 text-green-400 px-1.5 py-0.5 rounded font-black uppercase">
-                        {item.sentQty} Sent
-                      </span>
-                      {item.quantity - item.sentQty > 0 && (
-                        <span className="text-[8px] bg-blue-500/10 border border-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded font-black uppercase animate-pulse">
-                          {item.quantity - item.sentQty} Unsent
-                        </span>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="flex items-center mt-1.5">
-                      <span className="text-[8px] bg-blue-500/10 border border-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded font-black uppercase">
-                        Unsent (New)
-                      </span>
-                    </div>
+                  {item.note && (
+                    <p className="text-[10px] text-gold mt-1 italic leading-tight line-clamp-2">Note: {item.note}</p>
                   )}
-
-                  <input
-                    type="text"
-                    placeholder="Add Note (e.g. less spicy)"
-                    value={item.note || ''}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setCart(prev => prev.map(i => i.dish._id === item.dish._id ? { ...i, note: val } : i));
-                    }}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-2 py-1 mt-1.5 text-[10px] text-white/60 focus:outline-none focus:border-gold/30"
-                  />
                 </div>
-                <div className="flex items-center gap-2 bg-black/40 rounded-xl p-1 border border-white/5 shrink-0">
-                  <button onClick={() => updateQuantity(item.dish._id, -1)} className="text-white/40 hover:text-white"><Minus size={12} /></button>
-                  <span className="text-xs font-bold min-w-[16px] text-center">{item.quantity}</span>
-                  <button onClick={() => updateQuantity(item.dish._id, 1)} className="text-gold hover:text-gold/80"><Plus size={12} /></button>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => {
+                      const note = prompt(`Add Note for ${item.dish.name} (e.g. less spicy):`, item.note || '');
+                      if (note !== null) {
+                        setCart(prev => prev.map(i => i.dish._id === item.dish._id ? { ...i, note } : i));
+                      }
+                    }}
+                    className={`p-1.5 rounded-lg transition-colors border ${item.note ? 'bg-gold/10 text-gold border-gold/30' : 'bg-white/5 text-white/40 border-white/10 hover:text-white hover:bg-white/10'}`}
+                    title="Add Note"
+                  >
+                    <FileText size={12} />
+                  </button>
+                  <div className="flex items-center gap-2 bg-black/40 rounded-xl p-1 border border-white/5 shrink-0">
+                    <button onClick={() => updateQuantity(item.dish._id, -1)} className="text-white/40 hover:text-white"><Minus size={12} /></button>
+                    <span className="text-xs font-bold min-w-[16px] text-center">{item.quantity}</span>
+                    <button onClick={() => updateQuantity(item.dish._id, 1)} className="text-gold hover:text-gold/80"><Plus size={12} /></button>
+                  </div>
                 </div>
                 <div className="ml-3 font-black text-xs w-14 text-right shrink-0">₹{item.dish.price * item.quantity}</div>
               </motion.div>
