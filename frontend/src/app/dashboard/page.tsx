@@ -141,7 +141,7 @@ export default function DashboardPage() {
             <div className="h-full bg-card glass-card rounded-[2.5rem] p-10 flex flex-col lg:flex-row items-center justify-between gap-8 border border-white/5 shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 left-0 w-64 h-64 bg-gold/5 rounded-full -ml-32 -mt-32 blur-[100px]"></div>
               <div className="space-y-3 relative z-10 text-center lg:text-left">
-                <h2 className="text-4xl font-black tracking-tighter uppercase leading-none text-white">WELCOME BACK, <span className="text-gold">{user?.name || 'CHEF'}!</span></h2>
+                <h2 className="text-4xl font-black tracking-tighter uppercase leading-none text-white">WELCOME BACK, <span className="text-gold">{user?.shopName || user?.name || 'CHEF'}!</span></h2>
                 <div className="flex items-center gap-3 justify-center lg:justify-start">
                   <span className="px-4 py-1 bg-gold/10 text-gold text-xs font-black uppercase tracking-widest rounded-full border border-gold/20">
                     {user?.role?.toUpperCase()} ACCOUNT
