@@ -250,10 +250,10 @@ export default function DigitalMenu({ params }: { params: Promise<{ shopId: stri
         )}
       </div>
 
-      <div className="py-8 text-center border-t border-white/5 mt-8 opacity-40">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1">Powered By Kyroz</p>
+      <footer className="py-8 text-center border-t border-white/5 mt-8 opacity-40">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1">Powered By Kyrozplus</p>
         <p className="text-[8px] font-bold uppercase tracking-widest">Digital Menu System</p>
-      </div>
+      </footer>
     </div>
   );
 }

@@ -1386,7 +1386,7 @@ export default function POSTerminal() {
 
             <div className="border-t border-dashed border-black pt-3 mt-6 text-center text-[10px]">
               <p className="uppercase tracking-[0.2em]">SOP & Prep Checklist Printed</p>
-              <p className="uppercase tracking-[0.3em] font-black mt-0.5 text-[8px]">Powered by KYROZ</p>
+              <p className="uppercase tracking-[0.3em] font-black mt-0.5 text-[8px]">Powered by KYROZPLUS</p>
             </div>
           </div>
         ) : (
@@ -1482,7 +1482,7 @@ export default function POSTerminal() {
 
             <div className="text-center text-xs space-y-1 font-bold">
               <p className="uppercase tracking-widest">Thank you for visiting!</p>
-              <p className="uppercase tracking-[0.3em] text-[8px]">Powered by KYROZ</p>
+              <p className="uppercase tracking-[0.3em] text-[8px]">Powered by KYROZPLUS</p>
             </div>
           </div>
         )}

@@ -279,7 +279,7 @@ export default function KitchenOrderQueue() {
 
           <div className="border-t border-dashed border-black pt-3 mt-6 text-center text-[10px] opacity-60">
             <p className="uppercase tracking-[0.2em]">SOP & Prep Checklist Printed</p>
-            <p className="uppercase tracking-[0.3em] font-black mt-0.5 text-[8px]">Powered by KYROZ</p>
+            <p className="uppercase tracking-[0.3em] font-black mt-0.5 text-[8px]">Powered by KYROZPLUS</p>
           </div>
         </div>
       )}
