@@ -1056,14 +1056,14 @@ export default function POSTerminal() {
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
               placeholder="Customer Name"
-              className="w-full bg-transparent border border-foreground/10 rounded-lg px-2 py-1.5 text-[10px] text-foreground focus:outline-none focus:border-gold/50 placeholder:text-foreground/30"
+              className="w-full bg-transparent border border-border rounded-lg px-2 py-1.5 text-[10px] text-foreground focus:outline-none focus:border-gold/50 placeholder:text-foreground/60"
             />
             <input 
               type="tel" 
               value={customerPhone}
               onChange={(e) => setCustomerPhone(e.target.value)}
               placeholder="Phone No."
-              className="w-full bg-transparent border border-foreground/10 rounded-lg px-2 py-1.5 text-[10px] text-foreground focus:outline-none focus:border-gold/50 placeholder:text-foreground/30"
+              className="w-full bg-transparent border border-border rounded-lg px-2 py-1.5 text-[10px] text-foreground focus:outline-none focus:border-gold/50 placeholder:text-foreground/60"
             />
             
             <button 
