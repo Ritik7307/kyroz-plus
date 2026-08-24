@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
-:root {
+:root, [data-theme='dark'] {
   --background: #080808;
   --foreground: #ffffff;
   --gold: #d4af37;
@@ -9,6 +9,16 @@
   --card-bg: #121212;
   --border-color: rgba(255, 255, 255, 0.1);
   --glass-bg: rgba(18, 18, 18, 0.8);
+}
+
+[data-theme='light'] {
+  --background: #f8f9fa;
+  --foreground: #111111;
+  --gold: #d4af37;
+  --gold-glow: rgba(212, 175, 55, 0.4);
+  --card-bg: #ffffff;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.8);
 }
 
 @theme inline {
@@ -82,7 +92,7 @@ select {
 }
 
 option {
-  background-color: #111111;
-  color: white;
+  background-color: var(--card-bg);
+  color: var(--foreground);
   padding: 10px;
 }

@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 };
 
 import { CartProvider } from "@/context/CartContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 import FloatingCart from "@/components/ui/FloatingCart";
 import FacebookSdk from "@/components/ui/FacebookSdk";
 import InputSanitizer from "@/components/ui/InputSanitizer";
@@ -31,14 +32,16 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
-        <InputSanitizer />
-        <CartProvider>
-          {children}
-          <FloatingCart />
-        </CartProvider>
+        <ThemeProvider>
+          <InputSanitizer />
+          <CartProvider>
+            {children}
+            <FloatingCart />
+          </CartProvider>
 
-        {/* Facebook SDK for WhatsApp Embedded Signup */}
-        <FacebookSdk />
+          {/* Facebook SDK for WhatsApp Embedded Signup */}
+          <FacebookSdk />
+        </ThemeProvider>
       </body>
     </html>
   );

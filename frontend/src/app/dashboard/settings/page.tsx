@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { API_URL } from '@/lib/api';
+import { useTheme, Theme, PosTheme } from '@/context/ThemeContext';
 
 interface Session {
   _id: string;
@@ -17,6 +18,8 @@ export default function SettingsPage() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [userPlan, setUserPlan] = useState<string>('Basic');
+  
+  const { globalTheme, setGlobalTheme, posTheme, setPosTheme } = useTheme();
   
   // Printer settings state
   const [sopPrinterSize, setSopPrinterSize] = useState<string>('A4');
@@ -112,16 +115,68 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex flex-col h-full max-w-4xl">
+    <div className="flex flex-col h-full max-w-4xl text-foreground">
       <header className="mb-8">
-        <h2 className="text-3xl font-bold text-white">Settings & Security</h2>
+        <h2 className="text-3xl font-bold text-foreground">Settings & Security</h2>
         <p className="text-gray-400 mt-2">Manage your account security, active devices, and local hub configuration.</p>
       </header>
-
-      <div className="bg-[#111111] border border-[#333333] rounded-2xl p-6 shadow-xl mb-8">
-        <div className="flex justify-between items-start mb-6 border-b border-[#222222] pb-6">
+      
+      {/* Theme Configuration Section */}
+      <div className="bg-card border border-border rounded-2xl p-6 shadow-xl mb-8">
+        <div className="flex justify-between items-start mb-6 border-b border-border pb-6">
           <div>
-            <h3 className="text-xl font-bold text-white mb-1">Local Hub (Offline POS)</h3>
+            <h3 className="text-xl font-bold text-foreground mb-1">Theme Preferences</h3>
+            <p className="text-sm text-gray-400">
+              Customize the appearance of your dashboard and POS terminal.
+            </p>
+          </div>
+          <div className="bg-background px-4 py-2 rounded-lg border border-border flex items-center justify-center text-2xl">
+            🎨
+          </div>
+        </div>
+        
+        <div className="space-y-6">
+          <div className="bg-background border border-border p-5 rounded-xl hover:border-[var(--gold)] transition-colors">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h4 className="text-foreground font-medium">Global Theme</h4>
+                <p className="text-xs text-gray-500 mt-1">Default theme for the entire application</p>
+              </div>
+              <select 
+                value={globalTheme}
+                onChange={(e) => setGlobalTheme(e.target.value as Theme)}
+                className="bg-card border border-border text-foreground rounded-lg px-4 py-2 focus:outline-none focus:border-[var(--gold)]"
+              >
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+              </select>
+            </div>
+          </div>
+          
+          <div className="bg-background border border-border p-5 rounded-xl hover:border-[var(--gold)] transition-colors">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h4 className="text-foreground font-medium">POS Theme</h4>
+                <p className="text-xs text-gray-500 mt-1">Specific theme for the POS Terminal page</p>
+              </div>
+              <select 
+                value={posTheme}
+                onChange={(e) => setPosTheme(e.target.value as PosTheme)}
+                className="bg-card border border-border text-foreground rounded-lg px-4 py-2 focus:outline-none focus:border-[var(--gold)]"
+              >
+                <option value="global">Use Global Default</option>
+                <option value="dark">Always Dark</option>
+                <option value="light">Always Light</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-card border border-border rounded-2xl p-6 shadow-xl mb-8">
+        <div className="flex justify-between items-start mb-6 border-b border-border pb-6">
+          <div>
+            <h3 className="text-xl font-bold text-foreground mb-1">Local Hub (Offline POS)</h3>
             <p className="text-sm text-gray-400">
               Configure this device to point to your restaurant's Local Hub Server. 
               Leave empty to use the Cloud version.
@@ -134,7 +189,7 @@ export default function SettingsPage() {
             value={localHubUrl}
             onChange={(e) => setLocalHubUrl(e.target.value)}
             placeholder="e.g. http://192.168.1.100:5000"
-            className="flex-1 bg-[#1a1a1a] border border-[#333333] rounded-lg px-4 py-2 text-white outline-none focus:border-[#d4af37]"
+            className="flex-1 bg-background border border-border rounded-lg px-4 py-2 text-foreground outline-none focus:border-[var(--gold)]"
           />
           <button 
             onClick={handleHubUrlSave}
@@ -146,16 +201,16 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="bg-[#111111] border border-[#333333] rounded-2xl p-6 shadow-xl mb-8">
-        <div className="flex justify-between items-start mb-6 border-b border-[#222222] pb-6">
+      <div className="bg-card border border-border rounded-2xl p-6 shadow-xl mb-8">
+        <div className="flex justify-between items-start mb-6 border-b border-border pb-6">
           <div>
-            <h3 className="text-xl font-bold text-white mb-1">Active Sessions</h3>
+            <h3 className="text-xl font-bold text-foreground mb-1">Active Sessions</h3>
             <p className="text-sm text-gray-400">
               You are currently logged in on {sessions.length} device(s). 
-              Your <span className="text-[#d4af37] font-bold">{userPlan}</span> plan allows up to {getLimit()} device(s).
+              Your <span className="text-[var(--gold)] font-bold">{userPlan}</span> plan allows up to {getLimit()} device(s).
             </p>
           </div>
-          <div className="bg-[#222222] px-4 py-2 rounded-lg border border-[#333333]">
+          <div className="bg-background px-4 py-2 rounded-lg border border-border">
             <span className="text-gray-400 text-sm">Devices: </span>
             <span className={`font-bold ${sessions.length >= getLimit() ? 'text-red-400' : 'text-green-400'}`}>
               {sessions.length} / {getLimit()}
@@ -166,19 +221,19 @@ export default function SettingsPage() {
         {isLoading ? (
           <div className="text-center text-gray-500 py-8">Loading sessions...</div>
         ) : sessions.length === 0 ? (
-          <div className="text-center text-gray-500 py-8 border border-dashed border-[#333333] rounded-xl">
+          <div className="text-center text-gray-500 py-8 border border-dashed border-border rounded-xl">
             No active sessions found.
           </div>
         ) : (
           <div className="space-y-4">
             {sessions.map((session, idx) => (
-              <div key={session._id} className="flex items-center justify-between bg-[#0a0a0a] border border-[#222222] p-4 rounded-xl hover:border-[#333333] transition-colors">
+              <div key={session._id} className="flex items-center justify-between bg-background border border-border p-4 rounded-xl hover:border-[var(--gold)] transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-[#222222] rounded-lg flex items-center justify-center text-2xl border border-[#333333]">
+                  <div className="w-12 h-12 bg-card rounded-lg flex items-center justify-center text-2xl border border-border">
                     💻
                   </div>
                   <div>
-                    <h4 className="text-white font-medium flex items-center gap-2">
+                    <h4 className="text-foreground font-medium flex items-center gap-2">
                       {session.deviceInfo}
                       {idx === 0 && (
                         <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">Current</span>
@@ -205,30 +260,30 @@ export default function SettingsPage() {
       </div>
 
       {/* Printer Configuration Section */}
-      <div className="bg-[#111111] border border-[#333333] rounded-2xl p-6 shadow-xl mb-8">
-        <div className="flex justify-between items-start mb-6 border-b border-[#222222] pb-6">
+      <div className="bg-card border border-border rounded-2xl p-6 shadow-xl mb-8">
+        <div className="flex justify-between items-start mb-6 border-b border-border pb-6">
           <div>
-            <h3 className="text-xl font-bold text-white mb-1">Printer Configuration</h3>
+            <h3 className="text-xl font-bold text-foreground mb-1">Printer Configuration</h3>
             <p className="text-sm text-gray-400">
               Configure printer paper sizes for different types of print jobs on this device.
             </p>
           </div>
-          <div className="bg-[#222222] px-4 py-2 rounded-lg border border-[#333333] flex items-center justify-center text-2xl">
+          <div className="bg-background px-4 py-2 rounded-lg border border-border flex items-center justify-center text-2xl">
             🖨️
           </div>
         </div>
         
         <div className="space-y-6">
-          <div className="bg-[#0a0a0a] border border-[#222222] p-5 rounded-xl hover:border-[#333333] transition-colors">
+          <div className="bg-background border border-border p-5 rounded-xl hover:border-[var(--gold)] transition-colors">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h4 className="text-white font-medium">SOP Library Printer</h4>
+                <h4 className="text-foreground font-medium">SOP Library Printer</h4>
                 <p className="text-xs text-gray-500 mt-1">Default printer size for SOP documents</p>
               </div>
               <select 
                 value={sopPrinterSize}
                 onChange={handleSopPrinterChange}
-                className="bg-[#222222] border border-[#333333] text-white rounded-lg px-4 py-2 focus:outline-none focus:border-[#d4af37]"
+                className="bg-card border border-border text-foreground rounded-lg px-4 py-2 focus:outline-none focus:border-[var(--gold)]"
               >
                 <option value="A4">A4</option>
                 <option value="A5">A5</option>
@@ -237,16 +292,16 @@ export default function SettingsPage() {
             </div>
           </div>
           
-          <div className="bg-[#0a0a0a] border border-[#222222] p-5 rounded-xl hover:border-[#333333] transition-colors">
+          <div className="bg-background border border-border p-5 rounded-xl hover:border-[var(--gold)] transition-colors">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h4 className="text-white font-medium">Bills & KOT Printer</h4>
+                <h4 className="text-foreground font-medium">Bills & KOT Printer</h4>
                 <p className="text-xs text-gray-500 mt-1">Printer size for receipts and kitchen tickets</p>
               </div>
               <select 
                 value={billPrinterSize}
                 onChange={handleBillPrinterChange}
-                className="bg-[#222222] border border-[#333333] text-white rounded-lg px-4 py-2 focus:outline-none focus:border-[#d4af37]"
+                className="bg-card border border-border text-foreground rounded-lg px-4 py-2 focus:outline-none focus:border-[var(--gold)]"
               >
                 <option value="58mm">58mm</option>
                 <option value="80mm">80mm</option>

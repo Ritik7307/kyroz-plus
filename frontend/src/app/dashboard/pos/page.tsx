@@ -30,6 +30,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import useSWR from 'swr';
 import { API_URL } from '@/lib/api';
 import { dataService } from '@/lib/dataService';
+import { useTheme } from '@/context/ThemeContext';
 
 const fetcher = (url: string) => {
   const token = localStorage.getItem('token');
@@ -117,6 +118,7 @@ const defaultSession = (tableId: string): TableSession => ({
 });
 
 export default function POSTerminal() {
+  const { resolvedPosTheme } = useTheme();
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [cart, setCart] = useState<{ dish: Dish, quantity: number, note?: string, sentQty?: number }[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -961,8 +963,8 @@ export default function POSTerminal() {
     return (
       <div className="flex flex-col h-full overflow-hidden">
         {/* Header */}
-        <div className="p-3 border-b border-white/5 shrink-0 flex items-center justify-between">
-          <h2 className="text-sm font-black flex items-center gap-2 text-white">
+        <div className="p-3 border-b border-foreground/5 shrink-0 flex items-center justify-between">
+          <h2 className="text-sm font-black flex items-center gap-2 text-foreground">
             <ShoppingCart className="text-gold" size={16} /> ORDER SUMMARY
           </h2>
           <div className="flex gap-2">
@@ -986,7 +988,7 @@ export default function POSTerminal() {
               Clear
             </button>
             {isDrawer && (
-              <button onClick={() => setIsCartOpen(false)} className="p-1 text-white/40 hover:text-white transition-colors">
+              <button onClick={() => setIsCartOpen(false)} className="p-1 text-foreground/40 hover:text-foreground transition-colors">
                 <X size={16} />
               </button>
             )}
@@ -1002,11 +1004,11 @@ export default function POSTerminal() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="flex items-center justify-between bg-white/5 p-2.5 rounded-xl border border-white/5"
+                className="flex items-center justify-between bg-foreground/5 p-2.5 rounded-xl border border-foreground/5"
               >
                 <div className="flex-1 pr-2">
                   <h4 className="font-bold text-xs">{item.dish.name}</h4>
-                  <p className="text-xs text-white/40">₹{item.dish.price} x {item.quantity}</p>
+                  <p className="text-xs text-foreground/40">₹{item.dish.price} x {item.quantity}</p>
                   
                   {item.note && (
                     <p className="text-[10px] text-gold mt-1 italic leading-tight line-clamp-2">Note: {item.note}</p>
@@ -1020,13 +1022,13 @@ export default function POSTerminal() {
                         setCart(prev => prev.map(i => i.dish._id === item.dish._id ? { ...i, note } : i));
                       }
                     }}
-                    className={`p-1.5 rounded-lg transition-colors border ${item.note ? 'bg-gold/10 text-gold border-gold/30' : 'bg-white/5 text-white/40 border-white/10 hover:text-white hover:bg-white/10'}`}
+                    className={`p-1.5 rounded-lg transition-colors border ${item.note ? 'bg-gold/10 text-gold border-gold/30' : 'bg-foreground/5 text-foreground/40 border-foreground/10 hover:text-foreground hover:bg-foreground/10'}`}
                     title="Add Note"
                   >
                     <FileText size={12} />
                   </button>
-                  <div className="flex items-center gap-2 bg-black/40 rounded-xl p-1 border border-white/5 shrink-0">
-                    <button onClick={() => updateQuantity(item.dish._id, -1)} className="text-white/40 hover:text-white"><Minus size={12} /></button>
+                  <div className="flex items-center gap-2 bg-background rounded-xl p-1 border border-foreground/5 shrink-0">
+                    <button onClick={() => updateQuantity(item.dish._id, -1)} className="text-foreground/40 hover:text-foreground"><Minus size={12} /></button>
                     <span className="text-xs font-bold min-w-[16px] text-center">{item.quantity}</span>
                     <button onClick={() => updateQuantity(item.dish._id, 1)} className="text-gold hover:text-gold/80"><Plus size={12} /></button>
                   </div>
@@ -1037,7 +1039,7 @@ export default function POSTerminal() {
           </AnimatePresence>
           
           {cart.length === 0 && (
-            <div className="h-full flex flex-col items-center justify-center text-white/5 space-y-3 py-10">
+            <div className="h-full flex flex-col items-center justify-center text-foreground/5 space-y-3 py-10">
               <Utensils size={32} />
               <p className="font-black uppercase tracking-widest text-[10px]">Select items to begin bill</p>
             </div>
@@ -1045,7 +1047,7 @@ export default function POSTerminal() {
         </div>
 
         {/* Checkout Form */}
-        <div className="p-2 sm:p-3 bg-black/40 border-t border-white/5 space-y-1.5 shrink-0">
+        <div className="p-2 sm:p-3 bg-background border-t border-foreground/5 space-y-1.5 shrink-0">
           
           {/* Customer Details & Discount/Charge Toggles */}
           <div className="grid grid-cols-[1fr_1fr_auto_auto] gap-2 items-center">
@@ -1054,20 +1056,20 @@ export default function POSTerminal() {
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
               placeholder="Customer Name"
-              className="w-full bg-transparent border border-white/10 rounded-lg px-2 py-1.5 text-[10px] text-white focus:outline-none focus:border-gold/50 placeholder:text-white/30"
+              className="w-full bg-transparent border border-foreground/10 rounded-lg px-2 py-1.5 text-[10px] text-foreground focus:outline-none focus:border-gold/50 placeholder:text-foreground/30"
             />
             <input 
               type="tel" 
               value={customerPhone}
               onChange={(e) => setCustomerPhone(e.target.value)}
               placeholder="Phone No."
-              className="w-full bg-transparent border border-white/10 rounded-lg px-2 py-1.5 text-[10px] text-white focus:outline-none focus:border-gold/50 placeholder:text-white/30"
+              className="w-full bg-transparent border border-foreground/10 rounded-lg px-2 py-1.5 text-[10px] text-foreground focus:outline-none focus:border-gold/50 placeholder:text-foreground/30"
             />
             
             <button 
               onClick={() => setModifierModalType('discount')}
               className={`flex items-center justify-center w-7 h-7 rounded-lg border transition-all ${
-                discount ? 'bg-gold/20 border-gold/50 text-gold' : 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:border-white/30'
+                discount ? 'bg-gold/20 border-gold/50 text-gold' : 'bg-foreground/5 border-foreground/10 text-foreground/50 hover:text-foreground hover:border-foreground/30'
               }`}
               title="Apply Discount"
             >
@@ -1077,7 +1079,7 @@ export default function POSTerminal() {
             <button 
               onClick={() => setModifierModalType('charge')}
               className={`flex items-center justify-center w-7 h-7 rounded-lg border transition-all ${
-                additionalCharge ? 'bg-gold/20 border-gold/50 text-gold' : 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:border-white/30'
+                additionalCharge ? 'bg-gold/20 border-gold/50 text-gold' : 'bg-foreground/5 border-foreground/10 text-foreground/50 hover:text-foreground hover:border-foreground/30'
               }`}
               title="Add Charge"
             >
@@ -1090,7 +1092,7 @@ export default function POSTerminal() {
               <button 
                 onClick={() => setOrderType('Takeaway')}
                 className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  orderType === 'Takeaway' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                  orderType === 'Takeaway' ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/40 border-foreground/10'
                 }`}
               >
                 Quick Bill
@@ -1098,7 +1100,7 @@ export default function POSTerminal() {
               <button 
                 onClick={() => setOrderType('DineIn')}
                 className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  orderType === 'DineIn' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                  orderType === 'DineIn' ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/40 border-foreground/10'
                 }`}
               >
                 Dine In
@@ -1106,20 +1108,20 @@ export default function POSTerminal() {
               <button 
                 onClick={() => setOrderType('Delivery')}
                 className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  orderType === 'Delivery' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                  orderType === 'Delivery' ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/40 border-foreground/10'
                 }`}
               >
                 Delivery
               </button>
             </div>
 
-            <div className="w-px h-6 bg-white/10 shrink-0 mx-1 rounded-full" />
+            <div className="w-px h-6 bg-foreground/10 shrink-0 mx-1 rounded-full" />
 
             <div className="flex w-28 items-center gap-1 shrink-0">
               <button 
                 onClick={() => setPaymentMethod('Cash')}
                 className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  paymentMethod === 'Cash' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                  paymentMethod === 'Cash' ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/40 border-foreground/10'
                 }`}
               >
                 Cash
@@ -1127,7 +1129,7 @@ export default function POSTerminal() {
               <button 
                 onClick={() => setPaymentMethod('Online')}
                 className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  paymentMethod === 'Online' ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                  paymentMethod === 'Online' ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/40 border-foreground/10'
                 }`}
               >
                 Online
@@ -1135,7 +1137,7 @@ export default function POSTerminal() {
             </div>
           </div>
 
-          <div className="flex justify-between items-end pt-1 border-t border-white/5">
+          <div className="flex justify-between items-end pt-1 border-t border-foreground/5">
             <span className="text-xs font-black uppercase tracking-widest">Total</span>
             <div className="text-right">
               {discountAmount > 0 && (
@@ -1161,7 +1163,7 @@ export default function POSTerminal() {
                       : 'bg-blue-500 animate-pulse'
                 }`} />
                 <div className="text-left">
-                  <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">KOT Pipeline</p>
+                  <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">KOT Pipeline</p>
                   <p className="text-xs font-black text-gold uppercase mt-0.5">{kotStatus}</p>
                 </div>
               </div>
@@ -1186,7 +1188,7 @@ export default function POSTerminal() {
                       className={`flex-1 py-2.5 rounded-lg font-black text-[11px] uppercase tracking-widest transition-all border flex items-center justify-center gap-1.5 ${
                         !hasUnsentItems && cart.length > 0
                           ? 'bg-green-500/10 border-green-500/20 text-green-500 cursor-not-allowed'
-                          : 'bg-white/5 border-gold/30 text-gold hover:bg-gold hover:text-black hover:border-gold hover:scale-[1.01]'
+                          : 'bg-foreground/5 border-gold/30 text-gold hover:bg-gold hover:text-black hover:border-gold hover:scale-[1.01]'
                       }`}
                     >
                       {isSendingKot ? 'Sending...' : !hasUnsentItems && cart.length > 0 ? '✔ Sent' : <><ChefHat size={14} /> Send KOT</>}
@@ -1209,7 +1211,7 @@ export default function POSTerminal() {
                   animate={{ opacity: 1, y: 0 }}
                   className="bg-green-500/10 border border-green-500/30 p-4 rounded-2xl flex items-center gap-3 mb-4"
                 >
-                  <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-foreground shrink-0">
                     <CheckCircle size={16} />
                   </div>
                   <div>
@@ -1221,7 +1223,7 @@ export default function POSTerminal() {
                 {lastCheckoutData?.customerPhone && lastCheckoutData.customerPhone.length >= 10 && (
                   <button 
                     onClick={() => shareOrderOnWhatsApp()}
-                    className="w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-xl bg-green-500 text-white hover:scale-[1.02] active:scale-95 mb-3 flex items-center justify-center gap-2"
+                    className="w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-xl bg-green-500 text-foreground hover:scale-[1.02] active:scale-95 mb-3 flex items-center justify-center gap-2"
                   >
                     Send WhatsApp Bill
                   </button>
@@ -1234,7 +1236,7 @@ export default function POSTerminal() {
                     setPrintedBillNo('');
                     if (isDrawer) setIsCartOpen(false);
                   }}
-                  className="w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-xl bg-white/10 text-white border border-white/10 hover:bg-white/20 mb-3"
+                  className="w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-xl bg-foreground/10 text-foreground border border-foreground/10 hover:bg-foreground/20 mb-3"
                 >
                   Start New Order
                 </button>
@@ -1242,8 +1244,8 @@ export default function POSTerminal() {
             )}
 
             {userQrCode && (
-              <div className="flex flex-col items-center p-4 bg-white/5 rounded-2xl border border-white/10 mt-4 mb-4">
-                <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-3">Shop Payment QR</p>
+              <div className="flex flex-col items-center p-4 bg-foreground/5 rounded-2xl border border-foreground/10 mt-4 mb-4">
+                <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest mb-3">Shop Payment QR</p>
                 <img src={userQrCode} alt="Payment QR" className="w-24 h-24 object-contain rounded-lg" />
               </div>
             )}
@@ -1256,7 +1258,7 @@ export default function POSTerminal() {
   };
 
   return (
-    <div className="h-full relative">
+    <div className="h-full relative bg-background text-foreground" data-theme={resolvedPosTheme}>
       <style jsx global>{`
         @media print {
           @page { 
