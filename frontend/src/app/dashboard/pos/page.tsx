@@ -1482,7 +1482,7 @@ export default function POSTerminal() {
           >
             <ShoppingCart size={24} className="group-hover:rotate-12 transition-transform" />
             {cart.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full border-2 border-background">
+              <span className="absolute -top-1 -right-1 bg-red-500 text-foreground text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full border-2 border-background">
                 {cart.reduce((s, i) => s + i.quantity, 0)}
               </span>
             )}
@@ -1491,14 +1491,14 @@ export default function POSTerminal() {
 
         {/* Desktop Vertical Categories Sidebar */}
         <div className="hidden lg:flex flex-col w-[160px] xl:w-[200px] shrink-0 gap-2 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar">
-          <div className="bg-card glass-card rounded-2xl border border-white/5 p-3 flex flex-col gap-2">
-            <h3 className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2 mb-2">Categories</h3>
+          <div className="bg-card glass-card rounded-2xl border border-foreground/5 p-3 flex flex-col gap-2">
+            <h3 className="text-[10px] font-black text-foreground/40 uppercase tracking-widest px-2 mb-2">Categories</h3>
             {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
                 className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
-                  activeCategory === cat ? 'bg-gold text-black shadow-md' : 'bg-white/5 text-white/70 hover:bg-white/10'
+                  activeCategory === cat ? 'bg-gold text-black shadow-md' : 'bg-card shadow-sm text-foreground/70 hover:bg-foreground/10'
                 }`}
               >
                 {cat}
@@ -1514,7 +1514,7 @@ export default function POSTerminal() {
               key={cat}
               onClick={() => setActiveCategory(cat)}
               className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap border ${
-                activeCategory === cat ? 'bg-gold text-black border-gold' : 'bg-white/10 text-white/70 border-white/10'
+                activeCategory === cat ? 'bg-gold text-black border-gold' : 'bg-foreground/10 text-foreground/70 border-foreground/10'
               }`}
             >
               {cat}
@@ -1524,34 +1524,34 @@ export default function POSTerminal() {
 
         {/* Middle Column: Menu list */}
         <div className="flex-1 w-full min-w-0 flex flex-col">
-          <div className="bg-card glass-card p-4 rounded-2xl border border-white/5 space-y-4 mb-4">
+          <div className="bg-card glass-card p-4 rounded-2xl border border-foreground/5 space-y-4 mb-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h2 className="text-lg md:text-xl font-black flex items-center gap-3">
                 <Utensils className="text-gold" /> {isManagementMode ? 'SHOP MANAGER' : 'DISH MENU'}
               </h2>
               <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                 <div className="relative flex-1 sm:w-48">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={16} />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" size={16} />
                   <input 
                     type="text" 
                     placeholder="Search..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-gold/50"
+                    className="w-full bg-background border border-foreground/10 rounded-xl py-2 pl-9 pr-4 text-sm text-foreground focus:outline-none focus:border-gold/50"
                   />
                 </div>
                 {isManager && (
                   <>
                     <button 
                       onClick={() => setShowShareMenuModal(true)}
-                      className="p-2 rounded-xl border border-white/10 bg-white/5 text-white/70 hover:text-white transition-all flex items-center gap-2 text-[10px] md:text-xs font-black uppercase tracking-widest"
+                      className="p-2 rounded-xl border border-foreground/10 bg-card shadow-sm text-foreground/70 hover:text-foreground transition-all flex items-center gap-2 text-[10px] md:text-xs font-black uppercase tracking-widest"
                     >
                       <Share2 size={16} /> Share
                     </button>
                     <button 
                       onClick={() => setIsManagementMode(!isManagementMode)}
                       className={`p-2 rounded-xl border transition-all flex items-center gap-2 text-[10px] md:text-xs font-black uppercase tracking-widest ${
-                        isManagementMode ? 'bg-gold text-black border-gold' : 'bg-white/5 text-white/40 border-white/10'
+                        isManagementMode ? 'bg-gold text-black border-gold' : 'bg-card shadow-sm text-foreground/40 border-foreground/10'
                       }`}
                     >
                       <Settings size={16} /> {isManagementMode ? 'Exit' : 'Manage'}
@@ -1563,12 +1563,12 @@ export default function POSTerminal() {
             
             {/* Tables Bar */}
             {!isManagementMode && (
-              <div className="border-t border-white/5 pt-3 space-y-2">
+              <div className="border-t border-foreground/5 pt-3 space-y-2">
                 <div className="flex justify-between items-center">
-                  <label className="text-[10px] font-black text-white/40 uppercase tracking-widest pl-1">TABLE SELECTION</label>
+                  <label className="text-[10px] font-black text-foreground/40 uppercase tracking-widest pl-1">TABLE SELECTION</label>
                   {isManager && (
                     <div className="flex items-center gap-2">
-                      <button onClick={handleAddTable} className="text-[10px] font-black text-gold uppercase tracking-widest hover:text-white transition-colors flex items-center gap-1">
+                      <button onClick={handleAddTable} className="text-[10px] font-black text-gold uppercase tracking-widest hover:text-foreground transition-colors flex items-center gap-1">
                         <Plus size={10} /> Add
                       </button>
                       <button onClick={handleRemoveLastTable} disabled={tables.length <= 1} className="text-[10px] font-black text-red-500 uppercase tracking-widest hover:text-red-400 transition-colors flex items-center gap-1 disabled:opacity-30">
@@ -1591,7 +1591,7 @@ export default function POSTerminal() {
                         key={t.id}
                         onClick={() => switchTable(t.id)}
                         className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border flex items-center gap-1.5 relative ${
-                          isActive ? 'bg-gold text-black border-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]' : hasItems ? 'bg-red-500/10 text-red-400 border-red-500/30' : 'bg-white/5 text-white/40 border-white/10'
+                          isActive ? 'bg-gold text-black border-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]' : hasItems ? 'bg-red-500/10 text-red-400 border-red-500/30' : 'bg-card shadow-sm text-foreground/40 border-foreground/10'
                         }`}
                       >
                         <span>{t.name}</span>
@@ -1599,7 +1599,7 @@ export default function POSTerminal() {
                           <span className={`w-2 h-2 rounded-full ${tableKotStatus === 'Ready' ? 'bg-green-500' : tableKotStatus === 'Preparing' ? 'bg-orange-500' : 'bg-blue-500 animate-pulse'}`} />
                         )}
                         {hasItems && (
-                          <span className={`text-[8px] px-1 py-0.5 rounded-md font-bold ${isActive ? 'bg-black text-gold' : 'bg-red-500 text-white'}`}>
+                          <span className={`text-[8px] px-1 py-0.5 rounded-md font-bold ${isActive ? 'bg-black text-gold' : 'bg-red-500 text-foreground'}`}>
                             ₹{tableSubtotal}
                           </span>
                         )}
@@ -1610,8 +1610,8 @@ export default function POSTerminal() {
               </div>
             )}
             {isManagementMode && (
-              <div className="flex justify-end pt-2 border-t border-white/5">
-                <button onClick={() => setShowAddModal(true)} className="px-4 py-2 bg-green-500 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2">
+              <div className="flex justify-end pt-2 border-t border-foreground/5">
+                <button onClick={() => setShowAddModal(true)} className="px-4 py-2 bg-green-500 text-foreground rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2">
                   <Plus size={14} /> Add Item
                 </button>
               </div>
@@ -1620,7 +1620,7 @@ export default function POSTerminal() {
           
           <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 pr-1 pb-24">
             {!dishesData ? (
-              <div className="col-span-full flex flex-col items-center justify-center py-20 text-white/20 gap-4">
+              <div className="col-span-full flex flex-col items-center justify-center py-20 text-foreground/20 gap-4">
                 <Loader2 className="animate-spin" size={48} />
                 <p className="font-black uppercase tracking-widest text-sm">Loading Menu...</p>
               </div>
@@ -1630,21 +1630,21 @@ export default function POSTerminal() {
                 <motion.div
                   key={dish._id}
                   className={`bg-card glass-card rounded-2xl border transition-all flex flex-col overflow-hidden min-h-[100px] h-full ${
-                    isManagementMode ? 'border-white/10' : 'border-white/5 hover:border-gold/30'
+                    isManagementMode ? 'border-foreground/10' : 'border-foreground/5 hover:border-gold/30'
                   }`}
                 >
-                  <div className="h-16 hidden sm:block relative overflow-hidden bg-white/5 shrink-0">
+                  <div className="h-16 hidden sm:block relative overflow-hidden bg-card shadow-sm shrink-0">
                     {dish.imageUrl ? (
                       <img src={dish.imageUrl} alt={dish.name} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-white/10">
+                      <div className="w-full h-full flex items-center justify-center text-foreground/10">
                         <ImageIcon size={20} />
                       </div>
                     )}
                     {isManagementMode && (
                       <div className="absolute top-1 right-1 flex gap-1">
-                        <button onClick={() => setEditingDish(dish)} className="p-1.5 bg-black/60 rounded-md text-white hover:text-gold"><Edit size={10}/></button>
-                        <button onClick={() => handleDeleteDish(dish._id)} className="p-1.5 bg-black/60 rounded-md text-white hover:text-red-500"><Trash2 size={10}/></button>
+                        <button onClick={() => setEditingDish(dish)} className="p-1.5 bg-foreground/10 rounded-md text-foreground hover:text-gold"><Edit size={10}/></button>
+                        <button onClick={() => handleDeleteDish(dish._id)} className="p-1.5 bg-foreground/10 rounded-md text-foreground hover:text-red-500"><Trash2 size={10}/></button>
                       </div>
                     )}
                   </div>
@@ -1652,12 +1652,12 @@ export default function POSTerminal() {
                   <div className="p-2 sm:p-3 flex flex-col justify-between flex-1 gap-2">
                     <h3 className="font-bold text-[11px] sm:text-xs leading-tight line-clamp-2">{dish.name}</h3>
                     <div className="flex items-center justify-between mt-auto">
-                      <span className="text-sm font-black text-white">₹{dish.price}</span>
+                      <span className="text-sm font-black text-foreground">₹{dish.price}</span>
                       {!isManagementMode && (
-                        <div className="flex items-center gap-1.5 bg-white/5 p-1 rounded-lg border border-white/10">
+                        <div className="flex items-center gap-1.5 bg-card shadow-sm p-1 rounded-lg border border-foreground/10">
                           {quantity > 0 ? (
                             <>
-                              <button onClick={() => updateQuantity(dish._id, -1)} className="w-5 h-5 bg-white/5 rounded flex items-center justify-center text-white/60"><Minus size={10} /></button>
+                              <button onClick={() => updateQuantity(dish._id, -1)} className="w-5 h-5 bg-card shadow-sm rounded flex items-center justify-center text-foreground/60"><Minus size={10} /></button>
                               <span className="text-[10px] font-black min-w-[12px] text-center">{quantity}</span>
                               <button onClick={() => addToCart(dish)} className="w-5 h-5 bg-gold/10 rounded flex items-center justify-center text-gold"><Plus size={10} /></button>
                             </>
@@ -1675,7 +1675,7 @@ export default function POSTerminal() {
         </div>
 
         {/* Right Column: Permanent Sidebar Cart on Desktop/Tablet */}
-        <div className="hidden lg:flex w-[320px] xl:w-[380px] 2xl:w-[450px] shrink-0 bg-card glass-card border border-white/10 rounded-[2rem] flex-col overflow-hidden h-[calc(100vh-8rem)] sticky top-24 shadow-xl">
+        <div className="hidden lg:flex w-[320px] xl:w-[380px] 2xl:w-[450px] shrink-0 bg-card glass-card border border-foreground/10 rounded-[2rem] flex-col overflow-hidden h-[calc(100vh-8rem)] sticky top-24 shadow-xl">
           {renderCartContent(false)}
         </div>
       </div>
@@ -1689,13 +1689,13 @@ export default function POSTerminal() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsCartOpen(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-foreground/10 backdrop-blur-sm"
             />
             <motion.div 
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              className="relative w-full max-w-md bg-card glass-card h-full border-l border-white/10 flex flex-col overflow-hidden shadow-2xl"
+              className="relative w-full max-w-md bg-card glass-card h-full border-l border-foreground/10 flex flex-col overflow-hidden shadow-2xl"
             >
               {renderCartContent(true)}
             </motion.div>
@@ -1707,7 +1707,7 @@ export default function POSTerminal() {
       <AnimatePresence>
         {(showAddModal || editingDish) && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm">
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-white/10 rounded-[2.5rem] p-8 w-full max-w-lg">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-foreground/10 rounded-[2.5rem] p-8 w-full max-w-lg">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-black uppercase tracking-tighter">{editingDish ? 'Edit Item' : 'New Item'}</h3>
                 <button onClick={() => { setShowAddModal(false); setEditingDish(null); }}><X /></button>
@@ -1715,13 +1715,13 @@ export default function POSTerminal() {
               <div className="space-y-4">
                 {editingDish ? (
                   <>
-                    <input type="text" value={editingDish.name} onChange={(e) => setEditingDish({...editingDish, name: e.target.value})} placeholder="Item Name" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
+                    <input type="text" value={editingDish.name} onChange={(e) => setEditingDish({...editingDish, name: e.target.value})} placeholder="Item Name" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" />
                     <div className="grid grid-cols-2 gap-4">
-                      <input type="number" value={editingDish.price} onChange={(e) => setEditingDish({...editingDish, price: Number(e.target.value)})} placeholder="Price" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
-                      <input type="number" value={editingDish.ingredientPrice} onChange={(e) => setEditingDish({...editingDish, ingredientPrice: Number(e.target.value)})} placeholder="Cost" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
+                      <input type="number" value={editingDish.price} onChange={(e) => setEditingDish({...editingDish, price: Number(e.target.value)})} placeholder="Price" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" />
+                      <input type="number" value={editingDish.ingredientPrice} onChange={(e) => setEditingDish({...editingDish, ingredientPrice: Number(e.target.value)})} placeholder="Cost" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" />
                     </div>
                     {editingDish.ingredientPrice > 0 && (
-                      <p className="text-xs text-white/50 italic px-2">
+                      <p className="text-xs text-foreground/50 italic px-2">
                         💡 Suggested Selling Price: <span className="text-gold font-bold">₹{Math.round(editingDish.ingredientPrice * 2.5)}</span> - <span className="text-gold font-bold">₹{Math.round(editingDish.ingredientPrice * 5)}</span>
                       </p>
                     )}
@@ -1732,7 +1732,7 @@ export default function POSTerminal() {
                     {/* Setup Header */}
                     <div className="flex items-center gap-2 mb-4">
                       {[1, 2, 3].map(step => (
-                        <div key={step} className={`flex-1 h-1 rounded-full ${setupStep >= step ? 'bg-gold' : 'bg-white/10'}`} />
+                        <div key={step} className={`flex-1 h-1 rounded-full ${setupStep >= step ? 'bg-gold' : 'bg-foreground/10'}`} />
                       ))}
                     </div>
                     <p className="text-xs uppercase font-bold tracking-widest text-gold mb-4">
@@ -1743,9 +1743,9 @@ export default function POSTerminal() {
 
                     {setupStep === 1 && (
                       <div className="space-y-4">
-                        <input type="text" value={newDish.name} onChange={(e) => setNewDish({...newDish, name: e.target.value})} placeholder="Item Name *" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" required />
+                        <input type="text" value={newDish.name} onChange={(e) => setNewDish({...newDish, name: e.target.value})} placeholder="Item Name *" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" required />
                         <div className="grid grid-cols-2 gap-4">
-                          <input type="number" value={newDish.price} onChange={(e) => setNewDish({...newDish, price: e.target.value})} placeholder="Selling Price *" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" required />
+                          <input type="number" value={newDish.price} onChange={(e) => setNewDish({...newDish, price: e.target.value})} placeholder="Selling Price *" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" required />
                           
                           {isAddingNewCategory ? (
                             <div className="relative">
@@ -1754,12 +1754,12 @@ export default function POSTerminal() {
                                 value={newDish.category} 
                                 onChange={(e) => setNewDish({...newDish, category: e.target.value})} 
                                 placeholder="New Category Name" 
-                                className="w-full bg-white/5 p-4 rounded-xl border border-white/10 pr-10" 
+                                className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10 pr-10" 
                                 autoFocus
                               />
                               <button 
                                 onClick={() => { setIsAddingNewCategory(false); setNewDish({...newDish, category: ''}); }} 
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/50 hover:text-foreground"
                               >
                                 <X size={16} />
                               </button>
@@ -1776,7 +1776,7 @@ export default function POSTerminal() {
                                   setSelectedTemplateCategory(e.target.value);
                                 }
                               }}
-                              className="w-full bg-black/40 p-4 rounded-xl border border-white/10 text-sm"
+                              className="w-full bg-background p-4 rounded-xl border border-foreground/10 text-sm"
                             >
                               <option value="" disabled>Select Category</option>
                               {Array.from(new Set(dishes.map(d => d.category))).filter(Boolean).map(cat => (
@@ -1803,7 +1803,7 @@ export default function POSTerminal() {
                                   handleImportTemplate(val);
                                 }
                               }}
-                              className="w-full bg-black/40 p-3 rounded-lg border border-gold/30 text-sm outline-none focus:border-gold text-white"
+                              className="w-full bg-background p-3 rounded-lg border border-gold/30 text-sm outline-none focus:border-gold text-foreground"
                             >
                               <option value="">Do not link / Setup manually</option>
                               {dishesData?.filter((d: any) => d.category === newDish.category).map((dish: any) => (
@@ -1826,7 +1826,7 @@ export default function POSTerminal() {
                       <div className="space-y-4">
                         
                         {/* IMPORT TEMPLATE UI */}
-                        <div className="space-y-3 bg-white/5 p-4 rounded-xl border border-gold/30">
+                        <div className="space-y-3 bg-card shadow-sm p-4 rounded-xl border border-gold/30">
                           <label className="text-xs uppercase tracking-widest text-gold font-bold block">Import Predefined Recipe Template</label>
                           <div className="grid grid-cols-2 gap-2">
                             <select
@@ -1835,7 +1835,7 @@ export default function POSTerminal() {
                                 setSelectedTemplateCategory(e.target.value);
                                 setSelectedTemplateDishId('');
                               }}
-                              className="w-full bg-black/40 p-3 rounded-lg border border-white/10 text-[11px] text-white outline-none focus:border-gold"
+                              className="w-full bg-background p-3 rounded-lg border border-foreground/10 text-[11px] text-foreground outline-none focus:border-gold"
                             >
                               <option value="" disabled>Select Category</option>
                               {categories.map(cat => (
@@ -1846,7 +1846,7 @@ export default function POSTerminal() {
                               value={selectedTemplateDishId}
                               onChange={(e) => setSelectedTemplateDishId(e.target.value)}
                               disabled={!selectedTemplateCategory}
-                              className="w-full bg-black/40 p-3 rounded-lg border border-white/10 text-[11px] text-white outline-none focus:border-gold disabled:opacity-50"
+                              className="w-full bg-background p-3 rounded-lg border border-foreground/10 text-[11px] text-foreground outline-none focus:border-gold disabled:opacity-50"
                             >
                               <option value="" disabled>Select Template</option>
                               {selectedTemplateCategory && dishesData?.filter((d: any) => d.category === selectedTemplateCategory).map((dish: any) => (
@@ -1864,14 +1864,14 @@ export default function POSTerminal() {
                           </button>
                         </div>
 
-                        <div className="space-y-3 bg-white/5 p-4 rounded-xl border border-white/10">
-                          <label className="text-xs uppercase tracking-widest text-white/50 font-bold block">Dish Ingredients (Optional)</label>
+                        <div className="space-y-3 bg-card shadow-sm p-4 rounded-xl border border-foreground/10">
+                          <label className="text-xs uppercase tracking-widest text-foreground/50 font-bold block">Dish Ingredients (Optional)</label>
                           
                           {recipeIngredients.length > 0 && (
                             <div className="space-y-2 mb-4">
                               {recipeIngredients.map((ing, idx) => (
-                                <div key={idx} className="flex items-center gap-2 bg-black/40 p-2 rounded-lg border border-white/10">
-                                  <div className="flex-1 text-[11px] text-white truncate">{ing.name}</div>
+                                <div key={idx} className="flex items-center gap-2 bg-background p-2 rounded-lg border border-foreground/10">
+                                  <div className="flex-1 text-[11px] text-foreground truncate">{ing.name}</div>
                                   <div className="text-[11px] text-gold font-bold">{ing.quantity} {ing.unit}</div>
                                   <button onClick={() => {
                                     const newIngs = recipeIngredients.filter((_, i) => i !== idx);
@@ -1900,7 +1900,7 @@ export default function POSTerminal() {
                                     setIngredientUnit(selected.consumptionUnit || selected.yieldUnit || selected.unit || 'unit');
                                   }
                                 }}
-                                className="w-full bg-black/40 p-3 rounded-lg border border-white/10 text-[11px]"
+                                className="w-full bg-background p-3 rounded-lg border border-foreground/10 text-[11px]"
                               >
                                 <option value="">Select Ingredient...</option>
                                 {availableIngredients.map(ing => (
@@ -1917,14 +1917,14 @@ export default function POSTerminal() {
                                 value={ingredientQuantity}
                                 onChange={(e) => setIngredientQuantity(e.target.value)}
                                 placeholder="Qty" 
-                                className="w-full bg-black/40 p-3 rounded-lg border border-white/10 text-[11px]" 
+                                className="w-full bg-background p-3 rounded-lg border border-foreground/10 text-[11px]" 
                               />
                             </div>
                             <div className="col-span-3">
                               <select 
                                 value={ingredientUnit}
                                 onChange={(e) => setIngredientUnit(e.target.value)}
-                                className="w-full bg-black/40 p-3 rounded-lg border border-white/10 text-[11px]"
+                                className="w-full bg-background p-3 rounded-lg border border-foreground/10 text-[11px]"
                               >
                                 <option value="kg">kg</option>
                                 <option value="gm">gm</option>
@@ -1974,18 +1974,18 @@ export default function POSTerminal() {
                           </div>
                         </div>
 
-                        <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3">
-                          <label className="text-xs uppercase tracking-widest text-white/50 font-bold block">Estimated Dish Cost (₹)</label>
-                          <input type="number" value={newDish.ingredientPrice} onChange={(e) => setNewDish({...newDish, ingredientPrice: e.target.value})} placeholder="Costing Amount *" className="w-full bg-black/40 p-3 rounded-lg border border-white/10" />
+                        <div className="p-4 bg-card shadow-sm rounded-xl border border-foreground/10 space-y-3">
+                          <label className="text-xs uppercase tracking-widest text-foreground/50 font-bold block">Estimated Dish Cost (₹)</label>
+                          <input type="number" value={newDish.ingredientPrice} onChange={(e) => setNewDish({...newDish, ingredientPrice: e.target.value})} placeholder="Costing Amount *" className="w-full bg-background p-3 rounded-lg border border-foreground/10" />
                         </div>
                         
-                        <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3">
-                          <label className="text-xs uppercase tracking-widest text-white/50 font-bold block">Allowed Wastage (%)</label>
-                          <input type="number" value={advancedSetupData.allowedWastagePercentage} onChange={(e) => setAdvancedSetupData({...advancedSetupData, allowedWastagePercentage: Number(e.target.value)})} placeholder="e.g. 5" className="w-full bg-black/40 p-3 rounded-lg border border-white/10" />
+                        <div className="p-4 bg-card shadow-sm rounded-xl border border-foreground/10 space-y-3">
+                          <label className="text-xs uppercase tracking-widest text-foreground/50 font-bold block">Allowed Wastage (%)</label>
+                          <input type="number" value={advancedSetupData.allowedWastagePercentage} onChange={(e) => setAdvancedSetupData({...advancedSetupData, allowedWastagePercentage: Number(e.target.value)})} placeholder="e.g. 5" className="w-full bg-background p-3 rounded-lg border border-foreground/10" />
                         </div>
 
                         <div className="flex gap-4">
-                          <button onClick={() => setSetupStep(1)} className="w-1/3 py-4 bg-white/5 text-white font-black uppercase rounded-xl hover:bg-white/10">Back</button>
+                          <button onClick={() => setSetupStep(1)} className="w-1/3 py-4 bg-card shadow-sm text-foreground font-black uppercase rounded-xl hover:bg-foreground/10">Back</button>
                           <button onClick={() => setSetupStep(3)} className="w-2/3 py-4 bg-gold text-black font-black uppercase rounded-xl">Next: Inventory</button>
                         </div>
                       </div>
@@ -1995,30 +1995,30 @@ export default function POSTerminal() {
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <label className="text-xs uppercase tracking-widest text-white/50 font-bold pl-1">Base Unit Name</label>
-                            <input type="text" value={advancedSetupData.baseUnitName} onChange={(e) => setAdvancedSetupData({...advancedSetupData, baseUnitName: e.target.value})} placeholder="e.g. Packet, Box" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
+                            <label className="text-xs uppercase tracking-widest text-foreground/50 font-bold pl-1">Base Unit Name</label>
+                            <input type="text" value={advancedSetupData.baseUnitName} onChange={(e) => setAdvancedSetupData({...advancedSetupData, baseUnitName: e.target.value})} placeholder="e.g. Packet, Box" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-xs uppercase tracking-widest text-white/50 font-bold pl-1">Sub Unit Name</label>
-                            <input type="text" value={advancedSetupData.subUnitName} onChange={(e) => setAdvancedSetupData({...advancedSetupData, subUnitName: e.target.value})} placeholder="e.g. Plate, Pc" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
+                            <label className="text-xs uppercase tracking-widest text-foreground/50 font-bold pl-1">Sub Unit Name</label>
+                            <input type="text" value={advancedSetupData.subUnitName} onChange={(e) => setAdvancedSetupData({...advancedSetupData, subUnitName: e.target.value})} placeholder="e.g. Plate, Pc" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" />
                           </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <label className="text-xs uppercase tracking-widest text-white/50 font-bold pl-1">Initial Total {advancedSetupData.subUnitName}s</label>
-                            <input type="number" value={advancedSetupData.totalPlates} onChange={(e) => setAdvancedSetupData({...advancedSetupData, totalPlates: Number(e.target.value)})} placeholder="0" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
+                            <label className="text-xs uppercase tracking-widest text-foreground/50 font-bold pl-1">Initial Total {advancedSetupData.subUnitName}s</label>
+                            <input type="number" value={advancedSetupData.totalPlates} onChange={(e) => setAdvancedSetupData({...advancedSetupData, totalPlates: Number(e.target.value)})} placeholder="0" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-xs uppercase tracking-widest text-white/50 font-bold pl-1">{advancedSetupData.subUnitName}s Per {advancedSetupData.baseUnitName}</label>
-                            <input type="number" value={advancedSetupData.platesPerPacket} onChange={(e) => setAdvancedSetupData({...advancedSetupData, platesPerPacket: Number(e.target.value)})} placeholder="10" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
+                            <label className="text-xs uppercase tracking-widest text-foreground/50 font-bold pl-1">{advancedSetupData.subUnitName}s Per {advancedSetupData.baseUnitName}</label>
+                            <input type="number" value={advancedSetupData.platesPerPacket} onChange={(e) => setAdvancedSetupData({...advancedSetupData, platesPerPacket: Number(e.target.value)})} placeholder="10" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" />
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-xs uppercase tracking-widest text-white/50 font-bold pl-1">Low Stock Threshold ({advancedSetupData.baseUnitName}s)</label>
-                          <input type="number" value={advancedSetupData.lowStockThreshold} onChange={(e) => setAdvancedSetupData({...advancedSetupData, lowStockThreshold: Number(e.target.value)})} placeholder="5" className="w-full bg-white/5 p-4 rounded-xl border border-white/10" />
+                          <label className="text-xs uppercase tracking-widest text-foreground/50 font-bold pl-1">Low Stock Threshold ({advancedSetupData.baseUnitName}s)</label>
+                          <input type="number" value={advancedSetupData.lowStockThreshold} onChange={(e) => setAdvancedSetupData({...advancedSetupData, lowStockThreshold: Number(e.target.value)})} placeholder="5" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" />
                         </div>
                         <div className="flex gap-4">
-                          <button onClick={() => setSetupStep(2)} className="w-1/3 py-4 bg-white/5 text-white font-black uppercase rounded-xl hover:bg-white/10">Back</button>
+                          <button onClick={() => setSetupStep(2)} className="w-1/3 py-4 bg-card shadow-sm text-foreground font-black uppercase rounded-xl hover:bg-foreground/10">Back</button>
                           <button onClick={handleAddDish} className="w-2/3 py-4 bg-gold text-black font-black uppercase rounded-xl">Save Setup</button>
                         </div>
                       </div>
@@ -2035,9 +2035,9 @@ export default function POSTerminal() {
       <AnimatePresence>
         {showQrModal && userQrCode && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm">
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-white/10 rounded-[2.5rem] p-8 w-full max-w-sm flex flex-col items-center">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-foreground/10 rounded-[2.5rem] p-8 w-full max-w-sm flex flex-col items-center">
               <h3 className="text-xl font-black uppercase tracking-tighter mb-2">Scan to Pay</h3>
-              <p className="text-sm text-white/60 mb-6 text-center">Amount Due: <span className="text-gold font-black text-xl">₹{grandTotal}</span></p>
+              <p className="text-sm text-foreground/60 mb-6 text-center">Amount Due: <span className="text-gold font-black text-xl">₹{grandTotal}</span></p>
               
               <div className="bg-white p-4 rounded-3xl mb-8 w-64 h-64 flex items-center justify-center">
                 <img src={userQrCode} alt="Payment QR" className="w-full h-full object-contain" />
@@ -2046,14 +2046,14 @@ export default function POSTerminal() {
               <div className="flex w-full gap-4">
                 <button 
                   onClick={() => setShowQrModal(false)}
-                  className="flex-1 py-4 bg-white/5 text-white font-black uppercase rounded-xl border border-white/10 hover:bg-white/10"
+                  className="flex-1 py-4 bg-card shadow-sm text-foreground font-black uppercase rounded-xl border border-foreground/10 hover:bg-foreground/10"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={handleCheckout}
                   disabled={isProcessingCheckout}
-                  className="flex-[2] py-4 bg-green-500 text-white font-black uppercase rounded-xl shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="flex-[2] py-4 bg-green-500 text-foreground font-black uppercase rounded-xl shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {isProcessingCheckout ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle size={18} />}
                   Payment Received
@@ -2068,16 +2068,16 @@ export default function POSTerminal() {
       <AnimatePresence>
         {showShareMenuModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowShareMenuModal(false)} />
+            <div className="absolute inset-0 bg-background backdrop-blur-sm" onClick={() => setShowShareMenuModal(false)} />
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative bg-card glass-card border border-white/10 p-8 rounded-3xl w-full max-w-sm flex flex-col items-center text-center"
+              className="relative bg-card glass-card border border-foreground/10 p-8 rounded-3xl w-full max-w-sm flex flex-col items-center text-center"
             >
               <button 
                 onClick={() => setShowShareMenuModal(false)}
-                className="absolute top-4 right-4 text-white/40 hover:text-white transition-colors"
+                className="absolute top-4 right-4 text-foreground/40 hover:text-foreground transition-colors"
               >
                 <X size={20} />
               </button>
@@ -2086,7 +2086,7 @@ export default function POSTerminal() {
                 <Utensils size={32} className="text-black" />
               </div>
               <h2 className="text-xl font-black uppercase tracking-tight mb-2">Digital Menu</h2>
-              <p className="text-xs text-white/60 mb-8 font-bold">Ask customers to scan this QR code to view your live digital menu.</p>
+              <p className="text-xs text-foreground/60 mb-8 font-bold">Ask customers to scan this QR code to view your live digital menu.</p>
               
               <div className="bg-white p-4 rounded-3xl mb-6 shadow-xl">
                 {user ? (
@@ -2105,7 +2105,7 @@ export default function POSTerminal() {
                   navigator.clipboard.writeText(window.location.origin + '/menu/' + user._id);
                   alert('Menu link copied to clipboard!');
                 }}
-                className="text-xs font-black uppercase tracking-widest text-gold hover:text-white transition-colors border border-gold/30 px-4 py-2 rounded-xl bg-gold/5"
+                className="text-xs font-black uppercase tracking-widest text-gold hover:text-foreground transition-colors border border-gold/30 px-4 py-2 rounded-xl bg-gold/5"
               >
                 Copy Link
               </button>
@@ -2118,29 +2118,29 @@ export default function POSTerminal() {
       <AnimatePresence>
         {modifierModalType && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm">
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-white/10 rounded-[2.5rem] p-8 w-full max-w-sm flex flex-col">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-foreground/10 rounded-[2.5rem] p-8 w-full max-w-sm flex flex-col">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-black uppercase tracking-tighter">
                   {modifierModalType === 'discount' ? 'Discount' : 'Additional Charge'}
                 </h3>
-                <button onClick={() => setModifierModalType(null)} className="text-white/40 hover:text-white"><X size={20} /></button>
+                <button onClick={() => setModifierModalType(null)} className="text-foreground/40 hover:text-foreground"><X size={20} /></button>
               </div>
 
               <div className="space-y-6">
                 {modifierModalType === 'discount' && (
                   <div>
                     <div className="flex justify-between items-center mb-2">
-                      <label className="text-xs uppercase tracking-widest text-white/50 font-bold">Discount</label>
-                      <div className="flex rounded-md overflow-hidden border border-white/10 bg-white/5 text-[10px] font-black">
+                      <label className="text-xs uppercase tracking-widest text-foreground/50 font-bold">Discount</label>
+                      <div className="flex rounded-md overflow-hidden border border-foreground/10 bg-card shadow-sm text-[10px] font-black">
                         <button 
                           onClick={() => setDiscountType('percentage')} 
-                          className={`px-2 py-1 transition-colors ${discountType === 'percentage' ? 'bg-gold text-black' : 'text-white/40 hover:text-white'}`}
+                          className={`px-2 py-1 transition-colors ${discountType === 'percentage' ? 'bg-gold text-black' : 'text-foreground/40 hover:text-foreground'}`}
                         >
                           %
                         </button>
                         <button 
                           onClick={() => setDiscountType('flat')} 
-                          className={`px-2 py-1 transition-colors ${discountType === 'flat' ? 'bg-gold text-black' : 'text-white/40 hover:text-white'}`}
+                          className={`px-2 py-1 transition-colors ${discountType === 'flat' ? 'bg-gold text-black' : 'text-foreground/40 hover:text-foreground'}`}
                         >
                           ₹
                         </button>
@@ -2154,14 +2154,14 @@ export default function POSTerminal() {
                         if (val === '' || /^\d*\.?\d*$/.test(val)) setDiscount(val);
                       }}
                       placeholder="0"
-                      className="w-full bg-white/5 p-4 rounded-xl border border-white/10 text-white font-bold focus:outline-none focus:border-gold/50"
+                      className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10 text-foreground font-bold focus:outline-none focus:border-gold/50"
                     />
                   </div>
                 )}
 
                 {modifierModalType === 'charge' && (
                   <div>
-                    <label className="text-xs uppercase tracking-widest text-white/50 font-bold block mb-2">Additional Charge (₹)</label>
+                    <label className="text-xs uppercase tracking-widest text-foreground/50 font-bold block mb-2">Additional Charge (₹)</label>
                     <input 
                       type="text" 
                       value={additionalCharge}
@@ -2170,7 +2170,7 @@ export default function POSTerminal() {
                         if (val === '' || /^\d*\.?\d*$/.test(val)) setAdditionalCharge(val);
                       }}
                       placeholder="0"
-                      className="w-full bg-white/5 p-4 rounded-xl border border-white/10 text-white font-bold focus:outline-none focus:border-gold/50"
+                      className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10 text-foreground font-bold focus:outline-none focus:border-gold/50"
                     />
                   </div>
                 )}
