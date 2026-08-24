@@ -185,12 +185,13 @@ export default function POSTerminal() {
   const [selectedTemplateDishId, setSelectedTemplateDishId] = useState<string>('');
   const [importingTemplate, setImportingTemplate] = useState(false);
 
-  const handleImportTemplate = async () => {
-    if (!selectedTemplateDishId) return;
+  const handleImportTemplate = async (templateIdToImport?: string) => {
+    const idToUse = typeof templateIdToImport === 'string' ? templateIdToImport : selectedTemplateDishId;
+    if (!idToUse) return;
     setImportingTemplate(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/api/costing/dish/${selectedTemplateDishId}`, {
+      const res = await fetch(`${API_URL}/api/costing/dish/${idToUse}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to fetch template costing');
@@ -209,13 +210,23 @@ export default function POSTerminal() {
           };
         });
 
-      setRecipeIngredients((prev) => [...prev, ...newIngredients]);
+      setRecipeIngredients((prev) => {
+        // Prevent duplicate ingredients if clicking multiple times
+        const existingIds = new Set(prev.map(i => i.itemId));
+        const filteredNew = newIngredients.filter((i: any) => !existingIds.has(i.itemId));
+        return [...prev, ...filteredNew];
+      });
       
-      const totalCost = newIngredients.reduce((sum: number, item: any) => sum + (item.quantity * item.costPerUnit), 0) + Number(newDish.ingredientPrice || 0);
-      setNewDish({...newDish, ingredientPrice: String(totalCost)});
+      setNewDish((prev) => {
+        const currentCost = Number(prev.ingredientPrice || 0);
+        const addedCost = newIngredients.reduce((sum: number, item: any) => sum + (item.quantity * item.costPerUnit), 0);
+        return { ...prev, ingredientPrice: String(currentCost + addedCost) };
+      });
       
-      setSelectedTemplateCategory('');
-      setSelectedTemplateDishId('');
+      if (typeof templateIdToImport !== 'string') {
+        setSelectedTemplateCategory('');
+        setSelectedTemplateDishId('');
+      }
     } catch (err: any) {
       console.error('Failed to import template:', err);
       alert('Failed to import template: ' + err.message);
@@ -1248,7 +1259,10 @@ export default function POSTerminal() {
     <div className="h-full relative">
       <style jsx global>{`
         @media print {
-          @page { margin: 0mm !important; }
+          @page { 
+            margin: 0 !important;
+            padding: 0 !important;
+          }
           /* Hide EVERYTHING in the body using visibility */
           html, body, main {
             visibility: hidden !important;
@@ -1271,6 +1285,8 @@ export default function POSTerminal() {
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
             width: 100% !important;
             display: block !important;
             background: white !important;
@@ -1305,8 +1321,8 @@ export default function POSTerminal() {
       {/* PRINT RECEIPT - MOVED TO TOP FOR BETTER SELECTIVITY */}
       <div className="receipt-container hidden print:block">
         {printType === 'kot' && printingKot ? (
-          <div className="max-w-[80mm] mx-auto font-mono text-black px-1 pt-0 pb-1 bg-white leading-tight">
-            <div className="text-center border-b border-black pb-0.5 mb-1">
+          <div className="max-w-[80mm] mx-auto font-mono text-black px-1 pb-1 bg-white leading-tight">
+            <div className="text-center border-b border-black pb-1 mb-1">
               <h1 className="text-sm font-black uppercase tracking-tighter text-center whitespace-nowrap m-0 p-0 leading-none">KITCHEN ORDER TICKET</h1>
               <p className="text-xs font-bold uppercase tracking-widest text-black m-0 p-0 leading-tight">KOT #{printingKot.kotNumber || 'OFFLINE'}</p>
               <p className="text-[10px] whitespace-nowrap">{new Date(printingKot.createdAt).toLocaleString()}</p>
@@ -1359,7 +1375,7 @@ export default function POSTerminal() {
             </div>
           </div>
         ) : (
-          <div className="max-w-[80mm] mx-auto font-mono text-black px-1 pt-0 pb-1 bg-white leading-tight">
+          <div className="max-w-[80mm] mx-auto font-mono text-black px-1 pb-1 bg-white leading-tight">
             {/* Header section - All Centered like screenshot */}
             <div className="text-center mb-1">
               <h1 className="text-xl font-black uppercase tracking-tight m-0 leading-none pb-1">{userShopName}</h1>
@@ -1444,18 +1460,13 @@ export default function POSTerminal() {
             </div>
 
             {userQrCode && (
-              <div className="flex flex-col items-center mb-4">
+              <div className="flex flex-col items-center mb-4 mt-4">
                 <p className="text-[8px] uppercase tracking-widest mb-1 font-bold opacity-60">Scan to Pay Online</p>
                 <div className="border-4 border-black p-2 rounded-2xl">
                   <img src={userQrCode} alt="QR Code" className="w-32 h-32" />
                 </div>
               </div>
             )}
-
-            <div className="text-center text-xs space-y-1 font-bold">
-              <p className="uppercase tracking-widest">Thank you for visiting!</p>
-              <p className="uppercase tracking-[0.3em] text-[8px]">Powered by KYROZPLUS</p>
-            </div>
           </div>
         )}
       </div>
@@ -1760,6 +1771,7 @@ export default function POSTerminal() {
                                   setNewDish({...newDish, category: ''});
                                 } else {
                                   setNewDish({...newDish, category: e.target.value});
+                                  setSelectedTemplateCategory(e.target.value);
                                 }
                               }}
                               className="w-full bg-black/40 p-4 rounded-xl border border-white/10 text-sm"
@@ -1772,6 +1784,38 @@ export default function POSTerminal() {
                             </select>
                           )}
                         </div>
+
+                        {/* Auto Costing Template Linker */}
+                        {!isAddingNewCategory && newDish.category && (
+                          <div className="space-y-2 bg-gold/10 p-4 rounded-xl border border-gold/20">
+                            <label className="text-xs uppercase font-bold text-gold flex items-center justify-between">
+                              <span>Link Costing Master (Optional)</span>
+                              {importingTemplate && <Loader2 className="animate-spin" size={14} />}
+                            </label>
+                            <select
+                              value={selectedTemplateDishId}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setSelectedTemplateDishId(val);
+                                if (val) {
+                                  handleImportTemplate(val);
+                                }
+                              }}
+                              className="w-full bg-black/40 p-3 rounded-lg border border-gold/30 text-sm outline-none focus:border-gold text-white"
+                            >
+                              <option value="">Do not link / Setup manually</option>
+                              {dishesData?.filter((d: any) => d.category === newDish.category).map((dish: any) => (
+                                <option key={dish._id} value={dish._id}>{dish.name}</option>
+                              ))}
+                            </select>
+                            {recipeIngredients.length > 0 && selectedTemplateDishId && (
+                              <p className="text-[10px] text-green-400 font-bold flex items-center gap-1">
+                                <CheckCircle size={10} /> Costing logic linked successfully!
+                              </p>
+                            )}
+                          </div>
+                        )}
+
                         <button onClick={() => { if(newDish.name && newDish.price) setSetupStep(2); else alert('Name and Price are mandatory'); }} className="w-full py-4 bg-gold text-black font-black uppercase rounded-xl">Next: Costing</button>
                       </div>
                     )}
@@ -1810,7 +1854,7 @@ export default function POSTerminal() {
                           </div>
                           <button 
                             type="button"
-                            onClick={handleImportTemplate}
+                            onClick={() => handleImportTemplate()}
                             disabled={!selectedTemplateDishId || importingTemplate}
                             className="w-full py-3 bg-gold/20 hover:bg-gold/40 text-gold text-xs font-bold uppercase rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2 border border-gold/30"
                           >
