@@ -91,7 +91,18 @@ export const createKot = async (req: AuthRequest, res: Response): Promise<void> 
       offline_id
     });
 
-    await newKot.save();
+    try {
+      await newKot.save();
+    } catch (saveError: any) {
+      if (saveError.code === 11000 && saveError.keyPattern?.kotNumber) {
+        // Find highest kotNumber again and retry once
+        const latestKotRetry = await Kot.findOne({ userId, createdAt: { $gte: startOfDay } }).sort({ kotNumber: -1 });
+        newKot.kotNumber = latestKotRetry ? latestKotRetry.kotNumber + 1 : 1;
+        await newKot.save();
+      } else {
+        throw saveError;
+      }
+    }
     
     if (process.env.IS_LOCAL_SERVER === 'true') {
       const syncId = offline_id || new mongoose.Types.ObjectId().toString();

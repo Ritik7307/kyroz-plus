@@ -15,7 +15,8 @@ import {
   XCircle,
   Square,
   CheckSquare,
-  Printer
+  Printer,
+  Trash2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_URL } from '@/lib/api';
@@ -57,6 +58,21 @@ export default function KitchenOrderQueue() {
   // Package checkmarks state per KOT
   const [checkedPackages, setCheckedPackages] = useState<Record<string, boolean>>({});
   const [printingKot, setPrintingKot] = useState<Kot | null>(null);
+  const [dishes, setDishes] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchDishes = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const { dataService } = require('@/lib/dataService');
+        const data = await dataService.get(`${API_URL}/api/dishes`, { 'Authorization': `Bearer ${token}` });
+        if (Array.isArray(data)) setDishes(data);
+      } catch (e) {
+        console.error('Failed to load dishes for KOT display', e);
+      }
+    };
+    fetchDishes();
+  }, []);
 
   const handlePrintKot = (kot: Kot) => {
     setPrintingKot(kot);
@@ -136,8 +152,8 @@ export default function KitchenOrderQueue() {
               packaging: [],
               items: item.payload.items.map((pi: any) => ({
                 _id: Math.random().toString(),
-                dishId: null,
-                name: pi.dishName || 'Unknown Dish',
+                dishId: pi.dishId,
+                name: pi.dishName,
                 quantity: pi.quantity,
                 note: pi.note
               }))
@@ -154,6 +170,18 @@ export default function KitchenOrderQueue() {
       console.error('Failed to fetch KOTs', err);
     } finally {
       if (showLoading) setLoading(false);
+    }
+  };
+
+  const discardOfflineKot = async (operationId: string) => {
+    if (!confirm('Are you sure you want to discard this offline ticket? It will not be sent to the kitchen.')) return;
+    try {
+      const { db } = require('@/db/kyrozdb');
+      await db.syncQueue.where('operation_id').equals(operationId).delete();
+      window.dispatchEvent(new Event('offline-sync-completed'));
+      fetchKots(false);
+    } catch (err) {
+      console.error('Failed to discard offline KOT', err);
     }
   };
 
@@ -308,7 +336,7 @@ export default function KitchenOrderQueue() {
               {printingKot.items.map((item: any, idx: number) => (
                 <tr key={idx}>
                   <td className="py-0.5 pr-1 leading-tight">
-                    <span className="font-bold">{item.dishId?.name || item.name || 'Unknown Dish'}</span>
+                    <span className="font-bold">{item.dishId?.name || item.name || dishes.find(d => d._id === item.dishId)?.name || 'Unknown Dish'}</span>
                     {item.note && (
                       <div className="text-[10px] italic mt-0 font-bold leading-none">
                         * Note: {item.note}
@@ -507,7 +535,7 @@ export default function KitchenOrderQueue() {
                           <div key={item._id} className="py-2.5 flex items-start justify-between gap-3">
                             <div className="space-y-1">
                               <p className="text-xs font-black uppercase text-foreground leading-tight mb-0.5">
-                                {item.quantity}x {item.dishId?.name || item.name || 'Unknown Dish'}
+                                {item.quantity}x {item.dishId?.name || item.name || dishes.find(d => d._id === item.dishId)?.name || 'Unknown Dish'}
                               </p>
                               {item.note && (
                                 <p className="text-xs font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 inline-block">
@@ -566,13 +594,24 @@ export default function KitchenOrderQueue() {
                   {/* Card Actions */}
                   <div className="p-6 border-t border-border bg-white/[0.01] flex gap-2 shrink-0">
                     {kot.status === 'Pending' && (
-                      <button
-                        onClick={() => updateStatus(kot._id, 'Preparing')}
-                        disabled={kot.isOffline}
-                        className={`flex-1 py-3 font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 ${kot.isOffline ? 'bg-orange-500/50 text-foreground/50' : 'bg-orange-500 hover:bg-orange-600 text-foreground shadow-orange-500/10'}`}
-                      >
-                        <Play size={14} /> Start Preparing
-                      </button>
+                      <>
+                        <button
+                          onClick={() => updateStatus(kot._id, 'Preparing')}
+                          disabled={kot.isOffline}
+                          className={`flex-1 py-3 font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 ${kot.isOffline ? 'bg-orange-500/50 text-foreground/50' : 'bg-orange-500 hover:bg-orange-600 text-foreground shadow-orange-500/10'}`}
+                        >
+                          <Play size={14} /> Start Preparing
+                        </button>
+                        {kot.isOffline && (
+                          <button
+                            onClick={() => discardOfflineKot(kot._id)}
+                            className="px-4 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-black text-xs uppercase tracking-widest rounded-xl transition-all border border-red-500/20 flex items-center justify-center"
+                            title="Discard stuck offline ticket"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
+                      </>
                     )}
                     {kot.status === 'Preparing' && (
                       <button
