@@ -208,9 +208,9 @@ export default function WastageMaster() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-12 pb-24 text-white">
+    <div className="max-w-7xl mx-auto space-y-12 pb-24 text-foreground">
       {/* Header */}
-      <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 bg-card/35 p-10 rounded-[3rem] border border-white/5 relative overflow-hidden backdrop-blur-xl">
+      <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 bg-card/35 p-10 rounded-[3rem] border border-border relative overflow-hidden backdrop-blur-xl">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-500/5 rounded-full -mr-64 -mt-64 blur-[120px]"></div>
         
         <div className="space-y-4 relative z-10">
@@ -218,17 +218,17 @@ export default function WastageMaster() {
             <span className="w-10 h-[2px] bg-red-500"></span>
             Operational Efficiency
           </div>
-          <h1 className="text-5xl font-black tracking-tighter leading-none text-white">
+          <h1 className="text-5xl font-black tracking-tighter leading-none text-foreground">
             WASTAGE <span className="text-red-500">MASTER</span>
           </h1>
-          <p className="text-white/40 text-lg max-w-xl font-medium leading-relaxed italic">
+          <p className="text-foreground/40 text-lg max-w-xl font-medium leading-relaxed italic">
             "Every gram wasted is a rupee lost. Control the leakage."
           </p>
         </div>
 
         <button 
           onClick={() => setShowAddModal(true)}
-          className="relative z-10 bg-red-500 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.05] active:scale-[0.98] transition-all flex items-center gap-3 shadow-[0_20px_50px_rgba(239,68,68,0.2)]"
+          className="relative z-10 bg-red-500 text-foreground px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.05] active:scale-[0.98] transition-all flex items-center gap-3 shadow-[0_20px_50px_rgba(239,68,68,0.2)]"
         >
           <Plus size={20} /> Log Wastage Entry
         </button>
@@ -262,39 +262,39 @@ export default function WastageMaster() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 shadow-xl relative overflow-hidden">
+        <div className="bg-card glass-card p-8 rounded-[2rem] border border-border shadow-xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/5 rounded-full -mr-12 -mt-12 blur-2xl"></div>
-          <p className="text-xs font-black text-white/30 uppercase tracking-widest mb-4">Total Financial Loss</p>
+          <p className="text-xs font-black text-foreground/30 uppercase tracking-widest mb-4">Total Financial Loss</p>
           <div className="flex items-baseline gap-3">
             <h2 className="text-4xl font-black text-red-500">₹{totalLoss.toFixed(2)}</h2>
             <TrendingDown size={20} className="text-red-500/40" />
           </div>
         </div>
         
-        <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 shadow-xl relative overflow-hidden">
-          <p className="text-xs font-black text-white/30 uppercase tracking-widest mb-4">Primary Leakage Reason</p>
+        <div className="bg-card glass-card p-8 rounded-[2rem] border border-border shadow-xl relative overflow-hidden">
+          <p className="text-xs font-black text-foreground/30 uppercase tracking-widest mb-4">Primary Leakage Reason</p>
           <div className="flex items-baseline gap-3">
-            <h2 className="text-4xl font-black text-white uppercase">{getTopReason()}</h2>
+            <h2 className="text-4xl font-black text-foreground uppercase">{getTopReason()}</h2>
             <AlertTriangle size={20} className="text-yellow-500/40" />
           </div>
         </div>
 
-        <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 shadow-xl relative overflow-hidden">
-          <p className="text-xs font-black text-white/30 uppercase tracking-widest mb-4">Logs Recorded</p>
+        <div className="bg-card glass-card p-8 rounded-[2rem] border border-border shadow-xl relative overflow-hidden">
+          <p className="text-xs font-black text-foreground/30 uppercase tracking-widest mb-4">Logs Recorded</p>
           <div className="flex items-baseline gap-3">
-            <h2 className="text-4xl font-black text-white">{logs.length}</h2>
+            <h2 className="text-4xl font-black text-foreground">{logs.length}</h2>
             <BarChart3 size={20} className="text-blue-500/40" />
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="bg-card glass-card rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl">
-        <div className="px-10 py-8 border-b border-white/5 flex items-center justify-between bg-white/5">
+      <div className="bg-card glass-card rounded-[2.5rem] border border-border overflow-hidden shadow-2xl">
+        <div className="px-10 py-8 border-b border-border flex items-center justify-between bg-card shadow-sm">
           <h3 className="font-black text-sm uppercase tracking-widest flex items-center gap-3">
             <LayoutGrid size={18} className="text-red-500" /> Recent Waste Logs
           </h3>
-          <button onClick={fetchLogs} className="h-8 w-8 rounded-lg hover:bg-white/5 flex items-center justify-center text-white/40 hover:text-white transition-all">
+          <button onClick={fetchLogs} className="h-8 w-8 rounded-lg hover:bg-card shadow-sm flex items-center justify-center text-foreground/40 hover:text-foreground transition-all">
             <RefreshCw size={16} />
           </button>
         </div>
@@ -303,14 +303,14 @@ export default function WastageMaster() {
           {loadingLogs ? (
             <div className="py-24 flex flex-col items-center justify-center space-y-4">
               <Loader2 className="animate-spin text-red-500" size={32} />
-              <p className="text-white/30 font-bold uppercase tracking-widest text-xs">Loading history...</p>
+              <p className="text-foreground/30 font-bold uppercase tracking-widest text-xs">Loading history...</p>
             </div>
           ) : logs.length > 0 ? (
             <AnimatePresence>
               {logs.map((log) => (
                 <div 
                   key={log._id}
-                  className="p-8 flex flex-col md:flex-row md:items-center justify-between hover:bg-white/5 transition-all group gap-6"
+                  className="p-8 flex flex-col md:flex-row md:items-center justify-between hover:bg-card shadow-sm transition-all group gap-6"
                 >
                   <div className="flex items-center gap-6">
                     <div className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center font-black text-xs uppercase border ${
@@ -318,20 +318,20 @@ export default function WastageMaster() {
                       log.reason === 'Burnt' ? 'bg-orange-500/10 border-orange-500/20 text-orange-500' :
                       log.reason === 'Spilled' ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500' :
                       log.reason.startsWith('Inventory') ? 'bg-purple-500/10 border-purple-500/20 text-purple-400' :
-                      'bg-white/5 border-white/10 text-white/40'
+                      'bg-card shadow-sm border-border text-foreground/40'
                     }`}>
                       <span>{log.reason.startsWith('Inventory') ? 'VAR' : log.reason.substring(0, 3)}</span>
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h4 className="font-black text-white uppercase tracking-tight text-lg">{log.itemName}</h4>
-                        <span className="text-[10px] font-black uppercase text-white/20">({log.itemModel})</span>
+                        <h4 className="font-black text-foreground uppercase tracking-tight text-lg">{log.itemName}</h4>
+                        <span className="text-[10px] font-black uppercase text-foreground/20">({log.itemModel})</span>
                       </div>
-                      <div className="flex items-center gap-3 mt-1 text-white/40">
+                      <div className="flex items-center gap-3 mt-1 text-foreground/40">
                         <span className="text-xs font-black uppercase tracking-widest flex items-center gap-1">
                           <Calendar size={10} /> {new Date(log.createdAt).toLocaleDateString()} at {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
-                        <span className="w-1.5 h-1.5 rounded-full bg-white/10"></span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-foreground/10"></span>
                         <span className="text-xs font-black text-red-500/60 uppercase tracking-widest">
                           {log.quantity} {log.unit} Wasted
                         </span>
@@ -339,17 +339,17 @@ export default function WastageMaster() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between md:justify-end gap-12 border-t md:border-t-0 pt-4 md:pt-0 border-white/5">
+                  <div className="flex items-center justify-between md:justify-end gap-12 border-t md:border-t-0 pt-4 md:pt-0 border-border">
                     <div className="text-left md:text-right">
-                      <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">Loss Value</p>
-                      <p className="text-2xl font-black text-white">₹{log.costLost.toFixed(2)}</p>
+                      <p className="text-[10px] font-black text-foreground/20 uppercase tracking-widest mb-1">Loss Value</p>
+                      <p className="text-2xl font-black text-foreground">₹{log.costLost.toFixed(2)}</p>
                     </div>
                   </div>
                 </div>
               ))}
             </AnimatePresence>
           ) : (
-            <div className="py-32 flex flex-col items-center gap-4 text-white/10">
+            <div className="py-32 flex flex-col items-center gap-4 text-foreground/10">
               <Trash2 size={64} />
               <p className="font-black uppercase tracking-[0.4em] text-xs">No wastage logged today</p>
             </div>
@@ -365,7 +365,7 @@ export default function WastageMaster() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-card border border-white/10 rounded-[3.5rem] p-12 w-full max-w-2xl relative shadow-3xl text-white"
+              className="bg-card border border-border rounded-[3.5rem] p-12 w-full max-w-2xl relative shadow-3xl text-foreground"
             >
               <h3 className="text-3xl font-black uppercase tracking-tighter mb-10 flex items-center gap-4">
                 <AlertTriangle className="text-red-500" size={32} /> Report Wastage
@@ -375,11 +375,11 @@ export default function WastageMaster() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   
                   <div className="space-y-3">
-                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 block">Item Category</label>
+                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/40 block">Item Category</label>
                     <select 
                       value={formData.itemModel}
                       onChange={(e: any) => setFormData({ ...formData, itemModel: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold outline-none focus:border-red-500 transition-all cursor-pointer"
+                      className="w-full bg-card shadow-sm border border-border rounded-2xl p-5 text-foreground font-bold outline-none focus:border-red-500 transition-all cursor-pointer"
                     >
                       <option value="RawMaterial" className="bg-[#111]">Raw Material</option>
                       <option value="SemiFinishedGood" className="bg-[#111]">Semi-Finished Good</option>
@@ -388,9 +388,9 @@ export default function WastageMaster() {
                   </div>
 
                   <div className="space-y-3">
-                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 block">Item Name</label>
+                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/40 block">Item Name</label>
                     {loadingInventory ? (
-                      <div className="w-full h-[62px] bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center">
+                      <div className="w-full h-[62px] bg-card shadow-sm border border-border rounded-2xl flex items-center justify-center">
                         <Loader2 className="animate-spin text-red-500" size={18} />
                       </div>
                     ) : (
@@ -398,7 +398,7 @@ export default function WastageMaster() {
                         value={formData.itemId}
                         required
                         onChange={(e) => setFormData({ ...formData, itemId: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold outline-none focus:border-red-500 transition-all cursor-pointer"
+                        className="w-full bg-card shadow-sm border border-border rounded-2xl p-5 text-foreground font-bold outline-none focus:border-red-500 transition-all cursor-pointer"
                       >
                         {getFilteredItems().map(item => (
                           <option key={item._id} value={item._id} className="bg-[#111]">{item.name}</option>
@@ -413,7 +413,7 @@ export default function WastageMaster() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-3">
-                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 block">
+                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/40 block">
                       Wasted Quantity {getSelectedUnit() ? `(in ${getSelectedUnit()})` : ''}
                     </label>
                     <input 
@@ -424,16 +424,16 @@ export default function WastageMaster() {
                       value={formData.quantity}
                       onChange={(e) => setFormData({ ...formData, quantity: e.target.value === '' ? '' : Number(e.target.value) })}
                       placeholder="0.00"
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold outline-none focus:border-red-500 transition-all"
+                      className="w-full bg-card shadow-sm border border-border rounded-2xl p-5 text-foreground font-bold outline-none focus:border-red-500 transition-all"
                     />
                   </div>
 
                   <div className="space-y-3">
-                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 block">Reason</label>
+                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/40 block">Reason</label>
                     <select 
                       value={formData.reason}
                       onChange={(e: any) => setFormData({ ...formData, reason: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold outline-none focus:border-red-500 transition-all cursor-pointer"
+                      className="w-full bg-card shadow-sm border border-border rounded-2xl p-5 text-foreground font-bold outline-none focus:border-red-500 transition-all cursor-pointer"
                     >
                       <option value="Expired" className="bg-[#111]">Expired Stock</option>
                       <option value="Spilled" className="bg-[#111]">Spilled / Dropped</option>
@@ -448,7 +448,7 @@ export default function WastageMaster() {
                   <button 
                     type="submit" 
                     disabled={submitting || !formData.itemId || !formData.quantity}
-                    className="flex-1 py-6 rounded-2xl bg-red-500 text-white font-black uppercase text-[11px] tracking-widest shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    className="flex-1 py-6 rounded-2xl bg-red-500 text-foreground font-black uppercase text-[11px] tracking-widest shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                   >
                     {submitting ? (
                       <>
@@ -462,7 +462,7 @@ export default function WastageMaster() {
                   <button 
                     type="button" 
                     onClick={() => setShowAddModal(false)} 
-                    className="px-10 py-6 rounded-2xl bg-white/5 text-white/40 font-black uppercase text-[11px] tracking-widest hover:bg-white/10 transition-colors"
+                    className="px-10 py-6 rounded-2xl bg-card shadow-sm text-foreground/40 font-black uppercase text-[11px] tracking-widest hover:bg-foreground/10 transition-colors"
                   >
                     Cancel
                   </button>

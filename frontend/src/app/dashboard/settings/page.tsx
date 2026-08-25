@@ -248,7 +248,7 @@ export default function SettingsPage() {
                 {idx !== 0 && (
                   <button 
                     onClick={() => handleLogoutDevice(session._id)}
-                    className="px-4 py-2 text-sm text-red-400 hover:text-white hover:bg-red-500/20 rounded-lg transition-colors"
+                    className="px-4 py-2 text-sm text-red-400 hover:text-foreground hover:bg-red-500/20 rounded-lg transition-colors"
                   >
                     Log out device
                   </button>

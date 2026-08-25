@@ -164,9 +164,9 @@ export default function KitchenOrderQueue() {
       case 'Pending': return 'border-blue-500/30 bg-blue-500/10 text-blue-400';
       case 'Preparing': return 'border-orange-500/30 bg-orange-500/10 text-orange-400';
       case 'Ready': return 'border-green-500/30 bg-green-500/10 text-green-400';
-      case 'Served': return 'border-white/10 bg-white/5 text-white/40';
+      case 'Served': return 'border-border bg-card shadow-sm text-foreground/40';
       case 'Cancelled': return 'border-red-500/30 bg-red-500/10 text-red-400';
-      default: return 'border-white/10 bg-white/5 text-white';
+      default: return 'border-border bg-card shadow-sm text-foreground';
     }
   };
 
@@ -175,7 +175,7 @@ export default function KitchenOrderQueue() {
       case 'DineIn': return 'bg-purple-500/10 text-purple-400 border border-purple-500/20';
       case 'Takeaway': return 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
       case 'Delivery': return 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20';
-      default: return 'bg-white/5 text-white/50 border border-white/10';
+      default: return 'bg-card shadow-sm text-foreground/50 border border-border';
     }
   };
 
@@ -312,10 +312,10 @@ export default function KitchenOrderQueue() {
 
 
         <div>
-          <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight flex items-center gap-3 text-white">
+          <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight flex items-center gap-3 text-foreground">
             <ChefHat className="text-gold animate-bounce" size={32} /> KITCHEN ORDER DISPLAY (KDS)
           </h2>
-          <p className="text-xs text-white/40 font-bold uppercase tracking-wider mt-1.5">
+          <p className="text-xs text-foreground/40 font-bold uppercase tracking-wider mt-1.5">
             Real-time preparation pipeline & packaging tracking
           </p>
         </div>
@@ -325,7 +325,7 @@ export default function KitchenOrderQueue() {
             onClick={() => setViewHistory(!viewHistory)}
             className={`px-5 py-3 rounded-xl border transition-all flex items-center gap-2 text-xs font-black uppercase tracking-widest ${viewHistory
               ? 'bg-gold text-black border-gold'
-              : 'bg-white/5 text-white/50 border-white/10 hover:bg-white/10'
+              : 'bg-card shadow-sm text-foreground/50 border-border hover:bg-foreground/10'
               }`}
           >
             {viewHistory ? <ClipboardList size={16} /> : <History size={16} />}
@@ -333,7 +333,7 @@ export default function KitchenOrderQueue() {
           </button>
           <button
             onClick={() => fetchKots(true)}
-            className="p-3 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-xl transition-all border border-white/10"
+            className="p-3 bg-card shadow-sm hover:bg-foreground/10 text-foreground/60 hover:text-foreground rounded-xl transition-all border border-border"
             title="Refresh Queue"
           >
             <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
@@ -344,12 +344,12 @@ export default function KitchenOrderQueue() {
       {/* Metrics Bar */}
       {!viewHistory && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-card glass-card p-5 rounded-2xl border border-white/5 flex items-center justify-between">
+          <div className="bg-card glass-card p-5 rounded-2xl border border-border flex items-center justify-between">
             <div>
-              <p className="text-xs text-white/40 font-black uppercase tracking-widest">Active Tickets</p>
-              <h3 className="text-3xl font-black text-white mt-1">{activeCount}</h3>
+              <p className="text-xs text-foreground/40 font-black uppercase tracking-widest">Active Tickets</p>
+              <h3 className="text-3xl font-black text-foreground mt-1">{activeCount}</h3>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/60">
+            <div className="w-10 h-10 rounded-xl bg-card shadow-sm flex items-center justify-center text-foreground/60">
               <ClipboardList size={20} />
             </div>
           </div>
@@ -384,14 +384,14 @@ export default function KitchenOrderQueue() {
       )}
 
       {/* Tabs Filter */}
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide border-b border-white/5">
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide border-b border-border">
         {(['all', 'DineIn', 'Takeaway', 'Delivery'] as const).map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all border whitespace-nowrap ${activeTab === tab
               ? 'bg-gold text-black border-gold'
-              : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10'
+              : 'bg-card shadow-sm text-foreground/40 border-border hover:bg-foreground/10'
               }`}
           >
             {tab === 'all' ? 'All Orders' : tab === 'DineIn' ? 'Dine In' : tab}
@@ -401,15 +401,15 @@ export default function KitchenOrderQueue() {
 
       {/* Loading State */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-32 gap-4 text-white/20">
+        <div className="flex flex-col items-center justify-center py-32 gap-4 text-foreground/20">
           <RefreshCw className="animate-spin text-gold" size={48} />
           <p className="font-black uppercase tracking-widest text-sm">Synchronizing Kitchen Queue...</p>
         </div>
       ) : filteredKots.length === 0 ? (
-        <div className="bg-card glass-card border border-white/5 rounded-3xl p-16 text-center flex flex-col items-center justify-center text-white/25">
-          <ChefHat size={64} className="mb-4 text-white/10" />
+        <div className="bg-card glass-card border border-border rounded-3xl p-16 text-center flex flex-col items-center justify-center text-foreground/25">
+          <ChefHat size={64} className="mb-4 text-foreground/10" />
           <h4 className="font-black uppercase tracking-widest text-base">No tickets in the kitchen</h4>
-          <p className="text-xs text-white/40 mt-2">All caught up! Orders sent from POS will appear here.</p>
+          <p className="text-xs text-foreground/40 mt-2">All caught up! Orders sent from POS will appear here.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -425,15 +425,15 @@ export default function KitchenOrderQueue() {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className={`bg-card glass-card rounded-[2rem] border overflow-hidden flex flex-col justify-between shadow-xl transition-all ${isUrgent ? 'border-red-500/40 shadow-[0_0_20px_rgba(239,68,68,0.1)]' : 'border-white/5 hover:border-white/10'
+                  className={`bg-card glass-card rounded-[2rem] border overflow-hidden flex flex-col justify-between shadow-xl transition-all ${isUrgent ? 'border-red-500/40 shadow-[0_0_20px_rgba(239,68,68,0.1)]' : 'border-border hover:border-border'
                     }`}
                 >
                   {/* Card Header */}
-                  <div className="p-6 border-b border-white/5 space-y-3 bg-white/[0.01]">
+                  <div className="p-6 border-b border-border space-y-3 bg-white/[0.01]">
                     <div className="flex justify-between items-start">
                       <div className="space-y-1">
                         <span className="text-xs font-black text-gold uppercase tracking-widest">KOT #{kot.kotNumber}</span>
-                        <h4 className="text-lg font-black text-white">{kot.tableNumber}</h4>
+                        <h4 className="text-lg font-black text-foreground">{kot.tableNumber}</h4>
                       </div>
                       <div className="flex flex-col items-end gap-1.5">
                         <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider ${getStatusColor(kot.status)}`}>
@@ -445,7 +445,7 @@ export default function KitchenOrderQueue() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-xs text-white/40 font-bold uppercase tracking-wider pt-1">
+                    <div className="flex items-center justify-between text-xs text-foreground/40 font-bold uppercase tracking-wider pt-1">
                       <span className="flex items-center gap-1.5">
                         <Clock size={12} />
                         {new Date(kot.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -462,12 +462,12 @@ export default function KitchenOrderQueue() {
                   {/* Card Body - Dish Items List */}
                   <div className="p-6 flex-1 space-y-4">
                     <div className="space-y-3">
-                      <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Items ({kot.items.length})</p>
+                      <p className="text-[10px] font-black text-foreground/30 uppercase tracking-widest">Items ({kot.items.length})</p>
                       <div className="divide-y divide-white/5">
                         {kot.items.map(item => (
                           <div key={item._id} className="py-2.5 flex items-start justify-between gap-3">
                             <div className="space-y-1">
-                              <p className="font-bold text-sm text-white">
+                              <p className="font-bold text-sm text-foreground">
                                 {item.dishId?.name || 'Unknown Dish'}
                               </p>
                               {item.note && (
@@ -486,8 +486,8 @@ export default function KitchenOrderQueue() {
 
                     {/* Packaging Section */}
                     {kot.packaging && kot.packaging.length > 0 && (
-                      <div className="pt-4 border-t border-white/5 space-y-2">
-                        <p className="text-[10px] font-black text-white/30 uppercase tracking-widest flex items-center gap-1">
+                      <div className="pt-4 border-t border-border space-y-2">
+                        <p className="text-[10px] font-black text-foreground/30 uppercase tracking-widest flex items-center gap-1">
                           <Package size={11} className="text-gold" /> Packaging Checklist
                         </p>
                         <div className="grid grid-cols-1 gap-2.5">
@@ -499,20 +499,20 @@ export default function KitchenOrderQueue() {
                                 onClick={() => togglePackageCheck(kot._id, pkg.name)}
                                 className={`flex items-center justify-between p-2.5 rounded-xl border text-left transition-all ${isChecked
                                   ? 'bg-green-500/5 border-green-500/20 text-green-400'
-                                  : 'bg-white/5 border-white/5 text-white/60 hover:bg-white/10'
+                                  : 'bg-card shadow-sm border-border text-foreground/60 hover:bg-foreground/10'
                                   }`}
                               >
                                 <div className="flex items-center gap-2">
                                   {isChecked ? (
                                     <CheckSquare size={14} className="text-green-400 shrink-0" />
                                   ) : (
-                                    <Square size={14} className="text-white/40 shrink-0" />
+                                    <Square size={14} className="text-foreground/40 shrink-0" />
                                   )}
                                   <span className={`text-[11px] font-bold ${isChecked ? 'line-through opacity-60' : ''}`}>
                                     {pkg.name}
                                   </span>
                                 </div>
-                                <span className={`text-xs font-black px-1.5 py-0.5 rounded-md ${isChecked ? 'bg-green-500/20 text-green-400' : 'bg-white/10 text-white/80'
+                                <span className={`text-xs font-black px-1.5 py-0.5 rounded-md ${isChecked ? 'bg-green-500/20 text-green-400' : 'bg-foreground/10 text-foreground/80'
                                   }`}>
                                   x{pkg.quantity}
                                 </span>
@@ -525,11 +525,11 @@ export default function KitchenOrderQueue() {
                   </div>
 
                   {/* Card Actions */}
-                  <div className="p-6 border-t border-white/5 bg-white/[0.01] flex gap-2 shrink-0">
+                  <div className="p-6 border-t border-border bg-white/[0.01] flex gap-2 shrink-0">
                     {kot.status === 'Pending' && (
                       <button
                         onClick={() => updateStatus(kot._id, 'Preparing')}
-                        className="flex-1 py-3 bg-orange-500 hover:bg-orange-600 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-orange-500/10 flex items-center justify-center gap-2"
+                        className="flex-1 py-3 bg-orange-500 hover:bg-orange-600 text-foreground font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-orange-500/10 flex items-center justify-center gap-2"
                       >
                         <Play size={14} /> Start Preparing
                       </button>
@@ -537,7 +537,7 @@ export default function KitchenOrderQueue() {
                     {kot.status === 'Preparing' && (
                       <button
                         onClick={() => updateStatus(kot._id, 'Ready')}
-                        className="flex-1 py-3 bg-green-500 hover:bg-green-600 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-green-500/10 flex items-center justify-center gap-2"
+                        className="flex-1 py-3 bg-green-500 hover:bg-green-600 text-foreground font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-green-500/10 flex items-center justify-center gap-2"
                       >
                         <Check size={14} /> Mark Ready
                       </button>
@@ -551,13 +551,13 @@ export default function KitchenOrderQueue() {
                       </button>
                     )}
                     {['Served', 'Cancelled'].includes(kot.status) && (
-                      <div className="w-full text-center py-2 text-xs font-black uppercase text-white/20 tracking-wider">
+                      <div className="w-full text-center py-2 text-xs font-black uppercase text-foreground/20 tracking-wider">
                         Archived / Completed
                       </div>
                     )}
                     <button
                       onClick={() => handlePrintKot(kot)}
-                      className="p-3 bg-white/5 hover:bg-white/10 text-white/40 hover:text-gold rounded-xl transition-all border border-white/10"
+                      className="p-3 bg-card shadow-sm hover:bg-foreground/10 text-foreground/40 hover:text-gold rounded-xl transition-all border border-border"
                       title="Print KOT"
                     >
                       <Printer size={14} />

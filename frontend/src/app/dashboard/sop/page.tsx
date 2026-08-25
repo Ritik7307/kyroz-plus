@@ -230,9 +230,9 @@ function SOPLibraryContent() {
         const headers = parseRow(headerRow);
         
         elements.push(
-          <div key={`table-${i}`} className="overflow-x-auto my-6 border border-white/10 rounded-xl bg-black/20">
+          <div key={`table-${i}`} className="overflow-x-auto my-6 border border-border rounded-xl bg-black/20">
             <table className="w-full text-left border-collapse text-sm">
-              <thead className="bg-white/5 border-b border-white/10">
+              <thead className="bg-card shadow-sm border-b border-border">
                 <tr>
                   {headers.map((h, idx) => (
                     <th key={idx} className="p-4 font-black text-gold uppercase tracking-wider">{h}</th>
@@ -243,7 +243,7 @@ function SOPLibraryContent() {
                 {bodyRows.map((row, rIdx) => {
                   const cells = parseRow(row);
                   return (
-                    <tr key={rIdx} className="hover:bg-white/5 transition-colors">
+                    <tr key={rIdx} className="hover:bg-card shadow-sm transition-colors">
                       {cells.map((cell, cIdx) => (
                         <td key={cIdx} className="p-4 text-gray-300 font-medium">
                           {cell}
@@ -265,13 +265,13 @@ function SOPLibraryContent() {
       const parts = cleanLine.split(/(\bHigh\b|\bMedium\b|\bLow\b|\bOil\b|\bButter\b|\bGhee\b|\*\*[^*]+\*\*)/g);
       
       elements.push(
-        <div key={`line-${i}`} className={`mb-3 ${isHeader ? 'mt-10 border-b border-white/10 pb-2 mb-6' : ''} ${isBullet ? 'pl-6 relative' : ''}`}>
+        <div key={`line-${i}`} className={`mb-3 ${isHeader ? 'mt-10 border-b border-border pb-2 mb-6' : ''} ${isBullet ? 'pl-6 relative' : ''}`}>
           {isBullet && <span className="absolute left-0 text-gold font-bold">{trimmedLine.split(' ')[0]}</span>}
           <p className={`${isHeader ? 'font-black text-lg text-gold uppercase tracking-tight' : 'font-medium text-gray-300 text-sm leading-relaxed'} ${isBullet ? 'pl-2' : ''}`}>
             {parts.map((part, j) => {
-              if (part.startsWith('**') && part.endsWith('**')) return <span key={j} className="font-black text-white">{part.slice(2, -2)}</span>;
+              if (part.startsWith('**') && part.endsWith('**')) return <span key={j} className="font-black text-foreground">{part.slice(2, -2)}</span>;
               const isHighlight = ['High', 'Medium', 'Low', 'Oil', 'Butter', 'Ghee'].includes(part);
-              return isHighlight ? <span key={j} className="text-white font-black underline decoration-gold/40 decoration-2 px-1 bg-white/5 rounded-sm">{part}</span> : part;
+              return isHighlight ? <span key={j} className="text-foreground font-black underline decoration-gold/40 decoration-2 px-1 bg-card shadow-sm rounded-sm">{part}</span> : part;
             })}
           </p>
         </div>
@@ -284,12 +284,12 @@ function SOPLibraryContent() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 md:space-y-12 pb-20">
-      <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 bg-card/30 p-6 md:p-10 rounded-[2.5rem] md:rounded-[3rem] border border-white/5 relative overflow-hidden">
+      <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 bg-card/30 p-6 md:p-10 rounded-[2.5rem] md:rounded-[3rem] border border-border relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-gold/5 rounded-full -mr-32 md:-mr-64 -mt-32 md:-mt-64 blur-[80px] md:blur-[120px]"></div>
         <div className="space-y-4 relative z-10 text-center lg:text-left">
           <div className="flex items-center justify-center lg:justify-start gap-3 text-gold text-xs md:text-xs font-bold uppercase tracking-[0.4em]"><span className="w-6 md:w-10 h-[2px] bg-gold"></span>Central SOP Repository</div>
           <h1 className="text-3xl md:text-5xl font-black tracking-tighter leading-none">RESTAURANT <span className="text-gold">STANDARDS</span></h1>
-          <p className="text-white/60 text-sm md:text-lg max-w-xl font-medium leading-relaxed italic mx-auto lg:mx-0">"Consistency is the difference between a good kitchen and a great one."</p>
+          <p className="text-foreground/60 text-sm md:text-lg max-w-xl font-medium leading-relaxed italic mx-auto lg:mx-0">"Consistency is the difference between a good kitchen and a great one."</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 relative z-10">
           {userRole === 'admin' && (
@@ -300,10 +300,10 @@ function SOPLibraryContent() {
         </div>
       </header>
 
-      <div className="flex flex-col lg:flex-row gap-6 md:gap-8 items-center justify-between bg-card p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-white/5 shadow-2xl">
+      <div className="flex flex-col lg:flex-row gap-6 md:gap-8 items-center justify-between bg-card p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-border shadow-2xl">
         <div className="relative w-full lg:w-[450px]">
-          <Search size={20} className="absolute left-5 md:left-6 top-1/2 -translate-y-1/2 text-white/40" />
-          <input type="text" placeholder="Search recipes..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-[1.2rem] md:rounded-[1.5rem] py-3.5 md:py-4 pl-14 md:pl-16 pr-6 text-sm text-white focus:outline-none transition-all" />
+          <Search size={20} className="absolute left-5 md:left-6 top-1/2 -translate-y-1/2 text-foreground/40" />
+          <input type="text" placeholder="Search recipes..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-card shadow-sm border border-border rounded-[1.2rem] md:rounded-[1.5rem] py-3.5 md:py-4 pl-14 md:pl-16 pr-6 text-sm text-foreground focus:outline-none transition-all" />
         </div>
         <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 w-full lg:w-auto custom-scrollbar">
           {displayedCategories.map(cat => (
@@ -313,7 +313,7 @@ function SOPLibraryContent() {
                 return;
               }
               setActiveCategory(cat);
-            }} className={`px-6 md:px-8 py-2.5 md:py-3 rounded-xl md:rounded-2xl text-[10px] md:text-[11px] font-black uppercase tracking-widest transition-all border shrink-0 ${activeCategory === cat ? 'bg-gold/20 border-gold text-gold shadow-gold/10' : 'bg-white/5 border-white/5 text-white/40 hover:text-white hover:bg-white/10'}`}>{cat}</button>
+            }} className={`px-6 md:px-8 py-2.5 md:py-3 rounded-xl md:rounded-2xl text-[10px] md:text-[11px] font-black uppercase tracking-widest transition-all border shrink-0 ${activeCategory === cat ? 'bg-gold/20 border-gold text-gold shadow-gold/10' : 'bg-card shadow-sm border-border text-foreground/40 hover:text-foreground hover:bg-foreground/10'}`}>{cat}</button>
           ))}
         </div>
       </div>
@@ -325,14 +325,14 @@ function SOPLibraryContent() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
           {filteredSops.map((sop, idx) => (
-            <motion.div key={sop._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }} className="bg-[#111] rounded-[1.8rem] md:rounded-[2rem] border border-white/5 hover:border-white/10 transition-all p-6 md:p-8 flex flex-col shadow-2xl group">
+            <motion.div key={sop._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }} className="bg-[#111] rounded-[1.8rem] md:rounded-[2rem] border border-border hover:border-border transition-all p-6 md:p-8 flex flex-col shadow-2xl group">
               <div className="flex justify-between items-start mb-5 md:mb-6">
-                <span className="px-2.5 py-1 bg-white/5 rounded-lg text-[8px] md:text-[10px] font-black text-gold uppercase tracking-widest border border-white/5">{sop.category}</span>
+                <span className="px-2.5 py-1 bg-card shadow-sm rounded-lg text-[8px] md:text-[10px] font-black text-gold uppercase tracking-widest border border-border">{sop.category}</span>
                 {sop.isInventoryLinked && <span className="flex items-center gap-1.5 px-2.5 py-1 bg-green-500/10 rounded-lg text-[8px] md:text-[10px] font-black text-green-500 uppercase tracking-widest border border-green-500/20"><Database size={10} /> Linked</span>}
               </div>
               <h3 className="text-lg md:text-xl font-black text-gold mb-4 uppercase tracking-tight group-hover:translate-x-1 transition-transform">{sop.title}</h3>
               <div className="mt-auto flex items-center gap-3">
-                <button onClick={() => setViewingSop(sop)} className="flex-1 py-3.5 md:py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl md:rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-all"><Eye size={16} /> View Recipe</button>
+                <button onClick={() => setViewingSop(sop)} className="flex-1 py-3.5 md:py-4 bg-card shadow-sm hover:bg-foreground/10 border border-border rounded-xl md:rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-all"><Eye size={16} /> View Recipe</button>
               </div>
             </motion.div>
           ))}
@@ -346,8 +346,8 @@ function SOPLibraryContent() {
               <div className="w-16 h-16 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <ChefHat className="text-gold" size={32} />
               </div>
-              <h3 className="text-2xl font-black tracking-tighter uppercase mb-4 text-white">Select Your <span className="text-gold">SOP Category</span></h3>
-              <p className="text-white/60 text-sm mb-8 font-medium">Your Starter plan includes access to one SOP category. Please select it carefully, as this choice is permanent for the Starter plan.</p>
+              <h3 className="text-2xl font-black tracking-tighter uppercase mb-4 text-foreground">Select Your <span className="text-gold">SOP Category</span></h3>
+              <p className="text-foreground/60 text-sm mb-8 font-medium">Your Starter plan includes access to one SOP category. Please select it carefully, as this choice is permanent for the Starter plan.</p>
               
               <div className="grid grid-cols-2 gap-4 mb-8">
                 {categories.filter(c => c !== 'All').map(cat => (
@@ -355,7 +355,7 @@ function SOPLibraryContent() {
                     key={cat}
                     disabled={isUpdatingCategory}
                     onClick={() => handleSelectCategory(cat)}
-                    className="p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-gold/10 hover:border-gold/30 text-white font-bold transition-all text-sm uppercase tracking-wider disabled:opacity-50"
+                    className="p-4 rounded-xl border border-border bg-card shadow-sm hover:bg-gold/10 hover:border-gold/30 text-foreground font-bold transition-all text-sm uppercase tracking-wider disabled:opacity-50"
                   >
                     {cat}
                   </button>
@@ -369,20 +369,20 @@ function SOPLibraryContent() {
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 md:p-6 bg-black/95 backdrop-blur-2xl">
-            <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="bg-card w-full max-w-5xl rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 border border-white/10 shadow-3xl overflow-y-auto max-h-[90vh] custom-scrollbar">
-              <div className="flex items-center justify-between mb-8 md:mb-10"><h3 className="text-xl md:text-3xl font-black tracking-tighter uppercase">NEW <span className="text-gold">RECIPE</span></h3><button onClick={() => setIsModalOpen(false)} className="p-2 md:p-3 hover:bg-white/10 rounded-xl md:rounded-2xl transition-all"><X size={28} /></button></div>
+            <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="bg-card w-full max-w-5xl rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 border border-border shadow-3xl overflow-y-auto max-h-[90vh] custom-scrollbar">
+              <div className="flex items-center justify-between mb-8 md:mb-10"><h3 className="text-xl md:text-3xl font-black tracking-tighter uppercase">NEW <span className="text-gold">RECIPE</span></h3><button onClick={() => setIsModalOpen(false)} className="p-2 md:p-3 hover:bg-foreground/10 rounded-xl md:rounded-2xl transition-all"><X size={28} /></button></div>
               <form onSubmit={handleCreateSop} className="space-y-8 md:space-y-12">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
-                  <div className="space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-white/40">Recipe Name</label><input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all" required /></div>
-                  <div className="space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-white/40">Category</label><select value={formData.category} onChange={(e: any) => setFormData({ ...formData, category: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all appearance-none"><option value="South Indian">South Indian</option><option value="Cafe">Cafe</option><option value="Mandi/Biryani">Mandi/Biryani</option><option value="Chinese">Chinese</option><option value="Discipline">Discipline</option><option value="Veg">Veg</option><option value="Non-Veg">Non-Veg</option><option value="Preparation">Preparation</option></select></div>
+                  <div className="space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-foreground/40">Recipe Name</label><input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full bg-card shadow-sm border border-border rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all" required /></div>
+                  <div className="space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-foreground/40">Category</label><select value={formData.category} onChange={(e: any) => setFormData({ ...formData, category: e.target.value })} className="w-full bg-card shadow-sm border border-border rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all appearance-none"><option value="South Indian">South Indian</option><option value="Cafe">Cafe</option><option value="Mandi/Biryani">Mandi/Biryani</option><option value="Chinese">Chinese</option><option value="Discipline">Discipline</option><option value="Veg">Veg</option><option value="Non-Veg">Non-Veg</option><option value="Preparation">Preparation</option></select></div>
                 </div>
-                <div className="bg-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-white/5 space-y-6">
-                  <div className="flex items-center justify-between"><div className="flex items-center gap-3"><Database className="text-gold" size={20} /><div><h4 className="text-xs md:text-sm font-black uppercase tracking-widest">Inventory Connection</h4></div></div><button type="button" onClick={() => setFormData({ ...formData, isInventoryLinked: !formData.isInventoryLinked })} className={`w-12 md:w-14 h-7 md:h-8 rounded-full transition-all relative ${formData.isInventoryLinked ? 'bg-gold' : 'bg-white/10'}`}><div className={`absolute top-1 w-5 md:w-6 h-5 md:h-6 rounded-full bg-white transition-all ${formData.isInventoryLinked ? 'right-1' : 'left-1'}`} /></button></div>
-                  {formData.isInventoryLinked && <div className="pt-6 border-t border-white/5"><div className="flex items-center gap-6"><div className="flex-1 space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-white/40">Plates Per Packet</label><input type="number" value={formData.platesPerPacket} onChange={(e) => setFormData({ ...formData, platesPerPacket: Number(e.target.value) })} className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm md:text-base font-bold text-gold focus:outline-none focus:border-gold" /></div></div></div>}
+                <div className="bg-card shadow-sm p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-border space-y-6">
+                  <div className="flex items-center justify-between"><div className="flex items-center gap-3"><Database className="text-gold" size={20} /><div><h4 className="text-xs md:text-sm font-black uppercase tracking-widest">Inventory Connection</h4></div></div><button type="button" onClick={() => setFormData({ ...formData, isInventoryLinked: !formData.isInventoryLinked })} className={`w-12 md:w-14 h-7 md:h-8 rounded-full transition-all relative ${formData.isInventoryLinked ? 'bg-gold' : 'bg-foreground/10'}`}><div className={`absolute top-1 w-5 md:w-6 h-5 md:h-6 rounded-full bg-white transition-all ${formData.isInventoryLinked ? 'right-1' : 'left-1'}`} /></button></div>
+                  {formData.isInventoryLinked && <div className="pt-6 border-t border-border"><div className="flex items-center gap-6"><div className="flex-1 space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-foreground/40">Plates Per Packet</label><input type="number" value={formData.platesPerPacket} onChange={(e) => setFormData({ ...formData, platesPerPacket: Number(e.target.value) })} className="w-full bg-background border border-border rounded-xl p-4 text-sm md:text-base font-bold text-gold focus:outline-none focus:border-gold" /></div></div></div>}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
-                  <div className="space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-gold">English Protocol</label><textarea value={formData.contentEn} onChange={(e) => setFormData({ ...formData, contentEn: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 text-sm md:text-base font-medium focus:outline-none focus:border-gold h-60 md:h-80 resize-none" /></div>
-                  <div className="space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-gold">हिन्दी निर्देशिका</label><textarea value={formData.contentHi} onChange={(e) => setFormData({ ...formData, contentHi: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 text-sm md:text-base font-medium focus:outline-none focus:border-gold h-60 md:h-80 resize-none" /></div>
+                  <div className="space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-gold">English Protocol</label><textarea value={formData.contentEn} onChange={(e) => setFormData({ ...formData, contentEn: e.target.value })} className="w-full bg-card shadow-sm border border-border rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 text-sm md:text-base font-medium focus:outline-none focus:border-gold h-60 md:h-80 resize-none" /></div>
+                  <div className="space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-gold">हिन्दी निर्देशिका</label><textarea value={formData.contentHi} onChange={(e) => setFormData({ ...formData, contentHi: e.target.value })} className="w-full bg-card shadow-sm border border-border rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 text-sm md:text-base font-medium focus:outline-none focus:border-gold h-60 md:h-80 resize-none" /></div>
                 </div>
                 <div className="flex justify-end gap-6 pt-6"><button type="submit" className="w-full md:w-auto px-12 md:px-16 py-4 md:py-5 bg-gold text-black rounded-xl md:rounded-2xl font-black uppercase text-xs md:text-[11px] tracking-widest shadow-2xl hover:scale-[1.05] transition-all">Save Recipe</button></div>
               </form>
@@ -394,7 +394,7 @@ function SOPLibraryContent() {
       <AnimatePresence>
         {viewingSop && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 bg-black/95 backdrop-blur-md">
-            <motion.div className="bg-[#111] border border-white/10 rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 w-full max-w-4xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <motion.div className="bg-[#111] border border-border rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 w-full max-w-4xl max-h-[90vh] overflow-y-auto custom-scrollbar">
               <div className="flex justify-between items-center mb-6 md:mb-8">
                 <h2 className="text-xl md:text-3xl font-black uppercase tracking-tighter text-gold leading-tight pr-4">
                   {viewingSop.title}
@@ -409,7 +409,7 @@ function SOPLibraryContent() {
                   </button>
                   <button 
                     onClick={() => setViewingSop(null)} 
-                    className="p-2.5 md:p-3 hover:bg-white/10 rounded-xl text-white/40"
+                    className="p-2.5 md:p-3 hover:bg-foreground/10 rounded-xl text-foreground/40"
                   >
                     <X size={20} />
                   </button>
@@ -418,8 +418,8 @@ function SOPLibraryContent() {
               <div className="space-y-6 md:space-y-8">
                 {/* On-screen language tabs (hidden during print) */}
                 <div className="flex gap-3 md:gap-4 no-print">
-                  <button onClick={() => setLanguage('EN')} className={`px-5 md:px-6 py-2 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest ${language === 'EN' ? 'bg-gold text-black' : 'bg-white/5 text-white/40'}`}>English</button>
-                  <button onClick={() => setLanguage('HI')} className={`px-5 md:px-6 py-2 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest ${language === 'HI' ? 'bg-gold text-black' : 'bg-white/5 text-white/40'}`}>Hindi</button>
+                  <button onClick={() => setLanguage('EN')} className={`px-5 md:px-6 py-2 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest ${language === 'EN' ? 'bg-gold text-black' : 'bg-card shadow-sm text-foreground/40'}`}>English</button>
+                  <button onClick={() => setLanguage('HI')} className={`px-5 md:px-6 py-2 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest ${language === 'HI' ? 'bg-gold text-black' : 'bg-card shadow-sm text-foreground/40'}`}>Hindi</button>
                 </div>
 
                 {/* On-screen content view (hidden during print) */}

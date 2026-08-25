@@ -50,7 +50,7 @@ export default function PremiumDashboard() {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30 text-[#d4af37] text-xs font-bold uppercase tracking-widest mb-4">
             <Crown size={14} /> Exclusively for Premium Members
           </div>
-          <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+          <h1 className="text-3xl md:text-5xl font-black text-foreground tracking-tight">
             Premium <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-[#f3e5ab]">Suite</span>
           </h1>
           <p className="text-gray-400 mt-3 text-lg max-w-2xl">
@@ -66,8 +66,8 @@ export default function PremiumDashboard() {
             href={feature.href}
             className={`group relative p-8 rounded-3xl border transition-all duration-300 flex flex-col h-full ${
               feature.status === 'Active' 
-                ? 'bg-[#111111] border-[#333333] hover:border-[#d4af37] hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] hover:-translate-y-1' 
-                : 'bg-black/40 border-white/5 opacity-80 cursor-default'
+                ? 'bg-card border-border hover:border-[#d4af37] hover:shadow-[0_0_30px_rgba(212,175,55,0.15)] hover:-translate-y-1' 
+                : 'bg-background border-border opacity-80 cursor-default'
             }`}
           >
             {/* Background Glow on Hover */}
@@ -80,7 +80,7 @@ export default function PremiumDashboard() {
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${
                   feature.status === 'Active' 
                     ? 'bg-gradient-to-br from-[#2a220a] to-[#111111] border border-[#d4af37]/30 text-[#d4af37]' 
-                    : 'bg-white/5 border border-white/10 text-gray-500'
+                    : 'bg-card shadow-sm border border-border text-gray-500'
                 }`}>
                   <feature.icon size={28} />
                 </div>
@@ -88,14 +88,14 @@ export default function PremiumDashboard() {
                 <div className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider ${
                   feature.status === 'Active'
                     ? 'bg-green-500/10 text-green-400 border border-green-500/20'
-                    : 'bg-white/5 text-gray-500 border border-white/10'
+                    : 'bg-card shadow-sm text-gray-500 border border-border'
                 }`}>
                   {feature.status}
                 </div>
               </div>
 
               <h3 className={`text-xl font-bold mb-3 ${
-                feature.status === 'Active' ? 'text-white' : 'text-gray-400'
+                feature.status === 'Active' ? 'text-foreground' : 'text-gray-400'
               }`}>
                 {feature.title}
               </h3>

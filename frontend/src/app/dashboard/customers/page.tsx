@@ -313,14 +313,14 @@ export default function CustomersPage() {
     <div className="space-y-12 pb-24 max-w-[1200px] mx-auto relative">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black uppercase tracking-tighter text-white">Customer Directory</h1>
+          <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground">Customer Directory</h1>
           <p className="text-gold font-bold text-xs uppercase tracking-[0.2em] mt-2">Manage Relationships & Track Footfall</p>
         </div>
         
         <div className="flex gap-4 items-center">
-          <label className="bg-white/5 text-white/80 px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-white/10 transition-colors cursor-pointer border border-white/10">
+          <label className="bg-card shadow-sm text-foreground/80 px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-foreground/10 transition-colors cursor-pointer border border-border">
             {isUploading ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <div className="w-4 h-4 border-2 border-foreground/30 border-t-white rounded-full animate-spin" />
             ) : (
               <Upload size={18} />
             )}
@@ -339,28 +339,28 @@ export default function CustomersPage() {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6 justify-between items-start lg:items-center bg-card glass-card p-6 rounded-3xl border border-white/5">
+      <div className="flex flex-col lg:flex-row gap-6 justify-between items-start lg:items-center bg-card glass-card p-6 rounded-3xl border border-border">
         
         {/* Search & Segments */}
         <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto flex-1">
           <div className="relative w-full sm:w-80 shrink-0">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/20" size={18} />
             <input
               type="text"
               placeholder="Search by name or phone..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-gold/50 transition-all font-bold tracking-widest uppercase"
+              className="w-full h-full bg-card shadow-sm border border-border rounded-2xl py-3 pl-12 pr-4 text-sm text-foreground placeholder-white/20 focus:outline-none focus:border-gold/50 transition-all font-bold tracking-widest uppercase"
             />
           </div>
 
-          <div className="flex bg-white/5 border border-white/10 rounded-2xl p-1 overflow-x-auto scrollbar-hide">
+          <div className="flex bg-card shadow-sm border border-border rounded-2xl p-1 overflow-x-auto scrollbar-hide">
             {(['all', 'less_than_5', '5_to_10', 'greater_than_10'] as const).map(f => (
               <button
                 key={f}
                 onClick={() => setFilterBy(f)}
                 className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-                  filterBy === f ? 'bg-gold text-black shadow-lg shadow-gold/20' : 'text-white/40 hover:text-white hover:bg-white/5'
+                  filterBy === f ? 'bg-gold text-black shadow-lg shadow-gold/20' : 'text-foreground/40 hover:text-foreground hover:bg-card shadow-sm'
                 }`}
               >
                 {f === 'less_than_5' ? '<5 visits' : f === '5_to_10' ? '5-10 visits' : f === 'greater_than_10' ? '>10 visits' : 'All'}
@@ -374,7 +374,7 @@ export default function CustomersPage() {
           <button
             onClick={() => setSortBy('recent')}
             className={`px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
-              sortBy === 'recent' ? 'bg-white/10 text-white border border-white/20' : 'bg-white/5 text-white/40 hover:text-white border border-transparent hover:border-white/10'
+              sortBy === 'recent' ? 'bg-foreground/10 text-foreground border border-foreground/20' : 'bg-card shadow-sm text-foreground/40 hover:text-foreground border border-transparent hover:border-border'
             }`}
           >
             <Clock size={14} /> Recent
@@ -382,7 +382,7 @@ export default function CustomersPage() {
           <button
             onClick={() => setSortBy('frequent')}
             className={`px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
-              sortBy === 'frequent' ? 'bg-white/10 text-white border border-white/20' : 'bg-white/5 text-white/40 hover:text-white border border-transparent hover:border-white/10'
+              sortBy === 'frequent' ? 'bg-foreground/10 text-foreground border border-foreground/20' : 'bg-card shadow-sm text-foreground/40 hover:text-foreground border border-transparent hover:border-border'
             }`}
           >
             <Users size={14} /> Freq. Sort
@@ -390,7 +390,7 @@ export default function CustomersPage() {
           <button
             onClick={() => setSortBy('spending')}
             className={`px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
-              sortBy === 'spending' ? 'bg-white/10 text-white border border-white/20' : 'bg-white/5 text-white/40 hover:text-white border border-transparent hover:border-white/10'
+              sortBy === 'spending' ? 'bg-foreground/10 text-foreground border border-foreground/20' : 'bg-card shadow-sm text-foreground/40 hover:text-foreground border border-transparent hover:border-border'
             }`}
           >
             <TrendingUp size={14} /> Highest Spend
@@ -407,25 +407,25 @@ export default function CustomersPage() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="bg-[#111] border border-white/10 p-1 rounded-3xl max-w-lg w-full relative overflow-hidden shadow-2xl shadow-green-500/10"
+            className="bg-[#111] border border-border p-1 rounded-3xl max-w-lg w-full relative overflow-hidden shadow-2xl shadow-green-500/10"
           >
             {/* Ambient Background Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-32 bg-green-500/20 rounded-full blur-[80px] pointer-events-none" />
 
-            <div className="bg-[#161616] rounded-[1.4rem] p-6 sm:p-8 relative z-10 border border-white/5">
+            <div className="bg-[#161616] rounded-[1.4rem] p-6 sm:p-8 relative z-10 border border-border">
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <div className="w-12 h-12 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center justify-center mb-4">
                     <MessageSquare className="text-green-500" size={24} />
                   </div>
-                  <h2 className="text-2xl font-black text-white tracking-tight">WhatsApp Campaign</h2>
-                  <p className="text-white/40 text-sm mt-1">
-                    Ready to send to <strong className="text-white">{selectedCustomers.length}</strong> selected customer{selectedCustomers.length !== 1 && 's'}.
+                  <h2 className="text-2xl font-black text-foreground tracking-tight">WhatsApp Campaign</h2>
+                  <p className="text-foreground/40 text-sm mt-1">
+                    Ready to send to <strong className="text-foreground">{selectedCustomers.length}</strong> selected customer{selectedCustomers.length !== 1 && 's'}.
                   </p>
                 </div>
                 <button 
                   onClick={() => setShowMessageModal(false)} 
-                  className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-full text-white/40 hover:text-white transition-colors"
+                  className="w-8 h-8 flex items-center justify-center bg-card shadow-sm hover:bg-foreground/10 rounded-full text-foreground/40 hover:text-foreground transition-colors"
                 >
                   ✕
                 </button>
@@ -433,20 +433,20 @@ export default function CustomersPage() {
 
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                <div className="relative bg-[#000] border border-white/10 group-hover:border-green-500/30 rounded-2xl p-4 transition-colors">
-                  <div className="flex items-center justify-between mb-3 px-2 border-b border-white/5 pb-3">
+                <div className="relative bg-[#000] border border-border group-hover:border-green-500/30 rounded-2xl p-4 transition-colors">
+                  <div className="flex items-center justify-between mb-3 px-2 border-b border-border pb-3">
                     <div className="flex items-center gap-2">
                       <div className="flex gap-1.5">
                         <div className="w-3 h-3 rounded-full bg-red-500/20" />
                         <div className="w-3 h-3 rounded-full bg-yellow-500/20" />
                         <div className="w-3 h-3 rounded-full bg-green-500/20" />
                       </div>
-                      <span className="text-xs text-white/30 font-bold uppercase tracking-widest ml-2">Message Preview</span>
+                      <span className="text-xs text-foreground/30 font-bold uppercase tracking-widest ml-2">Message Preview</span>
                     </div>
                     
-                    <label className="cursor-pointer text-white/40 hover:text-white transition-colors flex items-center gap-1 text-xs uppercase font-bold tracking-widest">
+                    <label className="cursor-pointer text-foreground/40 hover:text-foreground transition-colors flex items-center gap-1 text-xs uppercase font-bold tracking-widest">
                       {uploadingImage ? (
-                        <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <div className="w-3 h-3 border-2 border-foreground/30 border-t-white rounded-full animate-spin" />
                       ) : (
                         <ImageIcon size={14} />
                       )}
@@ -457,10 +457,10 @@ export default function CustomersPage() {
 
                   {whatsappImage && (
                     <div className="relative mb-3 group/img">
-                      <img src={whatsappImage} alt="Attached" className="w-full h-32 object-cover rounded-xl border border-white/10" />
+                      <img src={whatsappImage} alt="Attached" className="w-full h-32 object-cover rounded-xl border border-border" />
                       <button 
                         onClick={() => setWhatsappImage('')}
-                        className="absolute top-2 right-2 bg-black/60 hover:bg-red-500/80 text-white p-1.5 rounded-lg opacity-0 group-hover/img:opacity-100 transition-all backdrop-blur-sm"
+                        className="absolute top-2 right-2 bg-foreground/10 hover:bg-red-500/80 text-foreground p-1.5 rounded-lg opacity-0 group-hover/img:opacity-100 transition-all backdrop-blur-sm"
                       >
                         <X size={14} />
                       </button>
@@ -471,10 +471,10 @@ export default function CustomersPage() {
                     value={whatsappMessage}
                     onChange={e => setWhatsappMessage(e.target.value)}
                     placeholder="Hey there! We have a special offer for you..."
-                    className="w-full bg-transparent text-white/90 h-32 resize-none focus:outline-none placeholder:text-white/20 text-sm leading-relaxed"
+                    className="w-full bg-transparent text-foreground/90 h-32 resize-none focus:outline-none placeholder:text-foreground/20 text-sm leading-relaxed"
                   />
                   <div className="flex justify-between items-center mt-2 px-1">
-                    <span className="text-xs text-white/30">{whatsappMessage.length} / 1024 characters</span>
+                    <span className="text-xs text-foreground/30">{whatsappMessage.length} / 1024 characters</span>
                   </div>
                 </div>
               </div>
@@ -482,7 +482,7 @@ export default function CustomersPage() {
               <div className="flex justify-end gap-3 mt-8">
                 <button 
                   onClick={() => setShowMessageModal(false)} 
-                  className="px-6 py-3 text-white/40 hover:text-white font-bold transition-colors"
+                  className="px-6 py-3 text-foreground/40 hover:text-foreground font-bold transition-colors"
                 >
                   Cancel
                 </button>
@@ -504,7 +504,7 @@ export default function CustomersPage() {
                     )}
                   </span>
                   {!sendingMessage && (
-                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+                    <div className="absolute inset-0 bg-foreground/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
                   )}
                 </button>
               </div>
@@ -516,32 +516,32 @@ export default function CustomersPage() {
       {/* Edit Customer Modal */}
       {editingCustomer && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-md">
-          <div className="bg-[#161616] border border-white/10 p-6 rounded-3xl max-w-sm w-full relative shadow-2xl">
-            <h2 className="text-xl font-bold text-white mb-4">Edit Customer</h2>
+          <div className="bg-[#161616] border border-border p-6 rounded-3xl max-w-sm w-full relative shadow-2xl">
+            <h2 className="text-xl font-bold text-foreground mb-4">Edit Customer</h2>
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest mb-1 block">Name</label>
+                <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest mb-1 block">Name</label>
                 <input 
                   type="text" 
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-gold"
+                  className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm font-bold text-foreground focus:outline-none focus:border-gold"
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest mb-1 block">Phone</label>
+                <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest mb-1 block">Phone</label>
                 <input 
                   type="text" 
                   value={editPhone}
                   onChange={(e) => setEditPhone(e.target.value)}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-gold"
+                  className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm font-bold text-foreground focus:outline-none focus:border-gold"
                 />
               </div>
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button 
                 onClick={() => setEditingCustomer(null)} 
-                className="px-4 py-2 text-white/40 hover:text-white font-bold transition-colors"
+                className="px-4 py-2 text-foreground/40 hover:text-foreground font-bold transition-colors"
               >
                 Cancel
               </button>
@@ -559,19 +559,19 @@ export default function CustomersPage() {
       {/* Delete Customer Modal */}
       {deletingCustomer && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-md">
-          <div className="bg-[#161616] border border-white/10 p-6 rounded-3xl max-w-sm w-full relative shadow-2xl">
-            <h2 className="text-xl font-bold text-white mb-2">Delete Customer?</h2>
-            <p className="text-white/40 text-sm mb-6">Are you sure you want to delete <strong className="text-white">{deletingCustomer.name}</strong>? This action cannot be undone.</p>
+          <div className="bg-[#161616] border border-border p-6 rounded-3xl max-w-sm w-full relative shadow-2xl">
+            <h2 className="text-xl font-bold text-foreground mb-2">Delete Customer?</h2>
+            <p className="text-foreground/40 text-sm mb-6">Are you sure you want to delete <strong className="text-foreground">{deletingCustomer.name}</strong>? This action cannot be undone.</p>
             <div className="flex justify-end gap-3">
               <button 
                 onClick={() => setDeletingCustomer(null)} 
-                className="px-4 py-2 text-white/40 hover:text-white font-bold transition-colors"
+                className="px-4 py-2 text-foreground/40 hover:text-foreground font-bold transition-colors"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleDeleteCustomer}
-                className="bg-red-500 text-white px-6 py-2 rounded-xl font-bold hover:bg-red-600 transition-all shadow-lg shadow-red-500/20"
+                className="bg-red-500 text-foreground px-6 py-2 rounded-xl font-bold hover:bg-red-600 transition-all shadow-lg shadow-red-500/20"
               >
                 Delete
               </button>
@@ -585,10 +585,10 @@ export default function CustomersPage() {
           <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin"></div>
         </div>
       ) : filteredAndSortedCustomers.length === 0 ? (
-        <div className="bg-card glass-card rounded-[2rem] p-16 text-center border border-white/5">
-          <Users size={48} className="mx-auto text-white/20 mb-6" />
-          <h3 className="text-white/40 font-black text-lg uppercase tracking-widest">No Customers Found</h3>
-          <p className="text-white/20 text-xs mt-3 font-bold uppercase tracking-widest">Process orders in the POS to build your directory.</p>
+        <div className="bg-card glass-card rounded-[2rem] p-16 text-center border border-border">
+          <Users size={48} className="mx-auto text-foreground/20 mb-6" />
+          <h3 className="text-foreground/40 font-black text-lg uppercase tracking-widest">No Customers Found</h3>
+          <p className="text-foreground/20 text-xs mt-3 font-bold uppercase tracking-widest">Process orders in the POS to build your directory.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -601,7 +601,7 @@ export default function CustomersPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
                 key={customer._id}
-                className="bg-card glass-card rounded-3xl p-6 border border-white/5 hover:border-gold/30 transition-all group relative overflow-hidden"
+                className="bg-card glass-card rounded-3xl p-6 border border-border hover:border-gold/30 transition-all group relative overflow-hidden"
               >
                 {/* Background Decor */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-gold/10 transition-colors"></div>
@@ -609,12 +609,12 @@ export default function CustomersPage() {
                 <div className="flex items-start justify-between mb-6 relative z-10">
                   <div className="flex gap-4 items-center">
 
-                    <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-gold font-black text-xl shadow-inner border border-white/5 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 bg-card shadow-sm rounded-2xl flex items-center justify-center text-gold font-black text-xl shadow-inner border border-border group-hover:scale-110 transition-transform">
                       {customer.name?.charAt(0).toUpperCase() || 'U'}
                     </div>
                     <div>
-                      <h3 className="text-white font-black text-sm uppercase tracking-wider">{customer.name || 'Unknown'}</h3>
-                      <p className="text-xs text-white/40 font-bold tracking-widest flex items-center gap-1 mt-1">
+                      <h3 className="text-foreground font-black text-sm uppercase tracking-wider">{customer.name || 'Unknown'}</h3>
+                      <p className="text-xs text-foreground/40 font-bold tracking-widest flex items-center gap-1 mt-1">
                         <Phone size={10} /> {customer.phone}
                       </p>
                     </div>
@@ -628,14 +628,14 @@ export default function CustomersPage() {
                           setEditPhone(customer.phone);
                           setEditingCustomer(customer);
                         }}
-                        className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-blue-500/20 text-white/40 hover:text-blue-400 rounded-lg transition-colors border border-transparent hover:border-blue-500/30"
+                        className="w-8 h-8 flex items-center justify-center bg-card shadow-sm hover:bg-blue-500/20 text-foreground/40 hover:text-blue-400 rounded-lg transition-colors border border-transparent hover:border-blue-500/30"
                         title="Edit Customer"
                       >
                         <Edit2 size={14} />
                       </button>
                       <button 
                         onClick={() => setDeletingCustomer(customer)}
-                        className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-red-500/20 text-white/40 hover:text-red-400 rounded-lg transition-colors border border-transparent hover:border-red-500/30"
+                        className="w-8 h-8 flex items-center justify-center bg-card shadow-sm hover:bg-red-500/20 text-foreground/40 hover:text-red-400 rounded-lg transition-colors border border-transparent hover:border-red-500/30"
                         title="Delete Customer"
                       >
                         <Trash2 size={14} />
@@ -644,10 +644,10 @@ export default function CustomersPage() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 relative z-10 border-t border-white/5 pt-6">
+                <div className="grid grid-cols-2 gap-4 relative z-10 border-t border-border pt-6">
                   <div>
-                    <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">Total Visits</p>
-                    <p className="text-white font-bold text-lg">{customer.totalVisits}</p>
+                    <p className="text-[10px] font-black text-foreground/20 uppercase tracking-widest mb-1">Total Visits</p>
+                    <p className="text-foreground font-bold text-lg">{customer.totalVisits}</p>
                   </div>
                   <div>
                     <p className="text-[10px] font-black text-gold/40 uppercase tracking-widest mb-1">Total Spent</p>
@@ -657,7 +657,7 @@ export default function CustomersPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-xs font-bold uppercase tracking-widest text-white/40 group-hover:text-white/60 transition-colors relative z-10">
+                <div className="mt-6 pt-4 border-t border-border flex items-center justify-between text-xs font-bold uppercase tracking-widest text-foreground/40 group-hover:text-foreground/60 transition-colors relative z-10">
                   <div className="flex items-center gap-2">
                     <Calendar size={12} className="text-gold/60" /> {date}
                   </div>

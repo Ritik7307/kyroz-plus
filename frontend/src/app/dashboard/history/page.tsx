@@ -135,7 +135,7 @@ export default function HistoryPage() {
     <div className="space-y-12 pb-24 max-w-[1200px] mx-auto relative">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black uppercase tracking-tighter text-white">Sales Analysis</h1>
+          <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground">Sales Analysis</h1>
           <p className="text-gold font-bold text-xs uppercase tracking-[0.2em] mt-2">Daily, Monthly & Annual Growth Ledger</p>
         </div>
       </div>
@@ -143,13 +143,13 @@ export default function HistoryPage() {
       {/* Summary Cards */}
       {!loading && summary && (
         <div className="space-y-8">
-          <div className="flex gap-4 p-1 bg-white/5 rounded-2xl w-fit">
+          <div className="flex gap-4 p-1 bg-card shadow-sm rounded-2xl w-fit">
             {(['daily', 'monthly', 'yearly'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-                  activeTab === tab ? 'bg-gold text-black shadow-lg shadow-gold/20' : 'text-white/40 hover:text-white'
+                  activeTab === tab ? 'bg-gold text-black shadow-lg shadow-gold/20' : 'text-foreground/40 hover:text-foreground'
                 }`}
               >
                 {tab}
@@ -158,37 +158,37 @@ export default function HistoryPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 space-y-4">
-              <p className="text-xs font-black text-white/40 uppercase tracking-[0.2em]">Total Revenue</p>
-              <h3 className="text-3xl font-black text-white">{formatCurrency(summary[activeTab].revenue)}</h3>
+            <div className="bg-card glass-card p-8 rounded-[2rem] border border-border space-y-4">
+              <p className="text-xs font-black text-foreground/40 uppercase tracking-[0.2em]">Total Revenue</p>
+              <h3 className="text-3xl font-black text-foreground">{formatCurrency(summary[activeTab].revenue)}</h3>
               <div className="flex items-center gap-2 text-xs font-bold text-green-500 uppercase tracking-widest">
                 <TrendingUp size={14} /> Tracking Growth
               </div>
             </div>
-            <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 space-y-4">
+            <div className="bg-card glass-card p-8 rounded-[2rem] border border-border space-y-4">
               <p className="text-xs font-black text-gold/60 uppercase tracking-[0.2em]">Gross Profit</p>
               <h3 className="text-3xl font-black text-gold">{formatCurrency(summary[activeTab].profit)}</h3>
-              <p className="text-xs font-bold text-white/20 uppercase tracking-widest">Margin: {summary[activeTab].revenue > 0 ? ((summary[activeTab].profit / summary[activeTab].revenue) * 100).toFixed(1) : 0}%</p>
+              <p className="text-xs font-bold text-foreground/20 uppercase tracking-widest">Margin: {summary[activeTab].revenue > 0 ? ((summary[activeTab].profit / summary[activeTab].revenue) * 100).toFixed(1) : 0}%</p>
             </div>
-            <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 space-y-4">
-              <p className="text-xs font-black text-white/40 uppercase tracking-[0.2em]">Order Count</p>
-              <h3 className="text-3xl font-black text-white">{summary[activeTab].count}</h3>
-              <p className="text-xs font-bold text-white/20 uppercase tracking-widest">Processed Transactions</p>
+            <div className="bg-card glass-card p-8 rounded-[2rem] border border-border space-y-4">
+              <p className="text-xs font-black text-foreground/40 uppercase tracking-[0.2em]">Order Count</p>
+              <h3 className="text-3xl font-black text-foreground">{summary[activeTab].count}</h3>
+              <p className="text-xs font-bold text-foreground/20 uppercase tracking-widest">Processed Transactions</p>
             </div>
           </div>
 
           {/* Net Profit Calculator */}
-          <div className="bg-card glass-card p-6 rounded-[2rem] border border-white/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 relative overflow-hidden">
+          <div className="bg-card glass-card p-6 rounded-[2rem] border border-border flex flex-col md:flex-row items-start md:items-center justify-between gap-8 relative overflow-hidden">
              <div className="absolute top-0 left-0 w-32 h-32 bg-gold/5 rounded-full -ml-16 -mt-16 blur-3xl"></div>
              
              <div className="flex-1 space-y-4 relative z-10 w-full max-w-md">
                <div className="flex items-center gap-4 mb-2">
-                  <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-white/40">
+                  <div className="w-12 h-12 bg-card shadow-sm rounded-xl flex items-center justify-center text-foreground/40">
                     <Calculator size={20} />
                   </div>
                   <div>
-                     <h4 className="text-white font-black uppercase tracking-widest text-sm">Net Profit Calculator</h4>
-                     <p className="text-white/40 text-xs font-bold">Subtract operational spends (Rent, Staff, etc.)</p>
+                     <h4 className="text-foreground font-black uppercase tracking-widest text-sm">Net Profit Calculator</h4>
+                     <p className="text-foreground/40 text-xs font-bold">Subtract operational spends (Rent, Staff, etc.)</p>
                   </div>
                </div>
 
@@ -198,7 +198,7 @@ export default function HistoryPage() {
                     value={expenseName} 
                     onChange={(e) => setExpenseName(e.target.value)}
                     placeholder="Expense Name (e.g. Rent)" 
-                    className="bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-gold w-full sm:flex-1 placeholder:text-white/20"
+                    className="bg-background border border-border rounded-xl px-4 py-2.5 text-sm font-bold text-foreground focus:outline-none focus:border-gold w-full sm:flex-1 placeholder:text-foreground/20"
                  />
                  <div className="flex gap-3">
                    <input 
@@ -206,7 +206,7 @@ export default function HistoryPage() {
                       value={expenseAmount} 
                       onChange={(e) => setExpenseAmount(e.target.value === '' ? '' : Number(e.target.value))}
                       placeholder="Amount (₹)" 
-                      className="bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-gold w-full sm:w-32 placeholder:text-white/20"
+                      className="bg-background border border-border rounded-xl px-4 py-2.5 text-sm font-bold text-foreground focus:outline-none focus:border-gold w-full sm:w-32 placeholder:text-foreground/20"
                    />
                    <button 
                       onClick={() => {
@@ -226,17 +226,17 @@ export default function HistoryPage() {
                {expenses.length > 0 && (
                  <div className="space-y-2 mt-4 max-h-32 overflow-y-auto pr-2 scrollbar-hide">
                    {expenses.map((exp, idx) => (
-                     <div key={idx} className="flex items-center justify-between bg-white/5 px-4 py-2 rounded-lg text-xs font-bold">
-                       <span className="text-white uppercase tracking-wider">{exp.name}</span>
+                     <div key={idx} className="flex items-center justify-between bg-card shadow-sm px-4 py-2 rounded-lg text-xs font-bold">
+                       <span className="text-foreground uppercase tracking-wider">{exp.name}</span>
                        <div className="flex items-center gap-3">
                          <span className="text-red-400">-₹{exp.amount}</span>
-                         <button onClick={() => setExpenses(expenses.filter((_, i) => i !== idx))} className="text-white/40 hover:text-red-500">
+                         <button onClick={() => setExpenses(expenses.filter((_, i) => i !== idx))} className="text-foreground/40 hover:text-red-500">
                            <X size={14} />
                          </button>
                        </div>
                      </div>
                    ))}
-                   <div className="flex justify-between border-t border-white/10 pt-2 mt-2 text-xs font-black uppercase tracking-widest text-white/40 px-2">
+                   <div className="flex justify-between border-t border-border pt-2 mt-2 text-xs font-black uppercase tracking-widest text-foreground/40 px-2">
                      <span>Total Spends</span>
                      <span className="text-red-500">-₹{expenses.reduce((sum, e) => sum + e.amount, 0)}</span>
                    </div>
@@ -253,28 +253,28 @@ export default function HistoryPage() {
           </div>
 
           {/* Top Selling Items & Item Analytics */}
-          <div className="bg-card glass-card p-8 rounded-[2.5rem] border border-white/5">
+          <div className="bg-card glass-card p-8 rounded-[2.5rem] border border-border">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
               <div className="flex items-center gap-3">
                 <TrendingUp className="text-gold" />
                 <h3 className="text-xl font-black uppercase tracking-tighter">Item Analytics</h3>
               </div>
-              <div className="flex bg-white/5 rounded-xl overflow-hidden p-1 gap-1">
+              <div className="flex bg-card shadow-sm rounded-xl overflow-hidden p-1 gap-1">
                 <button 
                   onClick={() => setItemFilter('quantity')}
-                  className={`px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${itemFilter === 'quantity' ? 'bg-gold text-black' : 'text-white/40 hover:text-white'}`}
+                  className={`px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${itemFilter === 'quantity' ? 'bg-gold text-black' : 'text-foreground/40 hover:text-foreground'}`}
                 >
                   Most Sold
                 </button>
                 <button 
                   onClick={() => setItemFilter('revenue')}
-                  className={`px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${itemFilter === 'revenue' ? 'bg-gold text-black' : 'text-white/40 hover:text-white'}`}
+                  className={`px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${itemFilter === 'revenue' ? 'bg-gold text-black' : 'text-foreground/40 hover:text-foreground'}`}
                 >
                   High Revenue
                 </button>
                 <button 
                   onClick={() => setItemFilter('margin')}
-                  className={`px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${itemFilter === 'margin' ? 'bg-gold text-black' : 'text-white/40 hover:text-white'}`}
+                  className={`px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${itemFilter === 'margin' ? 'bg-gold text-black' : 'text-foreground/40 hover:text-foreground'}`}
                 >
                   High Margin
                 </button>
@@ -291,16 +291,16 @@ export default function HistoryPage() {
                 }).slice(0, 5);
 
                 if (sortedItems.length === 0) {
-                  return <p className="col-span-full text-center text-white/20 font-bold uppercase tracking-widest py-4">No data yet</p>;
+                  return <p className="col-span-full text-center text-foreground/20 font-bold uppercase tracking-widest py-4">No data yet</p>;
                 }
 
                 return sortedItems.map((item: any, idx: number) => (
-                  <div key={idx} className="bg-black/40 p-6 rounded-2xl border border-white/5 flex flex-col items-center text-center gap-3">
+                  <div key={idx} className="bg-background p-6 rounded-2xl border border-border flex flex-col items-center text-center gap-3">
                     <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center text-gold font-black text-lg">
                       {idx + 1}
                     </div>
                     <div className="w-full">
-                      <p className="font-bold text-xs text-white uppercase tracking-wider line-clamp-1" title={item.name}>{item.name}</p>
+                      <p className="font-bold text-xs text-foreground uppercase tracking-wider line-clamp-1" title={item.name}>{item.name}</p>
                       {itemFilter === 'quantity' && <p className="text-xs font-black text-gold/60 uppercase tracking-widest mt-1">{item.totalQuantity} Sold</p>}
                       {itemFilter === 'revenue' && <p className="text-xs font-black text-green-500 uppercase tracking-widest mt-1">{formatCurrency(item.totalRevenue)}</p>}
                       {itemFilter === 'margin' && <p className="text-xs font-black text-blue-400 uppercase tracking-widest mt-1">{item.profitMargin?.toFixed(1) || 0}% Margin</p>}
@@ -313,9 +313,9 @@ export default function HistoryPage() {
         </div>
       )}
 
-      <div className="pt-12 border-t border-white/5">
+      <div className="pt-12 border-t border-border">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
-          <h3 className="text-white/40 text-[11px] font-black tracking-[0.4em] uppercase flex items-center gap-3">
+          <h3 className="text-foreground/40 text-[11px] font-black tracking-[0.4em] uppercase flex items-center gap-3">
              <Receipt size={18} className="text-gold" /> Detailed Sales Ledger
           </h3>
           <button 
@@ -327,52 +327,52 @@ export default function HistoryPage() {
         </div>
 
         {/* DAILY REPORT PRINT VIEW */}
-        <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 mb-8 print:fixed print:inset-0 print:bg-white print:text-black print:z-[9999] print:block print:rounded-none print:overflow-visible">
-           <h2 className="text-2xl font-black uppercase tracking-tighter mb-2 print:text-black text-white">Daily Operations Report</h2>
-           <p className="text-xs font-bold text-white/40 print:text-black/60 mb-8">{todayStr}</p>
+        <div className="bg-card glass-card p-8 rounded-[2rem] border border-border mb-8 print:fixed print:inset-0 print:bg-white print:text-black print:z-[9999] print:block print:rounded-none print:overflow-visible">
+           <h2 className="text-2xl font-black uppercase tracking-tighter mb-2 print:text-black text-foreground">Daily Operations Report</h2>
+           <p className="text-xs font-bold text-foreground/40 print:text-black/60 mb-8">{todayStr}</p>
            
            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8">
               <div>
                  <h4 className="font-bold text-sm text-gold print:text-black uppercase tracking-widest mb-4">Payment Methods</h4>
-                 <div className="space-y-2 text-sm font-bold text-white print:text-black">
-                    <div className="flex justify-between"><span className="text-white/60 print:text-black/60">Cash</span><span>{formatCurrency(todayBreakdown.cash)}</span></div>
-                    <div className="flex justify-between"><span className="text-white/60 print:text-black/60">Online / Card</span><span>{formatCurrency(todayBreakdown.online)}</span></div>
-                    <div className="border-t border-white/10 print:border-black/10 pt-2 mt-2 flex justify-between font-black"><span className="text-white/60 print:text-black/60">Total</span><span>{formatCurrency(todayBreakdown.cash + todayBreakdown.online)}</span></div>
+                 <div className="space-y-2 text-sm font-bold text-foreground print:text-black">
+                    <div className="flex justify-between"><span className="text-foreground/60 print:text-black/60">Cash</span><span>{formatCurrency(todayBreakdown.cash)}</span></div>
+                    <div className="flex justify-between"><span className="text-foreground/60 print:text-black/60">Online / Card</span><span>{formatCurrency(todayBreakdown.online)}</span></div>
+                    <div className="border-t border-border print:border-black/10 pt-2 mt-2 flex justify-between font-black"><span className="text-foreground/60 print:text-black/60">Total</span><span>{formatCurrency(todayBreakdown.cash + todayBreakdown.online)}</span></div>
                  </div>
               </div>
               <div>
                  <h4 className="font-bold text-sm text-blue-400 print:text-black uppercase tracking-widest mb-4">Order Types</h4>
-                 <div className="space-y-2 text-sm font-bold text-white print:text-black">
-                    <div className="flex justify-between"><span className="text-white/60 print:text-black/60">Dine-in</span><span>{formatCurrency(todayBreakdown.dineIn)}</span></div>
-                    <div className="flex justify-between"><span className="text-white/60 print:text-black/60">Takeaway (Pickup)</span><span>{formatCurrency(todayBreakdown.takeaway)}</span></div>
-                    <div className="flex justify-between"><span className="text-white/60 print:text-black/60">Delivery</span><span>{formatCurrency(todayBreakdown.delivery)}</span></div>
+                 <div className="space-y-2 text-sm font-bold text-foreground print:text-black">
+                    <div className="flex justify-between"><span className="text-foreground/60 print:text-black/60">Dine-in</span><span>{formatCurrency(todayBreakdown.dineIn)}</span></div>
+                    <div className="flex justify-between"><span className="text-foreground/60 print:text-black/60">Takeaway (Pickup)</span><span>{formatCurrency(todayBreakdown.takeaway)}</span></div>
+                    <div className="flex justify-between"><span className="text-foreground/60 print:text-black/60">Delivery</span><span>{formatCurrency(todayBreakdown.delivery)}</span></div>
                  </div>
               </div>
            </div>
            
-           <div className="mb-8 border-t border-white/10 print:border-black/10 pt-8">
+           <div className="mb-8 border-t border-border print:border-black/10 pt-8">
              <h4 className="font-bold text-sm text-green-500 print:text-black uppercase tracking-widest mb-4">Items Sold Today</h4>
-             <div className="space-y-2 text-sm font-bold text-white print:text-black">
+             <div className="space-y-2 text-sm font-bold text-foreground print:text-black">
                {todayBreakdown.items.length === 0 && (
-                 <p className="text-white/40 print:text-black/60 italic text-xs">No items sold today yet.</p>
+                 <p className="text-foreground/40 print:text-black/60 italic text-xs">No items sold today yet.</p>
                )}
                {todayBreakdown.items.map(([name, data]) => (
-                 <div key={name} className="flex justify-between border-b border-white/5 print:border-black/5 pb-2">
-                   <span className="text-white/80 print:text-black/80">{name} <span className="text-white/40 print:text-black/40 text-xs ml-2">x{data.quantity}</span></span>
+                 <div key={name} className="flex justify-between border-b border-border print:border-black/5 pb-2">
+                   <span className="text-foreground/80 print:text-black/80">{name} <span className="text-foreground/40 print:text-black/40 text-xs ml-2">x{data.quantity}</span></span>
                    <span>{formatCurrency(data.revenue)}</span>
                  </div>
                ))}
              </div>
            </div>
            
-           <div className="mt-8 pt-8 border-t border-white/10 print:border-black/10 flex justify-between">
+           <div className="mt-8 pt-8 border-t border-border print:border-black/10 flex justify-between">
               <div className="text-center">
-                 <p className="text-xs text-white/40 print:text-black/60 font-black uppercase tracking-widest mb-1">Total Orders</p>
-                 <p className="text-xl font-black text-white print:text-black">{todayOrders.length}</p>
+                 <p className="text-xs text-foreground/40 print:text-black/60 font-black uppercase tracking-widest mb-1">Total Orders</p>
+                 <p className="text-xl font-black text-foreground print:text-black">{todayOrders.length}</p>
               </div>
               <div className="text-center">
-                 <p className="text-xs text-white/40 print:text-black/60 font-black uppercase tracking-widest mb-1">Items Sold</p>
-                 <p className="text-xl font-black text-white print:text-black">{todayBreakdown.totalItems}</p>
+                 <p className="text-xs text-foreground/40 print:text-black/60 font-black uppercase tracking-widest mb-1">Items Sold</p>
+                 <p className="text-xl font-black text-foreground print:text-black">{todayBreakdown.totalItems}</p>
               </div>
               <div className="text-center">
                  <p className="text-xs text-green-500/80 print:text-black/60 font-black uppercase tracking-widest mb-1">Net Revenue</p>
@@ -387,10 +387,10 @@ export default function HistoryPage() {
           <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin"></div>
         </div>
       ) : orders.length === 0 ? (
-        <div className="bg-card glass-card rounded-[2rem] p-12 text-center border border-white/5">
-          <Receipt size={48} className="mx-auto text-white/20 mb-4" />
-          <h3 className="text-white/40 font-black uppercase tracking-widest">No Sales History Yet</h3>
-          <p className="text-white/20 text-xs mt-2">Orders processed in the POS Terminal will appear here.</p>
+        <div className="bg-card glass-card rounded-[2rem] p-12 text-center border border-border">
+          <Receipt size={48} className="mx-auto text-foreground/20 mb-4" />
+          <h3 className="text-foreground/40 font-black uppercase tracking-widest">No Sales History Yet</h3>
+          <p className="text-foreground/20 text-xs mt-2">Orders processed in the POS Terminal will appear here.</p>
         </div>
       ) : (
         <div className="space-y-12">
@@ -407,12 +407,12 @@ export default function HistoryPage() {
                 className="space-y-6"
               >
                 {/* Day Header */}
-                <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                  <h2 className="text-white text-lg font-black tracking-widest uppercase">{date}</h2>
+                <div className="flex items-center justify-between border-b border-border pb-4">
+                  <h2 className="text-foreground text-lg font-black tracking-widest uppercase">{date}</h2>
                   <div className="flex gap-6">
                     <div className="text-right hidden sm:block">
-                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">Revenue</p>
-                      <p className="text-white font-bold">{formatCurrency(dailyRevenue)}</p>
+                      <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">Revenue</p>
+                      <p className="text-foreground font-bold">{formatCurrency(dailyRevenue)}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-[10px] font-black text-gold/60 uppercase tracking-widest">Daily Gross Profit</p>
@@ -432,21 +432,21 @@ export default function HistoryPage() {
                     const isExpanded = expandedOrderId === order._id;
 
                     return (
-                      <div key={order._id} className="bg-card glass-card rounded-2xl border border-white/5 overflow-hidden transition-all hover:border-white/10">
+                      <div key={order._id} className="bg-card glass-card rounded-2xl border border-border overflow-hidden transition-all hover:border-border">
                         {/* Order Summary Row */}
                         <div 
                           onClick={() => toggleExpand(order._id)}
                           className="p-6 flex items-center justify-between cursor-pointer group"
                         >
                           <div className="flex items-center gap-6">
-                            <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-white/40 group-hover:text-white transition-colors">
+                            <div className="w-12 h-12 bg-card shadow-sm rounded-xl flex items-center justify-center text-foreground/40 group-hover:text-foreground transition-colors">
                               <Receipt size={20} />
                             </div>
                             <div>
-                              <p className="text-white font-bold uppercase tracking-wider text-sm flex items-center gap-2">
+                              <p className="text-foreground font-bold uppercase tracking-wider text-sm flex items-center gap-2">
                                 <Clock size={12} className="text-gold" /> {time}
                               </p>
-                              <p className="text-xs text-white/40 uppercase tracking-widest mt-1">
+                              <p className="text-xs text-foreground/40 uppercase tracking-widest mt-1">
                                 {order.items.length} Items Sold
                               </p>
                             </div>
@@ -454,14 +454,14 @@ export default function HistoryPage() {
 
                           <div className="flex items-center gap-8">
                             <div className="text-right hidden sm:block">
-                              <p className="text-[10px] text-white/40 uppercase tracking-widest">Amount</p>
-                              <p className="text-white font-bold">{formatCurrency(order.totalRevenue)}</p>
+                              <p className="text-[10px] text-foreground/40 uppercase tracking-widest">Amount</p>
+                              <p className="text-foreground font-bold">{formatCurrency(order.totalRevenue)}</p>
                             </div>
                             <div className="text-right">
                               <p className="text-[10px] text-gold/60 uppercase tracking-widest">Gross Profit</p>
                               <p className="text-gold font-black">{formatCurrency(order.totalProfit)}</p>
                             </div>
-                            <div className="text-white/20 group-hover:text-white transition-colors">
+                            <div className="text-foreground/20 group-hover:text-foreground transition-colors">
                               {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                             </div>
                           </div>
@@ -474,28 +474,28 @@ export default function HistoryPage() {
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: 'auto', opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
-                              className="border-t border-white/5 bg-black/40"
+                              className="border-t border-border bg-background"
                             >
                               <div className="p-6 space-y-4">
-                                <h4 className="text-xs font-black text-white/40 uppercase tracking-widest">Itemized Bill</h4>
+                                <h4 className="text-xs font-black text-foreground/40 uppercase tracking-widest">Itemized Bill</h4>
                                 <div className="space-y-3">
                                   {order.items.map((item: any, i: number) => (
-                                    <div key={i} className="flex items-center justify-between bg-white/5 rounded-xl p-4">
+                                    <div key={i} className="flex items-center justify-between bg-card shadow-sm rounded-xl p-4">
                                       <div className="flex items-center gap-4">
                                         <div className="w-8 h-8 bg-gold/10 text-gold rounded-lg flex items-center justify-center">
                                           <Utensils size={14} />
                                         </div>
                                         <div>
-                                          <p className="text-white text-xs font-bold uppercase tracking-wider">
+                                          <p className="text-foreground text-xs font-bold uppercase tracking-wider">
                                             {item.dishId?.name || 'Unknown Item'}
                                           </p>
-                                          <p className="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">
+                                          <p className="text-[10px] text-foreground/40 uppercase tracking-widest mt-0.5">
                                             Qty: {item.quantity} × {formatCurrency(item.price)}
                                           </p>
                                         </div>
                                       </div>
                                       <div className="text-right">
-                                        <p className="text-white text-xs font-bold">
+                                        <p className="text-foreground text-xs font-bold">
                                           {formatCurrency(item.price * item.quantity)}
                                         </p>
                                         <p className="text-[10px] text-green-500/80 uppercase tracking-widest mt-0.5">
@@ -507,26 +507,26 @@ export default function HistoryPage() {
                                 </div>
                                 
                                 {/* Order Metadata Summary */}
-                                <div className="pt-4 border-t border-white/5 flex flex-wrap gap-x-8 gap-y-3 text-xs text-white/60 font-bold uppercase tracking-wider">
+                                <div className="pt-4 border-t border-border flex flex-wrap gap-x-8 gap-y-3 text-xs text-foreground/60 font-bold uppercase tracking-wider">
                                   {order.tableNumber && (
                                     <div>
-                                      <span className="text-white/30">Table:</span> <span className="text-gold">{order.tableNumber}</span>
+                                      <span className="text-foreground/30">Table:</span> <span className="text-gold">{order.tableNumber}</span>
                                     </div>
                                   )}
                                   <div>
-                                    <span className="text-white/30">Type:</span> <span className="text-white">{order.orderType || 'DineIn'}</span>
+                                    <span className="text-foreground/30">Type:</span> <span className="text-foreground">{order.orderType || 'DineIn'}</span>
                                   </div>
                                   <div>
-                                    <span className="text-white/30">Payment:</span> <span className="text-white">{order.paymentMethod || 'Cash'}</span>
+                                    <span className="text-foreground/30">Payment:</span> <span className="text-foreground">{order.paymentMethod || 'Cash'}</span>
                                   </div>
                                   {order.additionalCharge > 0 && (
                                     <div>
-                                      <span className="text-white/30">Add. Charge:</span> <span className="text-white">₹{order.additionalCharge}</span>
+                                      <span className="text-foreground/30">Add. Charge:</span> <span className="text-foreground">₹{order.additionalCharge}</span>
                                     </div>
                                   )}
                                   {(order.discountValue > 0 || order.discount > 0) && (
                                     <div>
-                                      <span className="text-white/30">Discount:</span> <span className="text-red-400">
+                                      <span className="text-foreground/30">Discount:</span> <span className="text-red-400">
                                         {order.discountType === 'flat' ? '₹' : ''}
                                         {order.discountValue || order.discount}
                                         {(!order.discountType || order.discountType === 'percentage') ? '%' : ''}

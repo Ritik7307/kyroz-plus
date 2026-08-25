@@ -154,7 +154,7 @@ export default function TeamManagement() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black text-white tracking-tight uppercase mb-2">Team Management</h1>
+          <h1 className="text-4xl font-black text-foreground tracking-tight uppercase mb-2">Team Management</h1>
           <p className="text-gold/60 font-bold text-xs uppercase tracking-[0.3em]">
             Manage your 3 Enterprise Slots (Manager, Cook, Biller)
           </p>
@@ -182,7 +182,7 @@ export default function TeamManagement() {
           return (
             <div key={idx} className="relative group">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-gold/20 to-transparent rounded-3xl blur opacity-0 group-hover:opacity-100 transition duration-1000"></div>
-              <div className="relative h-[400px] bg-[#111111]/80 backdrop-blur-xl border border-white/5 rounded-3xl p-8 flex flex-col transition-all group-hover:border-gold/20">
+              <div className="relative h-[400px] bg-card/80 backdrop-blur-xl border border-border rounded-3xl p-8 flex flex-col transition-all group-hover:border-gold/20">
                 {member ? (
                   <>
                     <div className="flex items-start justify-between mb-8">
@@ -194,41 +194,41 @@ export default function TeamManagement() {
                           {member.role}
                         </span>
                         <div className="mt-2 flex gap-2">
-                          <button onClick={() => openEdit(member)} className="p-2 hover:bg-white/5 rounded-lg text-white/40 hover:text-white transition-all"><Settings size={16}/></button>
-                          <button onClick={() => handleDelete(member._id)} className="p-2 hover:bg-red-500/10 rounded-lg text-white/40 hover:text-red-500 transition-all"><Trash2 size={16}/></button>
+                          <button onClick={() => openEdit(member)} className="p-2 hover:bg-card shadow-sm rounded-lg text-foreground/40 hover:text-foreground transition-all"><Settings size={16}/></button>
+                          <button onClick={() => handleDelete(member._id)} className="p-2 hover:bg-red-500/10 rounded-lg text-foreground/40 hover:text-red-500 transition-all"><Trash2 size={16}/></button>
                         </div>
                       </div>
                     </div>
 
                     <div className="mb-6">
-                      <h3 className="text-xl font-bold text-white mb-1">{member.name}</h3>
-                      <p className="text-white/40 text-xs font-medium">{member.email}</p>
+                      <h3 className="text-xl font-bold text-foreground mb-1">{member.name}</h3>
+                      <p className="text-foreground/40 text-xs font-medium">{member.email}</p>
                     </div>
 
-                    <div className="mt-auto pt-6 border-t border-white/5">
+                    <div className="mt-auto pt-6 border-t border-border">
                       <p className="text-xs font-black uppercase tracking-widest text-gold/40 mb-4">Module Access</p>
                       <div className="flex flex-wrap gap-2">
                         {member.permissions?.map(p => {
                           const mod = MODULES.find(m => m.id === p);
                           return mod ? (
-                            <div key={p} className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-xl border border-white/5">
+                            <div key={p} className="flex items-center gap-2 px-3 py-1.5 bg-card shadow-sm rounded-xl border border-border">
                               <mod.icon size={10} className="text-gold" />
-                              <span className="text-[10px] font-bold text-white/60 uppercase">{mod.name}</span>
+                              <span className="text-[10px] font-bold text-foreground/60 uppercase">{mod.name}</span>
                             </div>
                           ) : null;
                         })}
                         {(!member.permissions || member.permissions.length === 0) && (
-                          <p className="text-xs text-white/20 italic">No modules assigned</p>
+                          <p className="text-xs text-foreground/20 italic">No modules assigned</p>
                         )}
                       </div>
                     </div>
                   </>
                 ) : (
-                  <div className="h-full flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-3xl group-hover:border-gold/10 transition-all">
-                    <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white/20 mb-4">
+                  <div className="h-full flex flex-col items-center justify-center border-2 border-dashed border-border rounded-3xl group-hover:border-gold/10 transition-all">
+                    <div className="w-12 h-12 rounded-full bg-card shadow-sm flex items-center justify-center text-foreground/20 mb-4">
                       <Users size={24} />
                     </div>
-                    <p className="text-xs font-black text-white/20 uppercase tracking-widest">Available Slot</p>
+                    <p className="text-xs font-black text-foreground/20 uppercase tracking-widest">Available Slot</p>
                   </div>
                 )}
               </div>
@@ -245,8 +245,8 @@ export default function TeamManagement() {
           { label: 'Unused Slots', val: 3 - staff.length, color: 'white/40' },
           { label: 'Status', val: 'Active', color: 'green-500' },
         ].map((s, i) => (
-          <div key={i} className="bg-white/5 border border-white/5 rounded-2xl p-6">
-            <p className="text-[8px] font-black uppercase tracking-[0.2em] text-white/40 mb-1">{s.label}</p>
+          <div key={i} className="bg-card shadow-sm border border-border rounded-2xl p-6">
+            <p className="text-[8px] font-black uppercase tracking-[0.2em] text-foreground/40 mb-1">{s.label}</p>
             <p className={`text-2xl font-black text-${s.color}`}>{s.val}</p>
           </div>
         ))}
@@ -267,69 +267,69 @@ export default function TeamManagement() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-2xl bg-[#1a1a1a] border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-2xl bg-card border border-border rounded-[2.5rem] shadow-2xl overflow-hidden"
             >
               <div className="p-10">
                 <div className="flex items-center justify-between mb-10">
                   <div>
-                    <h2 className="text-2xl font-black text-white uppercase tracking-tight">
+                    <h2 className="text-2xl font-black text-foreground uppercase tracking-tight">
                       {editingStaff ? 'Edit Staff Member' : 'Add New Member'}
                     </h2>
                     <p className="text-gold/40 text-xs font-black uppercase tracking-widest mt-1">Configure Enterprise Access</p>
                   </div>
-                  <button onClick={() => setIsModalOpen(false)} className="text-white/20 hover:text-white transition-all"><XCircle size={24}/></button>
+                  <button onClick={() => setIsModalOpen(false)} className="text-foreground/20 hover:text-foreground transition-all"><XCircle size={24}/></button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-xs font-black uppercase tracking-widest text-white/40 ml-1">Full Name</label>
+                      <label className="text-xs font-black uppercase tracking-widest text-foreground/40 ml-1">Full Name</label>
                       <div className="relative">
-                        <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
+                        <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/20" size={16} />
                         <input 
                           type="text" 
                           required
                           value={formData.name}
                           onChange={e => setFormData({...formData, name: e.target.value})}
-                          className="w-full bg-black/40 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-gold/50 outline-none transition-all"
+                          className="w-full bg-background border border-border rounded-2xl py-4 pl-12 pr-4 text-foreground focus:border-gold/50 outline-none transition-all"
                           placeholder="e.g. Rahul Sharma"
                         />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-black uppercase tracking-widest text-white/40 ml-1">Email Address</label>
+                      <label className="text-xs font-black uppercase tracking-widest text-foreground/40 ml-1">Email Address</label>
                       <div className="relative">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/20" size={16} />
                         <input 
                           type="email" 
                           required
                           value={formData.email}
                           onChange={e => setFormData({...formData, email: e.target.value})}
-                          className="w-full bg-black/40 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-gold/50 outline-none transition-all"
+                          className="w-full bg-background border border-border rounded-2xl py-4 pl-12 pr-4 text-foreground focus:border-gold/50 outline-none transition-all"
                           placeholder="rahul@restaurant.com"
                         />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-black uppercase tracking-widest text-white/40 ml-1">Login Password</label>
+                      <label className="text-xs font-black uppercase tracking-widest text-foreground/40 ml-1">Login Password</label>
                       <div className="relative">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/20" size={16} />
                         <input 
                           type="password" 
                           required={!editingStaff}
                           value={formData.password}
                           onChange={e => setFormData({...formData, password: e.target.value})}
-                          className="w-full bg-black/40 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-gold/50 outline-none transition-all"
+                          className="w-full bg-background border border-border rounded-2xl py-4 pl-12 pr-4 text-foreground focus:border-gold/50 outline-none transition-all"
                           placeholder={editingStaff ? "Leave blank to keep same" : "••••••••"}
                         />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-black uppercase tracking-widest text-white/40 ml-1">Enterprise Role</label>
+                      <label className="text-xs font-black uppercase tracking-widest text-foreground/40 ml-1">Enterprise Role</label>
                       <select 
                         value={formData.role}
                         onChange={e => setFormData({...formData, role: e.target.value as any})}
-                        className="w-full bg-black/40 border border-white/5 rounded-2xl py-4 px-6 text-white focus:border-gold/50 outline-none transition-all appearance-none"
+                        className="w-full bg-background border border-border rounded-2xl py-4 px-6 text-foreground focus:border-gold/50 outline-none transition-all appearance-none"
                       >
                         <option value="manager">Kitchen Manager</option>
                         <option value="cook">Professional Cook</option>
@@ -339,7 +339,7 @@ export default function TeamManagement() {
                   </div>
 
                   <div className="space-y-4">
-                    <label className="text-xs font-black uppercase tracking-widest text-white/40 ml-1">Module Access Permissions</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-foreground/40 ml-1">Module Access Permissions</label>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       {MODULES.map(mod => (
                         <button
@@ -349,7 +349,7 @@ export default function TeamManagement() {
                           className={`flex items-center gap-3 p-4 rounded-2xl border transition-all text-left ${
                             formData.permissions.includes(mod.id)
                             ? 'bg-gold/10 border-gold/50 text-gold shadow-lg shadow-gold/5'
-                            : 'bg-black/20 border-white/5 text-white hover:border-white/10'
+                            : 'bg-black/20 border-border text-foreground hover:border-border'
                           }`}
                         >
                           <mod.icon size={16} />

@@ -462,11 +462,11 @@ export default function CostingMaster() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-12 pb-24 text-white">
+    <div className="max-w-7xl mx-auto space-y-12 pb-24 text-foreground">
       <style>{noSpinnerStyle}</style>
 
       {/* Header */}
-      <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 bg-card/35 p-6 md:p-10 rounded-[2.5rem] md:rounded-[3rem] border border-white/5 relative z-30">
+      <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 bg-card/35 p-6 md:p-10 rounded-[2.5rem] md:rounded-[3rem] border border-border relative z-30">
         <div className="absolute inset-0 rounded-[2.5rem] md:rounded-[3rem] overflow-hidden pointer-events-none z-0">
           <div className="absolute top-0 right-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-gold/5 rounded-full -mr-32 md:-mr-64 -mt-32 md:-mt-64 blur-[80px] md:blur-[120px]"></div>
         </div>
@@ -479,14 +479,14 @@ export default function CostingMaster() {
           <h1 className="text-3xl md:text-5xl font-black tracking-tighter leading-none">
             COSTING <span className="text-gold">MASTER</span>
           </h1>
-          <p className="text-white/40 text-sm md:text-lg max-w-xl font-medium leading-relaxed italic mx-auto lg:mx-0">
+          <p className="text-foreground/40 text-sm md:text-lg max-w-xl font-medium leading-relaxed italic mx-auto lg:mx-0">
             "Optimize your margins. Protect your profits."
           </p>
         </div>
 
         <div className="flex flex-col items-center lg:items-end gap-3 relative z-10 w-full lg:w-[350px]">
           {loadingDishes ? (
-            <div className="flex items-center gap-2 text-white/40">
+            <div className="flex items-center gap-2 text-foreground/40">
               <Loader2 className="animate-spin text-gold" size={16} />
               <span>Loading dishes...</span>
             </div>
@@ -534,14 +534,14 @@ export default function CostingMaster() {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-32 space-y-4">
           <Loader2 className="animate-spin text-gold" size={48} />
-          <p className="text-white/40 font-bold uppercase tracking-widest text-xs">Recalculating plate costing...</p>
+          <p className="text-foreground/40 font-bold uppercase tracking-widest text-xs">Recalculating plate costing...</p>
         </div>
       ) : costingData ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start relative z-10">
           
           {/* Left Column: Standard Recipe Ledger */}
           <div className="lg:col-span-8 space-y-10">
-            <div className="bg-[#111] rounded-[2.5rem] border border-white/5 p-8 md:p-12 shadow-2xl relative overflow-hidden">
+            <div className="bg-[#111] rounded-[2.5rem] border border-border p-8 md:p-12 shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-1 bg-gold-gradient opacity-50"></div>
               
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-4">
@@ -564,26 +564,26 @@ export default function CostingMaster() {
                   localIngredients.map((ing: any, index: number) => (
                     <div 
                       key={`${ing.itemId}-${index}`}
-                      className={`group relative p-4 rounded-3xl transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-6 overflow-hidden bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 ${
+                      className={`group relative p-4 rounded-3xl transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-6 overflow-hidden bg-white/[0.02] border border-border hover:bg-white/[0.04] hover:border-border ${
                         ing.isSubIngredient 
                           ? 'ml-8 md:ml-12 border-dashed opacity-80' 
                           : ''
                       }`}
                     >
                       <div className="flex items-center gap-6">
-                        <div className="min-w-[4.5rem] px-2 h-14 bg-white/5 rounded-2xl flex flex-col items-center justify-center border border-white/5 shrink-0">
+                        <div className="min-w-[4.5rem] px-2 h-14 bg-card shadow-sm rounded-2xl flex flex-col items-center justify-center border border-border shrink-0">
                           <input
                             type="number"
                             value={ing.quantity}
                             onChange={(e) => handleUpdateIngredientQuantity(index, e.target.value)}
-                            className="w-16 bg-transparent text-center text-[14px] font-black text-white outline-none focus:text-gold"
+                            className="w-16 bg-transparent text-center text-[14px] font-black text-foreground outline-none focus:text-gold"
                           />
-                          <span className="text-[8px] font-black text-white/30 uppercase tracking-widest">{ing.unit}</span>
+                          <span className="text-[8px] font-black text-foreground/30 uppercase tracking-widest">{ing.unit}</span>
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
                             {ing.isSubIngredient && <span className="text-gold text-xs font-bold mr-1">↳</span>}
-                            <h4 className="font-bold text-white uppercase tracking-tight text-lg">{ing.name}</h4>
+                            <h4 className="font-bold text-foreground uppercase tracking-tight text-lg">{ing.name}</h4>
                             <span className={`text-[8px] font-black px-2 py-0.5 rounded-full ${
                               ing.itemModel === 'RawMaterial' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
                               ing.itemModel === 'SemiFinishedGood' ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' :
@@ -592,26 +592,26 @@ export default function CostingMaster() {
                               {ing.itemModel === 'RawMaterial' ? 'RAW' : ing.itemModel === 'SemiFinishedGood' ? 'SFG' : 'PKG'}
                             </span>
                           </div>
-                          <p className="text-xs text-white/20 uppercase font-black tracking-widest mt-1">
+                          <p className="text-xs text-foreground/20 uppercase font-black tracking-widest mt-1">
                             {ing.isSubIngredient ? `Used in ${ing.parentSfgName} • ` : ''}Calculated contribution: ₹{ing.totalCost.toFixed(2)}
                           </p>
                         </div>
                       </div>
 
                       {/* Ingredient Cost Editing Input */}
-                      <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 pt-4 md:pt-0 border-white/5">
+                      <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 pt-4 md:pt-0 border-border">
                         <div className="space-y-1 text-left md:text-right">
-                          <label className="text-[10px] font-black text-white/20 uppercase tracking-widest block">
+                          <label className="text-[10px] font-black text-foreground/20 uppercase tracking-widest block">
                             Purchase / {ing.rateUnit === 'gm' ? 'kg' : ing.rateUnit === 'ml' ? 'L' : ing.rateUnit}
                           </label>
                           <div className="flex items-center gap-2">
                             <div className="relative w-28">
-                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 text-xs font-bold">₹</span>
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/30 text-xs font-bold">₹</span>
                               <input 
                                 type="number" 
                                 value={editingPrices[ing.itemId] !== undefined ? editingPrices[ing.itemId] : ing.purchasePrice}
                                 onChange={(e) => handlePriceChange(ing.itemId, e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-lg py-1.5 pl-6 pr-2 text-xs font-bold outline-none focus:border-gold/50 text-gold"
+                                className="w-full bg-card shadow-sm border border-border rounded-lg py-1.5 pl-6 pr-2 text-xs font-bold outline-none focus:border-gold/50 text-gold"
                                 placeholder="0.00"
                               />
                             </div>
@@ -642,11 +642,11 @@ export default function CostingMaster() {
                     </div>
                   ))
                 ) : (
-                  <div className="py-24 text-center border border-dashed border-white/5 rounded-[2.5rem] flex flex-col items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-white/10">
+                  <div className="py-24 text-center border border-dashed border-border rounded-[2.5rem] flex flex-col items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-card shadow-sm flex items-center justify-center text-foreground/10">
                       <Lock size={32} />
                     </div>
-                    <p className="text-white/10 font-black uppercase tracking-[0.4em] text-xs">No ingredients mapped to this recipe</p>
+                    <p className="text-foreground/10 font-black uppercase tracking-[0.4em] text-xs">No ingredients mapped to this recipe</p>
                   </div>
                 )}
                 
@@ -670,7 +670,7 @@ export default function CostingMaster() {
 
                 {/* Add Ingredient Dropdown */}
                 {selectedDishId && (
-                  <div className="mt-4 pt-4 border-t border-dashed border-white/10">
+                  <div className="mt-4 pt-4 border-t border-dashed border-border">
                     <select
                       onChange={(e) => {
                         if (e.target.value === 'CREATE_NEW') {
@@ -681,7 +681,7 @@ export default function CostingMaster() {
                         }
                         e.target.value = '';
                       }}
-                      className="w-full bg-black/40 p-4 rounded-xl border border-white/10 text-sm font-bold text-white/70 outline-none cursor-pointer"
+                      className="w-full bg-background p-4 rounded-xl border border-border text-sm font-bold text-foreground/70 outline-none cursor-pointer"
                       defaultValue=""
                     >
                       <option value="" disabled>+ Add Ingredient...</option>
@@ -696,11 +696,11 @@ export default function CostingMaster() {
             </div>
 
             {/* Business Type Selector for Pricing */}
-            <div className="bg-white/5 border border-white/10 rounded-[2rem] p-8 space-y-6">
+            <div className="bg-card shadow-sm border border-border rounded-[2rem] p-8 space-y-6">
               <h5 className="text-sm md:text-base font-black text-gold uppercase tracking-[0.2em]">
                 Pricing Strategy Simulator
               </h5>
-              <p className="text-[11px] text-white/60 font-medium leading-relaxed">
+              <p className="text-[11px] text-foreground/60 font-medium leading-relaxed">
                 Select your business type to see suggested pricing based on industry standard margins.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -711,7 +711,7 @@ export default function CostingMaster() {
                     className={`p-4 rounded-xl border text-xs font-bold transition-all text-left ${
                       businessType === type 
                         ? 'bg-gold/10 border-gold text-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]' 
-                        : 'bg-black/20 border-white/10 text-white/50 hover:border-white/30'
+                        : 'bg-black/20 border-border text-foreground/50 hover:border-foreground/30'
                     }`}
                   >
                     {type}
@@ -731,30 +731,30 @@ export default function CostingMaster() {
                 
                 <div className="space-y-6">
                   <div className="flex justify-between items-center">
-                    <p className="text-xs font-black text-white/40 uppercase tracking-[0.3em]">Cost Per Plate (Raw)</p>
-                    <span className="text-2xl font-black text-white">₹{costPerPlate.toFixed(2)}</span>
+                    <p className="text-xs font-black text-foreground/40 uppercase tracking-[0.3em]">Cost Per Plate (Raw)</p>
+                    <span className="text-2xl font-black text-foreground">₹{costPerPlate.toFixed(2)}</span>
                   </div>
                   
-                  <div className="pt-6 border-t border-white/5">
+                  <div className="pt-6 border-t border-border">
                     <p className="text-xs font-black text-gold uppercase tracking-[0.3em] mb-2 text-center">Suggested Selling Price (Rounded)</p>
-                    <h2 className="text-6xl font-black tracking-tighter text-white text-center">
+                    <h2 className="text-6xl font-black tracking-tighter text-foreground text-center">
                       ₹{suggestedPrice}
                     </h2>
                   </div>
 
-                  <div className="pt-4 border-t border-white/5 flex justify-between gap-4">
+                  <div className="pt-4 border-t border-border flex justify-between gap-4">
                     <div className="text-center flex-1">
-                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Min Price (2.5x)</p>
+                      <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest mb-1">Min Price (2.5x)</p>
                       <span className="text-lg font-black text-green-500">₹{(costPerPlate * 2.5).toFixed(0)}</span>
                     </div>
-                    <div className="text-center flex-1 border-l border-white/5">
-                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Max Price (5x)</p>
+                    <div className="text-center flex-1 border-l border-border">
+                      <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest mb-1">Max Price (5x)</p>
                       <span className="text-lg font-black text-red-500">₹{(costPerPlate * 5.0).toFixed(0)}</span>
                     </div>
                   </div>
 
-                  <div className="space-y-4 pt-6 border-t border-white/5">
-                    <p className="text-xs font-black text-white/40 uppercase tracking-[0.3em]">Actual Dish Selling Price</p>
+                  <div className="space-y-4 pt-6 border-t border-border">
+                    <p className="text-xs font-black text-foreground/40 uppercase tracking-[0.3em]">Actual Dish Selling Price</p>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gold/40 text-2xl font-black">₹</span>
                       <input 
@@ -762,15 +762,15 @@ export default function CostingMaster() {
                         value={sellingPriceInput}
                         onChange={(e) => setSellingPriceInput(e.target.value === '' ? '' : Number(e.target.value))}
                         placeholder="0"
-                        className="w-full bg-white/5 border-2 border-gold/30 rounded-2xl py-4 pl-10 pr-4 text-3xl font-black text-gold focus:outline-none focus:border-gold text-center"
+                        className="w-full bg-card shadow-sm border-2 border-gold/30 rounded-2xl py-4 pl-10 pr-4 text-3xl font-black text-gold focus:outline-none focus:border-gold text-center"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-4 pt-8 border-t border-white/5">
+                <div className="space-y-4 pt-8 border-t border-border">
                   <div className="flex justify-between items-center">
-                    <span className="text-[11px] font-black text-white/40 uppercase tracking-widest">Food Cost %</span>
+                    <span className="text-[11px] font-black text-foreground/40 uppercase tracking-widest">Food Cost %</span>
                     <span className={`text-xl font-black ${
                       foodCostPercentage <= 30 ? 'text-green-500' :
                       foodCostPercentage <= 35 ? 'text-yellow-500' :
@@ -788,8 +788,8 @@ export default function CostingMaster() {
                   )}
 
                   <div className="flex justify-between items-center">
-                    <span className="text-[11px] font-black text-white/40 uppercase tracking-widest">Gross Profit</span>
-                    <span className="text-xl font-black text-white">₹{profitMargin.toFixed(2)}</span>
+                    <span className="text-[11px] font-black text-foreground/40 uppercase tracking-widest">Gross Profit</span>
+                    <span className="text-xl font-black text-foreground">₹{profitMargin.toFixed(2)}</span>
                   </div>
                 </div>
 
@@ -817,7 +817,7 @@ export default function CostingMaster() {
 
         </div>
       ) : (
-        <div className="py-24 text-center border-2 border-dashed border-white/5 rounded-[2.5rem] flex flex-col items-center gap-4 text-white/30">
+        <div className="py-24 text-center border-2 border-dashed border-border rounded-[2.5rem] flex flex-col items-center gap-4 text-foreground/30">
           <Calculator size={48} />
           <p className="font-bold uppercase tracking-widest text-sm">Please select a dish to see its costing calculations</p>
         </div>
@@ -831,68 +831,68 @@ export default function CostingMaster() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-card border border-white/10 rounded-[3.5rem] p-12 w-full max-w-2xl relative shadow-3xl text-white"
+              className="bg-card border border-border rounded-[3.5rem] p-12 w-full max-w-2xl relative shadow-3xl text-foreground"
             >
               <h3 className="text-3xl font-black uppercase tracking-tighter mb-10 text-gold">Create New Raw Material</h3>
               
               <form onSubmit={handleCreateNewRawMaterial} className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-3">
-                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 block">Item Name</label>
+                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/40 block">Item Name</label>
                     <input 
                       type="text" 
                       required
                       value={newRawMaterial.name}
                       onChange={(e) => setNewRawMaterial({ ...newRawMaterial, name: e.target.value })}
                       placeholder="e.g. Tomatoes"
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold outline-none focus:border-gold transition-all"
+                      className="w-full bg-card shadow-sm border border-border rounded-2xl p-5 text-foreground font-bold outline-none focus:border-gold transition-all"
                     />
                   </div>
                   <div className="space-y-3">
-                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 block">Cost Per Purchase Unit (₹)</label>
+                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/40 block">Cost Per Purchase Unit (₹)</label>
                     <input 
                       type="number" 
                       required
                       value={newRawMaterial.costPerPurchaseUnit}
                       onChange={(e) => setNewRawMaterial({ ...newRawMaterial, costPerPurchaseUnit: e.target.value })}
                       placeholder="e.g. 50"
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold outline-none focus:border-gold transition-all"
+                      className="w-full bg-card shadow-sm border border-border rounded-2xl p-5 text-foreground font-bold outline-none focus:border-gold transition-all"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   <div className="space-y-3">
-                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 block">Purchase Unit</label>
+                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/40 block">Purchase Unit</label>
                     <input 
                       type="text" 
                       required
                       value={newRawMaterial.purchaseUnit}
                       onChange={(e) => setNewRawMaterial({ ...newRawMaterial, purchaseUnit: e.target.value })}
                       placeholder="e.g. kg"
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold outline-none focus:border-gold transition-all"
+                      className="w-full bg-card shadow-sm border border-border rounded-2xl p-5 text-foreground font-bold outline-none focus:border-gold transition-all"
                     />
                   </div>
                   <div className="space-y-3">
-                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 block">Consumption Unit</label>
+                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/40 block">Consumption Unit</label>
                     <input 
                       type="text" 
                       required
                       value={newRawMaterial.consumptionUnit}
                       onChange={(e) => setNewRawMaterial({ ...newRawMaterial, consumptionUnit: e.target.value })}
                       placeholder="e.g. g"
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold outline-none focus:border-gold transition-all"
+                      className="w-full bg-card shadow-sm border border-border rounded-2xl p-5 text-foreground font-bold outline-none focus:border-gold transition-all"
                     />
                   </div>
                   <div className="space-y-3">
-                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 block">Conversion Factor</label>
+                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/40 block">Conversion Factor</label>
                     <input 
                       type="number" 
                       required
                       value={newRawMaterial.conversionFactor}
                       onChange={(e) => setNewRawMaterial({ ...newRawMaterial, conversionFactor: Number(e.target.value) })}
                       placeholder="e.g. 1000"
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold outline-none focus:border-gold transition-all"
+                      className="w-full bg-card shadow-sm border border-border rounded-2xl p-5 text-foreground font-bold outline-none focus:border-gold transition-all"
                     />
                   </div>
                 </div>
@@ -908,7 +908,7 @@ export default function CostingMaster() {
                   <button 
                     type="button" 
                     onClick={() => setShowAddIngredientModal(false)} 
-                    className="px-10 py-6 rounded-2xl bg-white/5 text-white/40 font-black uppercase text-[11px] tracking-widest hover:bg-white/10 transition-colors"
+                    className="px-10 py-6 rounded-2xl bg-card shadow-sm text-foreground/40 font-black uppercase text-[11px] tracking-widest hover:bg-foreground/10 transition-colors"
                   >
                     Cancel
                   </button>

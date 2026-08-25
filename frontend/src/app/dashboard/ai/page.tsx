@@ -604,30 +604,30 @@ export default function AiDashboard() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-128px)] md:h-[calc(100dvh-160px)] bg-[#0A0A0A] rounded-2xl sm:rounded-[2.5rem] border border-white/5 overflow-hidden relative shadow-2xl">
+    <div className="flex flex-col h-[calc(100dvh-128px)] md:h-[calc(100dvh-160px)] bg-[#0A0A0A] rounded-2xl sm:rounded-[2.5rem] border border-border overflow-hidden relative shadow-2xl">
       {/* Header */}
-      <div className="px-4 py-3 sm:px-8 sm:py-6 border-b border-white/5 flex items-center justify-between bg-black/40 backdrop-blur-xl">
+      <div className="px-4 py-3 sm:px-8 sm:py-6 border-b border-border flex items-center justify-between bg-background backdrop-blur-xl">
         <div className="flex items-center gap-2 sm:gap-5">
-          <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-black border border-white/10 flex items-center justify-center text-gold shadow-2xl relative flex-shrink-0">
+          <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-card border border-border flex items-center justify-center text-gold shadow-2xl relative flex-shrink-0">
             <Bot className="w-5 h-5 sm:w-7 sm:h-7" />
             {assistantState !== 'idle' && (
               <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-gold rounded-full animate-ping"></span>
             )}
           </div>
           <div>
-            <h2 className="text-white font-black text-xs sm:text-lg tracking-tight uppercase">CHEF CORE</h2>
-            <p className="text-white/40 text-[7px] sm:text-xs font-bold uppercase tracking-[0.2em]">
+            <h2 className="text-foreground font-black text-xs sm:text-lg tracking-tight uppercase">CHEF CORE</h2>
+            <p className="text-foreground/40 text-[7px] sm:text-xs font-bold uppercase tracking-[0.2em]">
               {assistantState === 'idle' ? 'Idle' : assistantState === 'listening' ? 'Listening...' : assistantState === 'processing' ? 'Processing...' : 'Speaking...'}
             </p>
           </div>
         </div>
         
         <div className="flex items-center gap-1.5 sm:gap-3">
-          <div className="flex bg-black rounded-lg sm:rounded-xl p-0.5 sm:p-1 border border-white/5 shadow-inner">
-            <button onClick={() => setSelectedLang('en')} className={`px-2 py-1 sm:px-4 sm:py-2 text-[8px] sm:text-xs font-black rounded-md sm:rounded-lg transition-all ${selectedLang === 'en' ? 'bg-gold text-black shadow-lg' : 'text-white/30'}`}>ENGLISH</button>
-            <button onClick={() => setSelectedLang('hi')} className={`px-2 py-1 sm:px-4 sm:py-2 text-[8px] sm:text-xs font-black rounded-md sm:rounded-lg transition-all ${selectedLang === 'hi' ? 'bg-gold text-black shadow-lg' : 'text-white/30'}`}>हिन्दी</button>
+          <div className="flex bg-card rounded-lg sm:rounded-xl p-0.5 sm:p-1 border border-border shadow-inner">
+            <button onClick={() => setSelectedLang('en')} className={`px-2 py-1 sm:px-4 sm:py-2 text-[8px] sm:text-xs font-black rounded-md sm:rounded-lg transition-all ${selectedLang === 'en' ? 'bg-gold text-black shadow-lg' : 'text-foreground/30'}`}>ENGLISH</button>
+            <button onClick={() => setSelectedLang('hi')} className={`px-2 py-1 sm:px-4 sm:py-2 text-[8px] sm:text-xs font-black rounded-md sm:rounded-lg transition-all ${selectedLang === 'hi' ? 'bg-gold text-black shadow-lg' : 'text-foreground/30'}`}>हिन्दी</button>
           </div>
-          <button onClick={() => setIsMuted(!isMuted)} className={`p-2 sm:p-3 rounded-lg sm:rounded-xl border flex items-center justify-center flex-shrink-0 ${isMuted ? 'text-white/20 border-white/5' : 'text-gold border-gold/20'}`}>
+          <button onClick={() => setIsMuted(!isMuted)} className={`p-2 sm:p-3 rounded-lg sm:rounded-xl border flex items-center justify-center flex-shrink-0 ${isMuted ? 'text-foreground/20 border-border' : 'text-gold border-gold/20'}`}>
             {isMuted ? <VolumeX className="w-4 h-4 sm:w-[18px] sm:h-[18px]" /> : <Volume2 className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />}
           </button>
         </div>
@@ -638,7 +638,7 @@ export default function AiDashboard() {
         {messages.map((msg, idx) => (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} key={idx} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
             <div className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[90%] sm:max-w-[80%] rounded-2xl sm:rounded-[1.8rem] p-3.5 sm:p-5 shadow-2xl ${msg.role === 'user' ? 'bg-gold text-black font-bold' : 'bg-white/5 text-gray-200 border border-white/5'}`}>
+              <div className={`max-w-[90%] sm:max-w-[80%] rounded-2xl sm:rounded-[1.8rem] p-3.5 sm:p-5 shadow-2xl ${msg.role === 'user' ? 'bg-gold text-black font-bold' : 'bg-card shadow-sm text-gray-200 border border-border'}`}>
                 <div className="text-xs sm:text-[13px] whitespace-pre-wrap leading-relaxed">{msg.content}</div>
               </div>
             </div>
@@ -649,7 +649,7 @@ export default function AiDashboard() {
                     key={sIdx}
                     onClick={() => handleSend(suggestion)}
                     disabled={assistantState === 'processing' || assistantState === 'speaking'}
-                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white/5 hover:bg-gold/20 border border-white/10 hover:border-gold/30 text-white/80 hover:text-gold text-xs sm:text-xs rounded-full transition-all shadow-md font-medium"
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-card shadow-sm hover:bg-gold/20 border border-border hover:border-gold/30 text-foreground/80 hover:text-gold text-xs sm:text-xs rounded-full transition-all shadow-md font-medium"
                   >
                     {suggestion}
                   </button>
@@ -661,7 +661,7 @@ export default function AiDashboard() {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 sm:p-8 border-t border-white/5 bg-[#080808]">
+      <div className="p-4 sm:p-8 border-t border-border bg-[#080808]">
         {(assistantState === 'listening' || assistantState === 'speaking') && (
           <div className="flex items-end justify-center gap-1.5 h-8 sm:h-12 mb-4">
             {visualizerData.map((val, i) => (
@@ -670,10 +670,10 @@ export default function AiDashboard() {
           </div>
         )}
         <div className="mb-2 sm:mb-4 min-h-4 sm:min-h-5 text-center text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.16em]">
-          <span className={errorMessage ? 'text-red-400' : 'text-white/30'}>{errorMessage || voiceHint}</span>
+          <span className={errorMessage ? 'text-red-400' : 'text-foreground/30'}>{errorMessage || voiceHint}</span>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-4 bg-[#111111] rounded-3xl sm:rounded-4xl p-2 sm:p-3 border border-white/5 shadow-2xl">
+        <div className="flex items-center gap-2 sm:gap-4 bg-card rounded-3xl sm:rounded-4xl p-2 sm:p-3 border border-border shadow-2xl">
           <button
             onClick={() => {
               if (assistantState === 'speaking') stopSpeaking();
@@ -682,19 +682,19 @@ export default function AiDashboard() {
               else startRecording();
             }}
             className={`w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-xl sm:rounded-2xl transition-all flex-shrink-0 ${
-              assistantState === 'listening' ? 'bg-red-500 animate-pulse text-white' : 
-              (assistantState === 'processing' || assistantState === 'speaking') ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-white/5 text-gold'
+              assistantState === 'listening' ? 'bg-red-500 animate-pulse text-foreground' : 
+              (assistantState === 'processing' || assistantState === 'speaking') ? 'bg-red-500 hover:bg-red-600 text-foreground' : 'bg-card shadow-sm text-gold'
             }`}
           >
             {assistantState === 'listening' ? <MicOff className="w-5 h-5 sm:w-6 sm:h-6" /> : 
-             (assistantState === 'processing' || assistantState === 'speaking') ? <Square className="w-5 h-5 sm:w-6 sm:h-6 fill-current text-white" /> : 
+             (assistantState === 'processing' || assistantState === 'speaking') ? <Square className="w-5 h-5 sm:w-6 sm:h-6 fill-current text-foreground" /> : 
              <Mic className="w-5 h-5 sm:w-6 sm:h-6" />}
           </button>
 
-          <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder="Type here..." className="flex-1 bg-transparent border-none outline-none text-white text-xs sm:text-sm placeholder-white/20 min-w-0" />
+          <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder="Type here..." className="flex-1 bg-transparent border-none outline-none text-foreground text-xs sm:text-sm placeholder-white/20 min-w-0" />
 
           <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} accept=".pdf,.docx,.txt" />
-          <button onClick={() => fileInputRef.current?.click()} className="p-2 text-white/25 hover:text-gold flex-shrink-0"><FileUp size={18} /></button>
+          <button onClick={() => fileInputRef.current?.click()} className="p-2 text-foreground/25 hover:text-gold flex-shrink-0"><FileUp size={18} /></button>
 
           <button
             onClick={() => handleSend()}

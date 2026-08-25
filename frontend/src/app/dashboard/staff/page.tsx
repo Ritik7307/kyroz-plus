@@ -145,7 +145,7 @@ export default function StaffManagement() {
       case 'manager': return <Shield size={16} className="text-blue-400" />;
       case 'cook': return <ChefHat size={16} className="text-gold" />;
       case 'billing': return <CreditCard size={16} className="text-green-400" />;
-      default: return <Users size={16} className="text-white/40" />;
+      default: return <Users size={16} className="text-foreground/40" />;
     }
   };
 
@@ -156,18 +156,18 @@ export default function StaffManagement() {
           <h2 className="text-3xl font-black tracking-tighter flex items-center gap-3">
             <Users className="text-gold" size={32} /> STAFF MANAGEMENT
           </h2>
-          <p className="text-white/40 text-sm font-bold uppercase tracking-widest mt-1">Manage your team and their access levels</p>
+          <p className="text-foreground/40 text-sm font-bold uppercase tracking-widest mt-1">Manage your team and their access levels</p>
         </div>
         
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
           <div className="relative w-full md:w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/20" size={18} />
             <input 
               type="text" 
               placeholder="Search staff..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-sm focus:outline-none focus:border-gold/50 transition-all"
+              className="w-full bg-card shadow-sm border border-border rounded-xl py-3 pl-11 pr-4 text-sm focus:outline-none focus:border-gold/50 transition-all"
             />
           </div>
           
@@ -180,11 +180,11 @@ export default function StaffManagement() {
         </div>
       </div>
 
-      <div className="bg-card glass-card rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl">
+      <div className="bg-card glass-card rounded-[2rem] border border-border overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-white/5 text-xs uppercase font-black tracking-[0.2em] text-white/40">
+              <tr className="bg-card shadow-sm text-xs uppercase font-black tracking-[0.2em] text-foreground/40">
                 <th className="px-8 py-6">Staff Member</th>
                 <th className="px-8 py-6">Role</th>
                 <th className="px-8 py-6">Access Level</th>
@@ -201,12 +201,12 @@ export default function StaffManagement() {
                       </div>
                       <div>
                         <div className="font-bold text-lg">{member.name || 'Anonymous'}</div>
-                        <div className="text-sm text-white/30">{member.email}</div>
+                        <div className="text-sm text-foreground/30">{member.email}</div>
                       </div>
                     </div>
                   </td>
                   <td className="px-8 py-6">
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg border border-white/5 w-fit">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-card shadow-sm rounded-lg border border-border w-fit">
                       {getRoleIcon(member.role)}
                       <span className="text-xs font-black uppercase tracking-widest">{member.role}</span>
                     </div>
@@ -236,7 +236,7 @@ export default function StaffManagement() {
         </div>
         
         {filteredStaff.length === 0 && (
-          <div className="p-20 text-center text-white/10 space-y-4">
+          <div className="p-20 text-center text-foreground/10 space-y-4">
             <Users size={64} className="mx-auto opacity-20" />
             <p className="font-black uppercase tracking-widest">No staff members found</p>
           </div>
@@ -258,60 +258,60 @@ export default function StaffManagement() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg bg-[#111111] border border-white/10 rounded-2xl sm:rounded-[2.5rem] shadow-2xl p-6 sm:p-10"
+              className="relative w-full max-w-lg bg-card border border-border rounded-2xl sm:rounded-[2.5rem] shadow-2xl p-6 sm:p-10"
             >
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h3 className="text-2xl font-black tracking-tighter uppercase">Add New Staff</h3>
-                  <p className="text-white/40 text-sm font-bold uppercase tracking-widest mt-1">Provide access to your team</p>
+                  <p className="text-foreground/40 text-sm font-bold uppercase tracking-widest mt-1">Provide access to your team</p>
                 </div>
-                <button onClick={() => setShowAddModal(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors text-white/20 hover:text-white">
+                <button onClick={() => setShowAddModal(false)} className="p-2 hover:bg-card shadow-sm rounded-full transition-colors text-foreground/20 hover:text-foreground">
                   <X size={24} />
                 </button>
               </div>
 
               <form onSubmit={handleAddStaff} className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-[0.2em] text-white/40 ml-1">Full Name</label>
+                  <label className="text-xs font-black uppercase tracking-[0.2em] text-foreground/40 ml-1">Full Name</label>
                   <div className="relative">
-                    <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                    <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/20" size={18} />
                     <input 
                       type="text"
                       required
                       placeholder="e.g. John Doe"
                       value={newStaff.name}
                       onChange={(e) => setNewStaff({...newStaff, name: e.target.value})}
-                      className="w-full bg-black border border-white/10 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-gold/50 transition-all text-sm font-bold"
+                      className="w-full bg-card border border-border rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-gold/50 transition-all text-sm font-bold"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-[0.2em] text-white/40 ml-1">Email Address</label>
+                  <label className="text-xs font-black uppercase tracking-[0.2em] text-foreground/40 ml-1">Email Address</label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/20" size={18} />
                     <input 
                       type="email"
                       required
                       placeholder="cook@restaurant.com"
                       value={newStaff.email}
                       onChange={(e) => setNewStaff({...newStaff, email: e.target.value})}
-                      className="w-full bg-black border border-white/10 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-gold/50 transition-all text-sm font-bold"
+                      className="w-full bg-card border border-border rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-gold/50 transition-all text-sm font-bold"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-[0.2em] text-white/40 ml-1">Assign Password</label>
+                  <label className="text-xs font-black uppercase tracking-[0.2em] text-foreground/40 ml-1">Assign Password</label>
                   <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/20" size={18} />
                     <input 
                       type="password"
                       required
                       placeholder="••••••••"
                       value={newStaff.password}
                       onChange={(e) => setNewStaff({...newStaff, password: e.target.value})}
-                      className="w-full bg-black border border-white/10 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-gold/50 transition-all text-sm font-bold"
+                      className="w-full bg-card border border-border rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-gold/50 transition-all text-sm font-bold"
                     />
                   </div>
                 </div>
@@ -324,18 +324,18 @@ export default function StaffManagement() {
                 />
 
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-[0.2em] text-white/40 ml-1">Page Permissions</label>
-                  <div className="bg-black border border-white/10 rounded-xl p-4 grid grid-cols-2 gap-4">
+                  <label className="text-xs font-black uppercase tracking-[0.2em] text-foreground/40 ml-1">Page Permissions</label>
+                  <div className="bg-card border border-border rounded-xl p-4 grid grid-cols-2 gap-4">
                     {availablePermissions.map(perm => (
                       <label key={perm.id} className="flex items-center gap-3 cursor-pointer group">
                         <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${
                           newStaff.permissions.includes(perm.id) 
                             ? 'bg-gold border-gold text-black' 
-                            : 'border-white/20 group-hover:border-white/50'
+                            : 'border-foreground/20 group-hover:border-border0'
                         }`}>
                           {newStaff.permissions.includes(perm.id) && <CheckCircle2 size={14} />}
                         </div>
-                        <span className="text-sm font-bold text-white/80 group-hover:text-white transition-colors">{perm.label}</span>
+                        <span className="text-sm font-bold text-foreground/80 group-hover:text-foreground transition-colors">{perm.label}</span>
                         <input 
                           type="checkbox" 
                           className="hidden"

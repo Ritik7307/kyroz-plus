@@ -401,11 +401,11 @@ export default function InventoryPage() {
 
   return (
     <div className="space-y-10 pb-20">
-      <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-card glass-card p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-white/5 relative overflow-hidden">
+      <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-card glass-card p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-border relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 rounded-full -mr-32 -mt-32 blur-[100px]"></div>
         <div className="relative z-10">
           <h2 className="text-3xl md:text-4xl font-black tracking-tighter uppercase">Inventory <span className="text-gold">&</span> Stock</h2>
-          <p className="text-white/40 text-xs font-black uppercase tracking-[0.2em] mt-2">Manage your kitchen supplies, raw materials and portion recipes.</p>
+          <p className="text-foreground/40 text-xs font-black uppercase tracking-[0.2em] mt-2">Manage your kitchen supplies, raw materials and portion recipes.</p>
         </div>
         <div className="flex flex-col sm:flex-row flex-wrap gap-4 relative z-10 w-full lg:w-auto">
           <input 
@@ -418,7 +418,7 @@ export default function InventoryPage() {
           <button 
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="bg-white/5 border border-white/10 hover:border-gold hover:text-gold text-white px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-xl disabled:opacity-50 w-full sm:w-auto"
+            className="bg-card shadow-sm border border-border hover:border-gold hover:text-gold text-foreground px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-xl disabled:opacity-50 w-full sm:w-auto"
           >
             {uploading ? <Loader2 className="animate-spin" size={18} /> : <FileUp size={18} />}
             Upload Recipes / SOP
@@ -431,7 +431,7 @@ export default function InventoryPage() {
           </button>
           <button 
             onClick={() => setShowProductionModal(true)}
-            className="bg-white/5 border border-white/10 hover:border-gold hover:text-gold text-white px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-xl w-full sm:w-auto"
+            className="bg-card shadow-sm border border-border hover:border-gold hover:text-gold text-foreground px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-xl w-full sm:w-auto"
           >
             <Plus size={18} /> Production Entry
           </button>
@@ -439,7 +439,7 @@ export default function InventoryPage() {
       </header>
 
       {/* Tabs */}
-      <div className="flex overflow-x-auto gap-3 pb-2 border-b border-white/5 scrollbar-thin">
+      <div className="flex overflow-x-auto gap-3 pb-2 border-b border-border scrollbar-thin">
         {[
           { key: 'overview', label: 'Overview & Valuation' },
           { key: 'dishes', label: 'Dishes / Portions' },
@@ -454,7 +454,7 @@ export default function InventoryPage() {
             className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all whitespace-nowrap ${
               activeTab === tab.key 
                 ? 'bg-gold text-black shadow-lg font-black' 
-                : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white'
+                : 'bg-card shadow-sm text-foreground/50 hover:bg-foreground/10 hover:text-foreground'
             }`}
           >
             {tab.label}
@@ -463,7 +463,7 @@ export default function InventoryPage() {
       </div>
 
       {!invData ? (
-        <div className="flex flex-col items-center justify-center py-32 text-white/20 gap-6">
+        <div className="flex flex-col items-center justify-center py-32 text-foreground/20 gap-6">
           <Loader2 className="animate-spin" size={64} />
           <p className="font-black uppercase tracking-[0.3em] text-sm">Loading Inventory...</p>
         </div>
@@ -486,25 +486,25 @@ export default function InventoryPage() {
                 return (
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                      <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 relative overflow-hidden group hover:border-gold/30 transition-all">
+                      <div className="bg-card glass-card p-8 rounded-[2rem] border border-border relative overflow-hidden group hover:border-gold/30 transition-all">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-gold/10 rounded-full blur-[50px] -mr-16 -mt-16 transition-all group-hover:bg-gold/20"></div>
-                        <p className="text-xs font-black uppercase tracking-[0.2em] text-white/40 mb-2 relative z-10">Total Inventory Valuation</p>
-                        <h3 className="text-4xl font-black text-white tracking-tighter relative z-10">₹{totalValuation.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-foreground/40 mb-2 relative z-10">Total Inventory Valuation</p>
+                        <h3 className="text-4xl font-black text-foreground tracking-tighter relative z-10">₹{totalValuation.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                       </div>
-                      <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 relative overflow-hidden group hover:border-blue-500/30 transition-all">
+                      <div className="bg-card glass-card p-8 rounded-[2rem] border border-border relative overflow-hidden group hover:border-blue-500/30 transition-all">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-[50px] -mr-16 -mt-16 transition-all group-hover:bg-blue-500/20"></div>
-                        <p className="text-xs font-black uppercase tracking-[0.2em] text-white/40 mb-2 relative z-10">Raw Materials Value</p>
-                        <h3 className="text-3xl font-black text-white tracking-tighter relative z-10">₹{totalRMValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-foreground/40 mb-2 relative z-10">Raw Materials Value</p>
+                        <h3 className="text-3xl font-black text-foreground tracking-tighter relative z-10">₹{totalRMValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                       </div>
-                      <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 relative overflow-hidden group hover:border-green-500/30 transition-all">
+                      <div className="bg-card glass-card p-8 rounded-[2rem] border border-border relative overflow-hidden group hover:border-green-500/30 transition-all">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-[50px] -mr-16 -mt-16 transition-all group-hover:bg-green-500/20"></div>
-                        <p className="text-xs font-black uppercase tracking-[0.2em] text-white/40 mb-2 relative z-10">SFG Value</p>
-                        <h3 className="text-3xl font-black text-white tracking-tighter relative z-10">₹{totalSFGValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-foreground/40 mb-2 relative z-10">SFG Value</p>
+                        <h3 className="text-3xl font-black text-foreground tracking-tighter relative z-10">₹{totalSFGValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                       </div>
-                      <div className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 relative overflow-hidden group hover:border-purple-500/30 transition-all">
+                      <div className="bg-card glass-card p-8 rounded-[2rem] border border-border relative overflow-hidden group hover:border-purple-500/30 transition-all">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-[50px] -mr-16 -mt-16 transition-all group-hover:bg-purple-500/20"></div>
-                        <p className="text-xs font-black uppercase tracking-[0.2em] text-white/40 mb-2 relative z-10">Packaging Value</p>
-                        <h3 className="text-3xl font-black text-white tracking-tighter relative z-10">₹{totalPkgValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-foreground/40 mb-2 relative z-10">Packaging Value</p>
+                        <h3 className="text-3xl font-black text-foreground tracking-tighter relative z-10">₹{totalPkgValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                       </div>
                     </div>
                   </>
@@ -527,12 +527,12 @@ export default function InventoryPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className={`bg-card glass-card p-8 rounded-[2rem] border transition-all relative overflow-hidden flex flex-col justify-between h-[360px] ${
-                      isLow ? 'border-red-500/30 bg-red-500/5 shadow-[0_0_50px_rgba(239,68,68,0.1)]' : 'border-white/5 hover:border-gold/30'
+                      isLow ? 'border-red-500/30 bg-red-500/5 shadow-[0_0_50px_rgba(239,68,68,0.1)]' : 'border-border hover:border-gold/30'
                     }`}
                   >
                     <div className="flex justify-between items-start relative z-10">
                       <div>
-                        <span className="px-3 py-1 bg-white/5 rounded-lg text-[10px] font-black uppercase tracking-widest text-white/40 border border-white/5">
+                        <span className="px-3 py-1 bg-card shadow-sm rounded-lg text-[10px] font-black uppercase tracking-widest text-foreground/40 border border-border">
                           {item.dishId?.category || 'General'}
                         </span>
                         <h3 className="text-xl font-black mt-3 leading-tight uppercase tracking-tight">{item.dishId?.name}</h3>
@@ -542,7 +542,7 @@ export default function InventoryPage() {
                           <button
                             onClick={() => handleViewRecipe('Dish', item.dishId?._id, item.dishId?.name)}
                             title="View Recipe Ingredients"
-                            className="text-white/40 hover:text-gold transition-colors p-2"
+                            className="text-foreground/40 hover:text-gold transition-colors p-2"
                           >
                             <Eye size={18} />
                           </button>
@@ -554,24 +554,24 @@ export default function InventoryPage() {
                         >
                           <MessageCircle size={18} />
                         </button>
-                        <button onClick={() => deleteItem(item._id)} className="text-white/10 hover:text-red-500 transition-colors p-2">
+                        <button onClick={() => deleteItem(item._id)} className="text-foreground/10 hover:text-red-500 transition-colors p-2">
                           <Trash2 size={18} />
                         </button>
                       </div>
                     </div>
 
                     <div className="mt-6 grid grid-cols-2 gap-4 relative z-10">
-                      <div className="bg-black/40 p-5 rounded-2xl border border-white/5">
-                        <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">{item.baseUnitName || 'Packets'}</p>
+                      <div className="bg-background p-5 rounded-2xl border border-border">
+                        <p className="text-[10px] font-black text-foreground/30 uppercase tracking-widest mb-1">{item.baseUnitName || 'Packets'}</p>
                         <p className={`text-3xl font-black ${isLow ? 'text-red-500' : 'text-gold'}`}>{packets}</p>
                       </div>
-                      <div className="bg-black/40 p-5 rounded-2xl border border-white/5">
-                        <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">{item.subUnitName || 'Plates'}</p>
-                        <p className="text-3xl font-black text-white">{item.totalPlates}</p>
+                      <div className="bg-background p-5 rounded-2xl border border-border">
+                        <p className="text-[10px] font-black text-foreground/30 uppercase tracking-widest mb-1">{item.subUnitName || 'Plates'}</p>
+                        <p className="text-3xl font-black text-foreground">{item.totalPlates}</p>
                       </div>
                     </div>
 
-                    <div className="mt-6 pt-4 border-t border-white/5 flex flex-col gap-3 relative z-10">
+                    <div className="mt-6 pt-4 border-t border-border flex flex-col gap-3 relative z-10">
                       <button 
                         onClick={() => openWhatsAppOrder(item)}
                         className="w-full py-4 bg-green-500/10 hover:bg-green-500 text-green-500 hover:text-black rounded-xl text-xs font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 border border-green-500/20"
@@ -583,7 +583,7 @@ export default function InventoryPage() {
                           {isLow ? <AlertTriangle size={12} /> : <RefreshCw size={12} />}
                           {isLow ? 'Low Stock' : 'Stock OK'}
                         </div>
-                        <span className="text-[10px] text-white/20 uppercase font-black">{item.platesPerPacket} {item.subUnitName || 'plates'}/{item.baseUnitName || 'pkt'}</span>
+                        <span className="text-[10px] text-foreground/20 uppercase font-black">{item.platesPerPacket} {item.subUnitName || 'plates'}/{item.baseUnitName || 'pkt'}</span>
                       </div>
                     </div>
                   </motion.div>
@@ -603,31 +603,31 @@ export default function InventoryPage() {
                     key={item._id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 hover:border-gold/30 transition-all flex flex-col justify-between h-[280px]"
+                    className="bg-card glass-card p-8 rounded-[2rem] border border-border hover:border-gold/30 transition-all flex flex-col justify-between h-[280px]"
                   >
                     <div>
                       <div className="flex justify-between items-start">
-                        <span className="px-3 py-1 bg-white/5 rounded-lg text-[10px] font-black uppercase tracking-widest text-gold border border-gold/10">
+                        <span className="px-3 py-1 bg-card shadow-sm rounded-lg text-[10px] font-black uppercase tracking-widest text-gold border border-gold/10">
                           {item.category}
                         </span>
                       </div>
-                      <h3 className="text-xl font-black mt-3 uppercase tracking-tight text-white">{item.name}</h3>
-                      <p className="text-xs text-white/40 mt-1 uppercase font-bold">Cost: ₹{item.costPerPurchaseUnit} per {item.purchaseUnit}</p>
+                      <h3 className="text-xl font-black mt-3 uppercase tracking-tight text-foreground">{item.name}</h3>
+                      <p className="text-xs text-foreground/40 mt-1 uppercase font-bold">Cost: ₹{item.costPerPurchaseUnit} per {item.purchaseUnit}</p>
                     </div>
 
-                    <div className="bg-black/40 p-5 rounded-2xl border border-white/5 flex items-center justify-between">
+                    <div className="bg-background p-5 rounded-2xl border border-border flex items-center justify-between">
                       <div>
-                        <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Current Stock</p>
+                        <p className="text-[10px] font-black text-foreground/30 uppercase tracking-widest mb-1">Current Stock</p>
                         {isEditing ? (
                           <input 
                             type="number"
                             value={editingStockVal}
                             onChange={(e) => setEditingStockVal(Number(e.target.value))}
-                            className="bg-white/10 text-white font-black text-xl rounded px-2 w-28 border border-gold/40 focus:outline-none"
+                            className="bg-foreground/10 text-foreground font-black text-xl rounded px-2 w-28 border border-gold/40 focus:outline-none"
                             autoFocus
                           />
                         ) : (
-                          <p className="text-2xl font-black text-white">{item.currentStock} <span className="text-xs text-white/40 font-normal">{item.consumptionUnit}</span></p>
+                          <p className="text-2xl font-black text-foreground">{item.currentStock} <span className="text-xs text-foreground/40 font-normal">{item.consumptionUnit}</span></p>
                         )}
                       </div>
                       <div>
@@ -641,7 +641,7 @@ export default function InventoryPage() {
                             </button>
                             <button 
                               onClick={() => setEditingItemId(null)}
-                              className="p-3 bg-white/5 text-white/40 rounded-xl hover:bg-white/10"
+                              className="p-3 bg-card shadow-sm text-foreground/40 rounded-xl hover:bg-foreground/10"
                             >
                               <X size={16} />
                             </button>
@@ -649,7 +649,7 @@ export default function InventoryPage() {
                         ) : (
                           <button 
                             onClick={() => startEditingStock(item._id, item.currentStock)}
-                            className="p-3 bg-white/5 hover:bg-gold hover:text-black rounded-xl border border-white/10 transition-all"
+                            className="p-3 bg-card shadow-sm hover:bg-gold hover:text-black rounded-xl border border-border transition-all"
                           >
                             <Edit2 size={16} />
                           </button>
@@ -660,7 +660,7 @@ export default function InventoryPage() {
                 );
               })}
               {rawMaterials.length === 0 && (
-                <div className="col-span-full text-center py-20 text-white/20 font-black uppercase tracking-widest text-sm">No raw materials loaded. Upload an SOP config file.</div>
+                <div className="col-span-full text-center py-20 text-foreground/20 font-black uppercase tracking-widest text-sm">No raw materials loaded. Upload an SOP config file.</div>
               )}
             </div>
           )}
@@ -677,11 +677,11 @@ export default function InventoryPage() {
                     key={item._id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 hover:border-gold/30 transition-all flex flex-col justify-between h-[280px]"
+                    className="bg-card glass-card p-8 rounded-[2rem] border border-border hover:border-gold/30 transition-all flex flex-col justify-between h-[280px]"
                   >
                     <div>
                       <div className="flex justify-between items-start">
-                        <span className="px-3 py-1 bg-white/5 rounded-lg text-[10px] font-black uppercase tracking-widest text-white/40 border border-white/5">
+                        <span className="px-3 py-1 bg-card shadow-sm rounded-lg text-[10px] font-black uppercase tracking-widest text-foreground/40 border border-border">
                           Yield: {item.batchYield} {item.yieldUnit}
                         </span>
                         <div className="flex gap-2 items-center">
@@ -689,29 +689,29 @@ export default function InventoryPage() {
                             <button
                               onClick={() => handleViewRecipe('SemiFinishedGood', item._id, item.name)}
                               title="View Recipe Ingredients"
-                              className="text-white/40 hover:text-gold transition-colors p-1"
+                              className="text-foreground/40 hover:text-gold transition-colors p-1"
                             >
                               <Eye size={16} />
                             </button>
                           )}
                         </div>
                       </div>
-                      <h3 className="text-xl font-black mt-3 uppercase tracking-tight text-white">{item.name}</h3>
+                      <h3 className="text-xl font-black mt-3 uppercase tracking-tight text-foreground">{item.name}</h3>
                     </div>
 
-                    <div className="bg-black/40 p-5 rounded-2xl border border-white/5 flex items-center justify-between">
+                    <div className="bg-background p-5 rounded-2xl border border-border flex items-center justify-between">
                       <div>
-                        <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Current Stock</p>
+                        <p className="text-[10px] font-black text-foreground/30 uppercase tracking-widest mb-1">Current Stock</p>
                         {isEditing ? (
                           <input 
                             type="number"
                             value={editingStockVal}
                             onChange={(e) => setEditingStockVal(Number(e.target.value))}
-                            className="bg-white/10 text-white font-black text-xl rounded px-2 w-28 border border-gold/40 focus:outline-none"
+                            className="bg-foreground/10 text-foreground font-black text-xl rounded px-2 w-28 border border-gold/40 focus:outline-none"
                             autoFocus
                           />
                         ) : (
-                          <p className="text-2xl font-black text-white">{item.currentStock} <span className="text-xs text-white/40 font-normal">{item.yieldUnit}</span></p>
+                          <p className="text-2xl font-black text-foreground">{item.currentStock} <span className="text-xs text-foreground/40 font-normal">{item.yieldUnit}</span></p>
                         )}
                       </div>
                       <div>
@@ -725,7 +725,7 @@ export default function InventoryPage() {
                             </button>
                             <button 
                               onClick={() => setEditingItemId(null)}
-                              className="p-3 bg-white/5 text-white/40 rounded-xl hover:bg-white/10"
+                              className="p-3 bg-card shadow-sm text-foreground/40 rounded-xl hover:bg-foreground/10"
                             >
                               <X size={16} />
                             </button>
@@ -733,7 +733,7 @@ export default function InventoryPage() {
                         ) : (
                           <button 
                             onClick={() => startEditingStock(item._id, item.currentStock)}
-                            className="p-3 bg-white/5 hover:bg-gold hover:text-black rounded-xl border border-white/10 transition-all"
+                            className="p-3 bg-card shadow-sm hover:bg-gold hover:text-black rounded-xl border border-border transition-all"
                           >
                             <Edit2 size={16} />
                           </button>
@@ -744,7 +744,7 @@ export default function InventoryPage() {
                 );
               })}
               {semiFinishedGoods.length === 0 && (
-                <div className="col-span-full text-center py-20 text-white/20 font-black uppercase tracking-widest text-sm">No semi-finished goods loaded.</div>
+                <div className="col-span-full text-center py-20 text-foreground/20 font-black uppercase tracking-widest text-sm">No semi-finished goods loaded.</div>
               )}
             </div>
           )}
@@ -760,30 +760,30 @@ export default function InventoryPage() {
                     key={item._id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 hover:border-gold/30 transition-all flex flex-col justify-between h-[280px]"
+                    className="bg-card glass-card p-8 rounded-[2rem] border border-border hover:border-gold/30 transition-all flex flex-col justify-between h-[280px]"
                   >
                     <div>
                       <div className="flex justify-between items-start">
-                        <span className="px-3 py-1 bg-white/5 rounded-lg text-[10px] font-black uppercase tracking-widest text-white/40 border border-white/5">
+                        <span className="px-3 py-1 bg-card shadow-sm rounded-lg text-[10px] font-black uppercase tracking-widest text-foreground/40 border border-border">
                           {item.consumptionType}
                         </span>
                       </div>
-                      <h3 className="text-xl font-black mt-3 uppercase tracking-tight text-white">{item.name}</h3>
+                      <h3 className="text-xl font-black mt-3 uppercase tracking-tight text-foreground">{item.name}</h3>
                     </div>
 
-                    <div className="bg-black/40 p-5 rounded-2xl border border-white/5 flex items-center justify-between">
+                    <div className="bg-background p-5 rounded-2xl border border-border flex items-center justify-between">
                       <div>
-                        <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Current Stock</p>
+                        <p className="text-[10px] font-black text-foreground/30 uppercase tracking-widest mb-1">Current Stock</p>
                         {isEditing ? (
                           <input 
                             type="number"
                             value={editingStockVal}
                             onChange={(e) => setEditingStockVal(Number(e.target.value))}
-                            className="bg-white/10 text-white font-black text-xl rounded px-2 w-28 border border-gold/40 focus:outline-none"
+                            className="bg-foreground/10 text-foreground font-black text-xl rounded px-2 w-28 border border-gold/40 focus:outline-none"
                             autoFocus
                           />
                         ) : (
-                          <p className="text-2xl font-black text-white">{item.currentStock} <span className="text-xs text-white/40 font-normal">Packets</span></p>
+                          <p className="text-2xl font-black text-foreground">{item.currentStock} <span className="text-xs text-foreground/40 font-normal">Packets</span></p>
                         )}
                       </div>
                       <div>
@@ -797,7 +797,7 @@ export default function InventoryPage() {
                             </button>
                             <button 
                               onClick={() => setEditingItemId(null)}
-                              className="p-3 bg-white/5 text-white/40 rounded-xl hover:bg-white/10"
+                              className="p-3 bg-card shadow-sm text-foreground/40 rounded-xl hover:bg-foreground/10"
                             >
                               <X size={16} />
                             </button>
@@ -805,7 +805,7 @@ export default function InventoryPage() {
                         ) : (
                           <button 
                             onClick={() => startEditingStock(item._id, item.currentStock)}
-                            className="p-3 bg-white/5 hover:bg-gold hover:text-black rounded-xl border border-white/10 transition-all"
+                            className="p-3 bg-card shadow-sm hover:bg-gold hover:text-black rounded-xl border border-border transition-all"
                           >
                             <Edit2 size={16} />
                           </button>
@@ -816,7 +816,7 @@ export default function InventoryPage() {
                 );
               })}
               {premixes.length === 0 && (
-                <div className="col-span-full text-center py-20 text-white/20 font-black uppercase tracking-widest text-sm">No premixes loaded.</div>
+                <div className="col-span-full text-center py-20 text-foreground/20 font-black uppercase tracking-widest text-sm">No premixes loaded.</div>
               )}
             </div>
           )}
@@ -832,30 +832,30 @@ export default function InventoryPage() {
                     key={item._id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-card glass-card p-8 rounded-[2rem] border border-white/5 hover:border-gold/30 transition-all flex flex-col justify-between h-[280px]"
+                    className="bg-card glass-card p-8 rounded-[2rem] border border-border hover:border-gold/30 transition-all flex flex-col justify-between h-[280px]"
                   >
                     <div>
                       <div className="flex justify-between items-start">
-                        <span className="px-3 py-1 bg-white/5 rounded-lg text-[10px] font-black uppercase tracking-widest text-white/40 border border-white/5">
+                        <span className="px-3 py-1 bg-card shadow-sm rounded-lg text-[10px] font-black uppercase tracking-widest text-foreground/40 border border-border">
                           Unit: {item.unit}
                         </span>
                       </div>
-                      <h3 className="text-xl font-black mt-3 uppercase tracking-tight text-white">{item.name}</h3>
+                      <h3 className="text-xl font-black mt-3 uppercase tracking-tight text-foreground">{item.name}</h3>
                     </div>
 
-                    <div className="bg-black/40 p-5 rounded-2xl border border-white/5 flex items-center justify-between">
+                    <div className="bg-background p-5 rounded-2xl border border-border flex items-center justify-between">
                       <div>
-                        <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Current Stock</p>
+                        <p className="text-[10px] font-black text-foreground/30 uppercase tracking-widest mb-1">Current Stock</p>
                         {isEditing ? (
                           <input 
                             type="number"
                             value={editingStockVal}
                             onChange={(e) => setEditingStockVal(Number(e.target.value))}
-                            className="bg-white/10 text-white font-black text-xl rounded px-2 w-28 border border-gold/40 focus:outline-none"
+                            className="bg-foreground/10 text-foreground font-black text-xl rounded px-2 w-28 border border-gold/40 focus:outline-none"
                             autoFocus
                           />
                         ) : (
-                          <p className="text-2xl font-black text-white">{item.currentStock} <span className="text-xs text-white/40 font-normal">{item.unit}</span></p>
+                          <p className="text-2xl font-black text-foreground">{item.currentStock} <span className="text-xs text-foreground/40 font-normal">{item.unit}</span></p>
                         )}
                       </div>
                       <div>
@@ -869,7 +869,7 @@ export default function InventoryPage() {
                             </button>
                             <button 
                               onClick={() => setEditingItemId(null)}
-                              className="p-3 bg-white/5 text-white/40 rounded-xl hover:bg-white/10"
+                              className="p-3 bg-card shadow-sm text-foreground/40 rounded-xl hover:bg-foreground/10"
                             >
                               <X size={16} />
                             </button>
@@ -877,7 +877,7 @@ export default function InventoryPage() {
                         ) : (
                           <button 
                             onClick={() => startEditingStock(item._id, item.currentStock)}
-                            className="p-3 bg-white/5 hover:bg-gold hover:text-black rounded-xl border border-white/10 transition-all"
+                            className="p-3 bg-card shadow-sm hover:bg-gold hover:text-black rounded-xl border border-border transition-all"
                           >
                             <Edit2 size={16} />
                           </button>
@@ -888,7 +888,7 @@ export default function InventoryPage() {
                 );
               })}
               {packaging.length === 0 && (
-                <div className="col-span-full text-center py-20 text-white/20 font-black uppercase tracking-widest text-sm">No packaging items loaded.</div>
+                <div className="col-span-full text-center py-20 text-foreground/20 font-black uppercase tracking-widest text-sm">No packaging items loaded.</div>
               )}
             </div>
           )}
@@ -903,9 +903,9 @@ export default function InventoryPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-card border border-white/10 rounded-2xl sm:rounded-[3rem] p-6 sm:p-10 w-full max-w-lg relative z-10"
+              className="bg-card border border-border rounded-2xl sm:rounded-[3rem] p-6 sm:p-10 w-full max-w-lg relative z-10"
             >
-              <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter mb-8 flex items-center gap-4 text-white">
+              <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter mb-8 flex items-center gap-4 text-foreground">
                 <Package className="text-gold" size={32} /> Update Stock
               </h3>
               
@@ -922,25 +922,25 @@ export default function InventoryPage() {
 
                 <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 mb-3 block">Packets</label>
+                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/40 mb-3 block">Packets</label>
                     <input 
                       type="number" 
                       required
                       value={formData.totalPackets === 0 ? '' : formData.totalPackets}
                       onChange={(e) => setFormData({...formData, totalPackets: Number(e.target.value)})}
                       placeholder="0"
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold"
+                      className="w-full bg-card shadow-sm border border-border rounded-2xl p-5 text-foreground font-bold"
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 mb-3 block">Yield (Plates/Pkt)</label>
+                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/40 mb-3 block">Yield (Plates/Pkt)</label>
                     <input 
                       type="number" 
                       required
                       value={formData.platesPerPacket === 0 ? '' : formData.platesPerPacket}
                       onChange={(e) => setFormData({...formData, platesPerPacket: Number(e.target.value)})}
                       placeholder="0"
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold"
+                      className="w-full bg-card shadow-sm border border-border rounded-2xl p-5 text-foreground font-bold"
                     />
                   </div>
                 </div>
@@ -949,7 +949,7 @@ export default function InventoryPage() {
                   <button type="submit" className="flex-1 py-5 rounded-2xl bg-gold text-black font-black uppercase text-[11px] tracking-widest shadow-xl">
                     Update Inventory
                   </button>
-                  <button type="button" onClick={() => setShowAddModal(false)} className="flex-1 py-5 rounded-2xl bg-white/5 text-white font-black uppercase text-[11px] tracking-widest">
+                  <button type="button" onClick={() => setShowAddModal(false)} className="flex-1 py-5 rounded-2xl bg-card shadow-sm text-foreground font-black uppercase text-[11px] tracking-widest">
                     Cancel
                   </button>
                 </div>
@@ -967,19 +967,19 @@ export default function InventoryPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-card border border-white/10 rounded-2xl sm:rounded-[3rem] p-6 sm:p-10 w-full max-w-2xl relative z-10"
+              className="bg-card border border-border rounded-2xl sm:rounded-[3rem] p-6 sm:p-10 w-full max-w-2xl relative z-10"
             >
-              <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter mb-4 text-white">
+              <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter mb-4 text-foreground">
                 Recipe Structure
               </h3>
               <p className="text-gold text-sm font-black uppercase tracking-wider mb-6">{viewingRecipe.name}</p>
 
-              <div className="bg-black/40 rounded-2xl p-6 border border-white/5 max-h-[300px] overflow-y-auto space-y-4">
+              <div className="bg-background rounded-2xl p-6 border border-border max-h-[300px] overflow-y-auto space-y-4">
                 {viewingRecipe.recipe.ingredients.map((ing) => (
-                  <div key={ing._id} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
+                  <div key={ing._id} className="flex justify-between items-center py-2 border-b border-border last:border-0">
                     <div>
-                      <span className="text-xs font-bold text-white/30 uppercase mr-3 tracking-widest">[{ing.itemModel}]</span>
-                      <span className="text-white font-black text-sm uppercase">{getIngredientName(ing.itemModel, ing.itemId)}</span>
+                      <span className="text-xs font-bold text-foreground/30 uppercase mr-3 tracking-widest">[{ing.itemModel}]</span>
+                      <span className="text-foreground font-black text-sm uppercase">{getIngredientName(ing.itemModel, ing.itemId)}</span>
                     </div>
                     <span className="text-gold font-black text-base">
                       {ing.quantity} {ing.itemModel === 'RawMaterial' ? (rawMaterials.find(r => r._id === ing.itemId)?.consumptionUnit || 'gm') : ing.itemModel === 'Premix' ? 'Packets' : 'Units'}
@@ -1009,9 +1009,9 @@ export default function InventoryPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-card border border-white/10 rounded-2xl sm:rounded-[3rem] p-6 sm:p-10 w-full max-w-lg relative z-10"
+              className="bg-card border border-border rounded-2xl sm:rounded-[3rem] p-6 sm:p-10 w-full max-w-lg relative z-10"
             >
-              <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter mb-8 flex items-center gap-4 text-white">
+              <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter mb-8 flex items-center gap-4 text-foreground">
                 <ShoppingCart className="text-gold" size={32} /> Purchase Entry
               </h3>
               
@@ -1031,7 +1031,7 @@ export default function InventoryPage() {
 
                 <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 mb-3 block">Quantity Purchased</label>
+                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/40 mb-3 block">Quantity Purchased</label>
                     <input 
                       type="number" 
                       step="any"
@@ -1039,11 +1039,11 @@ export default function InventoryPage() {
                       value={purchaseForm.quantity}
                       onChange={(e) => setPurchaseForm({...purchaseForm, quantity: e.target.value})}
                       placeholder="e.g. 10"
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold"
+                      className="w-full bg-card shadow-sm border border-border rounded-2xl p-5 text-foreground font-bold"
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 mb-3 block">Total Cost (₹)</label>
+                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/40 mb-3 block">Total Cost (₹)</label>
                     <input 
                       type="number" 
                       step="any"
@@ -1051,7 +1051,7 @@ export default function InventoryPage() {
                       value={purchaseForm.cost}
                       onChange={(e) => setPurchaseForm({...purchaseForm, cost: e.target.value})}
                       placeholder="e.g. 2500"
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold"
+                      className="w-full bg-card shadow-sm border border-border rounded-2xl p-5 text-foreground font-bold"
                     />
                   </div>
                 </div>
@@ -1060,7 +1060,7 @@ export default function InventoryPage() {
                   <button type="submit" className="flex-1 py-5 rounded-2xl bg-gold text-black font-black uppercase text-[11px] tracking-widest shadow-xl">
                     Save Purchase
                   </button>
-                  <button type="button" onClick={() => setShowPurchaseModal(false)} className="flex-1 py-5 rounded-2xl bg-white/5 text-white font-black uppercase text-[11px] tracking-widest">
+                  <button type="button" onClick={() => setShowPurchaseModal(false)} className="flex-1 py-5 rounded-2xl bg-card shadow-sm text-foreground font-black uppercase text-[11px] tracking-widest">
                     Cancel
                   </button>
                 </div>
@@ -1078,9 +1078,9 @@ export default function InventoryPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-card border border-white/10 rounded-2xl sm:rounded-[3rem] p-6 sm:p-10 w-full max-w-lg relative z-10"
+              className="bg-card border border-border rounded-2xl sm:rounded-[3rem] p-6 sm:p-10 w-full max-w-lg relative z-10"
             >
-              <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter mb-8 flex items-center gap-4 text-white">
+              <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter mb-8 flex items-center gap-4 text-foreground">
                 <ChefHat className="text-gold" size={32} /> Production Entry
               </h3>
               
@@ -1099,7 +1099,7 @@ export default function InventoryPage() {
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 mb-3 block">Batches Produced</label>
+                  <label className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/40 mb-3 block">Batches Produced</label>
                   <input 
                     type="number" 
                     required
@@ -1107,7 +1107,7 @@ export default function InventoryPage() {
                     value={productionForm.batches}
                     onChange={(e) => setProductionForm({...productionForm, batches: e.target.value})}
                     placeholder="e.g. 1"
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white font-bold"
+                    className="w-full bg-card shadow-sm border border-border rounded-2xl p-5 text-foreground font-bold"
                   />
                 </div>
 
@@ -1134,10 +1134,10 @@ export default function InventoryPage() {
                   }
 
                   return (
-                    <div className="bg-black/40 p-5 rounded-2xl border border-white/5 text-xs text-white/60 space-y-2">
-                      <p className="font-bold text-white uppercase tracking-wider">Production Output Estimation:</p>
+                    <div className="bg-background p-5 rounded-2xl border border-border text-xs text-foreground/60 space-y-2">
+                      <p className="font-bold text-foreground uppercase tracking-wider">Production Output Estimation:</p>
                       <p>• Yields: <span className="text-gold font-black">{yieldText}</span></p>
-                      <p className="italic text-xs text-white/40">Note: Ingredients will be automatically deducted from your raw materials stock.</p>
+                      <p className="italic text-xs text-foreground/40">Note: Ingredients will be automatically deducted from your raw materials stock.</p>
                     </div>
                   );
                 })()}
@@ -1146,7 +1146,7 @@ export default function InventoryPage() {
                   <button type="submit" className="flex-1 py-5 rounded-2xl bg-gold text-black font-black uppercase text-[11px] tracking-widest shadow-xl">
                     Log Production
                   </button>
-                  <button type="button" onClick={() => setShowProductionModal(false)} className="flex-1 py-5 rounded-2xl bg-white/5 text-white font-black uppercase text-[11px] tracking-widest">
+                  <button type="button" onClick={() => setShowProductionModal(false)} className="flex-1 py-5 rounded-2xl bg-card shadow-sm text-foreground font-black uppercase text-[11px] tracking-widest">
                     Cancel
                   </button>
                 </div>
