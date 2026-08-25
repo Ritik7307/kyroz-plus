@@ -12,7 +12,7 @@ import Recipe from '../src/models/Recipe';
 import Inventory from '../src/models/Inventory';
 import User from '../src/models/User';
 
-const CATEGORY = 'INDIAN VEG';
+const CATEGORY = 'Indian Veg';
 
 const rawMaterialsData = [
   { code: 'RM_G201', name: 'G-201 SUNSET BASE', unit: 'kg' },
