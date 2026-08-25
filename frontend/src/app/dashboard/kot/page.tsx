@@ -349,7 +349,19 @@ export default function KitchenOrderQueue() {
             </tbody>
           </table>
 
-          {/* Removed packaging list completely per user request */}
+          {printingKot.packaging && printingKot.packaging.length > 0 && (
+            <div className="border-t border-black pt-1 mt-1">
+              <p className="text-[10px] font-black uppercase tracking-widest mb-1 leading-tight">Packaging Items Needed:</p>
+              <div className="space-y-0 text-[10px] font-bold leading-tight">
+                {printingKot.packaging.map((pkg: any, idx: number) => (
+                  <div key={idx} className="flex justify-between">
+                    <span>[ ] {pkg.name}</span>
+                    <span>x{pkg.quantity}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="border-t border-dashed border-black pt-1 mt-1 text-center text-[9px]">
             <p className="uppercase tracking-[0.2em] leading-tight">SOP & Prep Checklist Printed</p>
@@ -539,7 +551,44 @@ export default function KitchenOrderQueue() {
                       </div>
                     </div>
 
-                    {/* Removed packaging section from UI completely per user request */}
+                    {/* Packaging Section */}
+                    {kot.packaging && kot.packaging.length > 0 && (
+                      <div className="pt-4 border-t border-border space-y-2">
+                        <p className="text-[10px] font-black text-foreground/30 uppercase tracking-widest flex items-center gap-1">
+                          <Package size={11} className="text-gold" /> Packaging Checklist
+                        </p>
+                        <div className="grid grid-cols-1 gap-2.5">
+                          {kot.packaging.map(pkg => {
+                            const isChecked = !!checkedPackages[`${kot._id}-${pkg.name}`];
+                            return (
+                              <button
+                                key={pkg._id}
+                                onClick={() => togglePackageCheck(kot._id, pkg.name)}
+                                className={`flex items-center justify-between p-2.5 rounded-xl border text-left transition-all ${isChecked
+                                  ? 'bg-green-500/5 border-green-500/20 text-green-400'
+                                  : 'bg-card shadow-sm border-border text-foreground/60 hover:bg-foreground/10'
+                                  }`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  {isChecked ? (
+                                    <CheckSquare size={14} className="text-green-400 shrink-0" />
+                                  ) : (
+                                    <Square size={14} className="text-foreground/40 shrink-0" />
+                                  )}
+                                  <span className={`text-[11px] font-bold ${isChecked ? 'line-through opacity-60' : ''}`}>
+                                    {pkg.name}
+                                  </span>
+                                </div>
+                                <span className={`text-xs font-black px-1.5 py-0.5 rounded-md ${isChecked ? 'bg-green-500/20 text-green-400' : 'bg-foreground/10 text-foreground/80'
+                                  }`}>
+                                  x{pkg.quantity}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Card Actions */}
