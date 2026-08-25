@@ -1907,12 +1907,28 @@ export default function POSTerminal() {
                             <div className="space-y-2 mb-4">
                               {recipeIngredients.map((ing, idx) => (
                                 <div key={idx} className="flex items-center gap-2 bg-background p-2 rounded-lg border border-foreground/10">
-                                  <div className="flex-1 text-[11px] text-foreground truncate">{ing.name}</div>
-                                  <div className="text-[11px] text-gold font-bold">{ing.quantity} {ing.unit}</div>
+                                  <div className="flex-1 text-[11px] text-foreground truncate" title={ing.name}>{ing.name}</div>
+                                  <div className="flex items-center gap-1 w-24 shrink-0">
+                                    <input 
+                                      type="number"
+                                      value={ing.quantity || ''}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        const newQty = val ? Number(val) : 0;
+                                        const newIngs = [...recipeIngredients];
+                                        newIngs[idx].quantity = newQty;
+                                        setRecipeIngredients(newIngs);
+                                        const totalCost = newIngs.reduce((sum, item) => sum + ((item.quantity || 0) * item.costPerUnit), 0);
+                                        setNewDish({...newDish, ingredientPrice: String(totalCost)});
+                                      }}
+                                      className="w-12 bg-card border border-foreground/20 rounded px-1 py-0.5 text-[11px] text-gold font-bold text-center outline-none focus:border-gold"
+                                    />
+                                    <span className="text-[11px] text-gold font-bold">{ing.unit}</span>
+                                  </div>
                                   <button onClick={() => {
                                     const newIngs = recipeIngredients.filter((_, i) => i !== idx);
                                     setRecipeIngredients(newIngs);
-                                    const totalCost = newIngs.reduce((sum, item) => sum + (item.quantity * item.costPerUnit), 0);
+                                    const totalCost = newIngs.reduce((sum, item) => sum + ((item.quantity || 0) * item.costPerUnit), 0);
                                     setNewDish({...newDish, ingredientPrice: String(totalCost)});
                                   }} className="text-red-500 hover:text-red-400 p-1"><Trash2 size={12}/></button>
                                 </div>

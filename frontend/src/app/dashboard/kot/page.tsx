@@ -20,6 +20,9 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_URL } from '@/lib/api';
+import { dataService } from '@/lib/dataService';
+import { db } from '@/db/kyrozdb';
+import io from 'socket.io-client';
 
 interface KotItem {
   dishId: {
@@ -64,7 +67,6 @@ export default function KitchenOrderQueue() {
     const fetchDishes = async () => {
       try {
         const token = localStorage.getItem('token');
-        const { dataService } = require('@/lib/dataService');
         const data = await dataService.get(`${API_URL}/api/dishes`, { 'Authorization': `Bearer ${token}` });
         if (Array.isArray(data)) setDishes(data);
       } catch (e) {
@@ -88,8 +90,7 @@ export default function KitchenOrderQueue() {
       setCurrentTime(new Date());
     }, 1000); // Update relative time counters every second
 
-    // Setup WebSocket listener
-    const socket = require('socket.io-client')(API_URL);
+    const socket = io(API_URL);
     const userStr = localStorage.getItem('user');
     if (userStr) {
       try {
@@ -127,7 +128,6 @@ export default function KitchenOrderQueue() {
     const token = localStorage.getItem('token');
     try {
       const endpoint = viewHistory ? `${API_URL}/api/kots/history` : `${API_URL}/api/kots`;
-      const { dataService } = require('@/lib/dataService');
       const data = await dataService.get(endpoint, {
         'Authorization': `Bearer ${token}`
       });
@@ -135,7 +135,6 @@ export default function KitchenOrderQueue() {
 
       if (!viewHistory) {
         try {
-          const { db } = require('@/db/kyrozdb');
           const offlineQueue = await db.syncQueue.where('status').anyOf('PENDING', 'ERROR').toArray();
           
           const dishesData = await dataService.get(`${API_URL}/api/dishes`, { 'Authorization': `Bearer ${token}` }).catch(() => []);
@@ -200,7 +199,6 @@ export default function KitchenOrderQueue() {
   const discardOfflineKot = async (operationId: string) => {
     if (!confirm('Are you sure you want to discard this offline ticket? It will not be sent to the kitchen.')) return;
     try {
-      const { db } = require('@/db/kyrozdb');
       await db.syncQueue.where('operation_id').equals(operationId).delete();
       window.dispatchEvent(new Event('offline-sync-completed'));
       fetchKots(false);
@@ -212,7 +210,6 @@ export default function KitchenOrderQueue() {
   const updateStatus = async (kotId: string, newStatus: 'Pending' | 'Preparing' | 'Ready' | 'Served' | 'Cancelled') => {
     const token = localStorage.getItem('token');
     try {
-      const { dataService } = require('@/lib/dataService');
       const data = await dataService.put(`${API_URL}/api/kots/${kotId}/status`,
         { status: newStatus },
         { 'Authorization': `Bearer ${token}` }
