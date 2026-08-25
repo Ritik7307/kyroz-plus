@@ -205,7 +205,7 @@ export default function MembershipPage() {
         </div>
 
         {/* Premium Plan */}
-        <div className="bg-[#1a1505] border-2 border-[#d4af37] rounded-3xl p-8 flex flex-col relative overflow-hidden shadow-[0_0_30px_rgba(212,175,55,0.15)] transform scale-105 z-10">
+        <div className="bg-card border-2 border-[#d4af37] rounded-3xl p-8 flex flex-col relative overflow-hidden shadow-[0_0_30px_rgba(212,175,55,0.15)] transform scale-105 z-10">
           <div className="absolute top-0 right-0 bg-[#d4af37] text-black text-xs font-bold px-4 py-1 rounded-bl-lg uppercase tracking-wider">
             Most Popular
           </div>

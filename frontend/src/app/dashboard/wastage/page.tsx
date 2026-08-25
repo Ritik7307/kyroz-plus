@@ -381,9 +381,9 @@ export default function WastageMaster() {
                       onChange={(e: any) => setFormData({ ...formData, itemModel: e.target.value })}
                       className="w-full bg-card shadow-sm border border-border rounded-2xl p-5 text-foreground font-bold outline-none focus:border-red-500 transition-all cursor-pointer"
                     >
-                      <option value="RawMaterial" className="bg-[#111]">Raw Material</option>
-                      <option value="SemiFinishedGood" className="bg-[#111]">Semi-Finished Good</option>
-                      <option value="Packaging" className="bg-[#111]">Packaging Item</option>
+                      <option value="RawMaterial" className="bg-card">Raw Material</option>
+                      <option value="SemiFinishedGood" className="bg-card">Semi-Finished Good</option>
+                      <option value="Packaging" className="bg-card">Packaging Item</option>
                     </select>
                   </div>
 
@@ -401,10 +401,10 @@ export default function WastageMaster() {
                         className="w-full bg-card shadow-sm border border-border rounded-2xl p-5 text-foreground font-bold outline-none focus:border-red-500 transition-all cursor-pointer"
                       >
                         {getFilteredItems().map(item => (
-                          <option key={item._id} value={item._id} className="bg-[#111]">{item.name}</option>
+                          <option key={item._id} value={item._id} className="bg-card">{item.name}</option>
                         ))}
                         {getFilteredItems().length === 0 && (
-                          <option value="" className="bg-[#111]" disabled>No items available</option>
+                          <option value="" className="bg-card" disabled>No items available</option>
                         )}
                       </select>
                     )}
@@ -435,11 +435,11 @@ export default function WastageMaster() {
                       onChange={(e: any) => setFormData({ ...formData, reason: e.target.value })}
                       className="w-full bg-card shadow-sm border border-border rounded-2xl p-5 text-foreground font-bold outline-none focus:border-red-500 transition-all cursor-pointer"
                     >
-                      <option value="Expired" className="bg-[#111]">Expired Stock</option>
-                      <option value="Spilled" className="bg-[#111]">Spilled / Dropped</option>
-                      <option value="Burnt" className="bg-[#111]">Burnt / Cooking Error</option>
-                      <option value="Quality" className="bg-[#111]">Quality Rejection</option>
-                      <option value="Other" className="bg-[#111]">Other</option>
+                      <option value="Expired" className="bg-card">Expired Stock</option>
+                      <option value="Spilled" className="bg-card">Spilled / Dropped</option>
+                      <option value="Burnt" className="bg-card">Burnt / Cooking Error</option>
+                      <option value="Quality" className="bg-card">Quality Rejection</option>
+                      <option value="Other" className="bg-card">Other</option>
                     </select>
                   </div>
                 </div>

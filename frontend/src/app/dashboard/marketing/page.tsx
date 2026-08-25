@@ -360,9 +360,9 @@ export default function MarketingCRM() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-[#111] border border-border p-8 rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-card border border-border p-8 rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto"
           >
-            <div className="flex justify-between items-center mb-6 border-b border-border pb-4 sticky top-0 bg-[#111] z-10 pt-2">
+            <div className="flex justify-between items-center mb-6 border-b border-border pb-4 sticky top-0 bg-card z-10 pt-2">
               <h2 className="text-2xl font-black text-foreground">Marketing Engine & WhatsApp Settings</h2>
               <button onClick={() => setShowSettings(false)} className="text-foreground/40 hover:text-foreground">✕</button>
             </div>
@@ -695,7 +695,7 @@ export default function MarketingCRM() {
               </div>
             </div>
 
-            <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-border sticky bottom-0 bg-[#111] pb-2 z-10">
+            <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-border sticky bottom-0 bg-card pb-2 z-10">
               <button onClick={() => setShowSettings(false)} className="px-6 py-3 text-foreground/60 hover:text-foreground font-bold transition-colors">Cancel</button>
               <button onClick={handleSaveSettings} className="bg-gold text-black px-8 py-3 rounded-xl font-black flex items-center gap-2 hover:bg-gold/80 transition-transform hover:scale-105 shadow-lg shadow-gold/20">
                 <Save size={18} /> Save Settings
@@ -771,12 +771,12 @@ export default function MarketingCRM() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="bg-[#111] border border-border p-1 rounded-3xl max-w-lg w-full relative overflow-hidden shadow-2xl shadow-green-500/10"
+            className="bg-card border border-border p-1 rounded-3xl max-w-lg w-full relative overflow-hidden shadow-2xl shadow-green-500/10"
           >
             {/* Ambient Background Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-32 bg-green-500/20 rounded-full blur-[80px] pointer-events-none" />
 
-            <div className="bg-[#161616] rounded-[1.4rem] p-6 sm:p-8 relative z-10 border border-border">
+            <div className="bg-card rounded-[1.4rem] p-6 sm:p-8 relative z-10 border border-border">
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <div className="w-12 h-12 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center justify-center mb-4">
@@ -797,7 +797,7 @@ export default function MarketingCRM() {
 
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                <div className="relative bg-[#000] border border-border group-hover:border-green-500/30 rounded-2xl p-4 transition-colors">
+                <div className="relative bg-card border border-border group-hover:border-green-500/30 rounded-2xl p-4 transition-colors">
                   <div className="flex items-center justify-between mb-3 px-2 border-b border-border pb-3">
                     <div className="flex items-center gap-2">
                       <div className="flex gap-1.5">

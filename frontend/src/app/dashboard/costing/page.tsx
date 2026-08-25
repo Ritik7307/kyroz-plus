@@ -541,7 +541,7 @@ export default function CostingMaster() {
           
           {/* Left Column: Standard Recipe Ledger */}
           <div className="lg:col-span-8 space-y-10">
-            <div className="bg-[#111] rounded-[2.5rem] border border-border p-8 md:p-12 shadow-2xl relative overflow-hidden">
+            <div className="bg-card rounded-[2.5rem] border border-border p-8 md:p-12 shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-1 bg-gold-gradient opacity-50"></div>
               
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-4">
@@ -686,7 +686,7 @@ export default function CostingMaster() {
                     >
                       <option value="" disabled>+ Add Ingredient...</option>
                       {availableIngredients.map(item => (
-                        <option key={item._id} value={item._id} className="bg-[#111]">{item.name} ({item.model})</option>
+                        <option key={item._id} value={item._id} className="bg-card">{item.name} ({item.model})</option>
                       ))}
                       <option value="CREATE_NEW" className="bg-gold text-black font-black">+ Create New Ingredient</option>
                     </select>
@@ -727,7 +727,7 @@ export default function CostingMaster() {
           {/* Right Column: Financial Insights & Actual Pricing */}
           <div className="lg:col-span-4 space-y-8 sticky top-32">
             <div className="bg-gold-gradient p-0.5 rounded-[2.5rem] shadow-[0_30px_100px_rgba(212,175,55,0.15)]">
-              <div className="bg-[#111] rounded-[2.4rem] p-8 space-y-10 border border-gold/20">
+              <div className="bg-card rounded-[2.4rem] p-8 space-y-10 border border-gold/20">
                 
                 <div className="space-y-6">
                   <div className="flex justify-between items-center">

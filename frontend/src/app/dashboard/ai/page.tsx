@@ -604,7 +604,7 @@ export default function AiDashboard() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-128px)] md:h-[calc(100dvh-160px)] bg-[#0A0A0A] rounded-2xl sm:rounded-[2.5rem] border border-border overflow-hidden relative shadow-2xl">
+    <div className="flex flex-col h-[calc(100dvh-128px)] md:h-[calc(100dvh-160px)] bg-background rounded-2xl sm:rounded-[2.5rem] border border-border overflow-hidden relative shadow-2xl">
       {/* Header */}
       <div className="px-4 py-3 sm:px-8 sm:py-6 border-b border-border flex items-center justify-between bg-background backdrop-blur-xl">
         <div className="flex items-center gap-2 sm:gap-5">
@@ -661,7 +661,7 @@ export default function AiDashboard() {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 sm:p-8 border-t border-border bg-[#080808]">
+      <div className="p-4 sm:p-8 border-t border-border bg-background">
         {(assistantState === 'listening' || assistantState === 'speaking') && (
           <div className="flex items-end justify-center gap-1.5 h-8 sm:h-12 mb-4">
             {visualizerData.map((val, i) => (

@@ -201,7 +201,7 @@ export default function EliteDashboardPage() {
       {/* Add Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#111] border border-border p-8 rounded-3xl w-full max-w-md relative">
+          <div className="bg-card border border-border p-8 rounded-3xl w-full max-w-md relative">
             <h3 className="text-2xl font-black text-foreground uppercase tracking-tight mb-6">Add New Location</h3>
             {error && (
               <div className="mb-6 bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded-xl flex items-center gap-2 text-sm font-medium">

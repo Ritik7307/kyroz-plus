@@ -407,12 +407,12 @@ export default function CustomersPage() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="bg-[#111] border border-border p-1 rounded-3xl max-w-lg w-full relative overflow-hidden shadow-2xl shadow-green-500/10"
+            className="bg-card border border-border p-1 rounded-3xl max-w-lg w-full relative overflow-hidden shadow-2xl shadow-green-500/10"
           >
             {/* Ambient Background Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-32 bg-green-500/20 rounded-full blur-[80px] pointer-events-none" />
 
-            <div className="bg-[#161616] rounded-[1.4rem] p-6 sm:p-8 relative z-10 border border-border">
+            <div className="bg-card rounded-[1.4rem] p-6 sm:p-8 relative z-10 border border-border">
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <div className="w-12 h-12 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center justify-center mb-4">
@@ -433,7 +433,7 @@ export default function CustomersPage() {
 
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                <div className="relative bg-[#000] border border-border group-hover:border-green-500/30 rounded-2xl p-4 transition-colors">
+                <div className="relative bg-card border border-border group-hover:border-green-500/30 rounded-2xl p-4 transition-colors">
                   <div className="flex items-center justify-between mb-3 px-2 border-b border-border pb-3">
                     <div className="flex items-center gap-2">
                       <div className="flex gap-1.5">
@@ -516,7 +516,7 @@ export default function CustomersPage() {
       {/* Edit Customer Modal */}
       {editingCustomer && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-md">
-          <div className="bg-[#161616] border border-border p-6 rounded-3xl max-w-sm w-full relative shadow-2xl">
+          <div className="bg-card border border-border p-6 rounded-3xl max-w-sm w-full relative shadow-2xl">
             <h2 className="text-xl font-bold text-foreground mb-4">Edit Customer</h2>
             <div className="space-y-4">
               <div>
@@ -559,7 +559,7 @@ export default function CustomersPage() {
       {/* Delete Customer Modal */}
       {deletingCustomer && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-md">
-          <div className="bg-[#161616] border border-border p-6 rounded-3xl max-w-sm w-full relative shadow-2xl">
+          <div className="bg-card border border-border p-6 rounded-3xl max-w-sm w-full relative shadow-2xl">
             <h2 className="text-xl font-bold text-foreground mb-2">Delete Customer?</h2>
             <p className="text-foreground/40 text-sm mb-6">Are you sure you want to delete <strong className="text-foreground">{deletingCustomer.name}</strong>? This action cannot be undone.</p>
             <div className="flex justify-end gap-3">

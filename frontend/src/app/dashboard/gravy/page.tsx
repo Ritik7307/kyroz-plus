@@ -127,7 +127,7 @@ export default function GravyMaster() {
               </div>
 
               <div className="bg-gold-gradient p-1 rounded-[2rem] min-w-[280px]">
-                <div className="bg-[#111] rounded-[1.9rem] p-8 flex flex-col items-center text-center">
+                <div className="bg-card rounded-[1.9rem] p-8 flex flex-col items-center text-center">
                    <p className="text-xs font-black text-foreground/40 uppercase tracking-[0.3em] mb-2">Total Expected Yield</p>
                    <h2 className="text-6xl font-black text-gold tracking-tighter">{calculatedYield.toFixed(1)}</h2>
                    <p className="text-xl font-black text-foreground mt-1 uppercase tracking-widest">LITERS</p>

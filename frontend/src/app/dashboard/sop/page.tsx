@@ -325,7 +325,7 @@ function SOPLibraryContent() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
           {filteredSops.map((sop, idx) => (
-            <motion.div key={sop._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }} className="bg-[#111] rounded-[1.8rem] md:rounded-[2rem] border border-border hover:border-border transition-all p-6 md:p-8 flex flex-col shadow-2xl group">
+            <motion.div key={sop._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }} className="bg-card rounded-[1.8rem] md:rounded-[2rem] border border-border hover:border-border transition-all p-6 md:p-8 flex flex-col shadow-2xl group">
               <div className="flex justify-between items-start mb-5 md:mb-6">
                 <span className="px-2.5 py-1 bg-card shadow-sm rounded-lg text-[8px] md:text-[10px] font-black text-gold uppercase tracking-widest border border-border">{sop.category}</span>
                 {sop.isInventoryLinked && <span className="flex items-center gap-1.5 px-2.5 py-1 bg-green-500/10 rounded-lg text-[8px] md:text-[10px] font-black text-green-500 uppercase tracking-widest border border-green-500/20"><Database size={10} /> Linked</span>}
@@ -394,7 +394,7 @@ function SOPLibraryContent() {
       <AnimatePresence>
         {viewingSop && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 bg-black/95 backdrop-blur-md">
-            <motion.div className="bg-[#111] border border-border rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 w-full max-w-4xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <motion.div className="bg-card border border-border rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 w-full max-w-4xl max-h-[90vh] overflow-y-auto custom-scrollbar">
               <div className="flex justify-between items-center mb-6 md:mb-8">
                 <h2 className="text-xl md:text-3xl font-black uppercase tracking-tighter text-gold leading-tight pr-4">
                   {viewingSop.title}
