@@ -928,7 +928,8 @@ export default function POSTerminal() {
     setPrintingKot({ 
       ...payload, 
       kotNumber: currentSeq, 
-      items: unsentItems, 
+      items: unsentItems,
+      packaging: getRequiredPackaging(),
       createdAt: new Date().toISOString() 
     });
     setPrintType('kot');
@@ -1391,6 +1392,20 @@ export default function POSTerminal() {
                 ))}
               </tbody>
             </table>
+
+            {printingKot.packaging && printingKot.packaging.length > 0 && (
+              <div className="border-t border-black pt-1 mt-1">
+                <p className="text-[10px] font-black uppercase tracking-widest mb-1 leading-tight">Packaging Items Needed:</p>
+                <div className="space-y-0 text-[10px] font-bold leading-tight">
+                  {printingKot.packaging.map((pkg: any, idx: number) => (
+                    <div key={idx} className="flex justify-between">
+                      <span>[ ] {pkg.name}</span>
+                      <span>x{pkg.quantity}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="border-t border-dashed border-black pt-1.5 mt-2 text-center text-[9px]">
               <p className="uppercase tracking-[0.2em]">SOP & Prep Checklist Printed</p>
