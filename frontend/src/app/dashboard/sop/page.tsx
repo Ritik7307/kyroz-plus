@@ -230,7 +230,7 @@ function SOPLibraryContent() {
         const headers = parseRow(headerRow);
         
         elements.push(
-          <div key={`table-${i}`} className="overflow-x-auto my-6 border border-border rounded-xl bg-black/20">
+          <div key={`table-${i}`} className="overflow-x-auto my-6 border border-border rounded-xl bg-foreground/5">
             <table className="w-full text-left border-collapse text-sm">
               <thead className="bg-card shadow-sm border-b border-border">
                 <tr>
@@ -245,7 +245,7 @@ function SOPLibraryContent() {
                   return (
                     <tr key={rIdx} className="hover:bg-card shadow-sm transition-colors">
                       {cells.map((cell, cIdx) => (
-                        <td key={cIdx} className="p-4 text-gray-300 font-medium">
+                        <td key={cIdx} className="p-4 text-foreground/80 font-medium">
                           {cell}
                         </td>
                       ))}
@@ -267,7 +267,7 @@ function SOPLibraryContent() {
       elements.push(
         <div key={`line-${i}`} className={`mb-3 ${isHeader ? 'mt-10 border-b border-border pb-2 mb-6' : ''} ${isBullet ? 'pl-6 relative' : ''}`}>
           {isBullet && <span className="absolute left-0 text-gold font-bold">{trimmedLine.split(' ')[0]}</span>}
-          <p className={`${isHeader ? 'font-black text-lg text-gold uppercase tracking-tight' : 'font-medium text-gray-300 text-sm leading-relaxed'} ${isBullet ? 'pl-2' : ''}`}>
+          <p className={`${isHeader ? 'font-black text-lg text-gold uppercase tracking-tight' : 'font-medium text-foreground/80 text-sm leading-relaxed'} ${isBullet ? 'pl-2' : ''}`}>
             {parts.map((part, j) => {
               if (part.startsWith('**') && part.endsWith('**')) return <span key={j} className="font-black text-foreground">{part.slice(2, -2)}</span>;
               const isHighlight = ['High', 'Medium', 'Low', 'Oil', 'Butter', 'Ghee'].includes(part);
@@ -341,7 +341,7 @@ function SOPLibraryContent() {
 
       <AnimatePresence>
         {showCategoryModal && (
-          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/95 backdrop-blur-2xl">
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-background/80 backdrop-blur-2xl">
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-card w-full max-w-lg rounded-[2rem] p-8 md:p-12 border border-gold/30 shadow-[0_0_50px_rgba(212,175,55,0.15)] text-center">
               <div className="w-16 h-16 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <ChefHat className="text-gold" size={32} />
@@ -368,7 +368,7 @@ function SOPLibraryContent() {
 
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 md:p-6 bg-black/95 backdrop-blur-2xl">
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 md:p-6 bg-background/80 backdrop-blur-2xl">
             <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="bg-card w-full max-w-5xl rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 border border-border shadow-3xl overflow-y-auto max-h-[90vh] custom-scrollbar">
               <div className="flex items-center justify-between mb-8 md:mb-10"><h3 className="text-xl md:text-3xl font-black tracking-tighter uppercase">NEW <span className="text-gold">RECIPE</span></h3><button onClick={() => setIsModalOpen(false)} className="p-2 md:p-3 hover:bg-foreground/10 rounded-xl md:rounded-2xl transition-all"><X size={28} /></button></div>
               <form onSubmit={handleCreateSop} className="space-y-8 md:space-y-12">
@@ -393,7 +393,7 @@ function SOPLibraryContent() {
 
       <AnimatePresence>
         {viewingSop && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 bg-black/95 backdrop-blur-md">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 bg-background/80 backdrop-blur-md">
             <motion.div className="bg-card border border-border rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 w-full max-w-4xl max-h-[90vh] overflow-y-auto custom-scrollbar">
               <div className="flex justify-between items-center mb-6 md:mb-8">
                 <h2 className="text-xl md:text-3xl font-black uppercase tracking-tighter text-gold leading-tight pr-4">
@@ -423,7 +423,7 @@ function SOPLibraryContent() {
                 </div>
 
                 {/* On-screen content view (hidden during print) */}
-                <div className="prose prose-invert max-w-none prose-sm md:prose-base no-print">
+                <div className="prose  max-w-none prose-sm md:prose-base no-print">
                   {renderContentWithHighlights(language === 'EN' ? viewingSop.contentEn || '' : viewingSop.contentHi || '')}
                 </div>
 
@@ -547,7 +547,7 @@ function SOPLibraryContent() {
             display: block !important;
           }
 
-          .text-gray-300 { 
+          .text-foreground/80 { 
             color: black !important; 
             font-size: 11pt !important;
             line-height: 1.6 !important; 
