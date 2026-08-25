@@ -112,16 +112,16 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user', permissi
         animate={{ 
           x: isOpen ? 0 : -300,
         }}
-        className={`fixed top-0 left-0 h-full w-64 bg-card border-r border-white/10 z-[70] flex flex-col transition-all duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`fixed top-0 left-0 h-full w-64 bg-card border-r border-foreground/10 z-[70] flex flex-col transition-all duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        <div className="p-8 flex items-center justify-between border-b border-white/5">
+        <div className="p-8 flex items-center justify-between border-b border-foreground/5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gold-gradient rounded-lg flex items-center justify-center">
               <span className="text-black font-bold text-xl">K</span>
             </div>
-            <span className="font-bold text-white tracking-widest text-xs uppercase">Kyyroz-Plus Menu</span>
+            <span className="font-bold text-foreground tracking-widest text-xs uppercase">Kyyroz-Plus Menu</span>
           </div>
-          <button onClick={() => setIsOpen(false)} className="text-white/40 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-lg">
+          <button onClick={() => setIsOpen(false)} className="text-foreground/80 hover:text-foreground transition-colors p-2 hover:bg-foreground/5 rounded-lg">
             <X size={20} />
           </button>
         </div>
@@ -140,7 +140,7 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user', permissi
                 className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group relative ${
                   isActive 
                   ? 'bg-gold/10 text-gold font-bold shadow-[inset_0_0_20px_rgba(212,175,55,0.05)]' 
-                  : 'text-white/50 hover:text-white hover:bg-white/5'
+                  : 'text-foreground/80 hover:text-foreground hover:bg-foreground/5'
                 }`}
               >
                 {isActive && (
@@ -157,7 +157,7 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user', permissi
         </nav>
 
         {/* Footer Section */}
-        <div className="p-4 border-t border-white/5 space-y-2">
+        <div className="p-4 border-t border-foreground/5 space-y-2">
           <button 
             onClick={handleLogout}
             className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-red-500/60 hover:text-red-500 hover:bg-red-500/5 transition-all group"

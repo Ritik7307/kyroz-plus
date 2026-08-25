@@ -199,7 +199,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <span>Viewing as: {impersonationData.locationName}</span>
           <button 
             onClick={handleReturnToMaster}
-            className="bg-black text-white px-4 py-1 rounded-full hover:bg-black/80 transition-colors"
+            className="bg-black text-foreground px-4 py-1 rounded-full hover:bg-black/80 transition-colors"
           >
             Return to Master Dashboard
           </button>
@@ -213,22 +213,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         permissions={user?.permissions || []}
       />
 
-      <header className="h-24 border-b border-white/5 bg-background/50 backdrop-blur-xl sticky top-0 z-50 px-4 md:px-8 flex items-center justify-between print:hidden">
+      <header className="h-24 border-b border-foreground/5 bg-background/50 backdrop-blur-xl sticky top-0 z-50 px-4 md:px-8 flex items-center justify-between print:hidden">
         {/* Left Section: Menu & Logo */}
         <div className="flex items-center gap-4 min-w-fit">
           <button 
             onClick={() => setIsSidebarOpen(true)} 
-            className="text-white/40 hover:text-gold p-2.5 hover:bg-white/5 rounded-2xl transition-all"
+            className="text-foreground/80 hover:text-gold p-2.5 hover:bg-foreground/5 rounded-2xl transition-all"
           >
             <Menu size={20} />
           </button>
           
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gold-gradient rounded-xl flex items-center justify-center shadow-lg border border-white/10 shrink-0">
+            <div className="w-10 h-10 bg-gold-gradient rounded-xl flex items-center justify-center shadow-lg border border-foreground/10 shrink-0">
               <span className="text-black font-black text-xl">K</span>
             </div>
             <div className="hidden xl:block">
-              <h1 className="font-black text-lg tracking-normal leading-none text-white whitespace-nowrap">KYROZ-PLUS</h1>
+              <h1 className="font-black text-lg tracking-normal leading-none text-foreground whitespace-nowrap">KYROZ-PLUS</h1>
               <p className="text-gold font-black uppercase text-[8px] tracking-[0.2em] mt-1 opacity-60">Restaurant KOS</p>
             </div>
           </div>
@@ -246,10 +246,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 className={`flex items-center gap-2 transition-all py-2 border-b-2 whitespace-nowrap text-xs font-black uppercase tracking-widest ${
                   isActive 
                     ? 'text-gold border-gold' 
-                    : 'text-white/20 hover:text-white border-transparent'
+                    : 'text-foreground/60 hover:text-foreground border-transparent'
                 }`}
               >
-                {Icon && <Icon size={16} className={isActive ? 'text-gold' : 'text-white/20'} />}
+                {Icon && <Icon size={16} className={isActive ? 'text-gold' : 'text-foreground/60'} />}
                 <span>{link.name}</span>
               </Link>
             );
@@ -266,7 +266,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 className={`flex items-center gap-2 transition-all py-2 border-b-2 whitespace-nowrap text-xs font-black uppercase tracking-widest ${
                   isMoreActive 
                     ? 'text-gold border-gold' 
-                    : 'text-white/20 hover:text-gold border-transparent'
+                    : 'text-foreground/60 hover:text-gold border-transparent'
                 }`}
               >
                 <span>More</span>
@@ -279,7 +279,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
-                    className="absolute top-full right-0 mt-3 bg-card glass-card border border-white/10 rounded-2xl p-4 w-56 shadow-2xl z-[70] space-y-1.5"
+                    className="absolute top-full right-0 mt-3 bg-card glass-card border border-foreground/10 rounded-2xl p-4 w-56 shadow-2xl z-[70] space-y-1.5"
                   >
                     {moreLinks.map((link) => {
                       const Icon = (link as any).icon;
@@ -292,7 +292,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-xs font-black uppercase tracking-widest ${
                             isActive 
                               ? 'bg-gold/10 text-gold border border-gold/20' 
-                              : 'text-gray-300 hover:text-gold hover:bg-white/5 border border-transparent'
+                              : 'text-gray-300 hover:text-gold hover:bg-foreground/5 border border-transparent'
                           }`}
                         >
                           {Icon && <Icon size={16} className={isActive ? 'text-gold' : 'text-gray-400'} />}
@@ -311,14 +311,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex items-center gap-4 min-w-fit">
           <button 
             onClick={() => setIsSearchOpen(true)}
-            className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-white/40 hover:text-gold transition-all border border-white/5"
+            className="p-2.5 bg-foreground/5 hover:bg-foreground/10 rounded-xl text-foreground/80 hover:text-gold transition-all border border-foreground/5"
           >
             <SearchIcon size={18} />
           </button>
           
           <button 
             onClick={() => setIsNotificationsOpen(true)}
-            className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-white/40 hover:text-gold transition-all border border-white/5 relative"
+            className="p-2.5 bg-foreground/5 hover:bg-foreground/10 rounded-xl text-foreground/80 hover:text-gold transition-all border border-foreground/5 relative"
           >
             <Bell size={18} />
             {unreadCount > 0 && (
@@ -326,12 +326,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             )}
           </button>
 
-          <div className="flex items-center gap-3 bg-white/5 pl-2 pr-4 py-1.5 rounded-xl border border-white/10 hover:border-gold/30 transition-all cursor-pointer group shrink-0">
+          <div className="flex items-center gap-3 bg-foreground/5 pl-2 pr-4 py-1.5 rounded-xl border border-foreground/10 hover:border-gold/30 transition-all cursor-pointer group shrink-0">
             <div className="w-8 h-8 rounded-lg bg-gold-gradient flex items-center justify-center text-black font-black text-sm">
               {user?.name?.[0] || 'U'}
             </div>
             <div className="text-left hidden md:block">
-              <p className="text-xs font-black text-white uppercase leading-none truncate max-w-[80px]">{user?.name || 'User'}</p>
+              <p className="text-xs font-black text-foreground uppercase leading-none truncate max-w-[80px]">{user?.name || 'User'}</p>
               <p className="text-[8px] text-gold/40 uppercase mt-1 font-bold tracking-tighter">{user?.role || 'Member'}</p>
             </div>
           </div>
@@ -343,11 +343,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {children}
           {isLocked && (
             <div className="absolute inset-0 z-[60] flex items-center justify-center backdrop-blur-sm bg-black/60 rounded-3xl">
-              <div className="bg-[#111111] border border-[#333333] p-8 md:p-12 rounded-3xl text-center max-w-lg shadow-2xl shadow-black">
+              <div className="bg-card border border-border p-8 md:p-12 rounded-3xl text-center max-w-lg shadow-2xl shadow-black">
                 <div className="w-16 h-16 bg-gradient-to-tr from-[#d4af37] to-[#f9e596] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#d4af37]/20">
                   <Lock size={32} className="text-black" />
                 </div>
-                <h3 className="text-3xl font-black text-white mb-4 tracking-tight">Feature Locked</h3>
+                <h3 className="text-3xl font-black text-foreground mb-4 tracking-tight">Feature Locked</h3>
                 <p className="text-gray-400 mb-8 font-medium leading-relaxed">
                   You need an active premium subscription to access this feature. Upgrade your plan to unlock the full power of KYROZ KOSA.
                 </p>
@@ -374,28 +374,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       />
 
       {/* --- PREMIUM FOOTER --- */}
-      <footer className="w-full border-t border-white/5 bg-black/20 backdrop-blur-md pt-12 md:pt-20 pb-8 md:pb-10 px-6 md:px-12 mt-auto print:hidden">
+      <footer className="w-full border-t border-foreground/5 bg-black/20 backdrop-blur-md pt-12 md:pt-20 pb-8 md:pb-10 px-6 md:px-12 mt-auto print:hidden">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 mb-12 md:mb-16">
             
             {/* Brand Section */}
             <div className="space-y-6 flex flex-col items-center sm:items-start text-center sm:text-left">
               <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-start">
-                <div className="w-10 h-10 bg-gold-gradient rounded-xl flex items-center justify-center shadow-lg border border-white/10 shrink-0">
+                <div className="w-10 h-10 bg-gold-gradient rounded-xl flex items-center justify-center shadow-lg border border-foreground/10 shrink-0">
                   <span className="text-black font-black text-xl">K</span>
                 </div>
-                <h3 className="font-black text-lg tracking-normal leading-none text-white text-center sm:text-left">
-                  KYROZ-PLUS <span className="text-xs font-bold text-white/50 uppercase tracking-widest ml-1 block sm:inline mt-1 sm:mt-0">powered by AROMA AGRO INTERNATIONAL</span>
+                <h3 className="font-black text-lg tracking-normal leading-none text-foreground text-center sm:text-left">
+                  KYROZ-PLUS <span className="text-xs font-bold text-foreground/80 uppercase tracking-widest ml-1 block sm:inline mt-1 sm:mt-0">powered by AROMA AGRO INTERNATIONAL</span>
                 </h3>
               </div>
-              <p className="text-white/40 text-xs md:text-xs leading-relaxed max-w-xs font-medium">
+              <p className="text-foreground/80 text-xs md:text-xs leading-relaxed max-w-xs font-medium">
                 The world's most advanced Kitchen Operating System. Standardizing excellence for elite restaurants globally.
               </p>
               <div className="flex gap-4">
-                <a href="https://instagram.com/kyroz" target="_blank" className="p-2.5 bg-white/5 hover:bg-gold/10 rounded-xl text-white/20 hover:text-gold transition-all border border-white/5">
+                <a href="https://instagram.com/kyroz" target="_blank" className="p-2.5 bg-foreground/5 hover:bg-gold/10 rounded-xl text-foreground/60 hover:text-gold transition-all border border-foreground/5">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                 </a>
-                <a href="https://facebook.com/kyroz" target="_blank" className="p-2.5 bg-white/5 hover:bg-gold/10 rounded-xl text-white/20 hover:text-gold transition-all border border-white/5">
+                <a href="https://facebook.com/kyroz" target="_blank" className="p-2.5 bg-foreground/5 hover:bg-gold/10 rounded-xl text-foreground/60 hover:text-gold transition-all border border-foreground/5">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z"/></svg>
                 </a>
               </div>
@@ -403,17 +403,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Support Section */}
             <div className="space-y-6 flex flex-col items-center sm:items-start text-center sm:text-left">
-              <h4 className="text-white text-[11px] font-black uppercase tracking-[0.2em]">Immediate Support</h4>
+              <h4 className="text-foreground text-[11px] font-black uppercase tracking-[0.2em]">Immediate Support</h4>
               <ul className="space-y-4">
                 <li>
-                  <a href="tel:+917887009800" className="flex items-center gap-3 text-white/40 hover:text-gold transition-all group">
-                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-gold/10 transition-all"><span className="text-[14px]">📞</span></div>
+                  <a href="tel:+917887009800" className="flex items-center gap-3 text-foreground/80 hover:text-gold transition-all group">
+                    <div className="w-8 h-8 rounded-lg bg-foreground/5 flex items-center justify-center group-hover:bg-gold/10 transition-all"><span className="text-[14px]">📞</span></div>
                     <span className="text-[11px] font-bold">+91 78870 09800</span>
                   </a>
                 </li>
                 <li>
-                  <a href="mailto:info@kyrozplus.com" className="flex items-center gap-3 text-white/40 hover:text-gold transition-all group">
-                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-gold/10 transition-all"><span className="text-[14px]">✉️</span></div>
+                  <a href="mailto:info@kyrozplus.com" className="flex items-center gap-3 text-foreground/80 hover:text-gold transition-all group">
+                    <div className="w-8 h-8 rounded-lg bg-foreground/5 flex items-center justify-center group-hover:bg-gold/10 transition-all"><span className="text-[14px]">✉️</span></div>
                     <span className="text-[11px] font-bold truncate max-w-[150px] md:max-w-none">info@kyrozplus.com</span>
                   </a>
                 </li>
@@ -422,11 +422,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Quick Links */}
             <div className="space-y-6 flex flex-col items-center sm:items-start text-center sm:text-left">
-              <h4 className="text-white text-[11px] font-black uppercase tracking-[0.2em]">Platform</h4>
+              <h4 className="text-foreground text-[11px] font-black uppercase tracking-[0.2em]">Platform</h4>
               <ul className="space-y-4">
                 {navLinks.slice(0, 4).map(link => (
                   <li key={link.path}>
-                    <Link href={link.path} className="text-[11px] font-bold text-white/40 hover:text-gold transition-all uppercase tracking-widest">
+                    <Link href={link.path} className="text-[11px] font-bold text-foreground/80 hover:text-gold transition-all uppercase tracking-widest">
                       {link.name}
                     </Link>
                   </li>
@@ -436,13 +436,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Trust Section */}
             <div className="space-y-6 flex flex-col items-center sm:items-start text-center sm:text-left">
-              <h4 className="text-white text-[11px] font-black uppercase tracking-[0.2em]">Enterprise Grade</h4>
-              <div className="bg-white/5 rounded-2xl p-4 border border-white/5 w-full max-w-[250px] sm:max-w-none">
+              <h4 className="text-foreground text-[11px] font-black uppercase tracking-[0.2em]">Enterprise Grade</h4>
+              <div className="bg-foreground/5 rounded-2xl p-4 border border-foreground/5 w-full max-w-[250px] sm:max-w-none">
                 <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                  <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">Global Status: Active</span>
+                  <span className="text-[10px] font-black text-foreground/60 uppercase tracking-widest">Global Status: Active</span>
                 </div>
-                <p className="text-[10px] text-white/20 font-bold uppercase tracking-tighter leading-relaxed">
+                <p className="text-[10px] text-foreground/60 font-bold uppercase tracking-tighter leading-relaxed">
                   256-bit encrypted infrastructure ensuring 99.9% uptime for your kitchen operations.
                 </p>
               </div>
@@ -451,13 +451,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           {/* Bottom Bar */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-10 border-t border-white/5 text-center md:text-left">
-            <p className="text-[10px] md:text-xs font-black text-white/20 uppercase tracking-[0.2em]">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-10 border-t border-foreground/5 text-center md:text-left">
+            <p className="text-[10px] md:text-xs font-black text-foreground/60 uppercase tracking-[0.2em]">
               © 2026 KYROZ TECHNOLOGIES PVT LTD. ALL RIGHTS RESERVED.
             </p>
             <div className="flex gap-6 md:gap-8">
-              <Link href="#" className="text-[10px] font-black text-white/20 hover:text-gold uppercase tracking-widest">Privacy Policy</Link>
-              <Link href="#" className="text-[10px] font-black text-white/20 hover:text-gold uppercase tracking-widest">Terms of Service</Link>
+              <Link href="#" className="text-[10px] font-black text-foreground/60 hover:text-gold uppercase tracking-widest">Privacy Policy</Link>
+              <Link href="#" className="text-[10px] font-black text-foreground/60 hover:text-gold uppercase tracking-widest">Terms of Service</Link>
             </div>
           </div>
         </div>
