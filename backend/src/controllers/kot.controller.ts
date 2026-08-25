@@ -79,6 +79,7 @@ export const createKot = async (req: AuthRequest, res: Response): Promise<void> 
       customerPhone,
       items: items.map((item: any) => ({
         dishId: item.dishId,
+        name: item.dishName || 'Unknown Dish',
         quantity: item.quantity,
         note: item.note || ''
       })),

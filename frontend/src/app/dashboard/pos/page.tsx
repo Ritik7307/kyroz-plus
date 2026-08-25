@@ -117,6 +117,21 @@ const defaultSession = (tableId: string): TableSession => ({
   sequenceNo: undefined,
 });
 
+const DEFAULT_CATEGORIES = [
+  'Main Course',
+  'Pizza',
+  'Burger',
+  'Wrap',
+  'Snacks',
+  'Pasta',
+  'Beverages',
+  'South Indian',
+  'Tandoor Starter',
+  'Veg Starter',
+  'Indian Veg',
+  'Chinese'
+];
+
 export default function POSTerminal() {
   const { resolvedPosTheme } = useTheme();
   const [dishes, setDishes] = useState<Dish[]>([]);
@@ -698,9 +713,14 @@ export default function POSTerminal() {
   const parsedAdditionalCharge = parseFloat(additionalCharge) || 0;
   const grandTotal = Math.round(afterDiscount + gstAmount + parsedAdditionalCharge);
 
-  const categories = useMemo(() => {
-    return ['All', ...Array.from(new Set(dishes.map(d => d.category?.trim()).filter(Boolean)))];
+  const availableCategories = useMemo(() => {
+    const dishCats = dishes.map(d => d.category?.trim()).filter(Boolean);
+    return Array.from(new Set([...DEFAULT_CATEGORIES, ...dishCats]));
   }, [dishes]);
+
+  const categories = useMemo(() => {
+    return ['All', ...availableCategories];
+  }, [availableCategories]);
 
   const filteredDishes = useMemo(() => {
     return dishes.filter(d => 
@@ -733,7 +753,7 @@ export default function POSTerminal() {
     const token = localStorage.getItem('token');
     
     const checkoutPayload = {
-      items: cart.map(item => ({ dishId: item.dish._id, quantity: item.quantity, note: item.note })),
+      items: cart.map(item => ({ dishId: item.dish._id, dishName: item.dish.name, quantity: item.quantity, note: item.note })),
       customerName, customerPhone, discount: Number(discount) || 0, discountType, additionalCharge: Number(additionalCharge) || 0,
       applyGst, paymentMethod, orderType,
       kotId, 
@@ -892,6 +912,7 @@ export default function POSTerminal() {
     const payload = {
       items: unsentItems.map(item => ({
         dishId: item.dish._id,
+        dishName: item.dish.name,
         quantity: item.quantity,
         note: item.note
       })),
@@ -1779,7 +1800,7 @@ export default function POSTerminal() {
                               className="w-full bg-background p-4 rounded-xl border border-foreground/10 text-sm"
                             >
                               <option value="" disabled>Select Category</option>
-                              {Array.from(new Set(dishes.map(d => d.category))).filter(Boolean).map(cat => (
+                              {availableCategories.map(cat => (
                                 <option key={cat} value={cat}>{cat}</option>
                               ))}
                               <option value="ADD_NEW" className="text-gold font-bold">+ Add New Category</option>

@@ -24,6 +24,7 @@ export interface IKot extends Document {
 
 const KotItemSchema = new Schema({
   dishId: { type: Schema.Types.ObjectId, ref: 'Dish', required: true },
+  name: { type: String, default: 'Unknown Dish' },
   quantity: { type: Number, required: true },
   note: { type: String, default: '' }
 });

@@ -26,6 +26,7 @@ interface KotItem {
     name: string;
     category: string;
   } | null;
+  name?: string;
   quantity: number;
   note?: string;
   _id: string;
@@ -41,6 +42,7 @@ interface Kot {
   items: KotItem[];
   status: 'Pending' | 'Preparing' | 'Ready' | 'Served' | 'Cancelled';
   packaging: { name: string; quantity: number; _id: string }[];
+  isOffline?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -112,9 +114,42 @@ export default function KitchenOrderQueue() {
       const data = await dataService.get(endpoint, {
         'Authorization': `Bearer ${token}`
       });
-      if (Array.isArray(data)) {
-        setKots(data);
+      let fetchedKots = Array.isArray(data) ? data : [];
+
+      if (!viewHistory) {
+        try {
+          const { db } = require('@/db/kyrozdb');
+          const offlineQueue = await db.syncQueue.where('status').anyOf('PENDING', 'ERROR').toArray();
+          
+          const offlineKots = offlineQueue
+            .filter((item: any) => item.method === 'POST' && item.url.includes('/api/kots'))
+            .map((item: any) => ({
+              _id: item.operation_id,
+              kotNumber: item.payload.tempKotNo || 'Offline',
+              tableNumber: item.payload.tableNumber,
+              orderType: item.payload.orderType,
+              customerName: item.payload.customerName,
+              customerPhone: item.payload.customerPhone,
+              status: 'Pending',
+              isOffline: true,
+              createdAt: new Date(item.created_at).toISOString(),
+              packaging: [],
+              items: item.payload.items.map((pi: any) => ({
+                _id: Math.random().toString(),
+                dishId: null,
+                name: pi.dishName || 'Unknown Dish',
+                quantity: pi.quantity,
+                note: pi.note
+              }))
+            }));
+            
+          fetchedKots = [...offlineKots, ...fetchedKots];
+        } catch (offlineErr) {
+          console.error('Failed to load offline KOTs', offlineErr);
+        }
       }
+      
+      setKots(fetchedKots);
     } catch (err) {
       console.error('Failed to fetch KOTs', err);
     } finally {
@@ -273,7 +308,7 @@ export default function KitchenOrderQueue() {
               {printingKot.items.map((item: any, idx: number) => (
                 <tr key={idx}>
                   <td className="py-0.5 pr-1 leading-tight">
-                    <span className="font-bold">{item.dishId?.name || 'Unknown Dish'}</span>
+                    <span className="font-bold">{item.dishId?.name || item.name || 'Unknown Dish'}</span>
                     {item.note && (
                       <div className="text-[10px] italic mt-0 font-bold leading-none">
                         * Note: {item.note}
@@ -436,12 +471,16 @@ export default function KitchenOrderQueue() {
                         <h4 className="text-lg font-black text-foreground">{kot.tableNumber}</h4>
                       </div>
                       <div className="flex flex-col items-end gap-1.5">
-                        <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider ${getStatusColor(kot.status)}`}>
-                          {kot.status}
+                        <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 ${getOrderTypeBadgeColor(kot.orderType)}`}>
+                          <Package size={10} />
+                          {kot.orderType}
                         </span>
-                        <span className={`text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-wider ${getOrderTypeBadgeColor(kot.orderType)}`}>
-                          {kot.orderType === 'Takeaway' ? 'Quick Bill' : kot.orderType === 'DineIn' ? 'Dine In' : kot.orderType}
-                        </span>
+                        {kot.isOffline && (
+                          <span className="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">
+                            <RefreshCw size={10} className="animate-spin" />
+                            Offline
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -467,8 +506,8 @@ export default function KitchenOrderQueue() {
                         {kot.items.map(item => (
                           <div key={item._id} className="py-2.5 flex items-start justify-between gap-3">
                             <div className="space-y-1">
-                              <p className="font-bold text-sm text-foreground">
-                                {item.dishId?.name || 'Unknown Dish'}
+                              <p className="text-xs font-black uppercase text-foreground leading-tight mb-0.5">
+                                {item.quantity}x {item.dishId?.name || item.name || 'Unknown Dish'}
                               </p>
                               {item.note && (
                                 <p className="text-xs font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 inline-block">
@@ -529,7 +568,8 @@ export default function KitchenOrderQueue() {
                     {kot.status === 'Pending' && (
                       <button
                         onClick={() => updateStatus(kot._id, 'Preparing')}
-                        className="flex-1 py-3 bg-orange-500 hover:bg-orange-600 text-foreground font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-orange-500/10 flex items-center justify-center gap-2"
+                        disabled={kot.isOffline}
+                        className={`flex-1 py-3 font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 ${kot.isOffline ? 'bg-orange-500/50 text-foreground/50' : 'bg-orange-500 hover:bg-orange-600 text-foreground shadow-orange-500/10'}`}
                       >
                         <Play size={14} /> Start Preparing
                       </button>
