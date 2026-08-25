@@ -293,156 +293,153 @@ async function seed() {
     await mongoose.connect(process.env.MONGO_URI);
     console.log('Connected to MongoDB');
 
-    const user = await User.findOne({ role: 'admin' }) || await User.findOne();
-    if (!user) {
+    const users = await User.find({});
+    if (users.length === 0) {
       throw new Error('No user found in the database to link inventory to.');
     }
-    const userId = user._id;
-    console.log(`Using User ID: ${userId} (${user.email})`);
+    
+    for (const user of users) {
+      const userId = user._id;
+      console.log(`\n--- Seeding for User ID: ${userId} (${user.email}) ---`);
 
-    const rmMap = new Map();
-    const sfgMap = new Map();
-    const pkgMap = new Map();
+      const rmMap = new Map();
+      const sfgMap = new Map();
+      const pkgMap = new Map();
 
-    // 1. Raw Materials
-    for (const rm of rawMaterialsData) {
-      let existing = await RawMaterial.findOne({ name: rm.name, userId });
-      if (!existing) {
-        existing = await RawMaterial.create({
-          code: rm.code,
-          name: rm.name,
-          purchaseUnit: rm.unit,
-          consumptionUnit: rm.unit,
-          category: CHINESE_CATEGORY,
-          currentStock: 100,
-          costPerPurchaseUnit: 0,
-          userId
-        });
+      // 1. Raw Materials
+      for (const rm of rawMaterialsData) {
+        let existing = await RawMaterial.findOne({ name: rm.name, userId });
+        if (!existing) {
+          existing = await RawMaterial.create({
+            code: rm.code,
+            name: rm.name,
+            purchaseUnit: rm.unit,
+            consumptionUnit: rm.unit,
+            category: CHINESE_CATEGORY,
+            currentStock: 100,
+            costPerPurchaseUnit: 0,
+            userId
+          });
+        }
+        rmMap.set(rm.name, existing);
       }
-      rmMap.set(rm.name, existing);
-    }
-    console.log(`Seeded ${rmMap.size} Raw Materials`);
+      console.log(`Seeded ${rmMap.size} Raw Materials for ${user.email}`);
 
-    // 2. SFGs
-    for (const sfg of sfgData) {
-      let existing = await SemiFinishedGood.findOne({ name: sfg.name, userId });
-      if (!existing) {
-        existing = await SemiFinishedGood.create({
-          code: sfg.code,
-          name: sfg.name,
-          batchYield: sfg.batchYield,
-          yieldUnit: sfg.yieldUnit,
-          currentStock: 50,
-          costPerUnit: 0,
-          userId
-        });
+      // 2. SFGs
+      for (const sfg of sfgData) {
+        let existing = await SemiFinishedGood.findOne({ name: sfg.name, userId });
+        if (!existing) {
+          existing = await SemiFinishedGood.create({
+            code: sfg.code,
+            name: sfg.name,
+            batchYield: sfg.batchYield,
+            yieldUnit: sfg.yieldUnit,
+            currentStock: 50,
+            costPerUnit: 0,
+            userId
+          });
+        }
+        sfgMap.set(sfg.name, existing);
       }
-      sfgMap.set(sfg.name, existing);
-    }
-    console.log(`Seeded ${sfgMap.size} SFGs`);
+      console.log(`Seeded ${sfgMap.size} SFGs for ${user.email}`);
 
-    // 3. Packaging
-    for (const pkg of packagingData) {
-      let existing = await Packaging.findOne({ name: pkg.name, userId });
-      if (!existing) {
-        existing = await Packaging.create({
-          code: pkg.code,
-          name: pkg.name,
-          unit: pkg.unit,
-          currentStock: 500,
-          costPerUnit: 0,
-          userId
-        });
+      // 3. Packaging
+      for (const pkg of packagingData) {
+        let existing = await Packaging.findOne({ name: pkg.name, userId });
+        if (!existing) {
+          existing = await Packaging.create({
+            code: pkg.code,
+            name: pkg.name,
+            unit: pkg.unit,
+            currentStock: 500,
+            costPerUnit: 0,
+            userId
+          });
+        }
+        pkgMap.set(pkg.name, existing);
       }
-      pkgMap.set(pkg.name, existing);
-    }
-    console.log(`Seeded ${pkgMap.size} Packaging items`);
+      console.log(`Seeded ${pkgMap.size} Packaging items for ${user.email}`);
 
-    // 4. Dishes & Recipes
-    const defaultPkgs = [pkgMap.get('Chinese Bowl/Container')?._id].filter(Boolean);
+      // 4. Dishes & Recipes
+      const defaultPkgs = [pkgMap.get('Chinese Bowl/Container')?._id].filter(Boolean);
 
-    for (const d of dishesData) {
-      let dish = await Dish.findOne({ name: d.name, userId });
-      if (!dish) {
-        dish = await Dish.create({
-          name: d.name,
-          price: d.price,
-          category: CHINESE_CATEGORY,
-          ingredientPrice: 0,
-          packagingLogic: {
-            dineIn: [],
-            takeaway: defaultPkgs,
-            delivery: defaultPkgs
-          },
-          userId
-        });
+      for (const d of dishesData) {
+        let dish = await Dish.findOne({ name: d.name, userId });
+        if (!dish) {
+          dish = await Dish.create({
+            name: d.name,
+            price: d.price,
+            category: CHINESE_CATEGORY,
+            ingredientPrice: 0,
+            packagingLogic: {
+              dineIn: [],
+              takeaway: defaultPkgs,
+              delivery: defaultPkgs
+            },
+            userId
+          });
 
-        // Create Inventory tracker
-        await Inventory.create({
-          dishId: dish._id,
-          platesPerPacket: 10,
-          totalPlates: 100,
-          userId
-        });
-      }
-
-      // Create Recipe
-      let recipe = await Recipe.findOne({ targetModel: 'Dish', targetId: dish._id, userId });
-      if (recipe) {
-        await Recipe.deleteOne({ _id: recipe._id });
-      }
-
-      const ingredients = d.recipe.map(r => {
-        let itemId;
-        let itemModel;
-        
-        if (r.type === 'RM') {
-          itemId = rmMap.get(r.name)?._id;
-          itemModel = 'RawMaterial';
-        } else if (r.type === 'SFG') {
-          itemId = sfgMap.get(r.name)?._id;
-          itemModel = 'SemiFinishedGood';
+          // Create Inventory tracker
+          await Inventory.create({
+            dishId: dish._id,
+            platesPerPacket: 10,
+            totalPlates: 100,
+            userId
+          });
         }
 
-        if (!itemId) {
-          console.warn(`WARNING: Ingredient ${r.name} not found for dish ${d.name}`);
+        // Create Recipe
+        let recipe = await Recipe.findOne({ targetModel: 'Dish', targetId: dish._id, userId });
+        if (recipe) {
+          await Recipe.deleteOne({ _id: recipe._id });
         }
 
-        let qty = r.qty;
-        if (r.unit === 'ml' || r.unit === 'gm') {
-          const rmInfo = rmMap.get(r.name);
-          const sfgInfo = sfgMap.get(r.name);
+        const ingredients = d.recipe.map(r => {
+          let itemId;
+          let itemModel;
           
-          if (rmInfo && rmInfo.consumptionUnit === 'L' && r.unit === 'ml') qty = qty / 1000;
-          if (rmInfo && rmInfo.consumptionUnit === 'kg' && r.unit === 'gm') qty = qty / 1000;
-          
-          if (sfgInfo && sfgInfo.yieldUnit === 'L' && r.unit === 'ml') qty = qty / 1000;
-          if (sfgInfo && sfgInfo.yieldUnit === 'kg' && r.unit === 'gm') qty = qty / 1000;
-        }
+          if (r.type === 'RM') {
+            itemId = rmMap.get(r.name)?._id;
+            itemModel = 'RawMaterial';
+          } else if (r.type === 'SFG') {
+            itemId = sfgMap.get(r.name)?._id;
+            itemModel = 'SemiFinishedGood';
+          }
 
-        return {
-          itemModel,
-          itemId,
-          quantity: qty
-        };
-      }).filter(i => i.itemId);
+          let qty = r.qty;
+          if (r.unit === 'ml' || r.unit === 'gm') {
+            const rmInfo = rmMap.get(r.name);
+            const sfgInfo = sfgMap.get(r.name);
+            
+            if (rmInfo && rmInfo.consumptionUnit === 'L' && r.unit === 'ml') qty = qty / 1000;
+            if (rmInfo && rmInfo.consumptionUnit === 'kg' && r.unit === 'gm') qty = qty / 1000;
+            
+            if (sfgInfo && sfgInfo.yieldUnit === 'L' && r.unit === 'ml') qty = qty / 1000;
+            if (sfgInfo && sfgInfo.yieldUnit === 'kg' && r.unit === 'gm') qty = qty / 1000;
+          }
 
-      const packagingItems = defaultPkgs.map(id => ({
-        itemModel: 'Packaging',
-        itemId: id,
-        quantity: 1
-      }));
+          return {
+            itemModel,
+            itemId,
+            quantity: qty
+          };
+        }).filter(i => i.itemId);
 
-      await Recipe.create({
-        targetModel: 'Dish',
-        targetId: dish._id,
-        targetYield: 1,
-        operationalYield: 1,
-        ingredients: [...ingredients, ...packagingItems],
-        userId
-      });
+        const packagingItems = defaultPkgs.map(id => ({
+          itemModel: 'Packaging',
+          itemId: id,
+          quantity: 1
+        }));
 
-      console.log(`Seeded Dish & Recipe for: ${d.name}`);
+        await Recipe.create({
+          targetModel: 'Dish',
+          targetId: dish._id,
+          targetYield: 1,
+          operationalYield: 1,
+          ingredients: [...ingredients, ...packagingItems],
+          userId
+        });
+      }
     }
 
     console.log('Seeding completed successfully!');
