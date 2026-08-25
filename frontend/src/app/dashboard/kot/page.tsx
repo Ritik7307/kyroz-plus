@@ -137,27 +137,50 @@ export default function KitchenOrderQueue() {
           const { db } = require('@/db/kyrozdb');
           const offlineQueue = await db.syncQueue.where('status').anyOf('PENDING', 'ERROR').toArray();
           
+          const dishesData = await dataService.get(`${API_URL}/api/dishes`, { 'Authorization': `Bearer ${token}` }).catch(() => []);
+          const availableDishes = Array.isArray(dishesData) ? dishesData : [];
+          
           const offlineKots = offlineQueue
             .filter((item: any) => item.method === 'POST' && item.url.includes('/api/kots'))
-            .map((item: any) => ({
-              _id: item.operation_id,
-              kotNumber: item.payload.tempKotNo || 'Offline',
-              tableNumber: item.payload.tableNumber,
-              orderType: item.payload.orderType,
-              customerName: item.payload.customerName,
-              customerPhone: item.payload.customerPhone,
-              status: 'Pending',
-              isOffline: true,
-              createdAt: new Date(item.created_at).toISOString(),
-              packaging: [],
-              items: item.payload.items.map((pi: any) => ({
-                _id: Math.random().toString(),
-                dishId: pi.dishId,
-                name: pi.dishName,
-                quantity: pi.quantity,
-                note: pi.note
-              }))
-            }));
+            .map((item: any) => {
+              const packagingMap: { [name: string]: number } = {};
+              item.payload.items.forEach((pi: any) => {
+                const dish = availableDishes.find(d => d._id === pi.dishId);
+                const logic = dish?.packagingLogic;
+                if (logic) {
+                  let pkgs: any[] = [];
+                  if (item.payload.orderType === 'Takeaway') pkgs = logic.takeaway || [];
+                  else if (item.payload.orderType === 'Delivery') pkgs = logic.delivery || [];
+                  else if (item.payload.orderType === 'DineIn' || item.payload.orderType === 'Dine In') pkgs = logic.dineIn || [];
+                  
+                  pkgs.forEach((pkg: any) => {
+                    if (pkg && pkg.name) {
+                      packagingMap[pkg.name] = (packagingMap[pkg.name] || 0) + pi.quantity;
+                    }
+                  });
+                }
+              });
+
+              return {
+                _id: item.operation_id,
+                kotNumber: item.payload.tempKotNo || 'Offline',
+                tableNumber: item.payload.tableNumber,
+                orderType: item.payload.orderType,
+                customerName: item.payload.customerName,
+                customerPhone: item.payload.customerPhone,
+                status: 'Pending',
+                isOffline: true,
+                createdAt: new Date(item.created_at).toISOString(),
+                packaging: Object.keys(packagingMap).map(name => ({ name, quantity: packagingMap[name] })),
+                items: item.payload.items.map((pi: any) => ({
+                  _id: Math.random().toString(),
+                  dishId: pi.dishId,
+                  name: pi.dishName,
+                  quantity: pi.quantity,
+                  note: pi.note
+                }))
+              };
+            });
             
           fetchedKots = [...offlineKots, ...fetchedKots];
         } catch (offlineErr) {
