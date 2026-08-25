@@ -638,7 +638,7 @@ export default function BusinessAiDashboard() {
         {messages.map((msg, idx) => (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} key={idx} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
             <div className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[90%] sm:max-w-[80%] rounded-2xl sm:rounded-[1.8rem] p-3.5 sm:p-5 shadow-2xl ${msg.role === 'user' ? 'bg-gold text-black font-bold' : 'bg-card shadow-sm text-gray-200 border border-border'}`}>
+              <div className={`max-w-[90%] sm:max-w-[80%] rounded-2xl sm:rounded-[1.8rem] p-3.5 sm:p-5 shadow-2xl ${msg.role === 'user' ? 'bg-gold text-black font-bold' : 'bg-card shadow-sm text-foreground/80 border border-border'}`}>
                 <div className="text-xs sm:text-[13px] whitespace-pre-wrap leading-relaxed">{msg.content}</div>
               </div>
             </div>

@@ -292,10 +292,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-xs font-black uppercase tracking-widest ${
                             isActive 
                               ? 'bg-gold/10 text-gold border border-gold/20' 
-                              : 'text-gray-300 hover:text-gold hover:bg-foreground/5 border border-transparent'
+                              : 'text-foreground/70 hover:text-gold hover:bg-foreground/5 border border-transparent'
                           }`}
                         >
-                          {Icon && <Icon size={16} className={isActive ? 'text-gold' : 'text-gray-400'} />}
+                          {Icon && <Icon size={16} className={isActive ? 'text-gold' : 'text-foreground/60'} />}
                           <span>{link.name}</span>
                         </Link>
                       );
@@ -348,7 +348,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <Lock size={32} className="text-black" />
                 </div>
                 <h3 className="text-3xl font-black text-foreground mb-4 tracking-tight">Feature Locked</h3>
-                <p className="text-gray-400 mb-8 font-medium leading-relaxed">
+                <p className="text-foreground/60 mb-8 font-medium leading-relaxed">
                   You need an active premium subscription to access this feature. Upgrade your plan to unlock the full power of KYROZ KOSA.
                 </p>
                 <Link 

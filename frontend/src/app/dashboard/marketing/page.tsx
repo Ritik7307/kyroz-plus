@@ -619,14 +619,14 @@ export default function MarketingCRM() {
                                 <p className="font-bold mb-2">Hello Rahul 👋</p>
                                 <p className="mb-2">Your order <strong className="text-blue-600">#1234</strong> has been confirmed.</p>
                                 <p className="mb-2">Estimated delivery time:<br/><strong>30 minutes.</strong></p>
-                                <p className="text-xs text-gray-500">Thank you for choosing {waStatus.businessName}.</p>
+                                <p className="text-xs text-foreground/50">Thank you for choosing {waStatus.businessName}.</p>
                               </>
                             )}
                             {activePreview === 'Reservation' && (
                               <>
                                 <p className="font-bold mb-2">Hi Sarah,</p>
                                 <p className="mb-2">Your table for <strong>4 guests</strong> is reserved at {waStatus.businessName} for <strong>Tonight, 8:00 PM</strong>.</p>
-                                <p className="text-xs text-gray-500">Reply 'CANCEL' to cancel.</p>
+                                <p className="text-xs text-foreground/50">Reply 'CANCEL' to cancel.</p>
                               </>
                             )}
                             {activePreview === 'Feedback' && (
@@ -641,10 +641,10 @@ export default function MarketingCRM() {
                                 <p className="font-bold mb-2">Congrats! 🎉</p>
                                 <p className="mb-2">You've earned <strong>50 Kyroz Points</strong> from your last visit.</p>
                                 <p className="mb-2">You now have <strong>250 Points</strong> total.</p>
-                                <p className="text-xs text-gray-500">Show this message to redeem 10% off your next bill!</p>
+                                <p className="text-xs text-foreground/50">Show this message to redeem 10% off your next bill!</p>
                               </>
                             )}
-                            <span className="text-[10px] text-gray-400 absolute bottom-1 right-2">{new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                            <span className="text-[10px] text-foreground/60 absolute bottom-1 right-2">{new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                           </div>
                         </div>
                       </div>

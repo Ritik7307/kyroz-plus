@@ -118,7 +118,7 @@ export default function SettingsPage() {
     <div className="flex flex-col h-full max-w-4xl text-foreground">
       <header className="mb-8">
         <h2 className="text-3xl font-bold text-foreground">Settings & Security</h2>
-        <p className="text-gray-400 mt-2">Manage your account security, active devices, and local hub configuration.</p>
+        <p className="text-foreground/60 mt-2">Manage your account security, active devices, and local hub configuration.</p>
       </header>
       
       {/* Theme Configuration Section */}
@@ -126,7 +126,7 @@ export default function SettingsPage() {
         <div className="flex justify-between items-start mb-6 border-b border-border pb-6">
           <div>
             <h3 className="text-xl font-bold text-foreground mb-1">Theme Preferences</h3>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-foreground/60">
               Customize the appearance of your dashboard and POS terminal.
             </p>
           </div>
@@ -140,7 +140,7 @@ export default function SettingsPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h4 className="text-foreground font-medium">Global Theme</h4>
-                <p className="text-xs text-gray-500 mt-1">Default theme for the entire application</p>
+                <p className="text-xs text-foreground/50 mt-1">Default theme for the entire application</p>
               </div>
               <select 
                 value={globalTheme}
@@ -157,7 +157,7 @@ export default function SettingsPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h4 className="text-foreground font-medium">POS Theme</h4>
-                <p className="text-xs text-gray-500 mt-1">Specific theme for the POS Terminal page</p>
+                <p className="text-xs text-foreground/50 mt-1">Specific theme for the POS Terminal page</p>
               </div>
               <select 
                 value={posTheme}
@@ -177,7 +177,7 @@ export default function SettingsPage() {
         <div className="flex justify-between items-start mb-6 border-b border-border pb-6">
           <div>
             <h3 className="text-xl font-bold text-foreground mb-1">Local Hub (Offline POS)</h3>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-foreground/60">
               Configure this device to point to your restaurant's Local Hub Server. 
               Leave empty to use the Cloud version.
             </p>
@@ -205,13 +205,13 @@ export default function SettingsPage() {
         <div className="flex justify-between items-start mb-6 border-b border-border pb-6">
           <div>
             <h3 className="text-xl font-bold text-foreground mb-1">Active Sessions</h3>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-foreground/60">
               You are currently logged in on {sessions.length} device(s). 
               Your <span className="text-[var(--gold)] font-bold">{userPlan}</span> plan allows up to {getLimit()} device(s).
             </p>
           </div>
           <div className="bg-background px-4 py-2 rounded-lg border border-border">
-            <span className="text-gray-400 text-sm">Devices: </span>
+            <span className="text-foreground/60 text-sm">Devices: </span>
             <span className={`font-bold ${sessions.length >= getLimit() ? 'text-red-400' : 'text-green-400'}`}>
               {sessions.length} / {getLimit()}
             </span>
@@ -219,9 +219,9 @@ export default function SettingsPage() {
         </div>
 
         {isLoading ? (
-          <div className="text-center text-gray-500 py-8">Loading sessions...</div>
+          <div className="text-center text-foreground/50 py-8">Loading sessions...</div>
         ) : sessions.length === 0 ? (
-          <div className="text-center text-gray-500 py-8 border border-dashed border-border rounded-xl">
+          <div className="text-center text-foreground/50 py-8 border border-dashed border-border rounded-xl">
             No active sessions found.
           </div>
         ) : (
@@ -239,7 +239,7 @@ export default function SettingsPage() {
                         <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">Current</span>
                       )}
                     </h4>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-foreground/50 mt-1">
                       IP: {session.ipAddress} • Last active: {new Date(session.lastActive).toLocaleString()}
                     </p>
                   </div>
@@ -264,7 +264,7 @@ export default function SettingsPage() {
         <div className="flex justify-between items-start mb-6 border-b border-border pb-6">
           <div>
             <h3 className="text-xl font-bold text-foreground mb-1">Printer Configuration</h3>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-foreground/60">
               Configure printer paper sizes for different types of print jobs on this device.
             </p>
           </div>
@@ -278,7 +278,7 @@ export default function SettingsPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h4 className="text-foreground font-medium">SOP Library Printer</h4>
-                <p className="text-xs text-gray-500 mt-1">Default printer size for SOP documents</p>
+                <p className="text-xs text-foreground/50 mt-1">Default printer size for SOP documents</p>
               </div>
               <select 
                 value={sopPrinterSize}
@@ -296,7 +296,7 @@ export default function SettingsPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h4 className="text-foreground font-medium">Bills & KOT Printer</h4>
-                <p className="text-xs text-gray-500 mt-1">Printer size for receipts and kitchen tickets</p>
+                <p className="text-xs text-foreground/50 mt-1">Printer size for receipts and kitchen tickets</p>
               </div>
               <select 
                 value={billPrinterSize}

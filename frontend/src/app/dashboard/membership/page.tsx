@@ -143,13 +143,13 @@ export default function MembershipPage() {
         <h2 className="text-4xl font-bold text-foreground tracking-wide">
           {currentPlan === 'Admin' ? 'Admin Control Center' : 'Choose Your Plan'}
         </h2>
-        <p className="text-gray-400 mt-4 text-lg">
+        <p className="text-foreground/60 mt-4 text-lg">
           {currentPlan === 'Admin' 
             ? 'As a Platform Administrator, you have full access to all elite features without any cost.' 
             : 'Scale your restaurant operations with the perfect set of tools.'}
         </p>
         <div className="mt-4 inline-block bg-card px-6 py-2 rounded-full border border-border">
-          <span className="text-gray-400">Current Status: </span>
+          <span className="text-foreground/60">Current Status: </span>
           <span className="text-[#d4af37] font-bold tracking-wider uppercase">
             {currentPlan === 'Admin' ? 'LIFETIME ACCESS (ADMIN)' : currentPlan}
           </span>
@@ -166,17 +166,17 @@ export default function MembershipPage() {
                 <span className="bg-green-500/20 text-green-400 text-xs px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{pricing.starter.discount}% OFF</span>
               )}
             </h3>
-            <p className="text-gray-500 text-sm">Perfect for getting started.</p>
+            <p className="text-foreground/50 text-sm">Perfect for getting started.</p>
             <div className="mt-6 flex items-baseline gap-2">
               {pricing.starter.discount > 0 ? (
                 <>
-                  <span className="text-2xl font-bold text-gray-500 line-through">₹{pricing.starter.price}</span>
+                  <span className="text-2xl font-bold text-foreground/50 line-through">₹{pricing.starter.price}</span>
                   <span className="text-4xl font-extrabold text-foreground">₹{getFinalPrice(pricing.starter)}</span>
                 </>
               ) : (
                 <span className="text-4xl font-extrabold text-foreground">₹{pricing.starter.price}</span>
               )}
-              <span className="text-gray-500">/mo</span>
+              <span className="text-foreground/50">/mo</span>
             </div>
           </div>
           
@@ -184,7 +184,7 @@ export default function MembershipPage() {
             <h4 className="text-sm font-bold text-foreground/60 uppercase tracking-wider mb-3">Includes:</h4>
             <ul className="space-y-3">
               {['POS Terminal', 'KOT Display', 'WhatsApp Billing', 'Customer Directory', 'Sales Analytics', 'Team Management', '1 Cuisine SOP Library Access', 'Premix Purchase Access', 'Basic Support'].map(feature => (
-                <li key={feature} className="flex items-start gap-3 text-sm text-gray-300">
+                <li key={feature} className="flex items-start gap-3 text-sm text-foreground/70">
                   <span className="text-[#d4af37]">✓</span> {feature}
                 </li>
               ))}
@@ -196,7 +196,7 @@ export default function MembershipPage() {
             disabled={isLoading !== null || currentPlan === 'Starter' || currentPlan === 'Growth' || currentPlan === 'Scale'}
             className={`w-full py-4 rounded-xl font-bold transition-colors ${
               currentPlan === 'Starter' || currentPlan === 'Growth' || currentPlan === 'Scale' 
-              ? 'bg-[#222222] text-gray-400 cursor-not-allowed border border-border'
+              ? 'bg-[#222222] text-foreground/60 cursor-not-allowed border border-border'
               : 'bg-white hover:bg-gray-200 text-black'
             }`}
           >
@@ -216,17 +216,17 @@ export default function MembershipPage() {
                 <span className="bg-green-500/20 text-green-400 text-xs px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{pricing.growth.discount}% OFF</span>
               )}
             </h3>
-            <p className="text-gray-400 text-sm">For growing restaurants.</p>
+            <p className="text-foreground/60 text-sm">For growing restaurants.</p>
             <div className="mt-6 flex items-baseline gap-2">
               {pricing.growth.discount > 0 ? (
                 <>
-                  <span className="text-2xl font-bold text-gray-500 line-through">₹{pricing.growth.price}</span>
+                  <span className="text-2xl font-bold text-foreground/50 line-through">₹{pricing.growth.price}</span>
                   <span className="text-4xl font-extrabold text-foreground">₹{getFinalPrice(pricing.growth)}</span>
                 </>
               ) : (
                 <span className="text-4xl font-extrabold text-foreground">₹{pricing.growth.price}</span>
               )}
-              <span className="text-gray-500">/mo</span>
+              <span className="text-foreground/50">/mo</span>
             </div>
           </div>
           
@@ -237,7 +237,7 @@ export default function MembershipPage() {
                 <span className="text-[#d4af37]">✓</span> Everything in Starter
               </li>
               {['Full SOP Library', 'Costing Master', 'Inventory Management', 'AI Assistance', 'Menu Engineering', 'Multi Outlet Dashboard', 'Advance Business Intelligence', 'Marketing Engine', 'Premix Purchase Access', 'Priority Support'].map(feature => (
-                <li key={feature} className="flex items-start gap-3 text-sm text-gray-300">
+                <li key={feature} className="flex items-start gap-3 text-sm text-foreground/70">
                   <span className="text-[#d4af37]">✓</span> {feature}
                 </li>
               ))}
@@ -249,7 +249,7 @@ export default function MembershipPage() {
             disabled={isLoading !== null || currentPlan === 'Growth' || currentPlan === 'Scale'}
             className={`w-full py-4 rounded-xl font-bold transition-colors shadow-lg ${
               currentPlan === 'Growth' || currentPlan === 'Scale' 
-              ? 'bg-[#222222] text-gray-400 cursor-not-allowed border border-border'
+              ? 'bg-[#222222] text-foreground/60 cursor-not-allowed border border-border'
               : 'bg-[#d4af37] hover:bg-[#c5a028] text-black shadow-[#d4af37]/20 hover:shadow-[#d4af37]/40'
             }`}
           >
@@ -267,17 +267,17 @@ export default function MembershipPage() {
                 <span className="bg-green-500/20 text-green-400 text-xs px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{pricing.scale.discount}% OFF</span>
               )}
             </h3>
-            <p className="text-gray-500 text-sm">The ultimate restaurant OS.</p>
+            <p className="text-foreground/50 text-sm">The ultimate restaurant OS.</p>
             <div className="mt-6 flex items-baseline gap-2">
               {pricing.scale.discount > 0 ? (
                 <>
-                  <span className="text-2xl font-bold text-gray-500 line-through">₹{pricing.scale.price}</span>
+                  <span className="text-2xl font-bold text-foreground/50 line-through">₹{pricing.scale.price}</span>
                   <span className="text-4xl font-extrabold text-foreground">₹{getFinalPrice(pricing.scale)}</span>
                 </>
               ) : (
                 <span className="text-4xl font-extrabold text-foreground">₹{pricing.scale.price}</span>
               )}
-              <span className="text-gray-500">/mo</span>
+              <span className="text-foreground/50">/mo</span>
             </div>
           </div>
           
@@ -288,7 +288,7 @@ export default function MembershipPage() {
                 <span className="text-[#d4af37]">✓</span> Everything in Premium
               </li>
               {['Multi Outlet Dashboard', 'Menu Engineering', 'Premium AI Restaurant Consultant', 'Marketing Engine', 'Advanced Business Intelligence'].map(feature => (
-                <li key={feature} className="flex items-start gap-3 text-sm text-gray-300">
+                <li key={feature} className="flex items-start gap-3 text-sm text-foreground/70">
                   <span className="text-[#d4af37]">✓</span> {feature}
                 </li>
               ))}
@@ -300,7 +300,7 @@ export default function MembershipPage() {
             disabled={isLoading !== null || currentPlan === 'Scale'}
             className={`w-full py-4 rounded-xl font-bold transition-colors ${
               currentPlan === 'Scale'
-              ? 'bg-[#222222] text-gray-400 cursor-not-allowed border border-border'
+              ? 'bg-[#222222] text-foreground/60 cursor-not-allowed border border-border'
               : 'bg-white hover:bg-gray-200 text-black'
             }`}
           >

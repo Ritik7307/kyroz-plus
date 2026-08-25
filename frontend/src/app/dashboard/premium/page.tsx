@@ -53,7 +53,7 @@ export default function PremiumDashboard() {
           <h1 className="text-3xl md:text-5xl font-black text-foreground tracking-tight">
             Premium <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-[#f3e5ab]">Suite</span>
           </h1>
-          <p className="text-gray-400 mt-3 text-lg max-w-2xl">
+          <p className="text-foreground/60 mt-3 text-lg max-w-2xl">
             Access your advanced tools to optimize, scale, and grow your restaurant empire.
           </p>
         </div>
@@ -80,7 +80,7 @@ export default function PremiumDashboard() {
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${
                   feature.status === 'Active' 
                     ? 'bg-gradient-to-br from-[#2a220a] to-[#111111] border border-[#d4af37]/30 text-[#d4af37]' 
-                    : 'bg-card shadow-sm border border-border text-gray-500'
+                    : 'bg-card shadow-sm border border-border text-foreground/50'
                 }`}>
                   <feature.icon size={28} />
                 </div>
@@ -88,19 +88,19 @@ export default function PremiumDashboard() {
                 <div className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider ${
                   feature.status === 'Active'
                     ? 'bg-green-500/10 text-green-400 border border-green-500/20'
-                    : 'bg-card shadow-sm text-gray-500 border border-border'
+                    : 'bg-card shadow-sm text-foreground/50 border border-border'
                 }`}>
                   {feature.status}
                 </div>
               </div>
 
               <h3 className={`text-xl font-bold mb-3 ${
-                feature.status === 'Active' ? 'text-foreground' : 'text-gray-400'
+                feature.status === 'Active' ? 'text-foreground' : 'text-foreground/60'
               }`}>
                 {feature.title}
               </h3>
               
-              <p className="text-gray-500 text-sm leading-relaxed mb-8 flex-1">
+              <p className="text-foreground/50 text-sm leading-relaxed mb-8 flex-1">
                 {feature.description}
               </p>
 
