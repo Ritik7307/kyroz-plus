@@ -94,8 +94,9 @@ export default function KitchenOrderQueue() {
     if (userStr) {
       try {
         const user = JSON.parse(userStr);
-        if (user && user.userId) {
-          socket.emit('joinRestaurant', user.userId);
+        const userId = user.id || user._id || user.userId;
+        if (userId) {
+          socket.emit('joinRestaurant', userId);
         }
       } catch (e) { }
     }
