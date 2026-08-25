@@ -48,7 +48,7 @@ export default function ConnectivityStatus() {
     };
   }, []);
 
-  if (isOnline && queueCount === 0 && !syncing) return null;
+  if (isOnline && !syncing) return null;
 
   return (
     <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-[100] flex items-center space-x-2 px-4 py-2 rounded-full shadow-lg text-sm font-black uppercase tracking-widest transition-colors ${
