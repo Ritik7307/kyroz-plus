@@ -708,9 +708,8 @@ export default function POSTerminal() {
   const grandTotal = Math.round(afterDiscount + gstAmount + parsedAdditionalCharge);
 
   const availableCategories = useMemo(() => {
-    const dishCats = dishes.map(d => d.category?.trim()).filter(Boolean);
-    return Array.from(new Set([...DEFAULT_CATEGORIES, ...dishCats]));
-  }, [dishes]);
+    return DEFAULT_CATEGORIES;
+  }, []);
 
   const categories = useMemo(() => {
     return ['All', ...availableCategories];

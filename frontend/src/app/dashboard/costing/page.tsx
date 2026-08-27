@@ -99,8 +99,12 @@ export default function CostingMaster() {
   const [savingRecipe, setSavingRecipe] = useState(false);
 
   // Group dishes by category for the template selector
+  const ALLOWED_CATEGORIES = ['Cafe', 'Chinese', 'Biryani', 'Mandi', 'South India', 'Indian Curry'];
   const groupedDishes = dishes.reduce((acc, dish: any) => {
-    const cat = dish.category;
+    let cat = dish.category;
+    if (!ALLOWED_CATEGORIES.includes(cat)) {
+      cat = 'Other';
+    }
     if (!acc[cat]) acc[cat] = [];
     acc[cat].push(dish);
     return acc;
