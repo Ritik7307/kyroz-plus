@@ -596,7 +596,7 @@ export default function CostingMaster() {
                               {ing.itemModel === 'RawMaterial' ? 'RAW' : ing.itemModel === 'SemiFinishedGood' ? 'SFG' : 'PKG'}
                             </span>
                           </div>
-                          <p className="text-xs text-foreground/20 uppercase font-black tracking-widest mt-1">
+                          <p className="text-xs text-muted-foreground uppercase font-black tracking-widest mt-1">
                             {ing.isSubIngredient ? `Used in ${ing.parentSfgName} • ` : ''}Calculated contribution: ₹{ing.totalCost.toFixed(2)}
                           </p>
                         </div>
@@ -605,12 +605,12 @@ export default function CostingMaster() {
                       {/* Ingredient Cost Editing Input */}
                       <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 pt-4 md:pt-0 border-border">
                         <div className="space-y-1 text-left md:text-right">
-                          <label className="text-[10px] font-black text-foreground/20 uppercase tracking-widest block">
+                          <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block">
                             Purchase / {ing.rateUnit === 'gm' ? 'kg' : ing.rateUnit === 'ml' ? 'L' : ing.rateUnit}
                           </label>
                           <div className="flex items-center gap-2">
                             <div className="relative w-28">
-                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/30 text-xs font-bold">₹</span>
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs font-bold">₹</span>
                               <input 
                                 type="number" 
                                 value={editingPrices[ing.itemId] !== undefined ? editingPrices[ing.itemId] : ing.purchasePrice}
@@ -735,7 +735,7 @@ export default function CostingMaster() {
                 
                 <div className="space-y-6">
                   <div className="flex justify-between items-center">
-                    <p className="text-xs font-black text-foreground/40 uppercase tracking-[0.3em]">Cost Per Plate (Raw)</p>
+                    <p className="text-xs font-black text-muted-foreground uppercase tracking-[0.3em]">Cost Per Plate (Raw)</p>
                     <span className="text-2xl font-black text-foreground">₹{costPerPlate.toFixed(2)}</span>
                   </div>
                   
@@ -792,7 +792,7 @@ export default function CostingMaster() {
                   )}
 
                   <div className="flex justify-between items-center">
-                    <span className="text-[11px] font-black text-foreground/40 uppercase tracking-widest">Gross Profit</span>
+                    <span className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">Gross Profit</span>
                     <span className="text-xl font-black text-foreground">₹{profitMargin.toFixed(2)}</span>
                   </div>
                 </div>
@@ -821,7 +821,7 @@ export default function CostingMaster() {
 
         </div>
       ) : (
-        <div className="py-24 text-center border-2 border-dashed border-border rounded-[2.5rem] flex flex-col items-center gap-4 text-foreground/30">
+        <div className="py-24 text-center border-2 border-dashed border-border rounded-[2.5rem] flex flex-col items-center gap-4 text-muted-foreground">
           <Calculator size={48} />
           <p className="font-bold uppercase tracking-widest text-sm">Please select a dish to see its costing calculations</p>
         </div>
@@ -842,7 +842,7 @@ export default function CostingMaster() {
               <form onSubmit={handleCreateNewRawMaterial} className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-3">
-                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/40 block">Item Name</label>
+                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground block">Item Name</label>
                     <input 
                       type="text" 
                       required

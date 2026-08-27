@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface ISop extends Document {
   userId: mongoose.Types.ObjectId;
   title: string;
-  category: 'South Indian' | 'Discipline' | 'Cafe' | 'Mandi/Biryani' | 'Chinese' | 'Non-Veg' | 'Preparation' | 'Veg';
+  category: 'Cafe' | 'Chinese' | 'Biryani' | 'Mandi' | 'South India' | 'Indian Curry' | 'Discipline' | 'Preparation';
   contentEn?: string;
   contentHi?: string;
   content?: string;
@@ -20,7 +20,7 @@ const SopSchema: Schema = new Schema(
     title: { type: String, required: true },
     category: { 
       type: String, 
-      enum: ['South Indian', 'Discipline', 'Cafe', 'Mandi/Biryani', 'Chinese', 'Non-Veg', 'Preparation', 'Veg'], 
+      enum: ['Cafe', 'Chinese', 'Biryani', 'Mandi', 'South India', 'Indian Curry', 'Discipline', 'Preparation'], 
       required: true 
     },
     contentEn: { type: String },

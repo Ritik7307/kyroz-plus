@@ -41,14 +41,14 @@ export default function CustomDropdown({ options, value, onChange, label, placeh
 
   return (
     <div className="relative" ref={dropdownRef}>
-      {label && <label className="block text-xs font-black uppercase tracking-[0.2em] text-white/40 mb-2 ml-1">{label}</label>}
+      {label && <label className="block text-xs font-black uppercase tracking-[0.2em] text-foreground/40 mb-2 ml-1">{label}</label>}
       
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full bg-black/40 border ${isOpen ? 'border-gold' : 'border-white/10'} rounded-xl px-5 py-3 text-sm font-bold flex items-center justify-between transition-all hover:bg-white/5 group`}
+        className={`w-full bg-card border ${isOpen ? 'border-gold' : 'border-border'} rounded-xl px-5 py-3 text-sm font-bold flex items-center justify-between transition-all hover:bg-accent hover:text-accent-foreground group shadow-sm`}
       >
-        <span className={selectedOption ? 'text-white' : 'text-white/30'}>
+        <span className={selectedOption ? 'text-foreground' : 'text-foreground/40'}>
           {selectedOption ? selectedOption.label : placeholder || 'Select option'}
         </span>
         <ChevronDown 
@@ -63,16 +63,16 @@ export default function CustomDropdown({ options, value, onChange, label, placeh
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 5, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute z-50 w-full bg-[#111111] border border-white/10 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl"
+            className="absolute z-50 w-full bg-popover border border-border rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl"
           >
             {searchable && (
-              <div className="p-2 border-b border-white/10">
+              <div className="p-2 border-b border-border">
                 <input
                   type="text"
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-gold transition-colors"
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-gold transition-colors"
                   onClick={(e) => e.stopPropagation()}
                 />
               </div>
@@ -91,7 +91,7 @@ export default function CustomDropdown({ options, value, onChange, label, placeh
                         setIsOpen(false);
                       }}
                       className={`w-full px-5 py-3 text-left text-sm font-bold flex items-center justify-between transition-colors ${
-                        value === option.value ? 'bg-gold/10 text-gold' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                        value === option.value ? 'bg-gold/10 text-gold' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                       }`}
                     >
                       {option.label}
@@ -109,7 +109,7 @@ export default function CustomDropdown({ options, value, onChange, label, placeh
 
                 return Object.entries(groups).map(([cat, opts]) => (
                   <div key={cat} className="mb-2">
-                    <div className="px-5 py-1 text-[10px] font-black text-white/40 uppercase tracking-widest bg-white/5 border-y border-white/5">
+                    <div className="px-5 py-1 text-[10px] font-black text-muted-foreground uppercase tracking-widest bg-muted border-y border-border">
                       {cat}
                     </div>
                     {opts.map((option) => (
@@ -121,7 +121,7 @@ export default function CustomDropdown({ options, value, onChange, label, placeh
                           setIsOpen(false);
                         }}
                         className={`w-full px-5 pl-8 py-3 text-left text-sm font-bold flex items-center justify-between transition-colors ${
-                          value === option.value ? 'bg-gold/10 text-gold' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                          value === option.value ? 'bg-gold/10 text-gold' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                         }`}
                       >
                         {option.label}
