@@ -76,7 +76,7 @@ export const printJob = async (req: Request, res: Response) => {
       </html>
     `;
 
-    await page.setContent(wrappedHtml, { waitUntil: 'networkidle0' });
+    await page.setContent(wrappedHtml, { waitUntil: 'domcontentloaded' });
     
     // Generate PDF formatted for a receipt or report
     const pdfOptions: any = {

@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import { getPrinters, printJob } from '../controllers/printer.controller';
-import { protect } from '../middleware/auth.middleware';
+import { authenticateToken } from '../middleware/auth.middleware';
 
 const router = Router();
 
 // Discover available printers
-router.get('/', protect, getPrinters);
+router.get('/', authenticateToken, getPrinters);
 
 // Send a print job
-router.post('/', protect, printJob);
+router.post('/', authenticateToken, printJob);
 
 export default router;
