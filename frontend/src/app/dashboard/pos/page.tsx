@@ -712,8 +712,9 @@ export default function POSTerminal() {
   const grandTotal = Math.round(afterDiscount + gstAmount + parsedAdditionalCharge);
 
   const availableCategories = useMemo(() => {
-    return DEFAULT_CATEGORIES;
-  }, []);
+    const dynamicCats = dishes.map(d => d.category).filter(Boolean);
+    return Array.from(new Set([...DEFAULT_CATEGORIES, ...dynamicCats]));
+  }, [dishes]);
 
   const categories = useMemo(() => {
     return ['All', ...availableCategories];
@@ -1596,6 +1597,15 @@ export default function POSTerminal() {
                 {cat}
               </button>
             ))}
+            {isManager && (
+              <button
+                onClick={() => { setNewDish({ name: '', price: '', ingredientPrice: '', category: 'Main Course', imageUrl: '' }); setShowAddModal(true); }}
+                className="w-full text-left px-3 py-2 mt-2 rounded-lg text-[10px] font-black uppercase tracking-widest border border-dashed border-gold text-gold hover:bg-gold/10 transition-all flex items-center justify-between"
+              >
+                <span>Add Dish</span>
+                <span className="text-lg leading-none">+</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -1612,6 +1622,14 @@ export default function POSTerminal() {
               {cat}
             </button>
           ))}
+          {isManager && (
+            <button
+              onClick={() => { setNewDish({ name: '', price: '', ingredientPrice: '', category: 'Main Course', imageUrl: '' }); setShowAddModal(true); }}
+              className="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap border border-dashed border-gold text-gold hover:bg-gold/10 flex items-center gap-2"
+            >
+              <span>+ Add Dish</span>
+            </button>
+          )}
         </div>
 
         {/* Middle Column: Menu list */}
