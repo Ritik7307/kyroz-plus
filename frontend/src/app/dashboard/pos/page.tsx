@@ -1883,7 +1883,7 @@ export default function POSTerminal() {
                         {!isAddingNewCategory && newDish.category && (
                           <div className="space-y-2 bg-gold/10 p-4 rounded-xl border border-gold/20">
                             <label className="text-xs uppercase font-bold text-gold flex items-center justify-between">
-                              <span>Link Costing Master (Optional)</span>
+                              <span>Copy Costing from Existing Dish (Optional)</span>
                               {importingTemplate && <Loader2 className="animate-spin" size={14} />}
                             </label>
                             <select
@@ -1898,8 +1898,12 @@ export default function POSTerminal() {
                               className="w-full bg-background p-3 rounded-lg border border-gold/30 text-sm outline-none focus:border-gold text-foreground"
                             >
                               <option value="">Do not link / Setup manually</option>
-                              {dishesData?.filter((d: any) => d.category === newDish.category).map((dish: any) => (
-                                <option key={dish._id} value={dish._id}>{dish.name}</option>
+                              {Array.from(new Set(dishesData?.map((d: any) => d.category))).map((cat: any) => (
+                                <optgroup key={cat} label={cat}>
+                                  {dishesData?.filter((d: any) => d.category === cat).map((dish: any) => (
+                                    <option key={dish._id} value={dish._id}>{dish.name}</option>
+                                  ))}
+                                </optgroup>
                               ))}
                             </select>
                             {recipeIngredients.length > 0 && selectedTemplateDishId && (
@@ -1910,225 +1914,18 @@ export default function POSTerminal() {
                           </div>
                         )}
 
-                        <button onClick={() => { if(newDish.name && newDish.price) setSetupStep(2); else alert('Name and Price are mandatory'); }} className="w-full py-4 bg-gold text-black font-black uppercase rounded-xl">Next: Costing</button>
-                      </div>
-                    )}
-
-                    {setupStep === 2 && (
-                      <div className="space-y-4">
-                        
-                        {/* IMPORT TEMPLATE UI */}
-                        <div className="space-y-3 bg-card shadow-sm p-4 rounded-xl border border-gold/30">
-                          <label className="text-xs uppercase tracking-widest text-gold font-bold block">Import Predefined Recipe Template</label>
-                          <div className="grid grid-cols-2 gap-2">
-                            <select
-                              value={selectedTemplateCategory}
-                              onChange={(e) => {
-                                setSelectedTemplateCategory(e.target.value);
-                                setSelectedTemplateDishId('');
-                              }}
-                              className="w-full bg-background p-3 rounded-lg border border-foreground/10 text-[11px] text-foreground outline-none focus:border-gold"
-                            >
-                              <option value="" disabled>Select Category</option>
-                              {categories.map(cat => (
-                                <option key={cat} value={cat}>{cat}</option>
-                              ))}
-                            </select>
-                            <select
-                              value={selectedTemplateDishId}
-                              onChange={(e) => setSelectedTemplateDishId(e.target.value)}
-                              disabled={!selectedTemplateCategory}
-                              className="w-full bg-background p-3 rounded-lg border border-foreground/10 text-[11px] text-foreground outline-none focus:border-gold disabled:opacity-50"
-                            >
-                              <option value="" disabled>Select Template</option>
-                              {selectedTemplateCategory && dishesData?.filter((d: any) => d.category === selectedTemplateCategory).map((dish: any) => (
-                                <option key={dish._id} value={dish._id}>{dish.name}</option>
-                              ))}
-                            </select>
-                          </div>
-                          <button 
-                            type="button"
-                            onClick={() => handleImportTemplate()}
-                            disabled={!selectedTemplateDishId || importingTemplate}
-                            className="w-full py-3 bg-gold/20 hover:bg-gold/40 text-gold text-xs font-bold uppercase rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2 border border-gold/30"
-                          >
-                            {importingTemplate ? <Loader2 className="animate-spin" size={14} /> : 'Load Template Recipe'}
-                          </button>
-                        </div>
-
-                        <div className="space-y-3 bg-card shadow-sm p-4 rounded-xl border border-foreground/10">
-                          <label className="text-xs uppercase tracking-widest text-foreground/50 font-bold block">Dish Ingredients (Optional)</label>
-                          
-                          {recipeIngredients.length > 0 && (
-                            <div className="space-y-2 mb-4">
-                              {recipeIngredients.map((ing, idx) => (
-                                <div key={idx} className="flex items-center gap-2 bg-background p-2 rounded-lg border border-foreground/10">
-                                  <div className="flex-1 text-[11px] text-foreground truncate" title={ing.name}>{ing.name}</div>
-                                  <div className="flex items-center gap-1 w-24 shrink-0">
-                                    <input 
-                                      type="number"
-                                      value={ing.quantity || ''}
-                                      onChange={(e) => {
-                                        const val = e.target.value;
-                                        const newQty = val ? Number(val) : 0;
-                                        const newIngs = [...recipeIngredients];
-                                        newIngs[idx].quantity = newQty;
-                                        setRecipeIngredients(newIngs);
-                                        const totalCost = newIngs.reduce((sum, item) => sum + ((item.quantity || 0) * item.costPerUnit), 0);
-                                        setNewDish({...newDish, ingredientPrice: String(totalCost)});
-                                      }}
-                                      className="w-12 bg-card border border-foreground/20 rounded px-1 py-0.5 text-[11px] text-gold font-bold text-center outline-none focus:border-gold"
-                                    />
-                                    <span className="text-[11px] text-gold font-bold">{ing.unit}</span>
-                                  </div>
-                                  <button onClick={() => {
-                                    const newIngs = recipeIngredients.filter((_, i) => i !== idx);
-                                    setRecipeIngredients(newIngs);
-                                    const totalCost = newIngs.reduce((sum, item) => sum + ((item.quantity || 0) * item.costPerUnit), 0);
-                                    setNewDish({...newDish, ingredientPrice: String(totalCost)});
-                                  }} className="text-red-500 hover:text-red-400 p-1"><Trash2 size={12}/></button>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-
-                          <div className="grid grid-cols-12 gap-2">
-                            <div className="col-span-5">
-                              <select 
-                                value={selectedIngredient}
-                                onChange={(e) => {
-                                  if (e.target.value === 'MORE') {
-                                    window.open('/dashboard/inventory', '_blank');
-                                    setSelectedIngredient('');
-                                    return;
-                                  }
-                                  setSelectedIngredient(e.target.value);
-                                  const selected = availableIngredients.find(i => `${i.model}|${i._id}` === e.target.value);
-                                  if (selected) {
-                                    setIngredientUnit(selected.consumptionUnit || selected.yieldUnit || selected.unit || 'unit');
-                                  }
-                                }}
-                                className="w-full bg-background p-3 rounded-lg border border-foreground/10 text-[11px]"
-                              >
-                                <option value="">Select Ingredient...</option>
-                                {availableIngredients.map(ing => (
-                                  <option key={`${ing.model}|${ing._id}`} value={`${ing.model}|${ing._id}`}>
-                                    {ing.name} ({ing.consumptionUnit || ing.yieldUnit || ing.unit || 'unit'})
-                                  </option>
-                                ))}
-                                <option value="MORE" className="text-gold font-bold">+ Add More Raw Materials</option>
-                              </select>
-                            </div>
-                            <div className="col-span-3">
-                              <input 
-                                type="number" 
-                                value={ingredientQuantity}
-                                onChange={(e) => setIngredientQuantity(e.target.value)}
-                                placeholder="Qty" 
-                                className="w-full bg-background p-3 rounded-lg border border-foreground/10 text-[11px]" 
-                              />
-                            </div>
-                            <div className="col-span-3">
-                              <select 
-                                value={ingredientUnit}
-                                onChange={(e) => setIngredientUnit(e.target.value)}
-                                className="w-full bg-background p-3 rounded-lg border border-foreground/10 text-[11px]"
-                              >
-                                <option value="kg">kg</option>
-                                <option value="gm">gm</option>
-                                <option value="ltr">ltr</option>
-                                <option value="ml">ml</option>
-                                <option value="pcs">pcs</option>
-                                <option value="pkt">pkt</option>
-                                <option value="unit">unit</option>
-                                <option value={ingredientUnit}>{ingredientUnit}</option>
-                              </select>
-                            </div>
-                            <div className="col-span-1">
-                              <button onClick={() => {
-                                if (!selectedIngredient || !ingredientQuantity) return;
-                                const selected = availableIngredients.find(i => `${i.model}|${i._id}` === selectedIngredient);
-                                if (selected) {
-                                  let baseCost = selected.costPerUnit || selected.costPerPurchaseUnit || 0;
-                                  const baseUnit = (selected.consumptionUnit || selected.yieldUnit || selected.unit || 'unit').toLowerCase();
-                                  const targetUnit = ingredientUnit.toLowerCase();
-                                  
-                                  if (baseUnit === 'kg' && targetUnit === 'gm') baseCost = baseCost / 1000;
-                                  else if (baseUnit === 'gm' && targetUnit === 'kg') baseCost = baseCost * 1000;
-                                  else if ((baseUnit === 'ltr' || baseUnit === 'liter') && targetUnit === 'ml') baseCost = baseCost / 1000;
-                                  else if (baseUnit === 'ml' && (targetUnit === 'ltr' || targetUnit === 'liter')) baseCost = baseCost * 1000;
-
-                                  const newIng = {
-                                    itemModel: selected.model,
-                                    itemId: selected._id,
-                                    name: selected.name,
-                                    quantity: Number(ingredientQuantity),
-                                    unit: ingredientUnit,
-                                    costPerUnit: baseCost
-                                  };
-                                  const newIngs = [...recipeIngredients, newIng];
-                                  setRecipeIngredients(newIngs);
-                                  
-                                  const totalCost = newIngs.reduce((sum, item) => sum + (item.quantity * item.costPerUnit), 0);
-                                  setNewDish({...newDish, ingredientPrice: String(totalCost)});
-                                  
-                                  setSelectedIngredient('');
-                                  setIngredientQuantity('');
-                                }
-                              }} className="w-full h-full bg-gold/20 text-gold rounded-lg flex items-center justify-center hover:bg-gold hover:text-black transition-all">
-                                <Plus size={14} />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="p-4 bg-card shadow-sm rounded-xl border border-foreground/10 space-y-3">
-                          <label className="text-xs uppercase tracking-widest text-foreground/50 font-bold block">Estimated Dish Cost (₹)</label>
-                          <input type="number" value={newDish.ingredientPrice} onChange={(e) => setNewDish({...newDish, ingredientPrice: e.target.value})} placeholder="Costing Amount *" className="w-full bg-background p-3 rounded-lg border border-foreground/10" />
-                        </div>
-                        
-                        <div className="p-4 bg-card shadow-sm rounded-xl border border-foreground/10 space-y-3">
-                          <label className="text-xs uppercase tracking-widest text-foreground/50 font-bold block">Allowed Wastage (%)</label>
-                          <input type="number" value={advancedSetupData.allowedWastagePercentage} onChange={(e) => setAdvancedSetupData({...advancedSetupData, allowedWastagePercentage: Number(e.target.value)})} placeholder="e.g. 5" className="w-full bg-background p-3 rounded-lg border border-foreground/10" />
-                        </div>
-
-                        <div className="flex gap-4">
-                          <button onClick={() => setSetupStep(1)} className="w-1/3 py-4 bg-card shadow-sm text-foreground font-black uppercase rounded-xl hover:bg-foreground/10">Back</button>
-                          <button onClick={() => setSetupStep(3)} className="w-2/3 py-4 bg-gold text-black font-black uppercase rounded-xl">Next: Inventory</button>
-                        </div>
-                      </div>
-                    )}
-
-                    {setupStep === 3 && (
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <label className="text-xs uppercase tracking-widest text-foreground/50 font-bold pl-1">Base Unit Name</label>
-                            <input type="text" value={advancedSetupData.baseUnitName} onChange={(e) => setAdvancedSetupData({...advancedSetupData, baseUnitName: e.target.value})} placeholder="e.g. Packet, Box" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" />
-                          </div>
-                          <div className="space-y-2">
-                            <label className="text-xs uppercase tracking-widest text-foreground/50 font-bold pl-1">Sub Unit Name</label>
-                            <input type="text" value={advancedSetupData.subUnitName} onChange={(e) => setAdvancedSetupData({...advancedSetupData, subUnitName: e.target.value})} placeholder="e.g. Plate, Pc" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" />
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <label className="text-xs uppercase tracking-widest text-foreground/50 font-bold pl-1">Initial Total {advancedSetupData.subUnitName}s</label>
-                            <input type="number" value={advancedSetupData.totalPlates} onChange={(e) => setAdvancedSetupData({...advancedSetupData, totalPlates: Number(e.target.value)})} placeholder="0" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" />
-                          </div>
-                          <div className="space-y-2">
-                            <label className="text-xs uppercase tracking-widest text-foreground/50 font-bold pl-1">{advancedSetupData.subUnitName}s Per {advancedSetupData.baseUnitName}</label>
-                            <input type="number" value={advancedSetupData.platesPerPacket} onChange={(e) => setAdvancedSetupData({...advancedSetupData, platesPerPacket: Number(e.target.value)})} placeholder="10" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-xs uppercase tracking-widest text-foreground/50 font-bold pl-1">Low Stock Threshold ({advancedSetupData.baseUnitName}s)</label>
-                          <input type="number" value={advancedSetupData.lowStockThreshold} onChange={(e) => setAdvancedSetupData({...advancedSetupData, lowStockThreshold: Number(e.target.value)})} placeholder="5" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" />
-                        </div>
-                        <div className="flex gap-4">
-                          <button onClick={() => setSetupStep(2)} className="w-1/3 py-4 bg-card shadow-sm text-foreground font-black uppercase rounded-xl hover:bg-foreground/10">Back</button>
-                          <button onClick={handleAddDish} className="w-2/3 py-4 bg-gold text-black font-black uppercase rounded-xl">Save Setup</button>
-                        </div>
+                        <button 
+                          onClick={() => { 
+                            if(newDish.name && newDish.price) {
+                              handleAddDish();
+                            } else {
+                              alert('Name and Price are mandatory');
+                            }
+                          }} 
+                          className="w-full py-4 bg-gold text-black font-black uppercase rounded-xl flex items-center justify-center gap-2"
+                        >
+                          <Check size={18} /> Add Dish
+                        </button>
                       </div>
                     )}
                   </>
