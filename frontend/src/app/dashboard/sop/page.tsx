@@ -401,7 +401,38 @@ function SOPLibraryContent() {
                 </h2>
                 <div className="flex gap-2">
                   <button 
-                    onClick={() => window.print()} 
+                    onClick={async () => {
+                      const targetPrinter = localStorage.getItem('printerTarget_report');
+                      if (targetPrinter) {
+                        toast.loading(`Sending SOP to ${targetPrinter}...`, { id: 'sop_print' });
+                        try {
+                          const token = localStorage.getItem('token');
+                          const res = await fetch(`${API_URL}/api/printers`, {
+                            method: 'POST',
+                            headers: { 
+                              'Authorization': `Bearer ${token}`,
+                              'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                              printerName: targetPrinter,
+                              jobType: 'report',
+                              htmlContent: document.documentElement.outerHTML
+                            })
+                          });
+                          if (res.ok) {
+                            toast.success('SOP sent successfully!', { id: 'sop_print' });
+                          } else {
+                            toast.error('Print failed, using dialog', { id: 'sop_print' });
+                            window.print();
+                          }
+                        } catch (e) {
+                          toast.error('Error, using dialog', { id: 'sop_print' });
+                          window.print();
+                        }
+                      } else {
+                        window.print();
+                      }
+                    }} 
                     className="p-2.5 md:p-3 bg-gold text-black hover:bg-gold/90 rounded-xl transition-all flex items-center gap-2"
                   >
                     <Download size={18} />
@@ -581,7 +612,19 @@ function SOPLibraryContent() {
   );
 }
 
+import { useTheme } from '@/context/ThemeContext';
+import { toast } from 'react-hot-toast';
+
 export default function SOPLibraryPage() {
+  useEffect(() => {
+    const originalPrint = window.print;
+    window.print = () => {
+      toast('Preparing document...', { icon: '🖨️' });
+      setTimeout(() => originalPrint(), 500);
+    };
+    return () => { window.print = originalPrint; };
+  }, []);
+  
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gold font-black tracking-widest">LOADING STANDARDS...</div>}>
       <SOPLibraryContent />

@@ -24,8 +24,12 @@ import {
   Package,
   ChefHat,
   FileText,
-  Percent
+  Percent,
+  ChevronDown,
+  Check,
+  Eye
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import useSWR from 'swr';
 import { API_URL } from '@/lib/api';
@@ -757,8 +761,37 @@ export default function POSTerminal() {
     setPrintedBillNo(currentSeq.toString());
     setPrintType('bill');
     
-    setTimeout(() => {
-      window.print();
+    setTimeout(async () => {
+      const targetPrinter = localStorage.getItem('printerTarget_bill');
+      if (targetPrinter) {
+        toast.loading(`Sending to ${targetPrinter}...`, { id: 'print_toast' });
+        try {
+          const res = await fetch(`${API_URL}/api/printers`, {
+            method: 'POST',
+            headers: { 
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              printerName: targetPrinter,
+              jobType: 'bill',
+              htmlContent: document.documentElement.outerHTML
+            })
+          });
+          if (res.ok) {
+            toast.success('Print sent successfully!', { id: 'print_toast' });
+          } else {
+            toast.error('Silent print failed, using dialog', { id: 'print_toast' });
+            window.print();
+          }
+        } catch (e) {
+          toast.error('Print error, using dialog', { id: 'print_toast' });
+          window.print();
+        }
+      } else {
+        window.print();
+      }
+      
       setPrintType(null);
       setIsProcessingCheckout(false);
       
@@ -934,8 +967,38 @@ export default function POSTerminal() {
     })));
     
     // Print instantly
-    setTimeout(() => {
-      window.print();
+    setTimeout(async () => {
+      const targetPrinter = localStorage.getItem('printerTarget_kot');
+      const token = localStorage.getItem('token');
+      if (targetPrinter) {
+        toast.loading(`Sending KOT to ${targetPrinter}...`, { id: 'kot_print_toast' });
+        try {
+          const res = await fetch(`${API_URL}/api/printers`, {
+            method: 'POST',
+            headers: { 
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              printerName: targetPrinter,
+              jobType: 'kot',
+              htmlContent: document.documentElement.outerHTML
+            })
+          });
+          if (res.ok) {
+            toast.success('KOT sent successfully!', { id: 'kot_print_toast' });
+          } else {
+            toast.error('Silent print failed, using dialog', { id: 'kot_print_toast' });
+            window.print();
+          }
+        } catch (e) {
+          toast.error('Print error, using dialog', { id: 'kot_print_toast' });
+          window.print();
+        }
+      } else {
+        window.print();
+      }
+      
       setPrintType(null);
       setIsSendingKot(false);
       

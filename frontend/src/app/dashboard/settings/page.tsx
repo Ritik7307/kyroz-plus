@@ -25,6 +25,12 @@ export default function SettingsPage() {
   const [sopPrinterSize, setSopPrinterSize] = useState<string>('A4');
   const [billPrinterSize, setBillPrinterSize] = useState<string>('58mm');
   
+  // Hardware Printers Routing state
+  const [hardwarePrinters, setHardwarePrinters] = useState<{Name: string, PrinterStatus: number}[]>([]);
+  const [billPrinterTarget, setBillPrinterTarget] = useState<string>('');
+  const [kotPrinterTarget, setKotPrinterTarget] = useState<string>('');
+  const [reportPrinterTarget, setReportPrinterTarget] = useState<string>('');
+  
   // Local Hub settings state
   const [localHubUrl, setLocalHubUrl] = useState<string>('');
   const [isSavingHub, setIsSavingHub] = useState(false);
@@ -53,6 +59,21 @@ export default function SettingsPage() {
     }
   };
 
+  const fetchPrinters = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/printers`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setHardwarePrinters(data.printers || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch hardware printers', error);
+    }
+  };
+
   useEffect(() => {
     fetchSessions();
     
@@ -61,9 +82,18 @@ export default function SettingsPage() {
       const storedSop = localStorage.getItem('printerSize_sop');
       const storedBill = localStorage.getItem('printerSize_bill');
       const storedHub = localStorage.getItem('localHubUrl');
+      const storedBillTarget = localStorage.getItem('printerTarget_bill');
+      const storedKotTarget = localStorage.getItem('printerTarget_kot');
+      const storedReportTarget = localStorage.getItem('printerTarget_report');
+      
       if (storedSop) setSopPrinterSize(storedSop);
       if (storedBill) setBillPrinterSize(storedBill);
       if (storedHub) setLocalHubUrl(storedHub);
+      if (storedBillTarget) setBillPrinterTarget(storedBillTarget);
+      if (storedKotTarget) setKotPrinterTarget(storedKotTarget);
+      if (storedReportTarget) setReportPrinterTarget(storedReportTarget);
+      
+      fetchPrinters();
     }
   }, []);
 
@@ -77,6 +107,22 @@ export default function SettingsPage() {
     const val = e.target.value;
     setBillPrinterSize(val);
     localStorage.setItem('printerSize_bill', val);
+  };
+
+  const handleBillPrinterTargetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setBillPrinterTarget(val);
+    localStorage.setItem('printerTarget_bill', val);
+  };
+  const handleKotPrinterTargetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setKotPrinterTarget(val);
+    localStorage.setItem('printerTarget_kot', val);
+  };
+  const handleReportPrinterTargetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setReportPrinterTarget(val);
+    localStorage.setItem('printerTarget_report', val);
   };
 
   const handleLogoutDevice = async (sessionId: string) => {
@@ -260,6 +306,79 @@ export default function SettingsPage() {
       </div>
 
       {/* Printer Configuration Section */}
+      <div className="bg-card border border-border rounded-2xl p-6 shadow-xl mb-8">
+        <div className="flex justify-between items-start mb-6 border-b border-border pb-6">
+          <div>
+            <h3 className="text-xl font-bold text-foreground mb-1">Hardware Printer Routing (Silent Print)</h3>
+            <p className="text-sm text-foreground/60">
+              Assign locally connected printers to specific tasks. The POS will automatically print to these silently without a dialog.
+            </p>
+          </div>
+          <div className="bg-background px-4 py-2 rounded-lg border border-border flex items-center justify-center text-2xl">
+            🔌
+          </div>
+        </div>
+        
+        <div className="space-y-6">
+          <div className="bg-background border border-border p-5 rounded-xl hover:border-[var(--gold)] transition-colors">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h4 className="text-foreground font-medium">Customer Bill Printer</h4>
+                <p className="text-xs text-foreground/50 mt-1">Silently prints final customer invoices</p>
+              </div>
+              <select 
+                value={billPrinterTarget}
+                onChange={handleBillPrinterTargetChange}
+                className="bg-card border border-border text-foreground rounded-lg px-4 py-2 focus:outline-none focus:border-[var(--gold)] max-w-[250px]"
+              >
+                <option value="">Browser Default Dialog</option>
+                {hardwarePrinters.map(p => (
+                  <option key={p.Name} value={p.Name}>{p.Name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          
+          <div className="bg-background border border-border p-5 rounded-xl hover:border-[var(--gold)] transition-colors">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h4 className="text-foreground font-medium">Kitchen (KOT) Printer</h4>
+                <p className="text-xs text-foreground/50 mt-1">Silently prints kitchen order tickets</p>
+              </div>
+              <select 
+                value={kotPrinterTarget}
+                onChange={handleKotPrinterTargetChange}
+                className="bg-card border border-border text-foreground rounded-lg px-4 py-2 focus:outline-none focus:border-[var(--gold)] max-w-[250px]"
+              >
+                <option value="">Browser Default Dialog</option>
+                {hardwarePrinters.map(p => (
+                  <option key={p.Name} value={p.Name}>{p.Name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="bg-background border border-border p-5 rounded-xl hover:border-[var(--gold)] transition-colors">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h4 className="text-foreground font-medium">Reports / SOP Printer</h4>
+                <p className="text-xs text-foreground/50 mt-1">Silently prints A4 reports and library SOPs</p>
+              </div>
+              <select 
+                value={reportPrinterTarget}
+                onChange={handleReportPrinterTargetChange}
+                className="bg-card border border-border text-foreground rounded-lg px-4 py-2 focus:outline-none focus:border-[var(--gold)] max-w-[250px]"
+              >
+                <option value="">Browser Default Dialog</option>
+                {hardwarePrinters.map(p => (
+                  <option key={p.Name} value={p.Name}>{p.Name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="bg-card border border-border rounded-2xl p-6 shadow-xl mb-8">
         <div className="flex justify-between items-start mb-6 border-b border-border pb-6">
           <div>
