@@ -118,18 +118,12 @@ const defaultSession = (tableId: string): TableSession => ({
 });
 
 const DEFAULT_CATEGORIES = [
-  'Main Course',
-  'Pizza',
-  'Burger',
-  'Wrap',
-  'Snacks',
-  'Pasta',
-  'Beverages',
-  'South Indian',
-  'Tandoor Starter',
-  'Veg Starter',
-  'Indian Veg',
-  'Chinese'
+  'Cafe',
+  'Chinese',
+  'Biryani',
+  'Mandi',
+  'South India',
+  'Indian Curry'
 ];
 
 export default function POSTerminal() {

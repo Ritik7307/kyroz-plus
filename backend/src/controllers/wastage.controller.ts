@@ -97,7 +97,7 @@ export const getWastageHistory = async (req: AuthRequest, res: Response): Promis
         }
       }
       return {
-        ...w.toObject(),
+        ...w,
         itemName: name,
         unit
       };

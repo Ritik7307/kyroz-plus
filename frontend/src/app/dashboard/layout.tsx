@@ -23,7 +23,8 @@ import {
   ChevronDown,
   ClipboardList,
   Lock,
-  Crown
+  Crown,
+  Trash2
 } from 'lucide-react';
 import { GlobalSearch, ToastContainer, Toast } from '@/components/dashboard/GlobalSearch';
 import NotificationPanel from '@/components/dashboard/NotificationPanel';
@@ -131,6 +132,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Sales History', path: '/dashboard/history', id: 'history', icon: TrendingUp },
     { name: 'Chef', path: '/dashboard/ai', id: 'ai', icon: MessageSquare },
     { name: 'Costing Master', path: '/dashboard/costing', id: 'costing', icon: IndianRupee },
+    { name: 'Wastage Master', path: '/dashboard/wastage', id: 'wastage', icon: Trash2 },
     { name: 'Customers', path: '/dashboard/customers', id: 'customers', icon: Users },
     { name: 'Manage Team', path: '/dashboard/team', id: 'team', ownerOnly: true, icon: Users },
     { name: 'Premium', path: '/dashboard/premium', id: 'premium', icon: Crown },

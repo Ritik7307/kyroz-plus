@@ -154,7 +154,7 @@ function SOPLibraryContent() {
     }
   };
 
-  const categories = ['All', 'South Indian', 'Cafe', 'Mandi/Biryani', 'Chinese', 'Non-Veg', 'Veg', 'Preparation', 'Discipline'];
+  const categories = ['All', 'Cafe', 'Chinese', 'Biryani', 'Mandi', 'South India', 'Indian Curry'];
   
   const displayedCategories = (userPlan === 'Starter' && userRole !== 'admin' && selectedSopCategory) 
     ? [selectedSopCategory]
