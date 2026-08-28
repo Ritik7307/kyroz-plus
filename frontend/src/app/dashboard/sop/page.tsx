@@ -46,6 +46,7 @@ interface Sop {
   contentEn?: string;
   contentHi?: string;
   content?: string;
+  subCategory?: string;
   fileUrl?: string;
   isInventoryLinked?: boolean;
   platesPerPacket?: number;
@@ -66,6 +67,7 @@ function SOPLibraryContent() {
   const [formData, setFormData] = useState({
     title: '',
     category: 'Dish' as const,
+    subCategory: '',
     contentEn: '',
     contentHi: '',
     isInventoryLinked: false,
@@ -144,7 +146,7 @@ function SOPLibraryContent() {
       if (res.ok) {
         setIsModalOpen(false);
         setFormData({
-          title: '', category: 'Dish', contentEn: '', contentHi: '',
+          title: '', category: 'Dish', subCategory: '', contentEn: '', contentHi: '',
           isInventoryLinked: false, platesPerPacket: 10
         });
         fetchSops();
@@ -188,8 +190,11 @@ function SOPLibraryContent() {
   };
 
   const filteredSops = sops.filter(sop => {
+    let cat = sop.category || '';
+    if (cat === 'Veg' || cat === 'Non-Veg') cat = 'Indian Curry';
+    
     const matchesCategory = activeCategory === 'All' ||
-      (sop.category || '').toLowerCase() === activeCategory.toLowerCase();
+      cat.toLowerCase() === activeCategory.toLowerCase();
     const matchesSearch = (sop.title || '').toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
@@ -292,11 +297,6 @@ function SOPLibraryContent() {
           <p className="text-foreground/60 text-sm md:text-lg max-w-xl font-medium leading-relaxed italic mx-auto lg:mx-0">"Consistency is the difference between a good kitchen and a great one."</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 relative z-10">
-          {userRole === 'admin' && (
-            <button onClick={() => setIsModalOpen(true)} className="flex items-center justify-center gap-3 px-6 md:px-8 py-3.5 md:py-4 bg-gold text-black rounded-[1.2rem] md:rounded-[1.5rem] text-xs md:text-[11px] font-black uppercase tracking-widest hover:scale-[1.05] transition-all shadow-[0_20px_50px_rgba(212,175,55,0.2)]">
-              <Plus size={18} /> Add New SOP
-            </button>
-          )}
         </div>
       </header>
 
@@ -324,10 +324,19 @@ function SOPLibraryContent() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
-          {filteredSops.map((sop, idx) => (
+          {filteredSops.map((sop, idx) => {
+            const displayCat = (sop.category === 'Veg' || sop.category === 'Non-Veg') ? 'Indian Curry' : sop.category;
+            const displaySubCat = (sop.category === 'Veg' || sop.category === 'Non-Veg') ? sop.category : sop.subCategory;
+            
+            return (
             <motion.div key={sop._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }} className="bg-card rounded-[1.8rem] md:rounded-[2rem] border border-border hover:border-border transition-all p-6 md:p-8 flex flex-col shadow-2xl group">
               <div className="flex justify-between items-start mb-5 md:mb-6">
-                <span className="px-2.5 py-1 bg-card shadow-sm rounded-lg text-[8px] md:text-[10px] font-black text-gold uppercase tracking-widest border border-border">{sop.category}</span>
+                <div className="flex gap-2">
+                  <span className="px-2.5 py-1 bg-card shadow-sm rounded-lg text-[8px] md:text-[10px] font-black text-gold uppercase tracking-widest border border-border">{displayCat}</span>
+                  {displaySubCat && (
+                    <span className={`px-2.5 py-1 bg-card shadow-sm rounded-lg text-[8px] md:text-[10px] font-black uppercase tracking-widest border border-border ${displaySubCat === 'Veg' ? 'text-green-500 border-green-500/30' : displaySubCat === 'Non-Veg' ? 'text-red-500 border-red-500/30' : 'text-foreground/60'}`}>{displaySubCat}</span>
+                  )}
+                </div>
                 {sop.isInventoryLinked && <span className="flex items-center gap-1.5 px-2.5 py-1 bg-green-500/10 rounded-lg text-[8px] md:text-[10px] font-black text-green-500 uppercase tracking-widest border border-green-500/20"><Database size={10} /> Linked</span>}
               </div>
               <h3 className="text-lg md:text-xl font-black text-gold mb-4 uppercase tracking-tight group-hover:translate-x-1 transition-transform">{sop.title}</h3>
@@ -335,7 +344,8 @@ function SOPLibraryContent() {
                 <button onClick={() => setViewingSop(sop)} className="flex-1 py-3.5 md:py-4 bg-card shadow-sm hover:bg-foreground/10 border border-border rounded-xl md:rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-all"><Eye size={16} /> View Recipe</button>
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -372,9 +382,10 @@ function SOPLibraryContent() {
             <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="bg-card w-full max-w-5xl rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 border border-border shadow-3xl overflow-y-auto max-h-[90vh] custom-scrollbar">
               <div className="flex items-center justify-between mb-8 md:mb-10"><h3 className="text-xl md:text-3xl font-black tracking-tighter uppercase">NEW <span className="text-gold">RECIPE</span></h3><button onClick={() => setIsModalOpen(false)} className="p-2 md:p-3 hover:bg-foreground/10 rounded-xl md:rounded-2xl transition-all"><X size={28} /></button></div>
               <form onSubmit={handleCreateSop} className="space-y-8 md:space-y-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
                   <div className="space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-foreground/40">Recipe Name</label><input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full bg-card shadow-sm border border-border rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all" required /></div>
-                  <div className="space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-foreground/40">Category</label><select value={formData.category} onChange={(e: any) => setFormData({ ...formData, category: e.target.value })} className="w-full bg-card shadow-sm border border-border rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all appearance-none"><option value="South Indian">South Indian</option><option value="Cafe">Cafe</option><option value="Mandi/Biryani">Mandi/Biryani</option><option value="Chinese">Chinese</option><option value="Discipline">Discipline</option><option value="Veg">Veg</option><option value="Non-Veg">Non-Veg</option><option value="Preparation">Preparation</option></select></div>
+                  <div className="space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-foreground/40">Category</label><select value={formData.category} onChange={(e: any) => setFormData({ ...formData, category: e.target.value })} className="w-full bg-card shadow-sm border border-border rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all appearance-none"><option value="South India">South India</option><option value="Cafe">Cafe</option><option value="Biryani">Biryani</option><option value="Mandi">Mandi</option><option value="Chinese">Chinese</option><option value="Indian Curry">Indian Curry</option><option value="Discipline">Discipline</option><option value="Preparation">Preparation</option></select></div>
+                  <div className="space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-foreground/40">Sub-Category (Optional)</label><select value={formData.subCategory} onChange={(e: any) => setFormData({ ...formData, subCategory: e.target.value })} className="w-full bg-card shadow-sm border border-border rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all appearance-none"><option value="">None</option><option value="Veg">Veg</option><option value="Non-Veg">Non-Veg</option></select></div>
                 </div>
                 <div className="bg-card shadow-sm p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-border space-y-6">
                   <div className="flex items-center justify-between"><div className="flex items-center gap-3"><Database className="text-gold" size={20} /><div><h4 className="text-xs md:text-sm font-black uppercase tracking-widest">Inventory Connection</h4></div></div><button type="button" onClick={() => setFormData({ ...formData, isInventoryLinked: !formData.isInventoryLinked })} className={`w-12 md:w-14 h-7 md:h-8 rounded-full transition-all relative ${formData.isInventoryLinked ? 'bg-gold' : 'bg-foreground/10'}`}><div className={`absolute top-1 w-5 md:w-6 h-5 md:h-6 rounded-full bg-white transition-all ${formData.isInventoryLinked ? 'right-1' : 'left-1'}`} /></button></div>

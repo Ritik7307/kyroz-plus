@@ -7,7 +7,7 @@ import { processSopText } from '../services/ai/ingestion.service';
 
 export const createSop = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { title, category, contentEn, contentHi, content, isInventoryLinked, platesPerPacket } = req.body;
+    const { title, category, subCategory, contentEn, contentHi, content, isInventoryLinked, platesPerPacket } = req.body;
     const userId = req.user?.userId;
 
     const newSop = new Sop({
@@ -17,6 +17,7 @@ export const createSop = async (req: AuthRequest, res: Response): Promise<void> 
       contentEn,
       contentHi,
       content,
+      subCategory,
       isInventoryLinked,
       platesPerPacket
     });
@@ -73,11 +74,11 @@ export const updateSop = async (req: AuthRequest, res: Response): Promise<void> 
   try {
     const { id } = req.params;
     const userId = req.user?.userId;
-    const { title, category, contentEn, contentHi, content, isInventoryLinked, platesPerPacket } = req.body;
+    const { title, category, subCategory, contentEn, contentHi, content, isInventoryLinked, platesPerPacket } = req.body;
 
     const updatedSop = await Sop.findOneAndUpdate(
       { _id: id, userId },
-      { title, category, contentEn, contentHi, content, isInventoryLinked, platesPerPacket },
+      { title, category, subCategory, contentEn, contentHi, content, isInventoryLinked, platesPerPacket },
       { new: true }
     );
 
