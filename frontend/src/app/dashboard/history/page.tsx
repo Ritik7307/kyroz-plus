@@ -28,6 +28,8 @@ export default function HistoryPage() {
   const [expenses, setExpenses] = useState<{name: string, amount: number}[]>([]);
   const [expenseName, setExpenseName] = useState('');
   const [expenseAmount, setExpenseAmount] = useState<number | ''>('');
+  const [currentPage, setCurrentPage] = useState(0);
+  const ITEMS_PER_PAGE = 7;
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -97,6 +99,7 @@ export default function HistoryPage() {
     let delivery = 0;
     let totalItems = 0;
     const itemCounts: Record<string, { quantity: number; revenue: number }> = {};
+    const categoryCounts: Record<string, { quantity: number; revenue: number }> = {};
 
     todayOrders.forEach((o: any) => {
       // Payment Method
@@ -118,18 +121,39 @@ export default function HistoryPage() {
       o.items.forEach((item: any) => {
         totalItems += item.quantity;
         const name = item.dishId?.name || 'Unknown Item';
+        const categoryName = item.dishId?.category || 'Uncategorized';
+        
         if (!itemCounts[name]) {
           itemCounts[name] = { quantity: 0, revenue: 0 };
         }
         itemCounts[name].quantity += item.quantity;
         itemCounts[name].revenue += item.quantity * item.price;
+        
+        if (!categoryCounts[categoryName]) {
+          categoryCounts[categoryName] = { quantity: 0, revenue: 0 };
+        }
+        categoryCounts[categoryName].quantity += item.quantity;
+        categoryCounts[categoryName].revenue += item.quantity * item.price;
       });
     });
 
     const sortedItems = Object.entries(itemCounts).sort((a, b) => b[1].quantity - a[1].quantity);
+    const sortedCategories = Object.entries(categoryCounts).sort((a, b) => b[1].revenue - a[1].revenue);
 
-    return { cash, online, dineIn, takeaway, delivery, totalItems, items: sortedItems };
+    return { cash, online, dineIn, takeaway, delivery, totalItems, items: sortedItems, categories: sortedCategories };
   }, [todayOrders]);
+
+  const sortedGroupedOrders = useMemo(() => {
+    return Object.entries(groupedOrders).sort((a: any, b: any) => {
+      return new Date(b[1][0].createdAt).getTime() - new Date(a[1][0].createdAt).getTime();
+    });
+  }, [groupedOrders]);
+
+  const totalPages = Math.ceil(sortedGroupedOrders.length / ITEMS_PER_PAGE);
+  const currentGroupedOrders = sortedGroupedOrders.slice(
+    currentPage * ITEMS_PER_PAGE,
+    (currentPage + 1) * ITEMS_PER_PAGE
+  );
 
   return (
     <div className="space-y-12 pb-24 max-w-[1200px] mx-auto relative">
@@ -328,57 +352,145 @@ export default function HistoryPage() {
 
         {/* DAILY REPORT PRINT VIEW */}
         <div className="bg-card glass-card p-8 rounded-[2rem] border border-border mb-8 print:fixed print:inset-0 print:bg-white print:text-black print:z-[9999] print:block print:rounded-none print:overflow-visible">
-           <h2 className="text-2xl font-black uppercase tracking-tighter mb-2 print:text-black text-foreground">Daily Operations Report</h2>
-           <p className="text-xs font-bold text-foreground/40 print:text-black/60 mb-8">{todayStr}</p>
-           
-           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8">
-              <div>
-                 <h4 className="font-bold text-sm text-gold print:text-black uppercase tracking-widest mb-4">Payment Methods</h4>
-                 <div className="space-y-2 text-sm font-bold text-foreground print:text-black">
-                    <div className="flex justify-between"><span className="text-foreground/60 print:text-black/60">Cash</span><span>{formatCurrency(todayBreakdown.cash)}</span></div>
-                    <div className="flex justify-between"><span className="text-foreground/60 print:text-black/60">Online / Card</span><span>{formatCurrency(todayBreakdown.online)}</span></div>
-                    <div className="border-t border-border print:border-black/10 pt-2 mt-2 flex justify-between font-black"><span className="text-foreground/60 print:text-black/60">Total</span><span>{formatCurrency(todayBreakdown.cash + todayBreakdown.online)}</span></div>
-                 </div>
-              </div>
-              <div>
-                 <h4 className="font-bold text-sm text-blue-400 print:text-black uppercase tracking-widest mb-4">Order Types</h4>
-                 <div className="space-y-2 text-sm font-bold text-foreground print:text-black">
-                    <div className="flex justify-between"><span className="text-foreground/60 print:text-black/60">Dine-in</span><span>{formatCurrency(todayBreakdown.dineIn)}</span></div>
-                    <div className="flex justify-between"><span className="text-foreground/60 print:text-black/60">Takeaway (Pickup)</span><span>{formatCurrency(todayBreakdown.takeaway)}</span></div>
-                    <div className="flex justify-between"><span className="text-foreground/60 print:text-black/60">Delivery</span><span>{formatCurrency(todayBreakdown.delivery)}</span></div>
-                 </div>
-              </div>
-           </div>
-           
-           <div className="mb-8 border-t border-border print:border-black/10 pt-8">
-             <h4 className="font-bold text-sm text-green-500 print:text-black uppercase tracking-widest mb-4">Items Sold Today</h4>
-             <div className="space-y-2 text-sm font-bold text-foreground print:text-black">
-               {todayBreakdown.items.length === 0 && (
-                 <p className="text-foreground/40 print:text-black/60 italic text-xs">No items sold today yet.</p>
-               )}
-               {todayBreakdown.items.map(([name, data]) => (
-                 <div key={name} className="flex justify-between border-b border-border print:border-black/5 pb-2">
-                   <span className="text-foreground/80 print:text-black/80">{name} <span className="text-foreground/40 print:text-black/40 text-xs ml-2">x{data.quantity}</span></span>
-                   <span>{formatCurrency(data.revenue)}</span>
-                 </div>
-               ))}
+          <div className="max-w-[80mm] mx-auto font-mono text-[10px] leading-tight hidden print:block">
+             <div className="text-center border-b border-black/20 pb-2 mb-2">
+               <h2 className="text-xl font-bold uppercase tracking-tighter print:text-black m-0 p-0 leading-none">Daily Operations Report</h2>
+               <p className="font-bold print:text-black/80 mt-1 m-0 p-0 leading-tight">{todayStr}</p>
              </div>
-           </div>
-           
-           <div className="mt-8 pt-8 border-t border-border print:border-black/10 flex justify-between">
-              <div className="text-center">
-                 <p className="text-xs text-foreground/40 print:text-black/60 font-black uppercase tracking-widest mb-1">Total Orders</p>
-                 <p className="text-xl font-black text-foreground print:text-black">{todayOrders.length}</p>
-              </div>
-              <div className="text-center">
-                 <p className="text-xs text-foreground/40 print:text-black/60 font-black uppercase tracking-widest mb-1">Items Sold</p>
-                 <p className="text-xl font-black text-foreground print:text-black">{todayBreakdown.totalItems}</p>
-              </div>
-              <div className="text-center">
-                 <p className="text-xs text-green-500/80 print:text-black/60 font-black uppercase tracking-widest mb-1">Net Revenue</p>
-                 <p className="text-2xl font-black text-green-500 print:text-black">{formatCurrency(todayBreakdown.cash + todayBreakdown.online)}</p>
-              </div>
-           </div>
+             
+             <div className="space-y-2 mb-2 border-b border-black/20 pb-2">
+                 <h4 className="font-bold uppercase tracking-widest text-[11px] mb-1">Payment Methods</h4>
+                 <div className="space-y-0.5">
+                    <div className="flex justify-between"><span>Cash</span><span>{formatCurrency(todayBreakdown.cash)}</span></div>
+                    <div className="flex justify-between"><span>Online / Card</span><span>{formatCurrency(todayBreakdown.online)}</span></div>
+                    <div className="border-t border-black/20 pt-0.5 mt-0.5 flex justify-between font-bold"><span>Total</span><span>{formatCurrency(todayBreakdown.cash + todayBreakdown.online)}</span></div>
+                 </div>
+             </div>
+             <div className="space-y-2 mb-2 border-b border-black/20 pb-2">
+                 <h4 className="font-bold uppercase tracking-widest text-[11px] mb-1">Order Types</h4>
+                 <div className="space-y-0.5">
+                    <div className="flex justify-between"><span>Dine-in</span><span>{formatCurrency(todayBreakdown.dineIn)}</span></div>
+                    <div className="flex justify-between"><span>Takeaway (Pickup)</span><span>{formatCurrency(todayBreakdown.takeaway)}</span></div>
+                    <div className="flex justify-between"><span>Delivery</span><span>{formatCurrency(todayBreakdown.delivery)}</span></div>
+                 </div>
+             </div>
+             
+             <div className="mb-2 border-b border-black/20 pb-2">
+               <h4 className="font-bold uppercase tracking-widest text-[11px] mb-1">Category Wise</h4>
+               <div className="space-y-0.5">
+                 {todayBreakdown.categories.length === 0 && (
+                   <p className="italic text-[9px]">No categories sold today yet.</p>
+                 )}
+                 {todayBreakdown.categories.map(([name, data]) => (
+                   <div key={name} className="flex justify-between">
+                     <span>{name}</span>
+                     <span>{formatCurrency(data.revenue)}</span>
+                   </div>
+                 ))}
+               </div>
+             </div>
+             
+             <div className="mb-2 border-b border-black/20 pb-2">
+               <h4 className="font-bold uppercase tracking-widest text-[11px] mb-1">Items Sold Today</h4>
+               <div className="space-y-0.5">
+                 {todayBreakdown.items.length === 0 && (
+                   <p className="italic text-[9px]">No items sold today yet.</p>
+                 )}
+                 {todayBreakdown.items.map(([name, data]) => (
+                   <div key={name} className="flex justify-between border-b border-black/5 pb-0.5 mb-0.5 last:border-0 last:mb-0 last:pb-0">
+                     <span>{name} <span className="opacity-60 ml-1">x{data.quantity}</span></span>
+                     <span>{formatCurrency(data.revenue)}</span>
+                   </div>
+                 ))}
+               </div>
+             </div>
+             
+             <div className="mt-2 text-center space-y-1">
+                <div className="flex justify-between border-b border-black/10 pb-0.5">
+                   <span className="uppercase">Total Orders</span>
+                   <span className="font-bold">{todayOrders.length}</span>
+                </div>
+                <div className="flex justify-between border-b border-black/10 pb-0.5">
+                   <span className="uppercase">Items Sold</span>
+                   <span className="font-bold">{todayBreakdown.totalItems}</span>
+                </div>
+                <div className="flex justify-between border-black/10 font-bold text-[12px] pt-1">
+                   <span className="uppercase">Net Revenue</span>
+                   <span>{formatCurrency(todayBreakdown.cash + todayBreakdown.online)}</span>
+                </div>
+             </div>
+          </div>
+          
+          <div className="print:hidden">
+             <h2 className="text-2xl font-black uppercase tracking-tighter mb-2 text-foreground">Daily Operations Report</h2>
+             <p className="text-xs font-bold text-foreground/40 mb-8">{todayStr}</p>
+             
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8">
+                <div>
+                   <h4 className="font-bold text-sm text-gold uppercase tracking-widest mb-4">Payment Methods</h4>
+                   <div className="space-y-2 text-sm font-bold text-foreground">
+                      <div className="flex justify-between"><span className="text-foreground/60">Cash</span><span>{formatCurrency(todayBreakdown.cash)}</span></div>
+                      <div className="flex justify-between"><span className="text-foreground/60">Online / Card</span><span>{formatCurrency(todayBreakdown.online)}</span></div>
+                      <div className="border-t border-border pt-2 mt-2 flex justify-between font-black"><span className="text-foreground/60">Total</span><span>{formatCurrency(todayBreakdown.cash + todayBreakdown.online)}</span></div>
+                   </div>
+                </div>
+                <div>
+                   <h4 className="font-bold text-sm text-blue-400 uppercase tracking-widest mb-4">Order Types</h4>
+                   <div className="space-y-2 text-sm font-bold text-foreground">
+                      <div className="flex justify-between"><span className="text-foreground/60">Dine-in</span><span>{formatCurrency(todayBreakdown.dineIn)}</span></div>
+                      <div className="flex justify-between"><span className="text-foreground/60">Takeaway (Pickup)</span><span>{formatCurrency(todayBreakdown.takeaway)}</span></div>
+                      <div className="flex justify-between"><span className="text-foreground/60">Delivery</span><span>{formatCurrency(todayBreakdown.delivery)}</span></div>
+                   </div>
+                </div>
+             </div>
+             
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8 border-t border-border pt-8">
+               <div>
+                 <h4 className="font-bold text-sm text-purple-400 uppercase tracking-widest mb-4">Category Wise</h4>
+                 <div className="space-y-2 text-sm font-bold text-foreground">
+                   {todayBreakdown.categories.length === 0 && (
+                     <p className="text-foreground/40 italic text-xs">No categories sold today yet.</p>
+                   )}
+                   {todayBreakdown.categories.map(([name, data]) => (
+                     <div key={name} className="flex justify-between border-b border-border pb-2">
+                       <span className="text-foreground/80">{name}</span>
+                       <span>{formatCurrency(data.revenue)}</span>
+                     </div>
+                   ))}
+                 </div>
+               </div>
+               
+               <div>
+                 <h4 className="font-bold text-sm text-green-500 uppercase tracking-widest mb-4">Items Sold Today</h4>
+                 <div className="space-y-2 text-sm font-bold text-foreground">
+                   {todayBreakdown.items.length === 0 && (
+                     <p className="text-foreground/40 italic text-xs">No items sold today yet.</p>
+                   )}
+                   {todayBreakdown.items.map(([name, data]) => (
+                     <div key={name} className="flex justify-between border-b border-border pb-2">
+                       <span className="text-foreground/80">{name} <span className="text-foreground/40 text-xs ml-2">x{data.quantity}</span></span>
+                       <span>{formatCurrency(data.revenue)}</span>
+                     </div>
+                   ))}
+                 </div>
+               </div>
+             </div>
+             
+             <div className="mt-8 pt-8 border-t border-border flex justify-between">
+                <div className="text-center">
+                   <p className="text-xs text-foreground/40 font-black uppercase tracking-widest mb-1">Total Orders</p>
+                   <p className="text-xl font-black text-foreground">{todayOrders.length}</p>
+                </div>
+                <div className="text-center">
+                   <p className="text-xs text-foreground/40 font-black uppercase tracking-widest mb-1">Items Sold</p>
+                   <p className="text-xl font-black text-foreground">{todayBreakdown.totalItems}</p>
+                </div>
+                <div className="text-center">
+                   <p className="text-xs text-green-500/80 font-black uppercase tracking-widest mb-1">Net Revenue</p>
+                   <p className="text-2xl font-black text-green-500">{formatCurrency(todayBreakdown.cash + todayBreakdown.online)}</p>
+                </div>
+             </div>
+          </div>
         </div>
       </div>
 
@@ -394,7 +506,7 @@ export default function HistoryPage() {
         </div>
       ) : (
         <div className="space-y-12">
-          {Object.entries(groupedOrders).map(([date, dayOrders]: [string, any], groupIdx) => {
+          {currentGroupedOrders.map(([date, dayOrders]: [string, any], groupIdx) => {
             const dailyRevenue = dayOrders.reduce((sum: number, o: any) => sum + o.totalRevenue, 0);
             const dailyProfit = dayOrders.reduce((sum: number, o: any) => sum + o.totalProfit, 0);
 
@@ -545,6 +657,28 @@ export default function HistoryPage() {
               </motion.div>
             );
           })}
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-4 pt-8 pb-4">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
+                disabled={currentPage === 0}
+                className="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-card border border-border hover:border-gold disabled:opacity-50 disabled:hover:border-border text-foreground"
+              >
+                Previous
+              </button>
+              <span className="text-xs font-bold text-foreground/60 uppercase tracking-widest">
+                Page {currentPage + 1} of {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages - 1, p + 1))}
+                disabled={currentPage === totalPages - 1}
+                className="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-card border border-border hover:border-gold disabled:opacity-50 disabled:hover:border-border text-foreground"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -1597,15 +1597,7 @@ export default function POSTerminal() {
                 {cat}
               </button>
             ))}
-            {isManager && (
-              <button
-                onClick={() => { setNewDish({ name: '', price: '', ingredientPrice: '', category: 'Main Course', imageUrl: '' }); setShowAddModal(true); }}
-                className="w-full text-left px-3 py-2 mt-2 rounded-lg text-[10px] font-black uppercase tracking-widest border border-dashed border-gold text-gold hover:bg-gold/10 transition-all flex items-center justify-between"
-              >
-                <span>Add Dish</span>
-                <span className="text-lg leading-none">+</span>
-              </button>
-            )}
+
           </div>
         </div>
 
@@ -1622,14 +1614,7 @@ export default function POSTerminal() {
               {cat}
             </button>
           ))}
-          {isManager && (
-            <button
-              onClick={() => { setNewDish({ name: '', price: '', ingredientPrice: '', category: 'Main Course', imageUrl: '' }); setShowAddModal(true); }}
-              className="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap border border-dashed border-gold text-gold hover:bg-gold/10 flex items-center gap-2"
-            >
-              <span>+ Add Dish</span>
-            </button>
-          )}
+
         </div>
 
         {/* Middle Column: Menu list */}
@@ -1701,7 +1686,7 @@ export default function POSTerminal() {
                         key={t.id}
                         onClick={() => switchTable(t.id)}
                         className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border flex items-center gap-1.5 relative ${
-                          isActive ? 'bg-gold text-black border-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]' : hasItems ? 'bg-red-500/10 text-red-400 border-red-500/30' : 'bg-card shadow-sm text-foreground/40 border-foreground/10'
+                          isActive ? 'bg-gold text-black border-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]' : hasItems ? 'bg-red-500/10 text-red-400 border-red-500/30' : 'bg-card shadow-sm text-foreground/80 border-foreground/20'
                         }`}
                       >
                         <span>{t.name}</span>
