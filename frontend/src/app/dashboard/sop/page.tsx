@@ -156,7 +156,7 @@ function SOPLibraryContent() {
     }
   };
 
-  const categories = ['All', 'Cafe', 'Chinese', 'Biryani', 'Mandi', 'South India', 'Indian Curry'];
+  const categories = ['All', 'Cafe', 'Chinese', 'Biryani', 'Mandi', 'South India', 'Indian Curry', 'Preparation'];
   
   const displayedCategories = (userPlan === 'Starter' && userRole !== 'admin' && selectedSopCategory) 
     ? [selectedSopCategory]
@@ -193,9 +193,20 @@ function SOPLibraryContent() {
     let cat = sop.category || '';
     if (cat === 'Veg' || cat === 'Non-Veg') cat = 'Indian Curry';
     
-    const matchesCategory = activeCategory === 'All' ||
-      cat.toLowerCase() === activeCategory.toLowerCase();
-    const matchesSearch = (sop.title || '').toLowerCase().includes(searchQuery.toLowerCase());
+    const sopTitle = (sop.title || '').toLowerCase();
+    const isPrepSop = sopTitle.includes('prep');
+    
+    let matchesCategory = false;
+    
+    if (activeCategory === 'All') {
+      matchesCategory = true;
+    } else if (activeCategory === 'Preparation') {
+      matchesCategory = isPrepSop;
+    } else {
+      matchesCategory = cat.toLowerCase() === activeCategory.toLowerCase();
+    }
+    
+    const matchesSearch = sopTitle.includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
