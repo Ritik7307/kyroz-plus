@@ -156,7 +156,7 @@ function SOPLibraryContent() {
     }
   };
 
-  const categories = ['All', 'Cafe', 'Chinese', 'Biryani', 'Mandi', 'South India', 'Indian Curry', 'Preparation'];
+  const categories = ['All', 'Cafe', 'Chinese', 'Biryani', 'Mandi', 'South Indian', 'Indian Curry', 'Preparation'];
   
   const displayedCategories = (userPlan === 'Starter' && userRole !== 'admin' && selectedSopCategory) 
     ? [selectedSopCategory]
@@ -395,7 +395,7 @@ function SOPLibraryContent() {
               <form onSubmit={handleCreateSop} className="space-y-8 md:space-y-12">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
                   <div className="space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-foreground/40">Recipe Name</label><input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full bg-card shadow-sm border border-border rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all" required /></div>
-                  <div className="space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-foreground/40">Category</label><select value={formData.category} onChange={(e: any) => setFormData({ ...formData, category: e.target.value })} className="w-full bg-card shadow-sm border border-border rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all appearance-none"><option value="South India">South India</option><option value="Cafe">Cafe</option><option value="Biryani">Biryani</option><option value="Mandi">Mandi</option><option value="Chinese">Chinese</option><option value="Indian Curry">Indian Curry</option><option value="Discipline">Discipline</option><option value="Preparation">Preparation</option></select></div>
+                  <div className="space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-foreground/40">Category</label><select value={formData.category} onChange={(e: any) => setFormData({ ...formData, category: e.target.value })} className="w-full bg-card shadow-sm border border-border rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all appearance-none"><option value="South Indian">South Indian</option><option value="Cafe">Cafe</option><option value="Biryani">Biryani</option><option value="Mandi">Mandi</option><option value="Chinese">Chinese</option><option value="Indian Curry">Indian Curry</option><option value="Discipline">Discipline</option><option value="Preparation">Preparation</option></select></div>
                   <div className="space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-foreground/40">Sub-Category (Optional)</label><select value={formData.subCategory} onChange={(e: any) => setFormData({ ...formData, subCategory: e.target.value })} className="w-full bg-card shadow-sm border border-border rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all appearance-none"><option value="">None</option><option value="Veg">Veg</option><option value="Non-Veg">Non-Veg</option></select></div>
                 </div>
                 <div className="bg-card shadow-sm p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-border space-y-6">

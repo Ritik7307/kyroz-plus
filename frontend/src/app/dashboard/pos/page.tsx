@@ -126,7 +126,7 @@ const DEFAULT_CATEGORIES = [
   'Chinese',
   'Biryani',
   'Mandi',
-  'South India',
+  'South Indian',
   'Indian Curry'
 ];
 
