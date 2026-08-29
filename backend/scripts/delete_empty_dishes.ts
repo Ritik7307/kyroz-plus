@@ -2,9 +2,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Load environment variables
 dotenv.config({ path: path.join(__dirname, '../../.env') });
-dotenv.config({ path: path.join(__dirname, '../../.env.local') });
 
 import Dish from '../src/models/Dish';
 import Recipe from '../src/models/Recipe';
@@ -16,35 +14,27 @@ async function main() {
         await mongoose.connect(mongoUri);
         console.log('Connected to MongoDB');
 
-        // Find all recipes
-        const recipes = await Recipe.find({});
-        console.log(`Found ${recipes.length} recipes in total.`);
-
-        // Get targetIds from recipes
-        const dishIdsWithRecipes = new Set(recipes.map(r => r.targetId.toString()));
-        console.log(`Found ${dishIdsWithRecipes.size} unique dish/sfg IDs with recipes.`);
-
         // Find all dishes
-        const allDishes = await Dish.find({});
+        const allDishes = await Dish.find({}).select('_id name');
         console.log(`Found ${allDishes.length} dishes in total.`);
 
-        let deletedCount = 0;
-        let deletedSopCount = 0;
+        // Find recipes that are NOT empty
+        const validRecipes = await Recipe.find({ targetModel: 'Dish', 'ingredients.0': { $exists: true } }).select('targetId');
+        const validDishIds = new Set(validRecipes.map(r => r.targetId.toString()));
+        console.log(`Found ${validDishIds.size} valid dishes with recipes.`);
 
-        for (const dish of allDishes) {
-            if (!dishIdsWithRecipes.has(dish._id.toString())) {
-                console.log(`Deleting dish: ${dish.name}`);
-                await Dish.deleteOne({ _id: dish._id });
-                deletedCount++;
-                
-                // Delete corresponding SOP if it exists
-                const sopDeleteResult = await Sop.deleteMany({ dishId: dish._id });
-                deletedSopCount += sopDeleteResult.deletedCount;
-            }
+        const dishesToDelete = allDishes.filter(d => !validDishIds.has(d._id.toString()));
+        console.log(`Will delete ${dishesToDelete.length} empty dishes.`);
+
+        if (dishesToDelete.length > 0) {
+            const idsToDelete = dishesToDelete.map(d => d._id);
+            const dishDeleteRes = await Dish.deleteMany({ _id: { $in: idsToDelete } });
+            const sopDeleteRes = await Sop.deleteMany({ dishId: { $in: idsToDelete } });
+            const recipeDeleteRes = await Recipe.deleteMany({ targetModel: 'Dish', targetId: { $in: idsToDelete } });
+            console.log(`Successfully deleted ${dishDeleteRes.deletedCount} empty dishes.`);
+            console.log(`Successfully deleted ${sopDeleteRes.deletedCount} orphaned SOPs.`);
+            console.log(`Successfully deleted ${recipeDeleteRes.deletedCount} empty recipes.`);
         }
-
-        console.log(`Successfully deleted ${deletedCount} empty dishes.`);
-        console.log(`Successfully deleted ${deletedSopCount} orphaned SOPs.`);
 
     } catch (error) {
         console.error('Error:', error);
