@@ -1,30 +1,13 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
-const DishSchema = new mongoose.Schema({ category: String }, { strict: false });
-const SopSchema = new mongoose.Schema({ category: String }, { strict: false });
+const DishSchema = new mongoose.Schema({ name: String, category: String }, { strict: false });
+const SopSchema = new mongoose.Schema({ name: String, category: String }, { strict: false });
 
-const categoryMap: Record<string, string> = {
-  'Pizza': 'Cafe',
-  'Burger': 'Cafe',
-  'Wrap': 'Cafe',
-  'Snacks': 'Cafe',
-  'Pasta': 'Cafe',
-  'Beverages': 'Cafe',
-  'South Indian': 'South India',
-  'Tandoor Starter': 'Indian Curry',
-  'Veg Starter': 'Indian Curry',
-  'Indian Veg': 'Indian Curry',
-  'Chinese': 'Chinese',
-  'Main Course': 'Indian Curry',
-  'Mandi/Biryani': 'Biryani',
-  'Non-Veg': 'Indian Curry',
-  'Veg': 'Indian Curry'
-};
+const cleanCategories = ['Cafe', 'South Indian', 'Chinese', 'Tandoor', 'Biryani', 'Mandi', 'Indian Curry'];
 
 async function mapCategories() {
   const uri = process.env.MONGO_URI || process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/kyroz';
@@ -36,22 +19,38 @@ async function mapCategories() {
   const Sop = mongoose.models.Sop || mongoose.model('Sop', SopSchema);
 
   try {
-    for (const [oldCat, newCat] of Object.entries(categoryMap)) {
-      const dishRes = await Dish.updateMany({ category: oldCat }, { $set: { category: newCat } });
-      console.log(`Mapped Dish: ${oldCat} -> ${newCat} (${dishRes.modifiedCount} updated)`);
-      
-      const sopRes = await Sop.updateMany({ category: oldCat }, { $set: { category: newCat } });
-      console.log(`Mapped SOP: ${oldCat} -> ${newCat} (${sopRes.modifiedCount} updated)`);
-    }
-    
-    const allowed = ['Cafe', 'Chinese', 'Biryani', 'Mandi', 'South India', 'Indian Curry', 'Discipline', 'Preparation'];
-    
-    const dishUnmapped = await Dish.updateMany(
-      { category: { $nin: allowed } },
-      { $set: { category: 'Cafe' } } 
-    );
-    console.log(`Mapped unmapped dishes to Cafe (${dishUnmapped.modifiedCount} updated)`);
+    // 1. Rename any "South India" to "South Indian"
+    await Dish.updateMany({ category: 'South India' }, { $set: { category: 'South Indian' } });
+    await Sop.updateMany({ category: 'South India' }, { $set: { category: 'South Indian' } });
 
+    // 2. Map "Tandoor Starter" and "Veg Starter" to "Tandoor"
+    await Dish.updateMany({ category: { $in: ['Tandoor Starter', 'Veg Starter'] } }, { $set: { category: 'Tandoor' } });
+    await Sop.updateMany({ category: { $in: ['Tandoor Starter', 'Veg Starter'] } }, { $set: { category: 'Tandoor' } });
+
+    // 3. For "Main Course" category:
+    // If the name has "Biryani" -> Map to "Biryani"
+    // If the name has "Mandi" -> Map to "Mandi"
+    // Otherwise -> Map to "Indian Curry"
+    
+    // We can do this in bulk via query mappings
+    await Dish.updateMany({ category: 'Main Course', name: /biryani/i }, { $set: { category: 'Biryani' } });
+    await Sop.updateMany({ category: 'Main Course', name: /biryani/i }, { $set: { category: 'Biryani' } });
+
+    await Dish.updateMany({ category: 'Main Course', name: /mandi/i }, { $set: { category: 'Mandi' } });
+    await Sop.updateMany({ category: 'Main Course', name: /mandi/i }, { $set: { category: 'Mandi' } });
+
+    await Dish.updateMany({ category: 'Main Course' }, { $set: { category: 'Indian Curry' } });
+    await Sop.updateMany({ category: 'Main Course' }, { $set: { category: 'Indian Curry' } });
+
+    // 4. Any other category not in cleanCategories -> Map to "Indian Curry"
+    await Dish.updateMany({ category: { $nin: cleanCategories } }, { $set: { category: 'Indian Curry' } });
+    await Sop.updateMany({ category: { $nin: cleanCategories } }, { $set: { category: 'Indian Curry' } });
+
+    console.log('Category mapping completed successfully!');
+
+    // Verify final categories
+    const finalCats = await Dish.distinct('category');
+    console.log('Final Dish Categories in DB:', finalCats);
   } catch (error) {
     console.error(error);
   } finally {
