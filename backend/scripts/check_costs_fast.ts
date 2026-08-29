@@ -10,8 +10,9 @@ async function main() {
         const db = mongoose.connection.db!;
         
         console.log("Fetching all data...");
-        const allDishes = await db.collection('dishes').find({}).toArray();
-        const allRecipes = await db.collection('recipes').find({ targetModel: 'Dish' }).toArray();
+        const userId = new mongoose.Types.ObjectId('69f84eb97a1102e857341078');
+        const allDishes = await db.collection('dishes').find({ userId }).toArray();
+        const allRecipes = await db.collection('recipes').find({ targetModel: 'Dish', userId }).toArray();
         
         // Cache user items to avoid millions of queries
         const userItemsCache = new Map();
