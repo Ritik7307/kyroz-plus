@@ -30,8 +30,8 @@ export const getRecipeDetailsRecursive = async (
   parentYieldRatio: number = 1,
   visited: Set<string> = new Set()
 ): Promise<any[]> => {
-  if (!itemId) {
-    console.warn(`[WARNING] Undefined itemId encountered for model ${itemModel} in recipe`);
+  if (!itemId || itemId === 'undefined' || itemId === 'null') {
+    console.warn(`[WARNING] Invalid itemId (${itemId}) encountered for model ${itemModel} in recipe`);
     return [];
   }
   const visitKey = `${itemModel}_${itemId}`;

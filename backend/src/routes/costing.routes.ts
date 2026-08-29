@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.put('/recipe/bulk', authenticateToken, updateBulkRecipes);
 router.put('/ingredient', authenticateToken, updateIngredientPrice);
-router.get('/dish/:dishId', getDishCosting);
+router.get('/dish/:dishId', authenticateToken, getDishCosting);
 router.put('/dish/:dishId/recipe', authenticateToken, updateDishRecipe);
 router.delete('/recipe/:dishId', authenticateToken, deleteDishRecipe);
 router.get('/fix-yields', async (req, res) => {
