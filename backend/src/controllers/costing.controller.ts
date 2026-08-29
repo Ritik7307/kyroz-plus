@@ -485,3 +485,26 @@ export const updateBulkRecipes = async (req: AuthRequest, res: Response): Promis
     res.status(500).json({ error: 'Failed to update bulk recipes' });
   }
 };
+
+export const deleteDishRecipe = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { dishId } = req.params;
+    const userId = req.user?.userId;
+
+    if (!dishId || !userId) {
+      res.status(400).json({ error: 'Missing required fields' });
+      return;
+    }
+
+    const result = await Recipe.findOneAndDelete({ targetModel: 'Dish', targetId: dishId, userId });
+    if (!result) {
+      res.status(404).json({ error: 'Recipe not found' });
+      return;
+    }
+
+    res.status(200).json({ message: 'Recipe deleted successfully' });
+  } catch (error) {
+    console.error('Delete Recipe Error:', error);
+    res.status(500).json({ error: 'Failed to delete recipe' });
+  }
+};

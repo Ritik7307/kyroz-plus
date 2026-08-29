@@ -1,5 +1,5 @@
 import express from 'express';
-import { getDishCosting, updateIngredientPrice, updateDishRecipe, updateBulkRecipes } from '../controllers/costing.controller';
+import { getDishCosting, updateIngredientPrice, updateDishRecipe, updateBulkRecipes, deleteDishRecipe } from '../controllers/costing.controller';
 import { authenticateToken } from '../middleware/auth.middleware';
 
 const router = express.Router();
@@ -8,6 +8,7 @@ router.put('/recipe/bulk', authenticateToken, updateBulkRecipes);
 router.put('/ingredient', authenticateToken, updateIngredientPrice);
 router.get('/dish/:dishId', getDishCosting);
 router.put('/dish/:dishId/recipe', authenticateToken, updateDishRecipe);
+router.delete('/recipe/:dishId', authenticateToken, deleteDishRecipe);
 router.get('/fix-yields', async (req, res) => {
   try {
     const Recipe = require('../models/Recipe').default;

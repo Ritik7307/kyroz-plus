@@ -197,6 +197,29 @@ export default function CostingMaster() {
     }
   };
 
+  const handleDeleteRecipe = async () => {
+    if (!selectedDishId) return;
+    if (!window.confirm("Are you sure you want to delete the costing logic (recipe) for this dish? The dish itself will not be deleted.")) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/costing/recipe/${selectedDishId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to delete recipe');
+      }
+      setSuccessMessage('Costing logic deleted successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
+      
+      // Re-fetch costing data which should now be empty/0
+      await fetchCosting(selectedDishId, false);
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete recipe');
+    }
+  };
+
   const [localIngredients, setLocalIngredients] = useState<any[]>([]);
 
   // Fetch costing for selected dish
@@ -254,6 +277,10 @@ export default function CostingMaster() {
   };
 
   const handleSaveIngredientPrice = async (itemId: string, itemModel: string) => {
+    if (!itemId || itemId === 'undefined') {
+      setError('Cannot update price for this ingredient because it is missing its ID in the database. Please delete this recipe and recreate it.');
+      return;
+    }
     setSavingIngredientId(itemId);
     setError('');
     setSuccessMessage('');
@@ -414,6 +441,9 @@ export default function CostingMaster() {
       const grouped: Record<string, any> = {};
       
       localIngredients.forEach(ing => {
+        // Skip ingredients that have no valid itemId to prevent crashing the backend
+        if (!ing.itemId || ing.itemId === 'undefined') return;
+
         const pId = ing.parentId || selectedDishId;
         const pModel = ing.parentModel || 'Dish';
         const key = `${pModel}_${pId}`;
@@ -584,13 +614,22 @@ export default function CostingMaster() {
                   />
                 </div>
                 {selectedDishId && (
-                  <button 
-                    onClick={handleDeleteDish}
-                    className="h-[52px] px-4 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl border border-red-500/20 flex items-center justify-center transition-all"
-                    title="Delete Dish"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
-                  </button>
+                  <>
+                    <button 
+                      onClick={handleDeleteRecipe}
+                      className="h-[52px] px-4 bg-orange-500/10 hover:bg-orange-500/20 text-orange-500 rounded-xl border border-orange-500/20 flex items-center justify-center transition-all"
+                      title="Delete Costing Logic (Recipe)"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                    </button>
+                    <button 
+                      onClick={handleDeleteDish}
+                      className="h-[52px] px-4 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl border border-red-500/20 flex items-center justify-center transition-all"
+                      title="Delete Dish Permanently"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                    </button>
+                  </>
                 )}
               </div>
             </div>
