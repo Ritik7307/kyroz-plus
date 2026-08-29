@@ -32,7 +32,7 @@ router.get('/nuke', async (req, res) => {
     res.status(500).send(e.message);
   }
 });
-router.get('/', getDishes);
+router.get('/', authenticateToken, getDishes);
 router.post('/advanced-setup', authenticateToken, isManager, createDishAdvancedSetup);
 router.post('/', authenticateToken, isManager, createDish);
 router.put('/:id', authenticateToken, isManager, updateDish);
