@@ -167,7 +167,6 @@ export const deleteDish = async (req: AuthRequest, res: Response): Promise<void>
 
     // Also delete the associated recipe to prevent orphan recipes
     try {
-      const Recipe = require('../models/Recipe').default;
       await Recipe.findOneAndDelete({ targetModel: 'Dish', targetId: dish._id, userId });
     } catch (e) {
       console.error('Error deleting recipe for dish', e);
