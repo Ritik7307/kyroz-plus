@@ -44,7 +44,22 @@ export const deleteAllDishes = async (req: AuthRequest, res: Response): Promise<
 export const getDishes = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId;
-    const dishes = await Dish.find({ userId })
+    const { withRecipesOnly } = req.query;
+    
+    let query: any = { userId };
+    
+    if (withRecipesOnly === 'true') {
+      const validRecipes = await Recipe.find({ 
+        userId, 
+        targetModel: 'Dish',
+        'ingredients.0': { $exists: true } 
+      }).select('targetId').lean();
+      
+      const validDishIds = validRecipes.map(r => r.targetId);
+      query._id = { $in: validDishIds };
+    }
+
+    const dishes = await Dish.find(query)
       .populate('packagingLogic.dineIn')
       .populate('packagingLogic.takeaway')
       .populate('packagingLogic.delivery')

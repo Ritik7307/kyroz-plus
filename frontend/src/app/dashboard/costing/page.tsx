@@ -141,7 +141,7 @@ export default function CostingMaster() {
       setError('');
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`${API_URL}/api/dishes`, {
+        const res = await fetch(`${API_URL}/api/dishes?withRecipesOnly=true`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
