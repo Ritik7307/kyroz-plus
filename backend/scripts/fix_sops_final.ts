@@ -8,7 +8,7 @@ import Sop from '../src/models/Sop';
 
 async function main() {
     try {
-        const mongoUri = 'mongodb+srv://vijayshankarprajapati29_db_user:korakagazhai@cluster0.wf2za1x.mongodb.net/test?retryWrites=true&w=majority';
+        const mongoUri = process.env.MONGO_URI || '';
         await mongoose.connect(mongoUri);
         console.log('Connected to MongoDB');
 
