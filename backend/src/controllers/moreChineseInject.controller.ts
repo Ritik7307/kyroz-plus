@@ -86,7 +86,7 @@ export const injectMoreChinese = async (req: Request, res: Response): Promise<vo
     for (const rm of newRawMaterials) {
       let doc = await RawMaterial.findOne({ name: rm.name, userId: activeUserId });
       if (!doc) {
-        doc = new RawMaterial({ ...rm, userId: activeUserId });
+        doc = new RawMaterial({ ...rm, userId: activeUserId, purchaseUnit: rm.unit || 'kg', category: 'General', code: 'RM_' + Date.now() + Math.floor(Math.random()*1000) });
         await doc.save();
       }
       rmMap[rm.name] = doc;
@@ -103,7 +103,7 @@ export const injectMoreChinese = async (req: Request, res: Response): Promise<vo
         if (doc) return doc;
         doc = await getDoc(RawMaterial, name);
         if (doc) return doc;
-        doc = new RawMaterial({ name, unit: "kg", costPerPurchaseUnit: 100, conversionFactor: 1000, consumptionUnit: "gm", userId: activeUserId });
+        doc = new RawMaterial({ name, unit: "kg", costPerPurchaseUnit: 100, conversionFactor: 1000, consumptionUnit: "gm", userId: activeUserId, purchaseUnit: "kg", category: "General", code: "RM_" + Date.now() + Math.floor(Math.random()*1000) });
         await doc.save();
         rmMap[name] = doc;
         return doc;
@@ -254,7 +254,7 @@ export const injectMoreChinese = async (req: Request, res: Response): Promise<vo
       for (const ingDef of d.ingredients) {
         const rmDoc = await getIng(ingDef.name);
         mappedIngredients.push({
-          sfgId: rmDoc._id,
+          itemId: rmDoc._id, itemModel: rmDoc.code && rmDoc.code.includes('SFG') ? 'SemiFinishedGood' : 'RawMaterial',
           name: rmDoc.name,
           quantity: ingDef.qty,
           unit: ingDef.unit
@@ -324,7 +324,7 @@ export const injectMoreChinese = async (req: Request, res: Response): Promise<vo
     for (const d of sfgs) {
       let sfg = await SemiFinishedGood.findOne({ name: d.name, userId: activeUserId });
       if (!sfg) {
-        sfg = new SemiFinishedGood({
+        sfg = new SemiFinishedGood({ code: 'SFG_INJ_' + Date.now() + Math.floor(Math.random()*1000),
           name: d.name,
           category: d.category,
           costPerUnit: 100, // mock
@@ -340,7 +340,7 @@ export const injectMoreChinese = async (req: Request, res: Response): Promise<vo
       for (const ingDef of d.ingredients) {
         const rmDoc = await getIng(ingDef.name);
         mappedIngredients.push({
-          sfgId: rmDoc._id,
+          itemId: rmDoc._id, itemModel: rmDoc.code && rmDoc.code.includes('SFG') ? 'SemiFinishedGood' : 'RawMaterial',
           name: rmDoc.name,
           quantity: ingDef.qty,
           unit: ingDef.unit

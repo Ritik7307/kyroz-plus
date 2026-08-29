@@ -396,7 +396,8 @@ export default function CostingMaster() {
     // Top level ingredients only (sub-ingredients are bundled into their parent SFG cost)
     // The backend marks dish-level ingredients with isSubIngredient=true (because parent is Dish).
     // We only want to skip TRUE sub-ingredients (where parent is an SFG/Preparation/etc)
-    if (ing.isSubIngredient && ing.parentModel !== 'Dish') return total;
+    // If parentModel is undefined, it's from the old backend API where dish-level items didn't have it, so we shouldn't skip them blindly.
+    if (ing.isSubIngredient && ing.parentModel !== 'Dish' && ing.parentModel !== undefined) return total;
     
     // Get the current editing price for the display unit
     let currentPurchasePrice = editingPrices[ing.itemId] !== undefined 
