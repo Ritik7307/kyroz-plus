@@ -157,11 +157,20 @@ export const updateDish = async (req: AuthRequest, res: Response): Promise<void>
 export const deleteDish = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const dish = await Dish.findOneAndDelete({ _id: id, userId: req.user?.userId });
+    const userId = req.user?.userId;
+    const dish = await Dish.findOneAndDelete({ _id: id, userId });
 
     if (!dish) {
       res.status(404).json({ error: 'Dish not found' });
       return;
+    }
+
+    // Also delete the associated recipe to prevent orphan recipes
+    try {
+      const Recipe = require('../models/Recipe').default;
+      await Recipe.findOneAndDelete({ targetModel: 'Dish', targetId: dish._id, userId });
+    } catch (e) {
+      console.error('Error deleting recipe for dish', e);
     }
 
     res.status(200).json({ message: 'Dish deleted successfully' });

@@ -24,6 +24,7 @@ interface DishOption {
   label: string;
   value: string;
   price: number;
+  category?: string;
 }
 
 interface IngredientCostDetail {
@@ -165,6 +166,35 @@ export default function CostingMaster() {
     };
     fetchDishes();
   }, []);
+
+  const handleDeleteDish = async () => {
+    if (!selectedDishId) return;
+    if (!window.confirm("Are you sure you want to permanently delete this dish and its recipe?")) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/dishes/${selectedDishId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to delete dish');
+      }
+      setSuccessMessage('Dish deleted successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
+      
+      const newDishes = dishes.filter(d => d.value !== selectedDishId);
+      setDishes(newDishes);
+      if (newDishes.length > 0) {
+        setSelectedDishId(newDishes[0].value);
+      } else {
+        setSelectedDishId('');
+        setLocalIngredients([]);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete dish');
+    }
+  };
 
   const [localIngredients, setLocalIngredients] = useState<any[]>([]);
 
@@ -541,15 +571,26 @@ export default function CostingMaster() {
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
-              <div className="md:w-2/3 w-full">
-                <CustomDropdown
-                  options={selectedCategory === 'All' ? dishes : dishes.filter(d => d.category === selectedCategory)}
-                  value={selectedDishId}
-                  onChange={setSelectedDishId}
-                  label=""
-                  placeholder="Select dish to analyze"
-                  searchable={true}
-                />
+              <div className="md:w-2/3 w-full flex items-center gap-2">
+                <div className="flex-1">
+                  <CustomDropdown
+                    options={selectedCategory === 'All' ? dishes : dishes.filter(d => d.category === selectedCategory)}
+                    value={selectedDishId}
+                    onChange={setSelectedDishId}
+                    label=""
+                    placeholder="Select dish to analyze"
+                    searchable={true}
+                  />
+                </div>
+                {selectedDishId && (
+                  <button 
+                    onClick={handleDeleteDish}
+                    className="h-[52px] px-4 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl border border-red-500/20 flex items-center justify-center transition-all"
+                    title="Delete Dish"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                  </button>
+                )}
               </div>
             </div>
           )}
