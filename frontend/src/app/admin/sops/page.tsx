@@ -205,7 +205,8 @@ export default function GlobalSopsPage() {
                         { label: 'Discipline', value: 'Discipline' },
                         { label: 'Veg', value: 'Veg' },
                         { label: 'Non-Veg', value: 'Non-Veg' },
-                        { label: 'Preparation', value: 'Preparation' }
+                        { label: 'Preparation', value: 'Preparation' },
+                        { label: 'Tandoor', value: 'Tandoor' }
                       ]}
                       value={formData.category}
                       onChange={(val) => setFormData({...formData, category: val})}

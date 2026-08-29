@@ -127,7 +127,8 @@ const DEFAULT_CATEGORIES = [
   'Biryani',
   'Mandi',
   'South Indian',
-  'Indian Curry'
+  'Indian Curry',
+  'Tandoor'
 ];
 
 export default function POSTerminal() {
