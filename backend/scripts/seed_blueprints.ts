@@ -8,7 +8,9 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 async function main() {
     try {
         await mongoose.connect(process.env.MONGO_URI || '');
-        const userId = new mongoose.Types.ObjectId('69f84eb97a1102e857341078');
+        const user = await mongoose.connection.collection('users').findOne({email: 'vijayshankarprajapati29@gmail.com'});
+        if (!user) throw new Error('User not found');
+        const userId = user._id;
         console.log('Seeding data for user', userId);
         await seedBlueprints(userId);
         console.log('Seeding complete!');
