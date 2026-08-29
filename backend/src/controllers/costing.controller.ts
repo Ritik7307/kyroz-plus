@@ -30,6 +30,10 @@ export const getRecipeDetailsRecursive = async (
   parentYieldRatio: number = 1,
   visited: Set<string> = new Set()
 ): Promise<any[]> => {
+  if (!itemId) {
+    console.warn(`[WARNING] Undefined itemId encountered for model ${itemModel} in recipe`);
+    return [];
+  }
   const visitKey = `${itemModel}_${itemId}`;
   if (visited.has(visitKey)) {
     console.warn(`[WARNING] Circular dependency detected for ${visitKey}`);
