@@ -72,6 +72,7 @@ const noSpinnerStyle = `
 export default function CostingMaster() {
   const [dishes, setDishes] = useState<DishOption[]>([]);
   const [selectedDishId, setSelectedDishId] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [costingData, setCostingData] = useState<CostingData | null>(null);
   
   const [loading, setLoading] = useState<boolean>(false);
@@ -227,13 +228,15 @@ export default function CostingMaster() {
     setSuccessMessage('');
     try {
       const token = localStorage.getItem('token');
+      
+      // 1. Save Ingredient Price
       let newPrice = Number(editingPrices[itemId]);
       const ing = localIngredients.find(i => i.itemId === itemId);
       if (ing && (ing.rateUnit === 'gm' || ing.rateUnit === 'ml')) {
         newPrice = newPrice / 1000;
       }
 
-      const res = await fetch(`${API_URL}/api/costing/ingredient`, {
+      const resPrice = await fetch(`${API_URL}/api/costing/ingredient`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -245,19 +248,46 @@ export default function CostingMaster() {
           price: newPrice
         })
       });
-      if (!res.ok) {
-        const errData = await res.json();
+      if (!resPrice.ok) {
+        const errData = await resPrice.json();
         throw new Error(errData.error || 'Failed to update ingredient price');
+      }
+
+      // 2. Save Recipe Quantities (so row edits persist)
+      if (selectedDishId) {
+        const grouped: Record<string, any> = {};
+        localIngredients.forEach(ingItem => {
+          const pId = ingItem.parentId || selectedDishId;
+          const pModel = ingItem.parentModel || 'Dish';
+          const key = `${pModel}_${pId}`;
+          if (!grouped[key]) {
+            grouped[key] = { targetModel: pModel, targetId: pId, ingredients: [] };
+          }
+          grouped[key].ingredients.push({
+            itemModel: ingItem.itemModel,
+            itemId: ingItem.itemId,
+            quantity: Number(ingItem.rawRecipeQuantity) || Number(ingItem.quantity) || 1,
+            unit: ingItem.unit
+          });
+        });
+        
+        const bulkUpdates = Object.values(grouped);
+        const resRecipe = await fetch(`${API_URL}/api/costing/recipe/bulk`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ bulkUpdates })
+        });
+        if (!resRecipe.ok) throw new Error('Failed to update recipe quantity');
       }
       
       // Re-fetch costing to update values silently
       if (selectedDishId) {
         await fetchCosting(selectedDishId, true);
       }
-      setSuccessMessage('Ingredient price updated successfully!');
+      setSuccessMessage('Ingredient and recipe updated successfully!');
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err: any) {
-      setError(err.message || 'Failed to update price');
+      setError(err.message || 'Failed to update ingredient');
     } finally {
       setSavingIngredientId('');
     }
@@ -488,22 +518,39 @@ export default function CostingMaster() {
           </p>
         </div>
 
-        <div className="flex flex-col items-center lg:items-end gap-3 relative z-10 w-full lg:w-[350px]">
+        <div className="flex flex-col items-center lg:items-end gap-3 relative z-10 w-full lg:w-[450px]">
           {loadingDishes ? (
             <div className="flex items-center gap-2 text-foreground/40">
               <Loader2 className="animate-spin text-gold" size={16} />
               <span>Loading dishes...</span>
             </div>
           ) : (
-            <div className="w-full">
-              <CustomDropdown
-                options={dishes}
-                value={selectedDishId}
-                onChange={setSelectedDishId}
-                label="Selected Restaurant Dish"
-                placeholder="Search or choose a dish to analyze"
-                searchable={true}
-              />
+            <div className="w-full flex flex-col md:flex-row gap-2">
+              <select 
+                value={selectedCategory} 
+                onChange={e => {
+                  setSelectedCategory(e.target.value);
+                  const filtered = e.target.value === 'All' ? dishes : dishes.filter(d => d.category === e.target.value);
+                  if (filtered.length > 0) setSelectedDishId(filtered[0].value);
+                  else setSelectedDishId('');
+                }}
+                className="md:w-1/3 w-full bg-card border border-border rounded-xl px-3 py-3 text-sm font-bold text-foreground focus:border-gold outline-none"
+              >
+                <option value="All">All Categories</option>
+                {Array.from(new Set(dishes.map(d => d.category))).map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+              <div className="md:w-2/3 w-full">
+                <CustomDropdown
+                  options={selectedCategory === 'All' ? dishes : dishes.filter(d => d.category === selectedCategory)}
+                  value={selectedDishId}
+                  onChange={setSelectedDishId}
+                  label=""
+                  placeholder="Select dish to analyze"
+                  searchable={true}
+                />
+              </div>
             </div>
           )}
         </div>

@@ -1086,7 +1086,12 @@ export default function POSTerminal() {
                 className="flex items-center justify-between bg-foreground/5 p-2.5 rounded-xl border border-foreground/5"
               >
                 <div className="flex-1 pr-2">
-                  <h4 className="font-bold text-xs">{item.dish.name}</h4>
+                  <div className="flex items-start gap-1">
+                    <div className={`mt-0.5 min-w-[10px] w-[10px] h-[10px] border flex items-center justify-center rounded-sm ${/(chicken|mutton|meat|gosht|egg|fish|murg|keema|anda)/i.test(item.dish.name) ? 'border-red-600' : 'border-green-600'}`}>
+                      <div className={`w-[4px] h-[4px] rounded-full ${/(chicken|mutton|meat|gosht|egg|fish|murg|keema|anda)/i.test(item.dish.name) ? 'bg-red-600' : 'bg-green-600'}`}></div>
+                    </div>
+                    <h4 className="font-bold text-xs">{item.dish.name}</h4>
+                  </div>
                   <p className="text-xs text-foreground/40">₹{item.dish.price} x {item.quantity}</p>
                   
                   {item.note && (
@@ -1745,7 +1750,12 @@ export default function POSTerminal() {
                   </div>
                   
                   <div className="p-2 sm:p-3 flex flex-col justify-between flex-1 gap-2">
-                    <h3 className="font-bold text-[11px] sm:text-xs leading-tight line-clamp-2">{dish.name}</h3>
+                    <div className="flex items-start gap-1">
+                      <div className={`mt-0.5 min-w-[10px] w-[10px] h-[10px] border flex items-center justify-center rounded-sm ${/(chicken|mutton|meat|gosht|egg|fish|murg|keema|anda)/i.test(dish.name) ? 'border-red-600' : 'border-green-600'}`}>
+                        <div className={`w-[4px] h-[4px] rounded-full ${/(chicken|mutton|meat|gosht|egg|fish|murg|keema|anda)/i.test(dish.name) ? 'bg-red-600' : 'bg-green-600'}`}></div>
+                      </div>
+                      <h3 className="font-bold text-[11px] sm:text-xs leading-tight line-clamp-2">{dish.name}</h3>
+                    </div>
                     <div className="flex items-center justify-between mt-auto">
                       <span className="text-sm font-black text-foreground">₹{dish.price}</span>
                       {!isManagementMode && (
@@ -1901,12 +1911,8 @@ export default function POSTerminal() {
                               className="w-full bg-background p-3 rounded-lg border border-gold/30 text-sm outline-none focus:border-gold text-foreground"
                             >
                               <option value="">Do not link / Setup manually</option>
-                              {Array.from(new Set(dishesData?.map((d: any) => d.category))).map((cat: any) => (
-                                <optgroup key={cat} label={cat}>
-                                  {dishesData?.filter((d: any) => d.category === cat).map((dish: any) => (
-                                    <option key={dish._id} value={dish._id}>{dish.name}</option>
-                                  ))}
-                                </optgroup>
+                              {dishesData?.filter((d: any) => d.category === newDish.category).map((dish: any) => (
+                                <option key={dish._id} value={dish._id}>{dish.name}</option>
                               ))}
                             </select>
                             {recipeIngredients.length > 0 && selectedTemplateDishId && (

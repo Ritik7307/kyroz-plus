@@ -327,8 +327,8 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
 
   const rmIds: Record<string, mongoose.Types.ObjectId> = {};
   for (const rm of rmData) {
-    const createdRm = await RawMaterial.create({ ...rm, userId });
-    rmIds[rm.code] = createdRm._id as mongoose.Types.ObjectId;
+    const createdRm = await RawMaterial.findOneAndUpdate({ code: rm.code, userId }, { $set: { ...rm, userId } }, { upsert: true, new: true });
+    if(createdRm) rmIds[rm.code] = createdRm._id as mongoose.Types.ObjectId;
   }
 
   const sfgData = [
@@ -443,23 +443,25 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
 
   const sfgIds: Record<string, mongoose.Types.ObjectId> = {};
   for (const sfg of sfgData) {
-    const createdSfg = await SemiFinishedGood.create({ ...sfg, userId });
-    sfgIds[sfg.code] = createdSfg._id as mongoose.Types.ObjectId;
+    const createdSfg = await SemiFinishedGood.findOneAndUpdate({ code: sfg.code, userId }, { $set: { ...sfg, userId } }, { upsert: true, new: true });
+    if(createdSfg) sfgIds[sfg.code] = createdSfg._id as mongoose.Types.ObjectId;
   }
 
   for (const sfg of sfgData) {
     const rmCode = 'RM_' + sfg.code.replace('SFG_', '');
     if (rmIds[rmCode]) {
-      await Recipe.create({
-        targetModel: 'SemiFinishedGood',
-        targetId: sfgIds[sfg.code],
-        ingredients: [
-          { itemModel: 'RawMaterial', itemId: rmIds[rmCode], quantity: sfg.batchYield }
-        ],
-        targetYield: sfg.batchYield,
-        operationalYield: sfg.batchYield,
-        userId
-      });
+      await Recipe.findOneAndUpdate(
+        { targetModel: 'SemiFinishedGood', targetId: sfgIds[sfg.code], userId },
+        { $set: {
+          ingredients: [
+            { itemModel: 'RawMaterial', itemId: rmIds[rmCode], quantity: sfg.batchYield }
+          ],
+          targetYield: sfg.batchYield,
+          operationalYield: sfg.batchYield,
+          userId
+        } },
+        { upsert: true, new: true }
+      );
     }
   }
 
@@ -991,8 +993,8 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
 
   const portionIds: Record<string, mongoose.Types.ObjectId> = {};
   for (const portion of portionData) {
-    const createdPortion = await PortionMaster.create({ ...portion, userId });
-    portionIds[portion.code] = createdPortion._id as mongoose.Types.ObjectId;
+    const createdPortion = await PortionMaster.findOneAndUpdate({ code: portion.code, userId }, { $set: { ...portion, userId } }, { upsert: true, new: true });
+    if(createdPortion) portionIds[portion.code] = createdPortion._id as mongoose.Types.ObjectId;
   }
 
   const pkgData = [
@@ -1099,8 +1101,8 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
 
   const pkgIds: Record<string, mongoose.Types.ObjectId> = {};
   for (const pkg of pkgData) {
-    const createdPkg = await Packaging.create({ ...pkg, userId });
-    pkgIds[pkg.code] = createdPkg._id as mongoose.Types.ObjectId;
+    const createdPkg = await Packaging.findOneAndUpdate({ code: pkg.code, userId }, { $set: { ...pkg, userId } }, { upsert: true, new: true });
+    if(createdPkg) pkgIds[pkg.code] = createdPkg._id as mongoose.Types.ObjectId;
   }
 
   const dishData = [
@@ -1329,14 +1331,7 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
     { name: 'Mutton White Mandi', price: 599, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_MANDI_CONTAINER'], pkgIds['PKG_FOIL'], pkgIds['PKG_SPOON'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_MANDI_CONTAINER'], pkgIds['PKG_FOIL'], pkgIds['PKG_SPOON'], pkgIds['PKG_CARRY_BAG']], dineIn: [] } },
 
     // South Indian Dishes
-    { name: 'Mix-Veg Uttapam', price: 179, category: 'South Indian', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
-    { name: 'Plain Dosa', price: 149, category: 'South Indian', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
-    { name: 'Masala Dosa', price: 189, category: 'South Indian', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
-    { name: 'Butter Dosa', price: 169, category: 'South Indian', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
-    { name: 'Onion Rava Dosa', price: 199, category: 'South Indian', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
-    { name: 'Medu Vada', price: 119, category: 'South Indian', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
     { name: 'Regular Idli', price: 99, category: 'South Indian', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
-    { name: 'Mini Idli', price: 119, category: 'South Indian', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_SERVING_PLATE']] } },
 
     // Tandoor Dishes
     { name: 'Chicken Tikka', price: 299, category: 'Tandoor Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
@@ -1351,37 +1346,25 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
     // Veg Tandoor
     { name: 'Tandoori Paneer', price: 249, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
     { name: 'Tandoori Chaap', price: 229, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
-    { name: 'Tandoori Mushroom', price: 259, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
     { name: 'Tandoori Momos', price: 199, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
     
     { name: 'Malai Paneer', price: 269, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
     { name: 'Malai Chaap', price: 249, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
-    { name: 'Malai Mushroom', price: 279, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
     
     { name: 'Hariyali Paneer', price: 259, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
     { name: 'Hariyali Chaap', price: 239, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
-    { name: 'Hariyali Mushroom', price: 269, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
     
     { name: 'Achari Paneer', price: 269, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
     { name: 'Achari Chaap', price: 249, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
-    { name: 'Achari Mushroom', price: 279, category: 'Veg Starter', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
 
     { name: 'Aloo Gobhi Matar (Semi-Gravy)', price: 250, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_OVAL_VEG_DISH']] } },
-    { name: 'Corn Palak Cheese', price: 280, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_OVAL_VEG_DISH']] } },
-    { name: 'Kadhai Paneer', price: 320, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_COPPER_KADHAI']] } },
-    { name: 'Lehsunia Paneer', price: 310, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
-    { name: 'Malai Kofta (Ivory)', price: 340, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
-    { name: 'Malai Kofta Red', price: 340, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
-    { name: 'Mushroom Do Pyaza', price: 290, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
     { name: 'Navratan Korma', price: 350, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
-    { name: 'Palak Paneer', price: 300, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } },
-    { name: 'Paneer Butter Masala', price: 310, category: 'Main Course', packagingLogic: { takeaway: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], delivery: [pkgIds['PKG_TAKEAWAY_CONTAINER'], pkgIds['PKG_CARRY_BAG']], dineIn: [pkgIds['PKG_PREMIUM_DEEP_BOWL']] } }
   ];
 
   const dishIds: Record<string, mongoose.Types.ObjectId> = {};
   for (const dish of dishData) {
-    const createdDish = await Dish.create({ ...dish, userId });
-    dishIds[dish.name] = createdDish._id as mongoose.Types.ObjectId;
+    const createdDish = await Dish.findOneAndUpdate({ name: dish.name, userId }, { $set: { ...dish, userId, isInventoryLinked: true, ingredientPrice: Math.floor(dish.price * 0.35) } }, { upsert: true, new: true });
+    if(createdDish) dishIds[dish.name] = createdDish._id as mongoose.Types.ObjectId;
   }
 
   const dishRecipeMappings: Record<string, { itemModel: string, code: string, quantity: number }[]> = {
@@ -1661,71 +1644,11 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
       { itemModel: 'SemiFinishedGood', code: 'SFG_STEAMED_MUTTON_MANDI', quantity: 1 }
     ],
 
-    'Mix-Veg Uttapam': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_IDLI_BATTER_S305', quantity: 180 },
-      { itemModel: 'RawMaterial', code: 'RM_ONION', quantity: 15 },
-      { itemModel: 'RawMaterial', code: 'RM_TOMATO', quantity: 15 },
-      { itemModel: 'RawMaterial', code: 'RM_GREEN_CHILLI', quantity: 5 },
-      { itemModel: 'RawMaterial', code: 'RM_FRESH_CORIANDER', quantity: 5 },
-      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 8 },
-      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
-    ],
-    'Plain Dosa': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_DOSA_BATTER_S301', quantity: 100 },
-      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_CHUTNEY_S306', quantity: 30 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_COCONUT_CHUTNEY_S307', quantity: 40 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_SAMBHAR_S308', quantity: 100 },
-      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
-    ],
-    'Masala Dosa': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_DOSA_BATTER_S301', quantity: 100 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_ALOO_MASALA_S302', quantity: 120 },
-      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_CHUTNEY_S306', quantity: 30 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_COCONUT_CHUTNEY_S307', quantity: 40 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_SAMBHAR_S308', quantity: 100 },
-      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
-    ],
-    'Butter Dosa': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_DOSA_BATTER_S301', quantity: 100 },
-      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 15 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_CHUTNEY_S306', quantity: 30 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_COCONUT_CHUTNEY_S307', quantity: 40 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_SAMBHAR_S308', quantity: 100 },
-      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
-    ],
-    'Onion Rava Dosa': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RAVA_BATTER_S303', quantity: 120 },
-      { itemModel: 'RawMaterial', code: 'RM_ONION', quantity: 15 },
-      { itemModel: 'RawMaterial', code: 'RM_GREEN_CHILLI', quantity: 2 },
-      { itemModel: 'RawMaterial', code: 'RM_FRESH_CORIANDER', quantity: 3 },
-      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 8 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_CHUTNEY_S306', quantity: 30 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_COCONUT_CHUTNEY_S307', quantity: 40 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_SAMBHAR_S308', quantity: 100 },
-      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
-    ],
-    'Medu Vada': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_VADA_BATTER_S304', quantity: 70 },
-      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 8 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_CHUTNEY_S306', quantity: 40 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_COCONUT_CHUTNEY_S307', quantity: 50 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_SAMBHAR_S308', quantity: 120 },
-      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
-    ],
     'Regular Idli': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_IDLI_BATTER_S305', quantity: 50 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_RED_CHUTNEY_S306', quantity: 40 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_COCONUT_CHUTNEY_S307', quantity: 50 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_SAMBHAR_S308', quantity: 120 },
-      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
-    ],
-    'Mini Idli': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_IDLI_BATTER_S305', quantity: 20 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_RED_CHUTNEY_S306', quantity: 20 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_COCONUT_CHUTNEY_S307', quantity: 25 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_SAMBHAR_S308', quantity: 60 },
       { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
     ],
 
@@ -1795,12 +1718,6 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
       { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
       { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
     ],
-    'Tandoori Mushroom': [
-      { itemModel: 'RawMaterial', code: 'RM_BUTTON_MUSHROOM', quantity: 150 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_T601_PASTE', quantity: 60 },
-      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
-      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
-    ],
     'Tandoori Momos': [
       { itemModel: 'RawMaterial', code: 'RM_VEG_MOMOS', quantity: 6 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_T601_PASTE', quantity: 60 },
@@ -1819,12 +1736,6 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
       { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
       { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
     ],
-    'Malai Mushroom': [
-      { itemModel: 'RawMaterial', code: 'RM_BUTTON_MUSHROOM', quantity: 150 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_T602_PASTE', quantity: 60 },
-      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
-      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
-    ],
     'Hariyali Paneer': [
       { itemModel: 'RawMaterial', code: 'RM_PANEER_CUBES', quantity: 150 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_T603_PASTE', quantity: 60 },
@@ -1837,12 +1748,6 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
       { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
       { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
     ],
-    'Hariyali Mushroom': [
-      { itemModel: 'RawMaterial', code: 'RM_BUTTON_MUSHROOM', quantity: 150 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_T603_PASTE', quantity: 60 },
-      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
-      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
-    ],
     'Achari Paneer': [
       { itemModel: 'RawMaterial', code: 'RM_PANEER_CUBES', quantity: 150 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_T602A_PASTE', quantity: 60 },
@@ -1851,12 +1756,6 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
     ],
     'Achari Chaap': [
       { itemModel: 'RawMaterial', code: 'RM_SOYA_CHAAP', quantity: 150 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_T602A_PASTE', quantity: 60 },
-      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
-      { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
-    ],
-    'Achari Mushroom': [
-      { itemModel: 'RawMaterial', code: 'RM_BUTTON_MUSHROOM', quantity: 150 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_T602A_PASTE', quantity: 60 },
       { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
       { itemModel: 'Packaging', code: 'PKG_SERVING_PLATE', quantity: 1 }
@@ -1881,110 +1780,6 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
       { itemModel: 'RawMaterial', code: 'RM_FRESH_CORIANDER', quantity: 3 },
       { itemModel: 'RawMaterial', code: 'RM_GINGER_JULIENNES', quantity: 5 }
     ],
-    'Corn Palak Cheese': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_G203', quantity: 140 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_G202', quantity: 60 },
-      { itemModel: 'RawMaterial', code: 'RM_BOILED_SWEET_CORN', quantity: 40 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PANEER_CUBES', quantity: 50 },
-      { itemModel: 'RawMaterial', code: 'RM_PROCESSED_CHEESE', quantity: 20 },
-      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 15 },
-      { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 30 },
-      { itemModel: 'RawMaterial', code: 'RM_FRESH_CREAM', quantity: 15 },
-      { itemModel: 'RawMaterial', code: 'RM_FRESH_GINGER', quantity: 2 },
-      { itemModel: 'RawMaterial', code: 'RM_GREEN_CHILLI', quantity: 2 },
-      { itemModel: 'RawMaterial', code: 'RM_K801', quantity: 0.5 },
-      { itemModel: 'RawMaterial', code: 'RM_K806', quantity: 0.5 },
-      { itemModel: 'RawMaterial', code: 'RM_SUGAR', quantity: 1 }
-    ],
-    'Kadhai Paneer': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_G204', quantity: 200 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PANEER_CUBES', quantity: 180 },
-      { itemModel: 'RawMaterial', code: 'RM_CAPSICUM_CUBES', quantity: 20 },
-      { itemModel: 'RawMaterial', code: 'RM_ONION_CUBES', quantity: 20 },
-      { itemModel: 'RawMaterial', code: 'RM_FRYING_OIL', quantity: 15 },
-      { itemModel: 'RawMaterial', code: 'RM_DESI_GHEE', quantity: 5 },
-      { itemModel: 'RawMaterial', code: 'RM_CAPSICUM_ONION_STOCK', quantity: 40 },
-      { itemModel: 'RawMaterial', code: 'RM_DRY_RED_CHILLI', quantity: 2 },
-      { itemModel: 'RawMaterial', code: 'RM_SHAHI_JEERA', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_FRESH_GINGER', quantity: 3 },
-      { itemModel: 'RawMaterial', code: 'RM_CURD', quantity: 5 },
-      { itemModel: 'RawMaterial', code: 'RM_KASHMIRI_CHILLI_POWDER', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_K801', quantity: 0.5 },
-      { itemModel: 'RawMaterial', code: 'RM_K802', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_KASOORI_METHI', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_CRUSHED_BLACK_PEPPER', quantity: 0.5 },
-      { itemModel: 'RawMaterial', code: 'RM_GREEN_CHILLI', quantity: 5 },
-      { itemModel: 'RawMaterial', code: 'RM_GINGER_JULIENNES', quantity: 5 },
-      { itemModel: 'RawMaterial', code: 'RM_FRESH_CORIANDER', quantity: 3 },
-      { itemModel: 'RawMaterial', code: 'RM_GRATED_PANEER', quantity: 5 }
-    ],
-    'Lehsunia Paneer': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_G203', quantity: 160 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_G202', quantity: 40 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PANEER_CUBES', quantity: 150 },
-      { itemModel: 'RawMaterial', code: 'RM_FRYING_OIL', quantity: 10 },
-      { itemModel: 'RawMaterial', code: 'RM_DESI_GHEE', quantity: 5 },
-      { itemModel: 'RawMaterial', code: 'RM_CHOPPED_GARLIC', quantity: 20 },
-      { itemModel: 'RawMaterial', code: 'RM_FRESH_GINGER', quantity: 3 },
-      { itemModel: 'RawMaterial', code: 'RM_GREEN_CHILLI', quantity: 2 },
-      { itemModel: 'RawMaterial', code: 'RM_WATER', quantity: 35 },
-      { itemModel: 'RawMaterial', code: 'RM_FRESH_CREAM', quantity: 15 },
-      { itemModel: 'RawMaterial', code: 'RM_KASOORI_METHI', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_K801', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_K806', quantity: 0.5 },
-      { itemModel: 'RawMaterial', code: 'RM_SALT', quantity: 2 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_GOLDEN_GARLIC_TOPPING', quantity: 10 }
-    ],
-    'Malai Kofta (Ivory)': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_G202', quantity: 200 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_FRIED_KOFTA', quantity: 4 },
-      { itemModel: 'RawMaterial', code: 'RM_DESI_GHEE', quantity: 15 },
-      { itemModel: 'RawMaterial', code: 'RM_FRYING_OIL', quantity: 3 },
-      { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 40 },
-      { itemModel: 'RawMaterial', code: 'RM_FRESH_GINGER', quantity: 3 },
-      { itemModel: 'RawMaterial', code: 'RM_GREEN_CARDAMOM', quantity: 2 },
-      { itemModel: 'RawMaterial', code: 'RM_MACE', quantity: 0.25 },
-      { itemModel: 'RawMaterial', code: 'RM_FRESH_CREAM', quantity: 15 },
-      { itemModel: 'RawMaterial', code: 'RM_SUGAR', quantity: 3 },
-      { itemModel: 'RawMaterial', code: 'RM_KASOORI_METHI', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_K801', quantity: 0.5 },
-      { itemModel: 'RawMaterial', code: 'RM_K806', quantity: 0.5 },
-      { itemModel: 'RawMaterial', code: 'RM_CARDAMOM_POWDER', quantity: 0.25 },
-      { itemModel: 'RawMaterial', code: 'RM_ALMOND_FLAKES', quantity: 3 },
-      { itemModel: 'RawMaterial', code: 'RM_GRATED_KHOYA', quantity: 5 }
-    ],
-    'Malai Kofta Red': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_G201', quantity: 120 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_G202', quantity: 80 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_MALAI_KOFTA', quantity: 2 },
-      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 15 },
-      { itemModel: 'RawMaterial', code: 'RM_FRYING_OIL', quantity: 3 },
-      { itemModel: 'RawMaterial', code: 'RM_WATER', quantity: 45 },
-      { itemModel: 'RawMaterial', code: 'RM_FRESH_GINGER', quantity: 2 },
-      { itemModel: 'RawMaterial', code: 'RM_FRESH_CREAM', quantity: 15 },
-      { itemModel: 'RawMaterial', code: 'RM_KASOORI_METHI', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_KASHMIRI_CHILLI_POWDER', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_K801', quantity: 0.5 },
-      { itemModel: 'RawMaterial', code: 'RM_K806', quantity: 0.5 },
-      { itemModel: 'RawMaterial', code: 'RM_SUGAR', quantity: 3 }
-    ],
-    'Mushroom Do Pyaza': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_G204', quantity: 120 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_G205', quantity: 80 },
-      { itemModel: 'RawMaterial', code: 'RM_BUTTON_MUSHROOM', quantity: 120 },
-      { itemModel: 'RawMaterial', code: 'RM_ONION_PETALS', quantity: 60 },
-      { itemModel: 'RawMaterial', code: 'RM_FRYING_OIL', quantity: 10 },
-      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 5 },
-      { itemModel: 'RawMaterial', code: 'RM_FRESH_GINGER', quantity: 3 },
-      { itemModel: 'RawMaterial', code: 'RM_GREEN_CHILLI', quantity: 2 },
-      { itemModel: 'RawMaterial', code: 'RM_K802', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_KASHMIRI_CHILLI_POWDER', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_K801', quantity: 0.5 },
-      { itemModel: 'RawMaterial', code: 'RM_K806', quantity: 0.5 },
-      { itemModel: 'RawMaterial', code: 'RM_CURD_FRESH_CREAM', quantity: 15 },
-      { itemModel: 'RawMaterial', code: 'RM_WATER', quantity: 25 },
-      { itemModel: 'RawMaterial', code: 'RM_FRESH_CORIANDER', quantity: 2 }
-    ],
     'Navratan Korma': [
       { itemModel: 'SemiFinishedGood', code: 'SFG_G202', quantity: 200 },
       { itemModel: 'SemiFinishedGood', code: 'SFG_BLANCHED_VEG_MIX', quantity: 80 },
@@ -2006,41 +1801,6 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
       { itemModel: 'RawMaterial', code: 'RM_K806', quantity: 0.5 },
       { itemModel: 'RawMaterial', code: 'RM_POMEGRANATE_SEEDS', quantity: 5 }
     ],
-    'Palak Paneer': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_G203', quantity: 200 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PANEER_CUBES', quantity: 180 },
-      { itemModel: 'RawMaterial', code: 'RM_DESI_GHEE', quantity: 15 },
-      { itemModel: 'RawMaterial', code: 'RM_FRYING_OIL', quantity: 3 },
-      { itemModel: 'RawMaterial', code: 'RM_VEG_STOCK_WATER', quantity: 40 },
-      { itemModel: 'RawMaterial', code: 'RM_DRY_RED_CHILLI', quantity: 2 },
-      { itemModel: 'RawMaterial', code: 'RM_WHOLE_JEERA', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_CHOPPED_GARLIC', quantity: 5 },
-      { itemModel: 'RawMaterial', code: 'RM_FRESH_GINGER', quantity: 3 },
-      { itemModel: 'RawMaterial', code: 'RM_GREEN_CHILLI', quantity: 2 },
-      { itemModel: 'RawMaterial', code: 'RM_K801', quantity: 0.5 },
-      { itemModel: 'RawMaterial', code: 'RM_K806', quantity: 0.5 },
-      { itemModel: 'RawMaterial', code: 'RM_FRESH_CREAM', quantity: 15 },
-      { itemModel: 'RawMaterial', code: 'RM_SUGAR', quantity: 2 },
-      { itemModel: 'RawMaterial', code: 'RM_GINGER_JULIENNES', quantity: 5 },
-      { itemModel: 'RawMaterial', code: 'RM_GRATED_PANEER', quantity: 5 }
-    ],
-    'Paneer Butter Masala': [
-      { itemModel: 'SemiFinishedGood', code: 'SFG_G201', quantity: 200 },
-      { itemModel: 'SemiFinishedGood', code: 'SFG_PANEER_CUBES', quantity: 180 },
-      { itemModel: 'RawMaterial', code: 'RM_BUTTER', quantity: 20 },
-      { itemModel: 'RawMaterial', code: 'RM_FRYING_OIL', quantity: 3 },
-      { itemModel: 'RawMaterial', code: 'RM_MILK', quantity: 30 },
-      { itemModel: 'RawMaterial', code: 'RM_FRESH_GINGER', quantity: 3 },
-      { itemModel: 'RawMaterial', code: 'RM_GREEN_CHILLI', quantity: 2 },
-      { itemModel: 'RawMaterial', code: 'RM_KASHMIRI_CHILLI_POWDER', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_K801', quantity: 0.5 },
-      { itemModel: 'RawMaterial', code: 'RM_K806', quantity: 0.5 },
-      { itemModel: 'RawMaterial', code: 'RM_FRESH_CREAM', quantity: 15 },
-      { itemModel: 'RawMaterial', code: 'RM_KASOORI_METHI', quantity: 1 },
-      { itemModel: 'RawMaterial', code: 'RM_FRESH_CORIANDER', quantity: 3 },
-      { itemModel: 'RawMaterial', code: 'RM_GRATED_PANEER', quantity: 5 },
-      { itemModel: 'RawMaterial', code: 'RM_HONEY', quantity: 2 }
-    ]
   };
 
   for (const dish of dishData) {
@@ -2050,13 +1810,11 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
         itemId: portionIds[ing.code] || sfgIds[ing.code] || rmIds[ing.code] || pkgIds[ing.code] || (() => { console.error('MISSING ITEM ID FOR', ing.code, 'IN', dish.name); return undefined; })(),
         quantity: ing.quantity
       }));
-      await Recipe.create({
-        targetModel: 'Dish',
-        targetId: dishIds[dish.name],
-        ingredients,
-        yieldAmount: 1,
-        userId
-      });
+      await Recipe.findOneAndUpdate(
+        { targetModel: 'Dish', targetId: dishIds[dish.name], userId },
+        { $set: { ingredients, targetYield: 1, operationalYield: 1, userId } },
+        { upsert: true, new: true }
+      );
     }
   }
 };
