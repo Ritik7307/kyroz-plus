@@ -1464,13 +1464,13 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
     'South Indian Combo Meal': [ { itemModel: 'SemiFinishedGood', code: 'SFG_DOSA_BATTER', quantity: 100 }, { itemModel: 'SemiFinishedGood', code: 'SFG_COCONUT_CHUTNEY', quantity: 40 }, { itemModel: 'SemiFinishedGood', code: 'SFG_SAMBHAR', quantity: 120 } ],
 
     // Extended Biryani Recipes
-    'Mutton Biryani': [ { itemModel: 'SemiFinishedGood', code: 'SFG_COOKED_BIRYANI', quantity: 350 } ],
-    'Veg Biryani': [ { itemModel: 'SemiFinishedGood', code: 'SFG_COOKED_BIRYANI', quantity: 350 } ],
-    'Paneer Biryani': [ { itemModel: 'SemiFinishedGood', code: 'SFG_COOKED_BIRYANI', quantity: 350 } ],
-    'Chicken Biryani (Family Pack)': [ { itemModel: 'SemiFinishedGood', code: 'SFG_COOKED_BIRYANI', quantity: 1400 } ],
-    'Mutton Biryani (Family Pack)': [ { itemModel: 'SemiFinishedGood', code: 'SFG_COOKED_BIRYANI', quantity: 1400 } ],
-    'Veg Biryani (Family Pack)': [ { itemModel: 'SemiFinishedGood', code: 'SFG_COOKED_BIRYANI', quantity: 1400 } ],
-    'Paneer Biryani (Family Pack)': [ { itemModel: 'SemiFinishedGood', code: 'SFG_COOKED_BIRYANI', quantity: 1400 } ],
+    'Mutton Biryani': [ { itemModel: 'SemiFinishedGood', code: 'SFG_PREPARED_BIRYANI', quantity: 350 } ],
+    'Veg Biryani': [ { itemModel: 'SemiFinishedGood', code: 'SFG_PREPARED_BIRYANI', quantity: 350 } ],
+    'Paneer Biryani': [ { itemModel: 'SemiFinishedGood', code: 'SFG_PREPARED_BIRYANI', quantity: 350 } ],
+    'Chicken Biryani (Family Pack)': [ { itemModel: 'SemiFinishedGood', code: 'SFG_PREPARED_BIRYANI', quantity: 1400 } ],
+    'Mutton Biryani (Family Pack)': [ { itemModel: 'SemiFinishedGood', code: 'SFG_PREPARED_BIRYANI', quantity: 1400 } ],
+    'Veg Biryani (Family Pack)': [ { itemModel: 'SemiFinishedGood', code: 'SFG_PREPARED_BIRYANI', quantity: 1400 } ],
+    'Paneer Biryani (Family Pack)': [ { itemModel: 'SemiFinishedGood', code: 'SFG_PREPARED_BIRYANI', quantity: 1400 } ],
 
     // Extended Chinese Recipes
     'Veg Hot & Sour': [ { itemModel: 'SemiFinishedGood', code: 'SFG_CHINESE_BASE', quantity: 100 } ],
