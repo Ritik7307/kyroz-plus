@@ -52,7 +52,7 @@ export const getDishes = async (req: AuthRequest, res: Response): Promise<void> 
       const validRecipes = await Recipe.find({ 
         userId, 
         targetModel: 'Dish',
-        'ingredients.0': { $exists: true } 
+        ingredients: { $exists: true, $type: 'array', $ne: [] }
       }).select('targetId').lean();
       
       const validDishIds = validRecipes.map(r => r.targetId);

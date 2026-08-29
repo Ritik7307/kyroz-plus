@@ -144,7 +144,8 @@ export default function CostingMaster() {
         const res = await fetch(`${API_URL}/api/dishes?withRecipesOnly=true`, {
           headers: {
             'Authorization': `Bearer ${token}`
-          }
+          },
+          cache: 'no-store'
         });
         if (!res.ok) throw new Error('Failed to fetch dishes');
         const data = await res.json();
