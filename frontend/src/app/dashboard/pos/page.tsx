@@ -88,7 +88,7 @@ const INITIAL_TABLES = [
   { id: 'T8', name: 'Table 8' },
 ];
 
-const generateSharedSequence = () => {
+const generateKotSequence = () => {
   if (typeof window === 'undefined') return 1;
   const now = new Date();
   const istOffset = 5.5 * 60 * 60 * 1000;
@@ -96,7 +96,7 @@ const generateSharedSequence = () => {
   const today = currentIST.toISOString().split('T')[0];
   
   const lastDate = localStorage.getItem('kyroz_seq_date_v2');
-  let seq = parseInt(localStorage.getItem('kyroz_seq_no_v2') || '0', 10);
+  let seq = parseInt(localStorage.getItem('kyroz_kot_seq_v2') || '0', 10);
   
   if (lastDate !== today) {
     seq = 0;
@@ -104,7 +104,27 @@ const generateSharedSequence = () => {
   }
   
   seq += 1;
-  localStorage.setItem('kyroz_seq_no_v2', seq.toString());
+  localStorage.setItem('kyroz_kot_seq_v2', seq.toString());
+  return seq;
+};
+
+const generateBillSequence = () => {
+  if (typeof window === 'undefined') return 1;
+  const now = new Date();
+  const istOffset = 5.5 * 60 * 60 * 1000;
+  const currentIST = new Date(now.getTime() + istOffset);
+  const today = currentIST.toISOString().split('T')[0];
+  
+  const lastDate = localStorage.getItem('kyroz_seq_date_v2');
+  let seq = parseInt(localStorage.getItem('kyroz_bill_seq_v2') || '0', 10);
+  
+  if (lastDate !== today) {
+    seq = 0;
+    localStorage.setItem('kyroz_seq_date_v2', today);
+  }
+  
+  seq += 1;
+  localStorage.setItem('kyroz_bill_seq_v2', seq.toString());
   return seq;
 };
 
@@ -390,7 +410,7 @@ export default function POSTerminal() {
         orderType,
         kotStatus,
         kotId,
-        sequenceNo: existingSeq, // Preserve the sequence number
+        sequenceNo: (cart.length === 0 && !customerName && !customerPhone) ? undefined : existingSeq, // Clear sequence number when order is completed/cleared
       };
 
       const updated = {
@@ -421,7 +441,7 @@ export default function POSTerminal() {
       orderType,
       kotStatus,
       kotId,
-      sequenceNo: existingSeq,
+      sequenceNo: (cart.length === 0 && !customerName && !customerPhone) ? undefined : existingSeq,
     };
     
     const updatedSessions: Record<string, TableSession> = {
@@ -752,15 +772,8 @@ export default function POSTerminal() {
       return;
     }
 
-    // Zero Latency Checkout: Generate or get shared sequence
-    let currentSeq = tableSessions[activeTable]?.sequenceNo;
-    if (!currentSeq) {
-      currentSeq = generateSharedSequence();
-      setTableSessions(prev => ({
-        ...prev,
-        [activeTable]: { ...prev[activeTable], sequenceNo: currentSeq }
-      }));
-    }
+    // Zero Latency Checkout: Generate Bill sequence
+    let currentBillSeq = generateBillSequence();
 
     setIsProcessingCheckout(true);
     const token = localStorage.getItem('token');
@@ -771,11 +784,11 @@ export default function POSTerminal() {
       applyGst, paymentMethod, orderType,
       splitPayments: paymentMethod === 'Split' ? { cash: splitCash, online: splitOnline } : undefined,
       kotId, 
-      tempBillNo: currentSeq,
+      tempBillNo: currentBillSeq,
       offline_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2)
     };
 
-    setPrintedBillNo(currentSeq.toString());
+    setPrintedBillNo(currentBillSeq.toString());
     setPrintType('bill');
     
     setTimeout(async () => {
@@ -826,7 +839,7 @@ export default function POSTerminal() {
           gstAmount,
           parsedAdditionalCharge,
           grandTotal,
-          printedBillNo: currentSeq
+          printedBillNo: currentBillSeq
         });
         setCheckoutSuccess(true);
         
@@ -942,7 +955,7 @@ export default function POSTerminal() {
     // Zero Latency KOT: Generate or get shared sequence
     let currentSeq = tableSessions[activeTable]?.sequenceNo;
     if (!currentSeq) {
-      currentSeq = generateSharedSequence();
+      currentSeq = generateKotSequence();
       setTableSessions(prev => ({
         ...prev,
         [activeTable]: { ...prev[activeTable], sequenceNo: currentSeq }
