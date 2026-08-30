@@ -376,9 +376,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       />
 
       {/* --- PREMIUM FOOTER --- */}
-      <footer className="w-full border-t border-foreground/5 bg-black/20 backdrop-blur-md pt-12 md:pt-20 pb-8 md:pb-10 px-6 md:px-12 mt-auto print:hidden">
+      <footer className="w-full border-t border-foreground/5 bg-black/20 backdrop-blur-md pt-8 md:pt-12 pb-6 md:pb-8 px-6 md:px-12 mt-auto print:hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 mb-12 md:mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 mb-8 md:mb-10">
             
             {/* Brand Section */}
             <div className="space-y-6 flex flex-col items-center sm:items-start text-center sm:text-left">
@@ -453,7 +453,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           {/* Bottom Bar */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-10 border-t border-foreground/5 text-center md:text-left">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 border-t border-foreground/5 text-center md:text-left">
             <p className="text-[10px] md:text-xs font-black text-foreground/60 uppercase tracking-[0.2em]">
               © 2026 KYROZ TECHNOLOGIES PVT LTD. ALL RIGHTS RESERVED.
             </p>
