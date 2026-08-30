@@ -19,7 +19,7 @@ export const getCustomers = async (req: AuthRequest, res: Response): Promise<voi
     // Group orders by phone
     const orderStats: Record<string, { totalVisits: number; totalSpent: number; lastVisit: Date; latestOrderId?: string; latestPaymentMethod?: string; latestSplitPayments?: any }> = {};
 
-    orders.forEach(order => {
+    orders.forEach((order: any) => {
       const phone = order.customerPhone;
       if (!phone) return;
 
