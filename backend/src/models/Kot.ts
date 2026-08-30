@@ -46,8 +46,7 @@ const KotSchema = new Schema({
   offline_id: { type: String }
 }, { timestamps: true });
 
-// Ensure unique kotNumber per user session/account
-KotSchema.index({ userId: 1, kotNumber: 1 }, { unique: true });
+// Removed unique kotNumber index to allow daily resets
 KotSchema.index({ offline_id: 1 }, { unique: true, sparse: true });
 
 export default mongoose.models.Kot || mongoose.model<IKot>('Kot', KotSchema);
