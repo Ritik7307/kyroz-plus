@@ -761,7 +761,7 @@ export default function CustomersPage() {
                     </div>
                     <div>
                       <h3 className="text-foreground font-black text-sm uppercase tracking-wider">{customer.name || 'Unknown'}</h3>
-                      <p className="text-xs text-foreground/40 font-bold tracking-widest flex items-center gap-1 mt-1">
+                      <p className="text-xs text-foreground/60 font-bold tracking-widest flex items-center gap-1 mt-1">
                         <Phone size={10} /> {customer.phone}
                       </p>
                     </div>
@@ -793,11 +793,11 @@ export default function CustomersPage() {
 
                 <div className="grid grid-cols-2 gap-4 relative z-10 border-t border-border pt-6">
                   <div>
-                    <p className="text-[10px] font-black text-foreground/20 uppercase tracking-widest mb-1">Total Visits</p>
+                    <p className="text-[10px] font-black text-foreground/50 uppercase tracking-widest mb-1">Total Visits</p>
                     <p className="text-foreground font-bold text-lg">{customer.totalVisits}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-gold/40 uppercase tracking-widest mb-1">Total Spent</p>
+                    <p className="text-[10px] font-black text-gold/70 uppercase tracking-widest mb-1">Total Spent</p>
                     <p className="text-gold font-black text-lg flex items-center">
                       {formatCurrency(customer.totalSpent)}
                     </p>
@@ -807,7 +807,7 @@ export default function CustomersPage() {
                 <div className="grid grid-cols-1 gap-4 relative z-10 border-t border-border pt-4 mt-4">
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="text-[10px] font-black text-foreground/20 uppercase tracking-widest mb-1">Latest Payment</p>
+                      <p className="text-[10px] font-black text-foreground/50 uppercase tracking-widest mb-1">Latest Payment</p>
                       <p className="text-foreground font-bold text-sm">
                         {customer.latestPaymentMethod === 'Split' && customer.latestSplitPayments ? (
                           `Split (₹${customer.latestSplitPayments.cash} / ₹${customer.latestSplitPayments.online})`
@@ -829,7 +829,7 @@ export default function CustomersPage() {
                             setEditSplitOnline(0);
                           }
                         }}
-                        className="px-3 py-1.5 bg-foreground/5 hover:bg-gold/10 text-gold/70 hover:text-gold border border-gold/20 hover:border-gold/50 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all"
+                        className="px-3 py-1.5 bg-foreground/5 hover:bg-gold/10 text-gold hover:text-gold border border-gold/40 hover:border-gold/80 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all"
                       >
                         Edit Payment
                       </button>
@@ -837,12 +837,12 @@ export default function CustomersPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-border flex items-center justify-between text-xs font-bold uppercase tracking-widest text-foreground/40 group-hover:text-foreground/60 transition-colors relative z-10">
+                <div className="mt-6 pt-4 border-t border-border flex items-center justify-between text-xs font-bold uppercase tracking-widest text-foreground/60 group-hover:text-foreground/80 transition-colors relative z-10">
                   <div className="flex items-center gap-2">
-                    <Calendar size={12} className="text-gold/60" /> {date}
+                    <Calendar size={12} className="text-gold/80" /> {date}
                   </div>
                   <div className="flex items-center gap-2">
-                    <Clock size={12} className="text-gold/60" /> {time}
+                    <Clock size={12} className="text-gold/80" /> {time}
                   </div>
                 </div>
               </motion.div>
