@@ -376,12 +376,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       />
 
       {/* --- PREMIUM FOOTER --- */}
-      <footer className="w-full border-t border-foreground/5 bg-black/20 backdrop-blur-md pt-8 md:pt-12 pb-6 md:pb-8 px-6 md:px-12 mt-auto print:hidden">
+      <footer className="w-full border-t border-foreground/5 bg-black/20 backdrop-blur-md pt-4 md:pt-6 pb-4 md:pb-4 px-6 md:px-12 mt-auto print:hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 mb-8 md:mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-6 md:mb-6">
             
             {/* Brand Section */}
-            <div className="space-y-6 flex flex-col items-center sm:items-start text-center sm:text-left">
+            <div className="space-y-3 flex flex-col items-center sm:items-start text-center sm:text-left">
               <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-start">
                 <div className="w-10 h-10 bg-gold-gradient rounded-xl flex items-center justify-center shadow-lg border border-foreground/10 shrink-0">
                   <span className="text-black font-black text-xl">K</span>
@@ -404,9 +404,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
 
             {/* Support Section */}
-            <div className="space-y-6 flex flex-col items-center sm:items-start text-center sm:text-left">
+            <div className="space-y-3 flex flex-col items-center sm:items-start text-center sm:text-left">
               <h4 className="text-foreground text-[11px] font-black uppercase tracking-[0.2em]">Immediate Support</h4>
-              <ul className="space-y-4">
+              <ul className="space-y-2">
                 <li>
                   <a href="tel:+917887009800" className="flex items-center gap-3 text-foreground/80 hover:text-gold transition-all group">
                     <div className="w-8 h-8 rounded-lg bg-foreground/5 flex items-center justify-center group-hover:bg-gold/10 transition-all"><span className="text-[14px]">📞</span></div>
@@ -423,9 +423,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
 
             {/* Quick Links */}
-            <div className="space-y-6 flex flex-col items-center sm:items-start text-center sm:text-left">
+            <div className="space-y-3 flex flex-col items-center sm:items-start text-center sm:text-left">
               <h4 className="text-foreground text-[11px] font-black uppercase tracking-[0.2em]">Platform</h4>
-              <ul className="space-y-4">
+              <ul className="space-y-2">
                 {navLinks.slice(0, 4).map(link => (
                   <li key={link.path}>
                     <Link href={link.path} className="text-[11px] font-bold text-foreground/80 hover:text-gold transition-all uppercase tracking-widest">
@@ -437,7 +437,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
 
             {/* Trust Section */}
-            <div className="space-y-6 flex flex-col items-center sm:items-start text-center sm:text-left">
+            <div className="space-y-3 flex flex-col items-center sm:items-start text-center sm:text-left">
               <h4 className="text-foreground text-[11px] font-black uppercase tracking-[0.2em]">Enterprise Grade</h4>
               <div className="bg-foreground/5 rounded-2xl p-4 border border-foreground/5 w-full max-w-[250px] sm:max-w-none">
                 <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
@@ -453,7 +453,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           {/* Bottom Bar */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 border-t border-foreground/5 text-center md:text-left">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-foreground/5 text-center md:text-left">
             <p className="text-[10px] md:text-xs font-black text-foreground/60 uppercase tracking-[0.2em]">
               © 2026 KYROZ TECHNOLOGIES PVT LTD. ALL RIGHTS RESERVED.
             </p>
