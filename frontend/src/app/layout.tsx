@@ -11,6 +11,14 @@ export const metadata: Metadata = {
   title: "KYROZ-PLUS | AI-Powered Restaurant Operating System",
   description: "Standardize your kitchen, control food costs, and scale your restaurant with KYROZ Chef.",
   manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Kyroz POS",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 import { CartProvider } from "@/context/CartContext";
