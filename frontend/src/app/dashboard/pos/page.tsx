@@ -1345,7 +1345,7 @@ export default function POSTerminal() {
                 <button 
                   onClick={handleCheckout}
                   disabled={cart.length === 0}
-                  className="flex-1 py-2.5 rounded-lg font-black text-[11px] uppercase tracking-widest transition-all shadow-xl disabled:opacity-50 bg-gold text-black hover:scale-[1.02] active:scale-95"
+                  className="flex-1 py-2.5 rounded-lg font-black text-[11px] uppercase tracking-widest transition-all shadow-xl disabled:opacity-50 dark:bg-gold dark:text-black bg-foreground text-background hover:scale-[1.02] active:scale-95"
                 >
                   Checkout
                 </button>
