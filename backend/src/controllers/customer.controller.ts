@@ -17,7 +17,7 @@ export const getCustomers = async (req: AuthRequest, res: Response): Promise<voi
     }).lean();
 
     // Group orders by phone
-    const orderStats: Record<string, { totalVisits: number; totalSpent: number; lastVisit: Date }> = {};
+    const orderStats: Record<string, { totalVisits: number; totalSpent: number; lastVisit: Date; latestOrderId?: string; latestPaymentMethod?: string; latestSplitPayments?: any }> = {};
 
     orders.forEach(order => {
       const phone = order.customerPhone;
@@ -27,15 +27,21 @@ export const getCustomers = async (req: AuthRequest, res: Response): Promise<voi
         orderStats[phone] = {
           totalVisits: 0,
           totalSpent: 0,
-          lastVisit: order.createdAt
+          lastVisit: order.createdAt,
+          latestOrderId: order._id.toString(),
+          latestPaymentMethod: order.paymentMethod,
+          latestSplitPayments: order.splitPayments
         };
       }
 
       orderStats[phone].totalVisits += 1;
       orderStats[phone].totalSpent += order.totalRevenue;
       
-      if (new Date(order.createdAt) > new Date(orderStats[phone].lastVisit)) {
+      if (new Date(order.createdAt) >= new Date(orderStats[phone].lastVisit)) {
         orderStats[phone].lastVisit = order.createdAt;
+        orderStats[phone].latestOrderId = order._id.toString();
+        orderStats[phone].latestPaymentMethod = order.paymentMethod;
+        orderStats[phone].latestSplitPayments = order.splitPayments;
       }
     });
 
@@ -44,7 +50,10 @@ export const getCustomers = async (req: AuthRequest, res: Response): Promise<voi
       const stats = orderStats[customer.phone] || {
         totalVisits: 0,
         totalSpent: 0,
-        lastVisit: customer.createdAt
+        lastVisit: customer.createdAt,
+        latestOrderId: undefined,
+        latestPaymentMethod: undefined,
+        latestSplitPayments: undefined
       };
 
       return {
@@ -54,6 +63,9 @@ export const getCustomers = async (req: AuthRequest, res: Response): Promise<voi
         totalVisits: stats.totalVisits,
         totalSpent: stats.totalSpent,
         lastVisit: stats.lastVisit,
+        latestOrderId: stats.latestOrderId,
+        latestPaymentMethod: stats.latestPaymentMethod,
+        latestSplitPayments: stats.latestSplitPayments,
         createdAt: customer.createdAt
       };
     });

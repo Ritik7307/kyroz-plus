@@ -14,11 +14,15 @@ interface Customer {
   totalVisits: number;
   totalSpent: number;
   lastVisit: string;
+  latestOrderId?: string;
+  latestPaymentMethod?: string;
+  latestSplitPayments?: { cash: number; online: number };
   createdAt?: string;
 }
 
 type SortType = 'recent' | 'frequent' | 'spending';
 type FilterType = 'all' | 'less_than_5' | '5_to_10' | 'greater_than_10';
+type TimeFilterType = 'all' | 'last_7_days' | 'this_month';
 
 export default function CustomersPage() {
   const router = useRouter();
@@ -27,6 +31,7 @@ export default function CustomersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortType>('recent');
   const [filterBy, setFilterBy] = useState<FilterType>('all');
+  const [timeFilter, setTimeFilter] = useState<TimeFilterType>('all');
   const [userPlan, setUserPlan] = useState<string>('');
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
   const [showMessageModal, setShowMessageModal] = useState(false);
@@ -35,11 +40,22 @@ export default function CustomersPage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 21; // 3 columns * 7 rows
+
   // Edit / Delete state
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
   const [deletingCustomer, setDeletingCustomer] = useState<Customer | null>(null);
+
+  // Edit Payment State
+  const [editingPaymentCustomer, setEditingPaymentCustomer] = useState<Customer | null>(null);
+  const [editPaymentMethod, setEditPaymentMethod] = useState<'Cash' | 'Online' | 'Split'>('Cash');
+  const [editSplitCash, setEditSplitCash] = useState<number>(0);
+  const [editSplitOnline, setEditSplitOnline] = useState<number>(0);
+  const [savingPayment, setSavingPayment] = useState(false);
   
   const [isUploading, setIsUploading] = useState(false);
 
@@ -107,6 +123,18 @@ export default function CustomersPage() {
       result = result.filter(c => c.totalVisits > 10);
     }
 
+    if (timeFilter === 'last_7_days') {
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      result = result.filter(c => new Date(c.lastVisit) >= weekAgo);
+    } else if (timeFilter === 'this_month') {
+      const now = new Date();
+      result = result.filter(c => {
+        const d = new Date(c.lastVisit);
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+      });
+    }
+
     result.sort((a, b) => {
       if (sortBy === 'recent') {
         return new Date(b.lastVisit).getTime() - new Date(a.lastVisit).getTime();
@@ -119,12 +147,20 @@ export default function CustomersPage() {
     });
 
     return result;
-  }, [customers, searchQuery, sortBy, filterBy]);
+  }, [customers, searchQuery, sortBy, filterBy, timeFilter]);
+
+  const paginatedCustomers = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredAndSortedCustomers.slice(start, start + itemsPerPage);
+  }, [filteredAndSortedCustomers, currentPage]);
+
+  const totalPages = Math.ceil(filteredAndSortedCustomers.length / itemsPerPage);
 
   // Reset selections when filters change
   useEffect(() => {
     setSelectedCustomers([]);
-  }, [searchQuery, filterBy]);
+    setCurrentPage(1);
+  }, [searchQuery, filterBy, timeFilter]);
 
   const canUseWhatsapp = userPlan === 'Scale';
 
@@ -240,6 +276,41 @@ export default function CustomersPage() {
       }
     } catch (err) {
       alert('Error deleting customer');
+    }
+  };
+
+  const handleUpdatePayment = async () => {
+    if (!editingPaymentCustomer || !editingPaymentCustomer.latestOrderId) return;
+    setSavingPayment(true);
+    const token = localStorage.getItem('token');
+    
+    let payload: any = { paymentMethod: editPaymentMethod };
+    if (editPaymentMethod === 'Split') {
+      payload.splitPayments = { cash: editSplitCash, online: editSplitOnline };
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/api/orders/${editingPaymentCustomer.latestOrderId}/payment`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        // Update local state
+        setCustomers(customers.map(c => 
+          c._id === editingPaymentCustomer._id 
+            ? { ...c, latestPaymentMethod: editPaymentMethod, latestSplitPayments: payload.splitPayments } 
+            : c
+        ));
+        setEditingPaymentCustomer(null);
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to update payment');
+      }
+    } catch (err) {
+      alert('Error updating payment');
+    } finally {
+      setSavingPayment(false);
     }
   };
 
@@ -363,7 +434,21 @@ export default function CustomersPage() {
                   filterBy === f ? 'bg-gold text-black shadow-lg shadow-gold/20' : 'text-foreground/40 hover:text-foreground hover:bg-card shadow-sm'
                 }`}
               >
-                {f === 'less_than_5' ? '<5 visits' : f === '5_to_10' ? '5-10 visits' : f === 'greater_than_10' ? '>10 visits' : 'All'}
+                {f === 'less_than_5' ? '<5 visits' : f === '5_to_10' ? '5-10 visits' : f === 'greater_than_10' ? '>10 visits' : 'All Visits'}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex bg-card shadow-sm border border-border rounded-2xl p-1 overflow-x-auto scrollbar-hide">
+            {(['all', 'last_7_days', 'this_month'] as const).map(t => (
+              <button
+                key={t}
+                onClick={() => setTimeFilter(t)}
+                className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                  timeFilter === t ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'text-foreground/40 hover:text-foreground hover:bg-card shadow-sm'
+                }`}
+              >
+                {t === 'last_7_days' ? 'Last 7 Days' : t === 'this_month' ? 'This Month' : 'All Time'}
               </button>
             ))}
           </div>
@@ -580,11 +665,73 @@ export default function CustomersPage() {
         </div>
       )}
 
+      {/* Edit Payment Modal */}
+      {editingPaymentCustomer && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-md">
+          <div className="bg-card border border-border p-6 rounded-3xl max-w-sm w-full relative shadow-2xl">
+            <h2 className="text-xl font-bold text-foreground mb-4">Edit Payment Method</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest mb-1 block">Payment Method</label>
+                <select 
+                  value={editPaymentMethod}
+                  onChange={(e) => setEditPaymentMethod(e.target.value as any)}
+                  className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm font-bold text-foreground focus:outline-none focus:border-gold appearance-none"
+                >
+                  <option value="Cash">Cash</option>
+                  <option value="Online">Online</option>
+                  <option value="Split">Split</option>
+                </select>
+              </div>
+
+              {editPaymentMethod === 'Split' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-1 block">Cash Amt (₹)</label>
+                    <input 
+                      type="number" 
+                      value={editSplitCash}
+                      onChange={(e) => setEditSplitCash(Number(e.target.value))}
+                      className="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm font-bold text-foreground focus:outline-none focus:border-gold"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-1 block">Online Amt (₹)</label>
+                    <input 
+                      type="number" 
+                      value={editSplitOnline}
+                      onChange={(e) => setEditSplitOnline(Number(e.target.value))}
+                      className="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm font-bold text-foreground focus:outline-none focus:border-gold"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button 
+                onClick={() => setEditingPaymentCustomer(null)} 
+                className="px-4 py-2 text-foreground/40 hover:text-foreground font-bold transition-colors"
+                disabled={savingPayment}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleUpdatePayment}
+                disabled={savingPayment}
+                className="bg-gold text-black px-6 py-2 rounded-xl font-bold hover:bg-gold/80 transition-all disabled:opacity-50"
+              >
+                {savingPayment ? 'Saving...' : 'Save'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div className="flex justify-center items-center py-20">
           <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin"></div>
         </div>
-      ) : filteredAndSortedCustomers.length === 0 ? (
+      ) : paginatedCustomers.length === 0 ? (
         <div className="bg-card glass-card rounded-[2rem] p-16 text-center border border-border">
           <Users size={48} className="mx-auto text-foreground/20 mb-6" />
           <h3 className="text-foreground/40 font-black text-lg uppercase tracking-widest">No Customers Found</h3>
@@ -592,7 +739,7 @@ export default function CustomersPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredAndSortedCustomers.map((customer, idx) => {
+          {paginatedCustomers.map((customer, idx) => {
             const { date, time } = formatDateTime(customer.lastVisit);
             
             return (
@@ -657,6 +804,39 @@ export default function CustomersPage() {
                   </div>
                 </div>
 
+                <div className="grid grid-cols-1 gap-4 relative z-10 border-t border-border pt-4 mt-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-[10px] font-black text-foreground/20 uppercase tracking-widest mb-1">Latest Payment</p>
+                      <p className="text-foreground font-bold text-sm">
+                        {customer.latestPaymentMethod === 'Split' && customer.latestSplitPayments ? (
+                          `Split (₹${customer.latestSplitPayments.cash} / ₹${customer.latestSplitPayments.online})`
+                        ) : (
+                          customer.latestPaymentMethod || 'N/A'
+                        )}
+                      </p>
+                    </div>
+                    {customer.latestOrderId && (
+                      <button 
+                        onClick={() => {
+                          setEditingPaymentCustomer(customer);
+                          setEditPaymentMethod(customer.latestPaymentMethod as any || 'Cash');
+                          if (customer.latestSplitPayments) {
+                            setEditSplitCash(customer.latestSplitPayments.cash);
+                            setEditSplitOnline(customer.latestSplitPayments.online);
+                          } else {
+                            setEditSplitCash(0);
+                            setEditSplitOnline(0);
+                          }
+                        }}
+                        className="px-3 py-1.5 bg-foreground/5 hover:bg-gold/10 text-gold/70 hover:text-gold border border-gold/20 hover:border-gold/50 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all"
+                      >
+                        Edit Payment
+                      </button>
+                    )}
+                  </div>
+                </div>
+
                 <div className="mt-6 pt-4 border-t border-border flex items-center justify-between text-xs font-bold uppercase tracking-widest text-foreground/40 group-hover:text-foreground/60 transition-colors relative z-10">
                   <div className="flex items-center gap-2">
                     <Calendar size={12} className="text-gold/60" /> {date}
@@ -668,6 +848,29 @@ export default function CustomersPage() {
               </motion.div>
             );
           })}
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {!loading && totalPages > 1 && (
+        <div className="flex justify-center items-center mt-12 gap-4">
+          <button
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="px-6 py-3 bg-card border border-border rounded-xl font-bold uppercase tracking-widest text-xs disabled:opacity-50 disabled:cursor-not-allowed hover:border-gold/50 transition-colors"
+          >
+            Prev Page
+          </button>
+          <span className="text-sm font-black text-foreground/60">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="px-6 py-3 bg-card border border-border rounded-xl font-bold uppercase tracking-widest text-xs disabled:opacity-50 disabled:cursor-not-allowed hover:border-gold/50 transition-colors"
+          >
+            Next Page
+          </button>
         </div>
       )}
     </div>

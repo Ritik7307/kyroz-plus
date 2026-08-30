@@ -408,3 +408,44 @@ export const getEliteAnalytics = async (req: AuthRequest, res: Response): Promis
     res.status(500).json({ error: 'Failed to fetch elite analytics' });
   }
 };
+
+export const updateOrderPayment = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { paymentMethod, splitPayments } = req.body;
+    const userId = req.user?.userId;
+
+    const order = await Order.findOne({ _id: id, userId });
+    if (!order) {
+      res.status(404).json({ error: 'Order not found' });
+      return;
+    }
+
+    if (!['Cash', 'Online', 'Split'].includes(paymentMethod)) {
+      res.status(400).json({ error: 'Invalid payment method' });
+      return;
+    }
+
+    if (paymentMethod === 'Split') {
+      if (!splitPayments || typeof splitPayments.cash !== 'number' || typeof splitPayments.online !== 'number') {
+        res.status(400).json({ error: 'Invalid split payments payload' });
+        return;
+      }
+      // Optional check if they exactly match totalRevenue:
+      // if (Math.abs((splitPayments.cash + splitPayments.online) - order.totalRevenue) > 1) {
+      //   return res.status(400).json({ error: 'Split amounts must equal total revenue' });
+      // }
+      order.splitPayments = splitPayments;
+    } else {
+      order.splitPayments = undefined;
+    }
+
+    order.paymentMethod = paymentMethod;
+    await order.save();
+
+    res.status(200).json({ message: 'Payment method updated successfully', order });
+  } catch (error) {
+    console.error('Update Order Payment Error:', error);
+    res.status(500).json({ error: 'Failed to update order payment' });
+  }
+};

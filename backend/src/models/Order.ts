@@ -19,7 +19,11 @@ export interface IOrder extends Document {
   discountValue?: number;
   additionalCharge?: number;
   tableNumber?: string;
-  paymentMethod?: 'Cash' | 'Online';
+  paymentMethod?: 'Cash' | 'Online' | 'Split';
+  splitPayments?: {
+    cash: number;
+    online: number;
+  };
   orderType?: 'DineIn' | 'Takeaway' | 'Delivery';
   offline_id?: string;
   billNumber?: number;
@@ -45,7 +49,11 @@ const OrderSchema: Schema = new Schema({
   discountValue: { type: Number, default: 0 },
   additionalCharge: { type: Number, default: 0 },
   tableNumber: { type: String },
-  paymentMethod: { type: String, enum: ['Cash', 'Online'], default: 'Cash' },
+  paymentMethod: { type: String, enum: ['Cash', 'Online', 'Split'], default: 'Cash' },
+  splitPayments: {
+    cash: { type: Number, default: 0 },
+    online: { type: Number, default: 0 }
+  },
   orderType: { type: String, enum: ['DineIn', 'Takeaway', 'Delivery'], default: 'DineIn' },
   offline_id: { type: String },
   billNumber: { type: Number },

@@ -67,7 +67,9 @@ interface TableSession {
   discountType: 'percentage' | 'flat';
   additionalCharge: string;
   applyGst: boolean;
-  paymentMethod: 'Cash' | 'Online';
+  paymentMethod: 'Cash' | 'Online' | 'Split';
+  splitCash?: number;
+  splitOnline?: number;
   orderType: 'DineIn' | 'Takeaway' | 'Delivery';
   kotStatus?: 'None' | 'Pending' | 'Preparing' | 'Ready' | 'Served';
   kotId?: string;
@@ -115,6 +117,8 @@ const defaultSession = (tableId: string): TableSession => ({
   additionalCharge: '',
   applyGst: true,
   paymentMethod: 'Cash',
+  splitCash: 0,
+  splitOnline: 0,
   orderType: tableId === 'quick' ? 'Takeaway' : 'DineIn',
   kotStatus: 'None',
   kotId: '',
@@ -165,7 +169,9 @@ export default function POSTerminal() {
   const [additionalCharge, setAdditionalCharge] = useState<string>('');
   const [modifierModalType, setModifierModalType] = useState<string | null>(null);
   const [applyGst, setApplyGst] = useState(true); // GST Toggle
-  const [paymentMethod, setPaymentMethod] = useState<'Cash' | 'Online'>('Cash');
+  const [paymentMethod, setPaymentMethod] = useState<'Cash' | 'Online' | 'Split'>('Cash');
+  const [splitCash, setSplitCash] = useState<number>(0);
+  const [splitOnline, setSplitOnline] = useState<number>(0);
   const [orderType, setOrderType] = useState<'DineIn' | 'Takeaway' | 'Delivery'>('DineIn');
 
   // KOT State
@@ -344,6 +350,8 @@ export default function POSTerminal() {
     setAdditionalCharge(activeSession.additionalCharge || '');
     setApplyGst(activeSession.applyGst !== undefined ? activeSession.applyGst : true);
     setPaymentMethod(activeSession.paymentMethod || 'Cash');
+    setSplitCash(activeSession.splitCash || 0);
+    setSplitOnline(activeSession.splitOnline || 0);
     setOrderType(activeSession.orderType || (savedActiveTable === 'quick' ? 'Takeaway' : 'DineIn'));
     setKotStatus(activeSession.kotStatus || 'None');
     setKotId(activeSession.kotId || '');
@@ -377,6 +385,8 @@ export default function POSTerminal() {
         additionalCharge,
         applyGst,
         paymentMethod,
+        splitCash,
+        splitOnline,
         orderType,
         kotStatus,
         kotId,
@@ -390,7 +400,7 @@ export default function POSTerminal() {
       localStorage.setItem('pos_table_sessions', JSON.stringify(updated));
       return updated;
     });
-  }, [cart, customerName, customerPhone, discount, discountType, additionalCharge, applyGst, paymentMethod, orderType, kotStatus, kotId]);
+  }, [cart, customerName, customerPhone, discount, discountType, additionalCharge, applyGst, paymentMethod, splitCash, splitOnline, orderType, kotStatus, kotId]);
 
   const switchTable = (targetTableId: string) => {
     isSwitchingTable.current = true;
@@ -406,6 +416,8 @@ export default function POSTerminal() {
       additionalCharge,
       applyGst,
       paymentMethod,
+      splitCash,
+      splitOnline,
       orderType,
       kotStatus,
       kotId,
@@ -429,6 +441,8 @@ export default function POSTerminal() {
     setAdditionalCharge(targetSession.additionalCharge || '');
     setApplyGst(targetSession.applyGst !== undefined ? targetSession.applyGst : true);
     setPaymentMethod(targetSession.paymentMethod || 'Cash');
+    setSplitCash(targetSession.splitCash || 0);
+    setSplitOnline(targetSession.splitOnline || 0);
     setOrderType(targetSession.orderType || (targetTableId === 'quick' ? 'Takeaway' : 'DineIn'));
     setKotStatus(targetSession.kotStatus || 'None');
     setKotId(targetSession.kotId || '');
@@ -755,6 +769,7 @@ export default function POSTerminal() {
       items: cart.map(item => ({ dishId: item.dish._id, dishName: item.dish.name, quantity: item.quantity, note: item.note })),
       customerName, customerPhone, discount: Number(discount) || 0, discountType, additionalCharge: Number(additionalCharge) || 0,
       applyGst, paymentMethod, orderType,
+      splitPayments: paymentMethod === 'Split' ? { cash: splitCash, online: splitOnline } : undefined,
       kotId, 
       tempBillNo: currentSeq,
       offline_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2)
@@ -1202,7 +1217,7 @@ export default function POSTerminal() {
 
             <div className="w-px h-6 bg-foreground/10 shrink-0 mx-1 rounded-full" />
 
-            <div className="flex w-28 items-center gap-1 shrink-0">
+            <div className="flex w-36 items-center gap-1 shrink-0">
               <button 
                 onClick={() => setPaymentMethod('Cash')}
                 className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
@@ -1219,8 +1234,41 @@ export default function POSTerminal() {
               >
                 Online
               </button>
+              <button 
+                onClick={() => setPaymentMethod('Split')}
+                className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  paymentMethod === 'Split' ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/40 border-foreground/10'
+                }`}
+              >
+                Split
+              </button>
             </div>
           </div>
+
+          {paymentMethod === 'Split' && (
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              <div>
+                <label className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-1 block">Cash Amount</label>
+                <input 
+                  type="number" 
+                  value={splitCash || ''}
+                  onChange={(e) => setSplitCash(Number(e.target.value))}
+                  placeholder="0"
+                  className="w-full bg-background border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:outline-none focus:border-gold"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-1 block">Online Amount</label>
+                <input 
+                  type="number" 
+                  value={splitOnline || ''}
+                  onChange={(e) => setSplitOnline(Number(e.target.value))}
+                  placeholder="0"
+                  className="w-full bg-background border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:outline-none focus:border-gold"
+                />
+              </div>
+            </div>
+          )}
 
           <div className="flex justify-between items-end pt-1 border-t border-foreground/5">
             <span className="text-xs font-black uppercase tracking-widest">Total</span>
