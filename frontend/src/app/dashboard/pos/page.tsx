@@ -2090,16 +2090,16 @@ export default function POSTerminal() {
                                     const newV = [...variations];
                                     newV[i].name = e.target.value;
                                     setVariations(newV);
-                                  }} placeholder="Size (e.g. Half)" className="flex-1 bg-background p-3 rounded-lg border border-foreground/10 text-sm" />
+                                  }} placeholder="Size (e.g. Half)" className="flex-[2] min-w-0 bg-background p-3 rounded-lg border border-foreground/10 text-sm" />
                                   <input type="number" value={v.price} onChange={(e) => {
                                     const newV = [...variations];
                                     newV[i].price = e.target.value;
                                     setVariations(newV);
-                                  }} placeholder="Price" className="flex-1 bg-background p-3 rounded-lg border border-foreground/10 text-sm" />
+                                  }} placeholder="Price" className="flex-[1] min-w-0 bg-background p-3 rounded-lg border border-foreground/10 text-sm" />
                                   <button onClick={() => {
                                     const newV = variations.filter((_, idx) => idx !== i);
                                     setVariations(newV);
-                                  }} className="p-3 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20 transition-colors"><X size={16} /></button>
+                                  }} className="p-3 shrink-0 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20 transition-colors"><X size={16} /></button>
                                 </div>
                                 <select 
                                   value={(v as any).templateDishId || ''}
