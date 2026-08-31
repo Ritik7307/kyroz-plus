@@ -28,7 +28,8 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
       tableNumber,
       paymentMethod,
       orderType = 'DineIn',
-      offline_id
+      offline_id,
+      applyGst
     } = req.body; // Array of { dishId, quantity }
 
     if (!items || !Array.isArray(items)) {
@@ -153,7 +154,16 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
       }
 
       const charge = additionalCharge || 0;
-      const discountedRevenue = totalRevenue - discountAmount + charge;
+      const afterDiscount = Math.max(0, totalRevenue - discountAmount);
+      
+      let gstAmount = 0;
+      if (applyGst) {
+        const user = await User.findById(req.user?.userId);
+        const gstRate = user?.gstPercentage || 0;
+        gstAmount = afterDiscount * (gstRate / 100);
+      }
+
+      const discountedRevenue = Math.round(afterDiscount + gstAmount + charge);
 
       // Generate bill number (resets daily per user/restaurant in IST timezone)
       const now = new Date();
