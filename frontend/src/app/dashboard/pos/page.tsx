@@ -986,12 +986,15 @@ export default function POSTerminal() {
 
     // Setup WebSocket listener
     const socket = require('socket.io-client')(API_URL);
-    if (userData && userData.userId) {
-      socket.emit('joinRestaurant', userData.userId);
+    if (userData) {
+      const restaurantId = userData._id || userData.id || userData.userId;
+      if (restaurantId) {
+        socket.emit('joinRestaurant', restaurantId);
+      }
     }
     
     socket.on('KOT_UPDATED', (updatedKot: any) => {
-      if (updatedKot._id === kotId && active) {
+      if (String(updatedKot._id) === String(kotId) && active) {
         setKotStatus(updatedKot.status);
       }
     });
@@ -1182,7 +1185,7 @@ export default function POSTerminal() {
               Clear
             </button>
             {isDrawer && (
-              <button onClick={() => setIsCartOpen(false)} className="p-1 text-foreground/40 hover:text-foreground transition-colors">
+              <button onClick={() => setIsCartOpen(false)} className="p-1 text-foreground/70 hover:text-foreground transition-colors">
                 <X size={16} />
               </button>
             )}
@@ -1207,7 +1210,7 @@ export default function POSTerminal() {
                     </div>
                     <h4 className="font-bold text-xs">{item.dish.name}</h4>
                   </div>
-                  <p className="text-xs text-foreground/40">₹{item.dish.price} x {item.quantity}</p>
+                  <p className="text-xs text-foreground/70">₹{item.dish.price} x {item.quantity}</p>
                   
                   {item.note && (
                     <p className="text-[10px] text-gold mt-1 italic leading-tight line-clamp-2">Note: {item.note}</p>
@@ -1221,13 +1224,13 @@ export default function POSTerminal() {
                         setCart(prev => prev.map(i => i.dish._id === item.dish._id ? { ...i, note } : i));
                       }
                     }}
-                    className={`p-1.5 rounded-lg transition-colors border ${item.note ? 'bg-gold/10 text-gold border-gold/30' : 'bg-foreground/5 text-foreground/40 border-foreground/10 hover:text-foreground hover:bg-foreground/10'}`}
+                    className={`p-1.5 rounded-lg transition-colors border ${item.note ? 'bg-gold/10 text-gold border-gold/30' : 'bg-foreground/5 text-foreground/70 border-foreground/10 hover:text-foreground hover:bg-foreground/10'}`}
                     title="Add Note"
                   >
                     <FileText size={12} />
                   </button>
                   <div className="flex items-center gap-2 bg-background rounded-xl p-1 border border-foreground/5 shrink-0">
-                    <button onClick={() => updateQuantity(item.dish._id, -1)} className="text-foreground/40 hover:text-foreground"><Minus size={12} /></button>
+                    <button onClick={() => updateQuantity(item.dish._id, -1)} className="text-foreground/70 hover:text-foreground"><Minus size={12} /></button>
                     <span className="text-xs font-bold min-w-[16px] text-center">{item.quantity}</span>
                     <button onClick={() => updateQuantity(item.dish._id, 1)} className="text-gold hover:text-gold/80"><Plus size={12} /></button>
                   </div>
@@ -1325,7 +1328,7 @@ export default function POSTerminal() {
               <button 
                 onClick={() => setOrderType('Takeaway')}
                 className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  orderType === 'Takeaway' ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/40 border-foreground/10'
+                  orderType === 'Takeaway' ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/70 border-foreground/10'
                 }`}
               >
                 Quick Bill
@@ -1333,7 +1336,7 @@ export default function POSTerminal() {
               <button 
                 onClick={() => setOrderType('DineIn')}
                 className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  orderType === 'DineIn' ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/40 border-foreground/10'
+                  orderType === 'DineIn' ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/70 border-foreground/10'
                 }`}
               >
                 Dine In
@@ -1341,7 +1344,7 @@ export default function POSTerminal() {
               <button 
                 onClick={() => setOrderType('Delivery')}
                 className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  orderType === 'Delivery' ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/40 border-foreground/10'
+                  orderType === 'Delivery' ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/70 border-foreground/10'
                 }`}
               >
                 Delivery
@@ -1354,7 +1357,7 @@ export default function POSTerminal() {
               <button 
                 onClick={() => setPaymentMethod('Cash')}
                 className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  paymentMethod === 'Cash' ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/40 border-foreground/10'
+                  paymentMethod === 'Cash' ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/70 border-foreground/10'
                 }`}
               >
                 Cash
@@ -1362,7 +1365,7 @@ export default function POSTerminal() {
               <button 
                 onClick={() => setPaymentMethod('Online')}
                 className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  paymentMethod === 'Online' ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/40 border-foreground/10'
+                  paymentMethod === 'Online' ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/70 border-foreground/10'
                 }`}
               >
                 Online
@@ -1370,7 +1373,7 @@ export default function POSTerminal() {
               <button 
                 onClick={() => setPaymentMethod('Split')}
                 className={`flex-1 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  paymentMethod === 'Split' ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/40 border-foreground/10'
+                  paymentMethod === 'Split' ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/70 border-foreground/10'
                 }`}
               >
                 Split
@@ -1381,7 +1384,7 @@ export default function POSTerminal() {
           {paymentMethod === 'Split' && (
             <div className="grid grid-cols-2 gap-2 mt-2">
               <div>
-                <label className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-1 block">Cash Amount</label>
+                <label className="text-[10px] font-bold text-foreground/70 uppercase tracking-widest mb-1 block">Cash Amount</label>
                 <input 
                   type="number" 
                   value={splitCash || ''}
@@ -1391,7 +1394,7 @@ export default function POSTerminal() {
                 />
               </div>
               <div>
-                <label className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-1 block">Online Amount</label>
+                <label className="text-[10px] font-bold text-foreground/70 uppercase tracking-widest mb-1 block">Online Amount</label>
                 <input 
                   type="number" 
                   value={splitOnline || ''}
@@ -1429,7 +1432,7 @@ export default function POSTerminal() {
                       : 'bg-blue-500 animate-pulse'
                 }`} />
                 <div className="text-left">
-                  <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">KOT Pipeline</p>
+                  <p className="text-[10px] font-black text-foreground/70 uppercase tracking-widest">KOT Pipeline</p>
                   <p className="text-xs font-black text-gold uppercase mt-0.5">{kotStatus}</p>
                 </div>
               </div>
@@ -1511,7 +1514,7 @@ export default function POSTerminal() {
 
             {userQrCode && (
               <div className="flex flex-col items-center p-4 bg-foreground/5 rounded-2xl border border-foreground/10 mt-4 mb-4">
-                <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest mb-3">Shop Payment QR</p>
+                <p className="text-[10px] font-black text-foreground/70 uppercase tracking-widest mb-3">Shop Payment QR</p>
                 <img src={userQrCode} alt="Payment QR" className="w-24 h-24 object-contain rounded-lg" />
               </div>
             )}
@@ -1759,7 +1762,7 @@ export default function POSTerminal() {
         {/* Desktop Vertical Categories Sidebar */}
         <div className="hidden lg:flex flex-col w-[160px] xl:w-[200px] shrink-0 gap-2 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar">
           <div className="bg-card glass-card rounded-2xl border border-foreground/5 p-3 flex flex-col gap-2">
-            <h3 className="text-[10px] font-black text-foreground/40 uppercase tracking-widest px-2 mb-2">Categories</h3>
+            <h3 className="text-[10px] font-black text-foreground/70 uppercase tracking-widest px-2 mb-2">Categories</h3>
             {categories.map(cat => (
               <button
                 key={cat}
@@ -1800,7 +1803,7 @@ export default function POSTerminal() {
               </h2>
               <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                 <div className="relative flex-1 sm:w-48">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" size={16} />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/70" size={16} />
                   <input 
                     type="text" 
                     placeholder="Search..."
@@ -1820,7 +1823,7 @@ export default function POSTerminal() {
                     <button 
                       onClick={() => setIsManagementMode(!isManagementMode)}
                       className={`p-2 rounded-xl border transition-all flex items-center gap-2 text-[10px] md:text-xs font-black uppercase tracking-widest ${
-                        isManagementMode ? 'bg-gold text-black border-gold' : 'bg-card shadow-sm text-foreground/40 border-foreground/10'
+                        isManagementMode ? 'bg-gold text-black border-gold' : 'bg-card shadow-sm text-foreground/70 border-foreground/10'
                       }`}
                     >
                       <Settings size={16} /> {isManagementMode ? 'Exit' : 'Manage'}
@@ -1834,7 +1837,7 @@ export default function POSTerminal() {
             {!isManagementMode && (
               <div className="border-t border-foreground/5 pt-3 space-y-2">
                 <div className="flex justify-between items-center">
-                  <label className="text-[10px] font-black text-foreground/40 uppercase tracking-widest pl-1">TABLE SELECTION</label>
+                  <label className="text-[10px] font-black text-foreground/70 uppercase tracking-widest pl-1">TABLE SELECTION</label>
                   {isManager && (
                     <div className="flex items-center gap-2">
                       <button onClick={handleAddTable} className="text-[10px] font-black text-gold uppercase tracking-widest hover:text-foreground transition-colors flex items-center gap-1">
@@ -1889,7 +1892,7 @@ export default function POSTerminal() {
           
           <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 pr-1 pb-24">
             {!dishesData ? (
-              <div className="col-span-full flex flex-col items-center justify-center py-20 text-foreground/20 gap-4">
+              <div className="col-span-full flex flex-col items-center justify-center py-20 text-foreground/50 gap-4">
                 <Loader2 className="animate-spin" size={48} />
                 <p className="font-black uppercase tracking-widest text-sm">Loading Menu...</p>
               </div>
@@ -2306,7 +2309,7 @@ export default function POSTerminal() {
             >
               <button 
                 onClick={() => setShowShareMenuModal(false)}
-                className="absolute top-4 right-4 text-foreground/40 hover:text-foreground transition-colors"
+                className="absolute top-4 right-4 text-foreground/70 hover:text-foreground transition-colors"
               >
                 <X size={20} />
               </button>
@@ -2352,7 +2355,7 @@ export default function POSTerminal() {
                 <h3 className="text-xl font-black uppercase tracking-tighter">
                   {modifierModalType === 'discount' ? 'Discount' : 'Additional Charge'}
                 </h3>
-                <button onClick={() => setModifierModalType(null)} className="text-foreground/40 hover:text-foreground"><X size={20} /></button>
+                <button onClick={() => setModifierModalType(null)} className="text-foreground/70 hover:text-foreground"><X size={20} /></button>
               </div>
 
               <div className="space-y-6">
@@ -2363,13 +2366,13 @@ export default function POSTerminal() {
                       <div className="flex rounded-md overflow-hidden border border-foreground/10 bg-card shadow-sm text-[10px] font-black">
                         <button 
                           onClick={() => setDiscountType('percentage')} 
-                          className={`px-2 py-1 transition-colors ${discountType === 'percentage' ? 'bg-gold text-black' : 'text-foreground/40 hover:text-foreground'}`}
+                          className={`px-2 py-1 transition-colors ${discountType === 'percentage' ? 'bg-gold text-black' : 'text-foreground/70 hover:text-foreground'}`}
                         >
                           %
                         </button>
                         <button 
                           onClick={() => setDiscountType('flat')} 
-                          className={`px-2 py-1 transition-colors ${discountType === 'flat' ? 'bg-gold text-black' : 'text-foreground/40 hover:text-foreground'}`}
+                          className={`px-2 py-1 transition-colors ${discountType === 'flat' ? 'bg-gold text-black' : 'text-foreground/70 hover:text-foreground'}`}
                         >
                           ₹
                         </button>

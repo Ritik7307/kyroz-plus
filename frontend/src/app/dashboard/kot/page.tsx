@@ -248,7 +248,7 @@ export default function KitchenOrderQueue() {
       case 'Pending': return 'border-blue-500/30 bg-blue-500/10 text-blue-400';
       case 'Preparing': return 'border-orange-500/30 bg-orange-500/10 text-orange-400';
       case 'Ready': return 'border-green-500/30 bg-green-500/10 text-green-400';
-      case 'Served': return 'border-border bg-card shadow-sm text-foreground/40';
+      case 'Served': return 'border-border bg-card shadow-sm text-foreground/70';
       case 'Cancelled': return 'border-red-500/30 bg-red-500/10 text-red-400';
       default: return 'border-border bg-card shadow-sm text-foreground';
     }
@@ -387,7 +387,7 @@ export default function KitchenOrderQueue() {
           <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight flex items-center gap-3 text-foreground">
             <ChefHat className="text-gold animate-bounce" size={32} /> KITCHEN ORDER DISPLAY (KDS)
           </h2>
-          <p className="text-xs text-foreground/40 font-bold uppercase tracking-wider mt-1.5">
+          <p className="text-xs text-foreground/70 font-bold uppercase tracking-wider mt-1.5">
             Real-time preparation pipeline & packaging tracking
           </p>
         </div>
@@ -418,7 +418,7 @@ export default function KitchenOrderQueue() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-card glass-card p-5 rounded-2xl border border-border flex items-center justify-between">
             <div>
-              <p className="text-xs text-foreground/40 font-black uppercase tracking-widest">Active Tickets</p>
+              <p className="text-xs text-foreground/70 font-black uppercase tracking-widest">Active Tickets</p>
               <h3 className="text-3xl font-black text-foreground mt-1">{activeCount}</h3>
             </div>
             <div className="w-10 h-10 rounded-xl bg-card shadow-sm flex items-center justify-center text-foreground/60">
@@ -463,7 +463,7 @@ export default function KitchenOrderQueue() {
             onClick={() => setActiveTab(tab)}
             className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all border whitespace-nowrap ${activeTab === tab
               ? 'bg-gold text-black border-gold'
-              : 'bg-card shadow-sm text-foreground/40 border-border hover:bg-foreground/10'
+              : 'bg-card shadow-sm text-foreground/70 border-border hover:bg-foreground/10'
               }`}
           >
             {tab === 'all' ? 'All Orders' : tab === 'DineIn' ? 'Dine In' : tab}
@@ -473,7 +473,7 @@ export default function KitchenOrderQueue() {
 
       {/* Loading State */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-32 gap-4 text-foreground/20">
+        <div className="flex flex-col items-center justify-center py-32 gap-4 text-foreground/50">
           <RefreshCw className="animate-spin text-gold" size={48} />
           <p className="font-black uppercase tracking-widest text-sm">Synchronizing Kitchen Queue...</p>
         </div>
@@ -481,7 +481,7 @@ export default function KitchenOrderQueue() {
         <div className="bg-card glass-card border border-border rounded-3xl p-16 text-center flex flex-col items-center justify-center text-foreground/25">
           <ChefHat size={64} className="mb-4 text-foreground/10" />
           <h4 className="font-black uppercase tracking-widest text-base">No tickets in the kitchen</h4>
-          <p className="text-xs text-foreground/40 mt-2">All caught up! Orders sent from POS will appear here.</p>
+          <p className="text-xs text-foreground/70 mt-2">All caught up! Orders sent from POS will appear here.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -521,7 +521,7 @@ export default function KitchenOrderQueue() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-xs text-foreground/40 font-bold uppercase tracking-wider pt-1">
+                    <div className="flex items-center justify-between text-xs text-foreground/70 font-bold uppercase tracking-wider pt-1">
                       <span className="flex items-center gap-1.5">
                         <Clock size={12} />
                         {new Date(kot.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -538,7 +538,7 @@ export default function KitchenOrderQueue() {
                   {/* Card Body - Dish Items List */}
                   <div className="p-6 flex-1 space-y-4">
                     <div className="space-y-3">
-                      <p className="text-[10px] font-black text-foreground/30 uppercase tracking-widest">Items ({kot.items.length})</p>
+                      <p className="text-[10px] font-black text-foreground/60 uppercase tracking-widest">Items ({kot.items.length})</p>
                       <div className="divide-y divide-white/5">
                         {kot.items.map(item => (
                           <div key={item._id} className="py-2.5 flex items-start justify-between gap-3">
@@ -600,13 +600,13 @@ export default function KitchenOrderQueue() {
                       </button>
                     )}
                     {['Served', 'Cancelled'].includes(kot.status) && (
-                      <div className="w-full text-center py-2 text-xs font-black uppercase text-foreground/20 tracking-wider">
+                      <div className="w-full text-center py-2 text-xs font-black uppercase text-foreground/50 tracking-wider">
                         Archived / Completed
                       </div>
                     )}
                     <button
                       onClick={() => handlePrintKot(kot)}
-                      className="p-3 bg-card shadow-sm hover:bg-foreground/10 text-foreground/40 hover:text-gold rounded-xl transition-all border border-border"
+                      className="p-3 bg-card shadow-sm hover:bg-foreground/10 text-foreground/70 hover:text-gold rounded-xl transition-all border border-border"
                       title="Print KOT"
                     >
                       <Printer size={14} />

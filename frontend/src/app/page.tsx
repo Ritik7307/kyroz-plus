@@ -302,7 +302,7 @@ export default async function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#222] py-12 px-6">
+      <footer className="border-t border-[#222] py-6 px-6">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
           <div className="text-2xl font-extrabold tracking-tighter text-[#d4af37]">
             KYROZ-PLUS <span className="text-sm font-medium text-gray-400 ml-2 tracking-normal block md:inline mt-1 md:mt-0">powered by AROMA AGRO INTERNATIONAL</span>
