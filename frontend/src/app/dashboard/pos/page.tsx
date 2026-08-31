@@ -822,8 +822,8 @@ export default function POSTerminal() {
     filteredDishes.forEach(dish => {
       const parts = dish.name.split(' - ');
       // We only group if there's exactly one " - " and we're not in management mode
-      if (parts.length === 2 && !dish.name.includes('Extra')) {
-        const baseName = parts[0];
+      if (parts.length === 2 && !dish.name.toLowerCase().includes('extra')) {
+        const baseName = parts[0].trim();
         if (!groups.has(baseName)) {
           groups.set(baseName, {
             isGroup: true,
@@ -836,8 +836,9 @@ export default function POSTerminal() {
           });
         }
         const group = groups.get(baseName);
-        if (!group.variations.find((v: any) => v.variationName === parts[1])) {
-          group.variations.push({ ...dish, variationName: parts[1] });
+        const varName = parts[1].trim();
+        if (!group.variations.find((v: any) => v.variationName.toLowerCase() === varName.toLowerCase())) {
+          group.variations.push({ ...dish, variationName: varName });
         }
         if (dish.price < group.price) group.price = dish.price;
       } else {
@@ -2226,32 +2227,45 @@ export default function POSTerminal() {
                 </div>
 
                 {/* Addons */}
-                {dishes.filter(d => d.category.toLowerCase().includes('add-on') || d.category.toLowerCase().includes('addon') || d.name.toLowerCase().includes('extra')).length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-bold text-foreground/60 uppercase tracking-widest mb-4">Add-ons</h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {dishes.filter(d => d.category.toLowerCase().includes('add-on') || d.category.toLowerCase().includes('addon') || d.name.toLowerCase().includes('extra')).map(addon => {
-                        const isSelected = selectedAddons.some(a => a._id === addon._id);
-                        return (
-                          <button
-                            key={addon._id}
-                            onClick={() => {
-                              if (isSelected) {
-                                setSelectedAddons(selectedAddons.filter(a => a._id !== addon._id));
-                              } else {
-                                setSelectedAddons([...selectedAddons, addon]);
-                              }
-                            }}
-                            className={`p-4 rounded-2xl border-2 text-center transition-all ${isSelected ? 'border-gold bg-gold/5 shadow-md scale-[1.02]' : 'border-foreground/10 hover:border-gold/30 hover:bg-foreground/5'}`}
-                          >
-                            <p className="font-bold text-sm mb-1 line-clamp-2">{addon.name}</p>
-                            <p className="text-xs font-black text-gold">+ ₹{addon.price}</p>
-                          </button>
-                        );
-                      })}
+                {(() => {
+                  const rawAddons = dishes.filter(d => d.category.toLowerCase().includes('add-on') || d.category.toLowerCase().includes('addon') || d.name.toLowerCase().includes('extra'));
+                  const uniqueAddons: any[] = [];
+                  const seenNames = new Set();
+                  rawAddons.forEach(addon => {
+                    const normalized = addon.name.trim().toLowerCase();
+                    if (!seenNames.has(normalized)) {
+                      seenNames.add(normalized);
+                      uniqueAddons.push(addon);
+                    }
+                  });
+                  if (uniqueAddons.length === 0) return null;
+                  return (
+                    <div>
+                      <h3 className="text-sm font-bold text-foreground/60 uppercase tracking-widest mb-4">Add-ons</h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {uniqueAddons.map(addon => {
+                          const isSelected = selectedAddons.some(a => a.name.trim().toLowerCase() === addon.name.trim().toLowerCase());
+                          return (
+                            <button
+                              key={addon._id}
+                              onClick={() => {
+                                if (isSelected) {
+                                  setSelectedAddons(selectedAddons.filter(a => a.name.trim().toLowerCase() !== addon.name.trim().toLowerCase()));
+                                } else {
+                                  setSelectedAddons([...selectedAddons, addon]);
+                                }
+                              }}
+                              className={`p-4 rounded-2xl border-2 text-center transition-all ${isSelected ? 'border-gold bg-gold/5 shadow-md scale-[1.02]' : 'border-foreground/10 hover:border-gold/30 hover:bg-foreground/5'}`}
+                            >
+                              <p className="font-bold text-sm mb-1 line-clamp-2">{addon.name}</p>
+                              <p className="text-xs font-black text-gold">+ ₹{addon.price}</p>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
               </div>
 
               <div className="p-6 border-t border-foreground/10 bg-card sticky bottom-0 z-10 flex gap-4">
