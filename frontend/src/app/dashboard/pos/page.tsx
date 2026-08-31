@@ -1995,7 +1995,7 @@ export default function POSTerminal() {
       <AnimatePresence>
         {(showAddModal || editingDish) && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm">
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-foreground/10 rounded-[2.5rem] p-8 w-full max-w-lg">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-foreground/10 rounded-[2.5rem] p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-black uppercase tracking-tighter">{editingDish ? 'Edit Item' : 'New Item'}</h3>
                 <button onClick={() => { setShowAddModal(false); setEditingDish(null); }}><X /></button>
