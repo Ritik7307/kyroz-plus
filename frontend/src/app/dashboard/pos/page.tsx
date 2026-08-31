@@ -1994,8 +1994,8 @@ export default function POSTerminal() {
       {/* MODALS (Simplified for clarity) */}
       <AnimatePresence>
         {(showAddModal || editingDish) && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm">
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-foreground/10 rounded-[2.5rem] p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-6 bg-black/90 backdrop-blur-sm">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-card border border-foreground/10 rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto overflow-x-hidden">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-black uppercase tracking-tighter">{editingDish ? 'Edit Item' : 'New Item'}</h3>
                 <button onClick={() => { setShowAddModal(false); setEditingDish(null); }}><X /></button>
@@ -2069,8 +2069,8 @@ export default function POSTerminal() {
                                   }}
                                   className="w-full bg-background p-3 rounded-lg border border-gold/30 text-sm outline-none focus:border-gold text-foreground"
                                 >
-                                  <option value="">Do not link costing / Setup manually</option>
-                                  {dishesData?.filter((d: any) => d.category === newDish.category).map((dish: any) => (
+                                  <option value="">No template (Setup manually)</option>
+                                  {dishesData?.map((dish: any) => (
                                     <option key={dish._id} value={dish._id}>{dish.name}</option>
                                   ))}
                                 </select>
@@ -2139,8 +2139,8 @@ export default function POSTerminal() {
                               }}
                               className="w-full bg-background p-3 rounded-lg border border-gold/30 text-sm outline-none focus:border-gold text-foreground"
                             >
-                              <option value="">Do not link / Setup manually</option>
-                              {dishesData?.filter((d: any) => d.category === newDish.category).map((dish: any) => (
+                              <option value="">No template (Setup manually)</option>
+                              {dishesData?.map((dish: any) => (
                                 <option key={dish._id} value={dish._id}>{dish.name}</option>
                               ))}
                             </select>
