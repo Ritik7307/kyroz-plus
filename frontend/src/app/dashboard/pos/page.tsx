@@ -167,7 +167,7 @@ export default function POSTerminal() {
   const [isManagementMode, setIsManagementMode] = useState(false);
   
   const { data: userData } = useSWR(`${API_URL}/api/auth/me`, fetcher);
-  const { data: dishesData, mutate: mutateDishes } = useSWR(`${API_URL}/api/dishes`, fetcher);
+  const { data: dishesData, isLoading: loadingDishes, mutate: mutateDishes } = useSWR(`${API_URL}/api/dishes`, fetcher);
   const { data: customersData } = useSWR(`${API_URL}/api/customers`, fetcher);
   const [user, setUser] = useState<any>(null);
 
