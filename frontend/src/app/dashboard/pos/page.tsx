@@ -214,6 +214,8 @@ export default function POSTerminal() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [setupStep, setSetupStep] = useState(1);
   const [newDish, setNewDish] = useState({ name: '', price: '', ingredientPrice: '', category: 'Main Course', imageUrl: '' });
+  const [hasVariations, setHasVariations] = useState(false);
+  const [variations, setVariations] = useState<{name: string, price: string}[]>([{ name: 'Half', price: '' }, { name: 'Full', price: '' }]);
   const [advancedSetupData, setAdvancedSetupData] = useState({
     allowedWastagePercentage: 0,
     platesPerPacket: 10,
@@ -625,40 +627,59 @@ export default function POSTerminal() {
         }
       }
 
-      const payload = {
-        dishDetails: {
-          name: newDish.name,
-          price: Number(newDish.price) || 0,
-          ingredientPrice: Number(newDish.ingredientPrice) || 0,
-          category: newDish.category || 'Main Course',
-          imageUrl: currentImageUrl,
-          allowedWastagePercentage: Number(advancedSetupData.allowedWastagePercentage) || 0
-        },
-        recipeDetails: { ingredients: recipeIngredients },
-        inventoryDetails: {
-          platesPerPacket: Number(advancedSetupData.platesPerPacket) || 10,
-          totalPlates: Number(advancedSetupData.totalPlates) || 0,
-          lowStockThreshold: Number(advancedSetupData.lowStockThreshold) || 5,
-          baseUnitName: advancedSetupData.baseUnitName || 'Packet',
-          subUnitName: advancedSetupData.subUnitName || 'Plate'
-        }
-      };
+      const itemsToCreate = hasVariations && variations.length > 0
+        ? variations.filter(v => v.name && v.price).map(v => ({
+            name: `${newDish.name} - ${v.name}`,
+            price: Number(v.price) || 0
+          }))
+        : [{ name: newDish.name, price: Number(newDish.price) || 0 }];
+        
+      let successCount = 0;
 
-      const res = await fetch(`${API_URL}/api/dishes/advanced-setup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) {
+      for (const item of itemsToCreate) {
+        const payload = {
+          dishDetails: {
+            name: item.name,
+            price: item.price,
+            ingredientPrice: Number(newDish.ingredientPrice) || 0,
+            category: newDish.category || 'Main Course',
+            imageUrl: currentImageUrl,
+            allowedWastagePercentage: Number(advancedSetupData.allowedWastagePercentage) || 0
+          },
+          recipeDetails: { ingredients: recipeIngredients },
+          inventoryDetails: {
+            platesPerPacket: Number(advancedSetupData.platesPerPacket) || 10,
+            totalPlates: Number(advancedSetupData.totalPlates) || 0,
+            lowStockThreshold: Number(advancedSetupData.lowStockThreshold) || 5,
+            baseUnitName: advancedSetupData.baseUnitName || 'Packet',
+            subUnitName: advancedSetupData.subUnitName || 'Plate'
+          }
+        };
+
+        const res = await fetch(`${API_URL}/api/dishes/advanced-setup`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+        
+        if (res.ok) successCount++;
+      }
+
+      if (successCount > 0) {
         setShowAddModal(false);
         setSetupStep(1);
         setNewDish({ name: '', price: '', ingredientPrice: '', category: 'Main Course', imageUrl: '' });
+        setHasVariations(false);
+        setVariations([{ name: 'Half', price: '' }, { name: 'Full', price: '' }]);
         setAdvancedSetupData({ allowedWastagePercentage: 0, platesPerPacket: 10, totalPlates: 0, lowStockThreshold: 5, baseUnitName: 'Packet', subUnitName: 'Plate' });
         setRecipeIngredients([]);
         mutateDishes();
+        if (successCount < itemsToCreate.length) {
+          alert('Some variations failed to save.');
+        }
       } else {
         alert('Failed to save dish with advanced setup.');
       }
@@ -1933,9 +1954,39 @@ export default function POSTerminal() {
                     {setupStep === 1 && (
                       <div className="space-y-4">
                         <input type="text" value={newDish.name} onChange={(e) => setNewDish({...newDish, name: e.target.value})} placeholder="Item Name *" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" required />
-                        <div className="grid grid-cols-2 gap-4">
-                          <input type="number" value={newDish.price} onChange={(e) => setNewDish({...newDish, price: e.target.value})} placeholder="Selling Price *" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" required />
-                          
+                        <div className="flex items-center gap-2 mt-2 mb-2">
+                          <input type="checkbox" id="hasVariations" checked={hasVariations} onChange={(e) => setHasVariations(e.target.checked)} className="accent-gold w-4 h-4 cursor-pointer" />
+                          <label htmlFor="hasVariations" className="text-sm font-bold text-foreground cursor-pointer">Dish has sizes/variations (e.g. Half/Full)</label>
+                        </div>
+
+                        {!hasVariations ? (
+                          <input type="number" value={newDish.price} onChange={(e) => setNewDish({...newDish, price: e.target.value})} placeholder="Selling Price *" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10 mb-4" required={!hasVariations} />
+                        ) : (
+                          <div className="bg-foreground/5 p-4 rounded-xl border border-foreground/10 space-y-3 mb-4">
+                            <p className="text-xs font-bold text-foreground/60 uppercase">Variations</p>
+                            {variations.map((v, i) => (
+                              <div key={i} className="flex gap-2">
+                                <input type="text" value={v.name} onChange={(e) => {
+                                  const newV = [...variations];
+                                  newV[i].name = e.target.value;
+                                  setVariations(newV);
+                                }} placeholder="Size (e.g. Half)" className="flex-1 bg-card shadow-sm p-3 rounded-lg border border-foreground/10 text-sm" />
+                                <input type="number" value={v.price} onChange={(e) => {
+                                  const newV = [...variations];
+                                  newV[i].price = e.target.value;
+                                  setVariations(newV);
+                                }} placeholder="Price" className="flex-1 bg-card shadow-sm p-3 rounded-lg border border-foreground/10 text-sm" />
+                                <button onClick={() => {
+                                  const newV = variations.filter((_, idx) => idx !== i);
+                                  setVariations(newV);
+                                }} className="p-3 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20 transition-colors"><X size={16} /></button>
+                              </div>
+                            ))}
+                            <button onClick={() => setVariations([...variations, { name: '', price: '' }])} className="text-xs font-bold text-gold uppercase tracking-widest hover:underline">+ Add Another Size</button>
+                          </div>
+                        )}
+
+                        <div className="w-full">
                           {isAddingNewCategory ? (
                             <div className="relative">
                               <input 
@@ -2009,11 +2060,21 @@ export default function POSTerminal() {
 
                         <button 
                           onClick={() => { 
-                            if(newDish.name && newDish.price) {
-                              handleAddDish();
-                            } else {
-                              alert('Name and Price are mandatory');
+                            if (!newDish.name) {
+                              alert('Dish Name is mandatory');
+                              return;
                             }
+                            if (hasVariations) {
+                              const validVariations = variations.filter(v => v.name && v.price);
+                              if (validVariations.length === 0) {
+                                alert('Please add at least one valid variation with a name and price.');
+                                return;
+                              }
+                            } else if (!newDish.price) {
+                              alert('Price is mandatory');
+                              return;
+                            }
+                            handleAddDish();
                           }} 
                           className="w-full py-4 bg-gold text-black font-black uppercase rounded-xl flex items-center justify-center gap-2"
                         >
