@@ -636,7 +636,7 @@ export default function POSTerminal() {
             price: Number(v.price) || 0,
             templateDishId: (v as any).templateDishId
           }))
-        : [{ name: newDish.name, price: Number(newDish.price) || 0 }];
+        : [{ name: newDish.name, price: Number(newDish.price) || 0, templateDishId: selectedTemplateDishId }];
         
       let successCount = 0;
 
