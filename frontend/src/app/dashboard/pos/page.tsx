@@ -2032,54 +2032,7 @@ export default function POSTerminal() {
                     {setupStep === 1 && (
                       <div className="space-y-4">
                         <input type="text" value={newDish.name} onChange={(e) => setNewDish({...newDish, name: e.target.value})} placeholder="Item Name *" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" required />
-                        <div className="flex items-center gap-2 mt-2 mb-2">
-                          <input type="checkbox" id="hasVariations" checked={hasVariations} onChange={(e) => setHasVariations(e.target.checked)} className="accent-gold w-4 h-4 cursor-pointer" />
-                          <label htmlFor="hasVariations" className="text-sm font-bold text-foreground cursor-pointer">Dish has sizes/variations (e.g. Half/Full)</label>
-                        </div>
-
-                        {!hasVariations ? (
-                          <input type="number" value={newDish.price} onChange={(e) => setNewDish({...newDish, price: e.target.value})} placeholder="Selling Price *" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10 mb-4" required={!hasVariations} />
-                        ) : (
-                          <div className="bg-foreground/5 p-4 rounded-xl border border-foreground/10 space-y-3 mb-4">
-                            <p className="text-xs font-bold text-foreground/60 uppercase">Variations</p>
-                            {variations.map((v, i) => (
-                              <div key={i} className="flex flex-col gap-2 bg-card shadow-sm p-3 rounded-lg border border-foreground/10">
-                                <div className="flex gap-2">
-                                  <input type="text" value={v.name} onChange={(e) => {
-                                    const newV = [...variations];
-                                    newV[i].name = e.target.value;
-                                    setVariations(newV);
-                                  }} placeholder="Size (e.g. Half)" className="flex-1 bg-background p-3 rounded-lg border border-foreground/10 text-sm" />
-                                  <input type="number" value={v.price} onChange={(e) => {
-                                    const newV = [...variations];
-                                    newV[i].price = e.target.value;
-                                    setVariations(newV);
-                                  }} placeholder="Price" className="flex-1 bg-background p-3 rounded-lg border border-foreground/10 text-sm" />
-                                  <button onClick={() => {
-                                    const newV = variations.filter((_, idx) => idx !== i);
-                                    setVariations(newV);
-                                  }} className="p-3 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20 transition-colors"><X size={16} /></button>
-                                </div>
-                                <select 
-                                  value={(v as any).templateDishId || ''}
-                                  onChange={(e) => {
-                                    const newV = [...variations];
-                                    (newV[i] as any).templateDishId = e.target.value;
-                                    setVariations(newV);
-                                  }}
-                                  className="w-full bg-background p-3 rounded-lg border border-gold/30 text-sm outline-none focus:border-gold text-foreground"
-                                >
-                                  <option value="">No template (Setup manually)</option>
-                                  {dishesData?.map((dish: any) => (
-                                    <option key={dish._id} value={dish._id}>{dish.name}</option>
-                                  ))}
-                                </select>
-                              </div>
-                            ))}
-                            <button onClick={() => setVariations([...variations, { name: '', price: '' }])} className="text-xs font-bold text-gold uppercase tracking-widest hover:underline">+ Add Another Size</button>
-                          </div>
-                        )}
-
+                        
                         <div className="w-full">
                           {isAddingNewCategory ? (
                             <div className="relative">
@@ -2120,6 +2073,55 @@ export default function POSTerminal() {
                             </select>
                           )}
                         </div>
+                        <div className="flex items-center gap-2 mt-2 mb-2">
+                          <input type="checkbox" id="hasVariations" checked={hasVariations} onChange={(e) => setHasVariations(e.target.checked)} className="accent-gold w-4 h-4 cursor-pointer" />
+                          <label htmlFor="hasVariations" className="text-sm font-bold text-foreground cursor-pointer">Dish has sizes/variations (e.g. Half/Full)</label>
+                        </div>
+
+                        {!hasVariations ? (
+                          <input type="number" value={newDish.price} onChange={(e) => setNewDish({...newDish, price: e.target.value})} placeholder="Selling Price *" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10 mb-4" required={!hasVariations} />
+                        ) : (
+                          <div className="bg-foreground/5 p-4 rounded-xl border border-foreground/10 space-y-3 mb-4">
+                            <p className="text-xs font-bold text-foreground/60 uppercase">Variations</p>
+                            {variations.map((v, i) => (
+                              <div key={i} className="flex flex-col gap-2 bg-card shadow-sm p-3 rounded-lg border border-foreground/10">
+                                <div className="flex gap-2">
+                                  <input type="text" value={v.name} onChange={(e) => {
+                                    const newV = [...variations];
+                                    newV[i].name = e.target.value;
+                                    setVariations(newV);
+                                  }} placeholder="Size (e.g. Half)" className="flex-1 bg-background p-3 rounded-lg border border-foreground/10 text-sm" />
+                                  <input type="number" value={v.price} onChange={(e) => {
+                                    const newV = [...variations];
+                                    newV[i].price = e.target.value;
+                                    setVariations(newV);
+                                  }} placeholder="Price" className="flex-1 bg-background p-3 rounded-lg border border-foreground/10 text-sm" />
+                                  <button onClick={() => {
+                                    const newV = variations.filter((_, idx) => idx !== i);
+                                    setVariations(newV);
+                                  }} className="p-3 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20 transition-colors"><X size={16} /></button>
+                                </div>
+                                <select 
+                                  value={(v as any).templateDishId || ''}
+                                  onChange={(e) => {
+                                    const newV = [...variations];
+                                    (newV[i] as any).templateDishId = e.target.value;
+                                    setVariations(newV);
+                                  }}
+                                  className="w-full bg-background p-3 rounded-lg border border-gold/30 text-sm outline-none focus:border-gold text-foreground"
+                                >
+                                  <option value="">No template (Setup manually)</option>
+                                  {dishesData?.filter((d: any) => !newDish.category || d.category === newDish.category).map((dish: any) => (
+                                    <option key={dish._id} value={dish._id}>{dish.name}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            ))}
+                            <button onClick={() => setVariations([...variations, { name: '', price: '' }])} className="text-xs font-bold text-gold uppercase tracking-widest hover:underline">+ Add Another Size</button>
+                          </div>
+                        )}
+
+
 
                         {/* Auto Costing Template Linker */}
                         {!isAddingNewCategory && newDish.category && !hasVariations && (
@@ -2140,7 +2142,7 @@ export default function POSTerminal() {
                               className="w-full bg-background p-3 rounded-lg border border-gold/30 text-sm outline-none focus:border-gold text-foreground"
                             >
                               <option value="">No template (Setup manually)</option>
-                              {dishesData?.map((dish: any) => (
+                              {dishesData?.filter((d: any) => !newDish.category || d.category === newDish.category).map((dish: any) => (
                                 <option key={dish._id} value={dish._id}>{dish.name}</option>
                               ))}
                             </select>
