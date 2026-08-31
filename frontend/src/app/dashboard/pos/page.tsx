@@ -159,6 +159,9 @@ export default function POSTerminal() {
   const { resolvedPosTheme } = useTheme();
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [cart, setCart] = useState<{ dish: Dish, quantity: number, note?: string, sentQty?: number }[]>([]);
+  const [selectedGroupedDish, setSelectedGroupedDish] = useState<any>(null);
+  const [selectedVariation, setSelectedVariation] = useState<any>(null);
+  const [selectedAddons, setSelectedAddons] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [isManagementMode, setIsManagementMode] = useState(false);
@@ -783,6 +786,44 @@ export default function POSTerminal() {
       d.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [dishes, activeCategory, searchQuery]);
+
+  const groupedDishes = useMemo(() => {
+    if (isManagementMode) return filteredDishes;
+    
+    const groups = new Map();
+    filteredDishes.forEach(dish => {
+      const parts = dish.name.split(' - ');
+      // We only group if there's exactly one " - " and we're not in management mode
+      if (parts.length === 2 && !dish.name.includes('Extra')) {
+        const baseName = parts[0];
+        if (!groups.has(baseName)) {
+          groups.set(baseName, {
+            isGroup: true,
+            _id: `group_${baseName}`,
+            name: baseName,
+            category: dish.category,
+            imageUrl: dish.imageUrl,
+            variations: [],
+            price: dish.price // Will hold minimum price
+          });
+        }
+        const group = groups.get(baseName);
+        group.variations.push({ ...dish, variationName: parts[1] });
+        if (dish.price < group.price) group.price = dish.price;
+      } else {
+        groups.set(dish._id, dish);
+      }
+    });
+
+    // Sort variations by price
+    groups.forEach(g => {
+      if (g.isGroup) {
+        g.variations.sort((a: any, b: any) => a.price - b.price);
+      }
+    });
+
+    return Array.from(groups.values());
+  }, [filteredDishes, isManagementMode]);
 
   const isManager = ['admin', 'manager', 'user'].includes(userRole);
 
@@ -1829,14 +1870,18 @@ export default function POSTerminal() {
                 <Loader2 className="animate-spin" size={48} />
                 <p className="font-black uppercase tracking-widest text-sm">Loading Menu...</p>
               </div>
-            ) : filteredDishes.map(dish => {
-              const quantity = getItemQuantity(dish._id);
+            ) : groupedDishes.map(dish => {
+              const quantity = dish.isGroup 
+                ? dish.variations.reduce((sum: number, v: any) => sum + getItemQuantity(v._id), 0) 
+                : getItemQuantity(dish._id);
+              
               return (
                 <motion.div
                   key={dish._id}
+                  onClick={() => dish.isGroup && setSelectedGroupedDish(dish)}
                   className={`bg-card glass-card rounded-2xl border transition-all flex flex-col overflow-hidden min-h-[100px] h-full ${
                     isManagementMode ? 'border-foreground/10' : 'border-foreground/5 hover:border-gold/30'
-                  }`}
+                  } ${dish.isGroup && !isManagementMode ? 'cursor-pointer hover:shadow-lg' : ''}`}
                 >
                   <div className="h-16 hidden sm:block relative overflow-hidden bg-card shadow-sm shrink-0">
                     {dish.imageUrl ? (
@@ -1862,17 +1907,24 @@ export default function POSTerminal() {
                       <h3 className="font-bold text-[11px] sm:text-xs leading-tight line-clamp-2">{dish.name}</h3>
                     </div>
                     <div className="flex items-center justify-between mt-auto">
-                      <span className="text-sm font-black text-foreground">₹{dish.price}</span>
+                      <span className="text-sm font-black text-foreground flex items-baseline">
+                        ₹{dish.price}
+                        {dish.isGroup && <span className="text-[9px] font-normal text-foreground/50 ml-1">onwards</span>}
+                      </span>
                       {!isManagementMode && (
                         <div className="flex items-center gap-1.5 bg-card shadow-sm p-1 rounded-lg border border-foreground/10">
-                          {quantity > 0 ? (
+                          {dish.isGroup ? (
+                            <button onClick={(e) => { e.stopPropagation(); setSelectedGroupedDish(dish); }} className="px-2 py-1 bg-gold/10 text-gold rounded text-[10px] font-black uppercase tracking-widest hover:bg-gold hover:text-black">
+                              {quantity > 0 ? `${quantity} Added` : 'Options'}
+                            </button>
+                          ) : quantity > 0 ? (
                             <>
-                              <button onClick={() => updateQuantity(dish._id, -1)} className="w-5 h-5 bg-card shadow-sm rounded flex items-center justify-center text-foreground/60"><Minus size={10} /></button>
+                              <button onClick={(e) => { e.stopPropagation(); updateQuantity(dish._id, -1); }} className="w-5 h-5 bg-card shadow-sm rounded flex items-center justify-center text-foreground/60"><Minus size={10} /></button>
                               <span className="text-[10px] font-black min-w-[12px] text-center">{quantity}</span>
-                              <button onClick={() => addToCart(dish)} className="w-5 h-5 bg-gold/10 rounded flex items-center justify-center text-gold"><Plus size={10} /></button>
+                              <button onClick={(e) => { e.stopPropagation(); addToCart(dish); }} className="w-5 h-5 bg-gold/10 rounded flex items-center justify-center text-gold"><Plus size={10} /></button>
                             </>
                           ) : (
-                            <button onClick={() => addToCart(dish)} className="px-2 py-1 bg-gold/10 text-gold rounded text-[10px] font-black uppercase tracking-widest hover:bg-gold hover:text-black">Add</button>
+                            <button onClick={(e) => { e.stopPropagation(); addToCart(dish); }} className="px-2 py-1 bg-gold/10 text-gold rounded text-[10px] font-black uppercase tracking-widest hover:bg-gold hover:text-black">Add</button>
                           )}
                         </div>
                       )}
@@ -2084,6 +2136,85 @@ export default function POSTerminal() {
                     )}
                   </>
                 )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* VARIATIONS MODAL */}
+      <AnimatePresence>
+        {selectedGroupedDish && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm overflow-y-auto">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-card w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-full">
+              <div className="p-6 border-b border-foreground/10 flex justify-between items-center sticky top-0 bg-card z-10">
+                <h2 className="text-xl font-black uppercase tracking-tight">{selectedGroupedDish.name}</h2>
+                <button onClick={() => { setSelectedGroupedDish(null); setSelectedVariation(null); setSelectedAddons([]); }} className="p-2 hover:bg-foreground/5 rounded-full transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="p-6 overflow-y-auto space-y-8">
+                {/* Sizes */}
+                <div>
+                  <h3 className="text-sm font-bold text-foreground/60 uppercase tracking-widest mb-4">Select Size <span className="text-red-500">*</span></h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {selectedGroupedDish.variations.map((v: any) => (
+                      <button
+                        key={v._id}
+                        onClick={() => setSelectedVariation(v)}
+                        className={`p-4 rounded-2xl border-2 text-center transition-all ${selectedVariation?._id === v._id ? 'border-gold bg-gold/5 shadow-md scale-[1.02]' : 'border-foreground/10 hover:border-gold/30 hover:bg-foreground/5'}`}
+                      >
+                        <p className="font-bold text-sm mb-1">{v.variationName}</p>
+                        <p className="text-xs font-black text-gold">₹{v.price}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Addons */}
+                {dishes.filter(d => d.category.toLowerCase().includes('add-on') || d.category.toLowerCase().includes('addon') || d.name.toLowerCase().includes('extra')).length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-bold text-foreground/60 uppercase tracking-widest mb-4">Add-ons</h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {dishes.filter(d => d.category.toLowerCase().includes('add-on') || d.category.toLowerCase().includes('addon') || d.name.toLowerCase().includes('extra')).map(addon => {
+                        const isSelected = selectedAddons.some(a => a._id === addon._id);
+                        return (
+                          <button
+                            key={addon._id}
+                            onClick={() => {
+                              if (isSelected) {
+                                setSelectedAddons(selectedAddons.filter(a => a._id !== addon._id));
+                              } else {
+                                setSelectedAddons([...selectedAddons, addon]);
+                              }
+                            }}
+                            className={`p-4 rounded-2xl border-2 text-center transition-all ${isSelected ? 'border-gold bg-gold/5 shadow-md scale-[1.02]' : 'border-foreground/10 hover:border-gold/30 hover:bg-foreground/5'}`}
+                          >
+                            <p className="font-bold text-sm mb-1 line-clamp-2">{addon.name}</p>
+                            <p className="text-xs font-black text-gold">+ ₹{addon.price}</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="p-6 border-t border-foreground/10 bg-card sticky bottom-0 z-10 flex gap-4">
+                <button 
+                  onClick={() => {
+                    if (!selectedVariation) return alert('Please select a size!');
+                    addToCart(selectedVariation);
+                    selectedAddons.forEach(a => addToCart(a));
+                    setSelectedGroupedDish(null);
+                    setSelectedVariation(null);
+                    setSelectedAddons([]);
+                  }}
+                  className="flex-1 bg-gold text-black font-black uppercase py-4 rounded-xl flex justify-center items-center gap-2 hover:brightness-110 transition-all shadow-lg shadow-gold/20"
+                >
+                  <Plus size={18} /> Add to Cart (₹{(selectedVariation?.price || 0) + selectedAddons.reduce((sum, a) => sum + a.price, 0)})
+                </button>
               </div>
             </motion.div>
           </div>
