@@ -165,6 +165,7 @@ export default function POSTerminal() {
   
   const { data: userData } = useSWR(`${API_URL}/api/auth/me`, fetcher);
   const { data: dishesData, mutate: mutateDishes } = useSWR(`${API_URL}/api/dishes`, fetcher);
+  const { data: customersData } = useSWR(`${API_URL}/api/customers`, fetcher);
   const [user, setUser] = useState<any>(null);
 
   const [userRole, setUserRole] = useState('');
@@ -1167,17 +1168,51 @@ export default function POSTerminal() {
             <input 
               type="text" 
               value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
+              list="customer-names"
+              onChange={(e) => {
+                const val = e.target.value;
+                setCustomerName(val);
+                if (val && customersData) {
+                  const match = customersData.find((c: any) => c.name === val);
+                  if (match && !customerPhone) {
+                    setCustomerPhone(match.phone);
+                  }
+                }
+              }}
               placeholder="Customer Name"
               className="w-full bg-transparent border border-border rounded-lg px-2 py-1.5 text-[10px] text-foreground focus:outline-none focus:border-gold/50 placeholder:text-foreground/60"
             />
+            {customersData && (
+              <datalist id="customer-names">
+                {customersData.map((c: any) => (
+                  <option key={`name-${c._id || c.phone}`} value={c.name}>{c.phone}</option>
+                ))}
+              </datalist>
+            )}
             <input 
               type="tel" 
               value={customerPhone}
-              onChange={(e) => setCustomerPhone(e.target.value)}
+              list="customer-phones"
+              onChange={(e) => {
+                const val = e.target.value;
+                setCustomerPhone(val);
+                if (val.length >= 10 && customersData) {
+                  const match = customersData.find((c: any) => c.phone === val);
+                  if (match && !customerName) {
+                    setCustomerName(match.name);
+                  }
+                }
+              }}
               placeholder="Phone No."
               className="w-full bg-transparent border border-border rounded-lg px-2 py-1.5 text-[10px] text-foreground focus:outline-none focus:border-gold/50 placeholder:text-foreground/60"
             />
+            {customersData && (
+              <datalist id="customer-phones">
+                {customersData.map((c: any) => (
+                  <option key={c._id || c.phone} value={c.phone}>{c.name}</option>
+                ))}
+              </datalist>
+            )}
             
             <button 
               onClick={() => setModifierModalType('discount')}
