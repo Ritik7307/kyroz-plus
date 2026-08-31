@@ -74,6 +74,14 @@ export const getDishes = async (req: AuthRequest, res: Response): Promise<void> 
 export const createDish = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { name, price, ingredientPrice, category, imageUrl, allowedWastagePercentage } = req.body;
+    const userId = req.user?.userId;
+
+    const existingDish = await Dish.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }, userId }).lean();
+    if (existingDish) {
+      res.status(400).json({ error: 'A dish with this name already exists' });
+      return;
+    }
+
     const newDish = new Dish({
       name,
       price,
@@ -81,7 +89,7 @@ export const createDish = async (req: AuthRequest, res: Response): Promise<void>
       category,
       imageUrl,
       allowedWastagePercentage,
-      userId: req.user?.userId
+      userId
     });
     await newDish.save();
     res.status(201).json(newDish);
@@ -97,6 +105,12 @@ export const createDishAdvancedSetup = async (req: AuthRequest, res: Response): 
 
     if (!userId) {
       res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const existingDish = await Dish.findOne({ name: { $regex: new RegExp(`^${dishDetails.name}$`, 'i') }, userId }).lean();
+    if (existingDish) {
+      res.status(400).json({ error: 'A dish with this name already exists' });
       return;
     }
 
