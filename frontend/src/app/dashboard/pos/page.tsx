@@ -173,6 +173,7 @@ export default function POSTerminal() {
 
   const [userRole, setUserRole] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [isSavingDish, setIsSavingDish] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [userQrCode, setUserQrCode] = useState<string | null>(null);
   const [userShopName, setUserShopName] = useState<string>('KYROZ POS');
@@ -613,6 +614,8 @@ export default function POSTerminal() {
   };
 
   const handleAddDish = async () => {
+    if (isSavingDish) return;
+    setIsSavingDish(true);
     const token = localStorage.getItem('token');
     try {
       let currentImageUrl = newDish.imageUrl;
@@ -711,6 +714,8 @@ export default function POSTerminal() {
       }
     } catch (err) {
       console.error('Failed to add dish', err);
+    } finally {
+      setIsSavingDish(false);
     }
   };
 
@@ -831,7 +836,9 @@ export default function POSTerminal() {
           });
         }
         const group = groups.get(baseName);
-        group.variations.push({ ...dish, variationName: parts[1] });
+        if (!group.variations.find((v: any) => v.variationName === parts[1])) {
+          group.variations.push({ ...dish, variationName: parts[1] });
+        }
         if (dish.price < group.price) group.price = dish.price;
       } else {
         groups.set(dish._id, dish);
@@ -2172,9 +2179,11 @@ export default function POSTerminal() {
                             }
                             handleAddDish();
                           }} 
-                          className="w-full py-4 bg-gold text-black font-black uppercase rounded-xl flex items-center justify-center gap-2"
+                          disabled={isSavingDish || loadingDishes}
+                          className="w-full py-4 bg-gold text-black font-black uppercase rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
                         >
-                          <Check size={18} /> Add Dish
+                          {isSavingDish ? <Loader2 className="animate-spin" size={18} /> : <Check size={18} />} 
+                          {isSavingDish ? 'Adding...' : 'Add Dish'}
                         </button>
                       </div>
                     )}
