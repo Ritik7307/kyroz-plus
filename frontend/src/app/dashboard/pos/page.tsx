@@ -633,13 +633,36 @@ export default function POSTerminal() {
       const itemsToCreate = hasVariations && variations.length > 0
         ? variations.filter(v => v.name && v.price).map(v => ({
             name: `${newDish.name} - ${v.name}`,
-            price: Number(v.price) || 0
+            price: Number(v.price) || 0,
+            templateDishId: (v as any).templateDishId
           }))
         : [{ name: newDish.name, price: Number(newDish.price) || 0 }];
         
       let successCount = 0;
 
       for (const item of itemsToCreate) {
+        let currentRecipeIngredients = recipeIngredients; // Default from main select
+        
+        if (hasVariations && item.templateDishId) {
+          try {
+            const tRes = await fetch(`${API_URL}/api/costing/dish/${item.templateDishId}`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (tRes.ok) {
+              const data = await tRes.json();
+              currentRecipeIngredients = data.ingredientsCostDetails
+                .filter((ing: any) => !ing.isSubIngredient)
+                .map((ing: any) => ({
+                  itemModel: ing.itemModel,
+                  itemId: ing.itemId,
+                  quantity: ing.quantity,
+                  unit: ing.unit,
+                  name: ing.name,
+                }));
+            }
+          } catch(e) {}
+        }
+
         const payload = {
           dishDetails: {
             name: item.name,
@@ -649,7 +672,7 @@ export default function POSTerminal() {
             imageUrl: currentImageUrl,
             allowedWastagePercentage: Number(advancedSetupData.allowedWastagePercentage) || 0
           },
-          recipeDetails: { ingredients: recipeIngredients },
+          recipeDetails: { ingredients: currentRecipeIngredients },
           inventoryDetails: {
             platesPerPacket: Number(advancedSetupData.platesPerPacket) || 10,
             totalPlates: Number(advancedSetupData.totalPlates) || 0,
@@ -2017,21 +2040,37 @@ export default function POSTerminal() {
                           <div className="bg-foreground/5 p-4 rounded-xl border border-foreground/10 space-y-3 mb-4">
                             <p className="text-xs font-bold text-foreground/60 uppercase">Variations</p>
                             {variations.map((v, i) => (
-                              <div key={i} className="flex gap-2">
-                                <input type="text" value={v.name} onChange={(e) => {
-                                  const newV = [...variations];
-                                  newV[i].name = e.target.value;
-                                  setVariations(newV);
-                                }} placeholder="Size (e.g. Half)" className="flex-1 bg-card shadow-sm p-3 rounded-lg border border-foreground/10 text-sm" />
-                                <input type="number" value={v.price} onChange={(e) => {
-                                  const newV = [...variations];
-                                  newV[i].price = e.target.value;
-                                  setVariations(newV);
-                                }} placeholder="Price" className="flex-1 bg-card shadow-sm p-3 rounded-lg border border-foreground/10 text-sm" />
-                                <button onClick={() => {
-                                  const newV = variations.filter((_, idx) => idx !== i);
-                                  setVariations(newV);
-                                }} className="p-3 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20 transition-colors"><X size={16} /></button>
+                              <div key={i} className="flex flex-col gap-2 bg-card shadow-sm p-3 rounded-lg border border-foreground/10">
+                                <div className="flex gap-2">
+                                  <input type="text" value={v.name} onChange={(e) => {
+                                    const newV = [...variations];
+                                    newV[i].name = e.target.value;
+                                    setVariations(newV);
+                                  }} placeholder="Size (e.g. Half)" className="flex-1 bg-background p-3 rounded-lg border border-foreground/10 text-sm" />
+                                  <input type="number" value={v.price} onChange={(e) => {
+                                    const newV = [...variations];
+                                    newV[i].price = e.target.value;
+                                    setVariations(newV);
+                                  }} placeholder="Price" className="flex-1 bg-background p-3 rounded-lg border border-foreground/10 text-sm" />
+                                  <button onClick={() => {
+                                    const newV = variations.filter((_, idx) => idx !== i);
+                                    setVariations(newV);
+                                  }} className="p-3 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20 transition-colors"><X size={16} /></button>
+                                </div>
+                                <select 
+                                  value={(v as any).templateDishId || ''}
+                                  onChange={(e) => {
+                                    const newV = [...variations];
+                                    (newV[i] as any).templateDishId = e.target.value;
+                                    setVariations(newV);
+                                  }}
+                                  className="w-full bg-background p-3 rounded-lg border border-gold/30 text-sm outline-none focus:border-gold text-foreground"
+                                >
+                                  <option value="">Do not link costing / Setup manually</option>
+                                  {dishesData?.filter((d: any) => d.category === newDish.category).map((dish: any) => (
+                                    <option key={dish._id} value={dish._id}>{dish.name}</option>
+                                  ))}
+                                </select>
                               </div>
                             ))}
                             <button onClick={() => setVariations([...variations, { name: '', price: '' }])} className="text-xs font-bold text-gold uppercase tracking-widest hover:underline">+ Add Another Size</button>
@@ -2080,7 +2119,7 @@ export default function POSTerminal() {
                         </div>
 
                         {/* Auto Costing Template Linker */}
-                        {!isAddingNewCategory && newDish.category && (
+                        {!isAddingNewCategory && newDish.category && !hasVariations && (
                           <div className="space-y-2 bg-gold/10 p-4 rounded-xl border border-gold/20">
                             <label className="text-xs uppercase font-bold text-gold flex items-center justify-between">
                               <span>Copy Costing from Existing Dish (Optional)</span>
