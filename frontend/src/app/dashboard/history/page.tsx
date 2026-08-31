@@ -118,22 +118,28 @@ export default function HistoryPage() {
         dineIn += o.totalRevenue;
       }
 
+      // Calculate order base revenue to apportion GST/Discounts
+      const baseOrderRevenue = o.items.reduce((sum: number, i: any) => sum + (i.quantity * i.price), 0);
+      const multiplier = baseOrderRevenue > 0 ? o.totalRevenue / baseOrderRevenue : 1;
+
       o.items.forEach((item: any) => {
         totalItems += item.quantity;
         const name = item.dishId?.name || 'Unknown Item';
         const categoryName = item.dishId?.category || 'Uncategorized';
         
+        const apportionedRevenue = (item.quantity * item.price) * multiplier;
+
         if (!itemCounts[name]) {
           itemCounts[name] = { quantity: 0, revenue: 0 };
         }
         itemCounts[name].quantity += item.quantity;
-        itemCounts[name].revenue += item.quantity * item.price;
+        itemCounts[name].revenue += apportionedRevenue;
         
         if (!categoryCounts[categoryName]) {
           categoryCounts[categoryName] = { quantity: 0, revenue: 0 };
         }
         categoryCounts[categoryName].quantity += item.quantity;
-        categoryCounts[categoryName].revenue += item.quantity * item.price;
+        categoryCounts[categoryName].revenue += apportionedRevenue;
       });
     });
 

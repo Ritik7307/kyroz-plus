@@ -330,14 +330,38 @@ export const getSalesSummary = async (req: AuthRequest, res: Response): Promise<
     // Comprehensive Item Analytics (Limited to this year to prevent huge latency)
     const itemAnalytics = await Order.aggregate([
       { $match: { userId, createdAt: { $gte: startOfYear } } },
+      {
+        $addFields: {
+          baseOrderRevenue: {
+            $sum: {
+              $map: {
+                input: "$items",
+                as: "item",
+                in: { $multiply: ["$$item.price", "$$item.quantity"] }
+              }
+            }
+          }
+        }
+      },
+      {
+        $addFields: {
+          orderMultiplier: {
+            $cond: [
+              { $gt: ["$baseOrderRevenue", 0] },
+              { $divide: ["$totalRevenue", "$baseOrderRevenue"] },
+              1
+            ]
+          }
+        }
+      },
       { $unwind: "$items" },
       {
         $group: {
           _id: "$items.dishId",
           totalQuantity: { $sum: "$items.quantity" },
-          totalRevenue: { $sum: { $multiply: ["$items.price", "$items.quantity"] } },
+          totalRevenue: { $sum: { $multiply: ["$items.price", "$items.quantity", "$orderMultiplier"] } },
           totalCost: { $sum: { $multiply: ["$items.ingredientPrice", "$items.quantity"] } },
-          totalProfit: { $sum: { $multiply: [{ $subtract: ["$items.price", "$items.ingredientPrice"] }, "$items.quantity"] } }
+          totalProfit: { $sum: { $subtract: [{ $multiply: ["$items.price", "$items.quantity", "$orderMultiplier"] }, { $multiply: ["$items.ingredientPrice", "$items.quantity"] }] } }
         }
       },
       { $lookup: { from: 'dishes', localField: '_id', foreignField: '_id', as: 'dish' } },
