@@ -889,39 +889,41 @@ export default function POSTerminal() {
     const groups = new Map();
     filteredDishes.forEach(dish => {
       const parts = dish.name.split(' - ');
-      // We only group if there's exactly one " - " and we're not in management mode
-      if (parts.length === 2 && !dish.name.toLowerCase().includes('extra')) {
-        const baseName = parts[0].trim();
-        if (!groups.has(baseName)) {
-          groups.set(baseName, {
-            isGroup: true,
-            _id: `group_${baseName}`,
-            name: baseName,
-            category: dish.category,
-            imageUrl: dish.imageUrl,
-            variations: [],
-            price: dish.price // Will hold minimum price
-          });
-        }
-        const group = groups.get(baseName);
-        const varName = parts[1].trim();
-        if (!group.variations.find((v: any) => v.variationName.toLowerCase() === varName.toLowerCase())) {
-          group.variations.push({ ...dish, variationName: varName });
-        }
-        if (dish.price < group.price) group.price = dish.price;
-      } else {
-        groups.set(dish._id, dish);
+      const baseName = parts[0].trim();
+      const varName = parts.length > 1 ? parts.slice(1).join(' - ').trim() : 'Regular';
+
+      if (!groups.has(baseName)) {
+        groups.set(baseName, {
+          isGroup: true,
+          _id: `group_${baseName}`,
+          name: baseName,
+          category: dish.category,
+          imageUrl: dish.imageUrl,
+          variations: [],
+          price: dish.price // Will hold minimum price
+        });
       }
+      
+      const group = groups.get(baseName);
+      if (!group.variations.find((v: any) => v.variationName.toLowerCase() === varName.toLowerCase())) {
+        group.variations.push({ ...dish, variationName: varName });
+      }
+      if (dish.price < group.price) group.price = dish.price;
     });
 
-    // Sort variations by price
+    const result: any[] = [];
     groups.forEach(g => {
-      if (g.isGroup) {
+      if (g.variations.length === 1 && g.variations[0].variationName === 'Regular') {
+        const originalDish = { ...g.variations[0] };
+        delete originalDish.variationName;
+        result.push(originalDish);
+      } else {
         g.variations.sort((a: any, b: any) => a.price - b.price);
+        result.push(g);
       }
     });
 
-    return Array.from(groups.values());
+    return result;
   }, [filteredDishes, isManagementMode]);
 
   const isManager = ['admin', 'manager', 'user'].includes(userRole);
@@ -1856,6 +1858,16 @@ export default function POSTerminal() {
               <span>TOTAL:</span>
               <span>₹{grandTotal}</span>
             </div>
+
+            {paymentMethod === 'Split' && (
+              <div className="border-t border-black pt-1 pb-1 text-left text-[11px]">
+                <div className="font-bold">Split Payment Info :</div>
+                <div className="pl-2 mt-0.5 space-y-0.5">
+                  <div>Cash - Rs {Number(splitCash).toFixed(2)}</div>
+                  <div>Online - Rs {Number(splitOnline).toFixed(2)}</div>
+                </div>
+              </div>
+            )}
 
             <div className="border-t border-dashed border-black pt-1 text-center">
               <div className="text-[9px] font-black tracking-widest uppercase flex flex-col items-center leading-tight">
