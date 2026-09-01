@@ -1,4 +1,3 @@
-
 import mongoose from 'mongoose';
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
@@ -29,7 +28,8 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
       paymentMethod,
       orderType = 'DineIn',
       offline_id,
-      applyGst
+      applyGst,
+      splitPayments
     } = req.body; // Array of { dishId, quantity }
 
     if (!items || !Array.isArray(items)) {
@@ -165,6 +165,17 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
 
       const discountedRevenue = Math.round(afterDiscount + gstAmount + charge);
 
+      if (paymentMethod === 'Split' && splitPayments) {
+        if (typeof splitPayments.cash !== 'number' || typeof splitPayments.online !== 'number') {
+          res.status(400).json({ error: 'Invalid split payments payload' });
+          return;
+        }
+        if (Math.abs((splitPayments.cash + splitPayments.online) - discountedRevenue) > 1) {
+          res.status(400).json({ error: 'Split amounts must equal total revenue' });
+          return;
+        }
+      }
+
       // Generate bill number (resets daily per user/restaurant in IST timezone)
       const now = new Date();
       const istOffset = 5.5 * 60 * 60 * 1000;
@@ -188,9 +199,11 @@ export const processCheckout = async (req: AuthRequest, res: Response): Promise<
         additionalCharge: charge,
         tableNumber,
         paymentMethod: paymentMethod || 'Cash',
+        splitPayments: paymentMethod === 'Split' ? splitPayments : undefined,
         orderType,
         offline_id,
-        billNumber
+        billNumber,
+        displayBillNumber: String(req.body.tempBillNo || billNumber)
       });
       order = await newOrder.save();
 

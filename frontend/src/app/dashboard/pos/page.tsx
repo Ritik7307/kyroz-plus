@@ -73,7 +73,7 @@ interface TableSession {
   orderType: 'DineIn' | 'Takeaway' | 'Delivery';
   kotStatus?: 'None' | 'Pending' | 'Preparing' | 'Ready' | 'Served';
   kotId?: string;
-  sequenceNo?: number;
+  sequenceNo?: string;
 }
 
 const INITIAL_TABLES = [
@@ -88,28 +88,43 @@ const INITIAL_TABLES = [
   { id: 'T8', name: 'Table 8' },
 ];
 
+const getDevicePrefix = () => {
+  if (typeof window === 'undefined') return '';
+  let prefix = localStorage.getItem('kyroz_device_prefix');
+  if (!prefix) {
+    prefix = String.fromCharCode(
+      65 + Math.floor(Math.random() * 26),
+      65 + Math.floor(Math.random() * 26)
+    );
+    localStorage.setItem('kyroz_device_prefix', prefix);
+  }
+  return prefix;
+};
+
 const generateKotSequence = () => {
-  if (typeof window === 'undefined') return 1;
+  if (typeof window === 'undefined') return 'KOT-1';
+  const prefix = getDevicePrefix();
   const now = new Date();
   const istOffset = 5.5 * 60 * 60 * 1000;
   const currentIST = new Date(now.getTime() + istOffset);
   const today = currentIST.toISOString().split('T')[0];
   
-  const lastDate = localStorage.getItem('kyroz_seq_date_v2');
+  const lastDate = localStorage.getItem('kyroz_kot_seq_date_v2');
   let seq = parseInt(localStorage.getItem('kyroz_kot_seq_v2') || '0', 10);
   
   if (lastDate !== today) {
     seq = 0;
-    localStorage.setItem('kyroz_seq_date_v2', today);
+    localStorage.setItem('kyroz_kot_seq_date_v2', today);
   }
   
   seq += 1;
   localStorage.setItem('kyroz_kot_seq_v2', seq.toString());
-  return seq;
+  return `${prefix}-${seq}`;
 };
 
 const generateBillSequence = () => {
-  if (typeof window === 'undefined') return 1;
+  if (typeof window === 'undefined') return '1';
+  const prefix = getDevicePrefix();
   const now = new Date();
   const istOffset = 5.5 * 60 * 60 * 1000;
   const currentIST = new Date(now.getTime() + istOffset);
@@ -125,7 +140,7 @@ const generateBillSequence = () => {
   
   seq += 1;
   localStorage.setItem('kyroz_bill_seq_v2', seq.toString());
-  return seq;
+  return `${prefix}-${seq}`;
 };
 
 const defaultSession = (tableId: string): TableSession => ({
@@ -158,7 +173,7 @@ const DEFAULT_CATEGORIES = [
 export default function POSTerminal() {
   const { resolvedPosTheme } = useTheme();
   const [dishes, setDishes] = useState<Dish[]>([]);
-  const [cart, setCart] = useState<{ dish: Dish, quantity: number, note?: string, sentQty?: number }[]>([]);
+  const [cart, setCart] = useState<{ dish: Dish, quantity: number, note?: string, sentQty?: number, addons?: Dish[] }[]>([]);
   const [selectedGroupedDish, setSelectedGroupedDish] = useState<any>(null);
   const [selectedVariation, setSelectedVariation] = useState<any>(null);
   const [selectedAddons, setSelectedAddons] = useState<any[]>([]);
@@ -214,6 +229,11 @@ export default function POSTerminal() {
   });
 
   const isSwitchingTable = useRef(false);
+  const activeTableRef = useRef<string>(activeTable);
+  
+  useEffect(() => {
+    activeTableRef.current = activeTable;
+  }, [activeTable]);
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [setupStep, setSetupStep] = useState(1);
@@ -396,6 +416,46 @@ export default function POSTerminal() {
       fetchInventoryForCosting();
     }
   }, [showAddModal]);
+
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'pos_table_sessions' && e.newValue) {
+        try {
+          const newSessions = JSON.parse(e.newValue);
+          setTableSessions(newSessions);
+          
+          // If the active table was updated in another tab, sync our local states
+          const currentTable = activeTableRef.current;
+          if (newSessions[currentTable]) {
+            const sess = newSessions[currentTable];
+            isSwitchingTable.current = true;
+            setCart(sess.cart || []);
+            setCustomerName(sess.customerName || '');
+            setCustomerPhone(sess.customerPhone || '');
+            setDiscount(sess.discount || '');
+            setDiscountType(sess.discountType || 'percentage');
+            setAdditionalCharge(sess.additionalCharge || '');
+            setApplyGst(sess.applyGst !== false);
+            setPaymentMethod(sess.paymentMethod || 'Cash');
+            setSplitCash(sess.splitCash || 0);
+            setSplitOnline(sess.splitOnline || 0);
+            setOrderType(sess.orderType || (currentTable === 'quick' ? 'Takeaway' : 'DineIn'));
+            setKotStatus(sess.kotStatus || 'None');
+            setKotId(sess.kotId || '');
+            
+            setTimeout(() => {
+              isSwitchingTable.current = false;
+            }, 100);
+          }
+        } catch (error) {
+          console.error("Failed to parse cross-tab session sync", error);
+        }
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // Save current active table session to localStorage whenever states change
   useEffect(() => {
@@ -758,21 +818,26 @@ export default function POSTerminal() {
     }
   };
 
-  const addToCart = (dish: Dish) => {
+  const addToCart = (dish: Dish, addons: Dish[] = []) => {
     if (isManagementMode) return;
     setCart(prev => {
-      const existing = prev.find(item => item.dish._id === dish._id);
+      const existing = prev.find(item => {
+        if (item.dish._id !== dish._id) return false;
+        const itemAddonIds = (item.addons || []).map(a => a._id).sort().join(',');
+        const newAddonIds = addons.map(a => a._id).sort().join(',');
+        return itemAddonIds === newAddonIds;
+      });
       if (existing) {
-        return prev.map(item => item.dish._id === dish._id ? { ...item, quantity: item.quantity + 1 } : item);
+        return prev.map(item => item === existing ? { ...item, quantity: item.quantity + 1 } : item);
       }
-      return [...prev, { dish, quantity: 1, sentQty: 0 }];
+      return [...prev, { dish, quantity: 1, sentQty: 0, addons }];
     });
     setCheckoutSuccess(false); // Reset success if new items added
   };
 
-  const updateQuantity = (id: string, delta: number) => {
-    setCart(prev => prev.map(item => {
-      if (item.dish._id === id) {
+  const updateQuantity = (id: string, delta: number, index?: number) => {
+    setCart(prev => prev.map((item, i) => {
+      if ((index !== undefined && i === index) || (index === undefined && item.dish._id === id)) {
         const newQty = Math.max(0, item.quantity + delta);
         const newSentQty = Math.min(item.sentQty || 0, newQty);
         return { ...item, quantity: newQty, sentQty: newSentQty };
@@ -787,7 +852,10 @@ export default function POSTerminal() {
     return item ? item.quantity : 0;
   };
 
-  const total = cart.reduce((sum, item) => sum + (item.dish.price * item.quantity), 0);
+  const total = cart.reduce((sum, item) => {
+    const addonsTotal = item.addons ? item.addons.reduce((a, b) => a + b.price, 0) : 0;
+    return sum + ((item.dish.price + addonsTotal) * item.quantity);
+  }, 0);
   
   const parsedDiscount = parseFloat(discount) || 0;
   const discountAmount = discountType === 'flat' 
@@ -873,7 +941,10 @@ export default function POSTerminal() {
     const token = localStorage.getItem('token');
     
     const checkoutPayload = {
-      items: cart.map(item => ({ dishId: item.dish._id, dishName: item.dish.name, quantity: item.quantity, note: item.note })),
+      items: cart.flatMap(item => [
+        { dishId: item.dish._id, dishName: item.dish.name, quantity: item.quantity, note: item.note },
+        ...(item.addons || []).map(addon => ({ dishId: addon._id, dishName: addon.name, quantity: item.quantity, note: 'Add-on' }))
+      ]),
       customerName, customerPhone, discount: Number(discount) || 0, discountType, additionalCharge: Number(additionalCharge) || 0,
       applyGst, paymentMethod, orderType,
       splitPayments: paymentMethod === 'Split' ? { cash: splitCash, online: splitOnline } : undefined,
@@ -887,6 +958,8 @@ export default function POSTerminal() {
     
     setTimeout(async () => {
       const targetPrinter = localStorage.getItem('printerTarget_bill');
+      let printSuccess = false;
+
       if (targetPrinter) {
         toast.loading(`Sending to ${targetPrinter}...`, { id: 'print_toast' });
         try {
@@ -904,57 +977,67 @@ export default function POSTerminal() {
           });
           if (res.ok) {
             toast.success('Print sent successfully!', { id: 'print_toast' });
+            printSuccess = true;
           } else {
             toast.error('Silent print failed, using dialog', { id: 'print_toast' });
             window.print();
+            printSuccess = true;
           }
         } catch (e) {
           toast.error('Print error, using dialog', { id: 'print_toast' });
           window.print();
+          printSuccess = true;
         }
       } else {
         window.print();
+        printSuccess = true;
       }
       
       setPrintType(null);
       setIsProcessingCheckout(false);
-      
-      if (window.confirm("Did the bill print successfully? Click OK to complete the order, or Cancel to go back and edit the cart.")) {
-        setLastCheckoutData({
-          cart: [...cart],
-          customerName,
-          customerPhone,
-          total,
-          discountAmount,
-          discountType,
-          parsedDiscount,
-          applyGst,
-          userGstRate,
-          gstAmount,
-          parsedAdditionalCharge,
-          grandTotal,
-          printedBillNo: currentBillSeq
-        });
-        setCheckoutSuccess(true);
-        
-        setCart([]);
-        setCustomerName('');
-        setCustomerPhone('');
-        setDiscount('');
-        setDiscountType('percentage');
-        setAdditionalCharge('');
-        setApplyGst(true);
-        setPaymentMethod('Cash');
-        setOrderType(activeTable === 'quick' ? 'Takeaway' : 'DineIn');
-        setKotStatus('None');
-        setKotId('');
-        
-        // Background sync
-        dataService.post(`${API_URL}/api/orders/checkout`, checkoutPayload, { 'Authorization': `Bearer ${token}` })
-          .catch((err: any) => console.error('Background checkout error', err));
-      } else {
-        setPrintedBillNo('');
-      }
+
+      // We use setTimeout to give the browser time to clear the print dialog before confirming
+      setTimeout(() => {
+        if (window.confirm("Did the bill print successfully? Click OK to complete the order, or Cancel to go back and edit the cart.")) {
+          setLastCheckoutData({
+            cart: [...cart],
+            customerName,
+            customerPhone,
+            total,
+            discountAmount,
+            discountType,
+            parsedDiscount,
+            applyGst,
+            userGstRate,
+            gstAmount,
+            parsedAdditionalCharge,
+            grandTotal,
+            printedBillNo: currentBillSeq
+          });
+          setCheckoutSuccess(true);
+          
+          setCart([]);
+          setCustomerName('');
+          setCustomerPhone('');
+          setDiscount('');
+          setDiscountType('percentage');
+          setAdditionalCharge('');
+          setApplyGst(true);
+          setPaymentMethod('Cash');
+          setSplitCash(0);
+          setSplitOnline(0);
+          setOrderType(activeTable === 'quick' ? 'Takeaway' : 'DineIn');
+          setKotStatus('None');
+          setKotId('');
+          
+          // Background sync
+          dataService.post(`${API_URL}/api/orders/checkout`, checkoutPayload, { 'Authorization': `Bearer ${token}` })
+            .catch((err: any) => console.error('Background checkout error', err));
+        } else {
+          setPrintedBillNo('');
+          setShowQrModal(false);
+        }
+      }, 500);
     }, 100);
   };
 
@@ -1040,7 +1123,8 @@ export default function POSTerminal() {
       return {
         dish: item.dish,
         quantity: unsentQty,
-        note: item.note || ''
+        note: item.note || '',
+        addons: item.addons
       };
     }).filter(item => item.quantity > 0);
 
@@ -1063,12 +1147,20 @@ export default function POSTerminal() {
     const token = localStorage.getItem('token');
     
     const payload = {
-      items: unsentItems.map(item => ({
-        dishId: item.dish._id,
-        dishName: item.dish.name,
-        quantity: item.quantity,
-        note: item.note
-      })),
+      items: unsentItems.flatMap((item: any) => [
+        {
+          dishId: item.dish._id,
+          dishName: item.dish.name,
+          quantity: item.quantity,
+          note: item.note
+        },
+        ...(item.addons || []).map((addon: any) => ({
+          dishId: addon._id,
+          dishName: addon.name,
+          quantity: item.quantity,
+          note: 'Add-on'
+        }))
+      ]),
       tableNumber: activeTable === 'quick' ? 'Quick Bill' : tables.find(t => t.id === activeTable)?.name || activeTable,
       orderType: orderType,
       customerName: customerName,
@@ -1152,7 +1244,11 @@ export default function POSTerminal() {
       return;
     }
 
-    const itemsList = activeData.cart.map((item: any) => `- ${item.dish.name} (x${item.quantity}) - Rs.${item.dish.price * item.quantity}`).join('\n');
+    const itemsList = activeData.cart.map((item: any) => {
+      const addonsTotal = item.addons ? item.addons.reduce((a: any, b: any) => a + b.price, 0) : 0;
+      const addonText = item.addons && item.addons.length > 0 ? ` (+ ${item.addons.map((a: any) => a.name).join(', ')})` : '';
+      return `- ${item.dish.name}${addonText} (x${item.quantity}) - Rs.${(item.dish.price + addonsTotal) * item.quantity}`;
+    }).join('\n');
     
   
     const activeBillNo = (typeof billNumberToUse === 'string' && billNumberToUse) ? billNumberToUse : activeData.printedBillNo;
@@ -1203,9 +1299,9 @@ export default function POSTerminal() {
         {/* Scrollable Items */}
         <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-0 custom-scrollbar">
           <AnimatePresence>
-            {cart.map(item => (
+            {cart.map((item, index) => (
               <motion.div
-                key={item.dish._id}
+                key={`${item.dish._id}-${index}`}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
@@ -1220,6 +1316,17 @@ export default function POSTerminal() {
                   </div>
                   <p className="text-xs text-foreground/70">₹{item.dish.price} x {item.quantity}</p>
                   
+                  {item.addons && item.addons.length > 0 && (
+                    <div className="pl-4 mt-1 space-y-0.5">
+                      {item.addons.map((addon, idx) => (
+                        <div key={idx} className="flex justify-between text-[10px] text-foreground/60">
+                          <span>+ {addon.name}</span>
+                          <span>₹{addon.price} x {item.quantity}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   {item.note && (
                     <p className="text-[10px] text-gold mt-1 italic leading-tight line-clamp-2">Note: {item.note}</p>
                   )}
@@ -1238,12 +1345,12 @@ export default function POSTerminal() {
                     <FileText size={12} />
                   </button>
                   <div className="flex items-center gap-2 bg-background rounded-xl p-1 border border-foreground/5 shrink-0">
-                    <button onClick={() => updateQuantity(item.dish._id, -1)} className="text-foreground/70 hover:text-foreground"><Minus size={12} /></button>
+                    <button onClick={() => updateQuantity(item.dish._id, -1, index)} className="text-foreground/70 hover:text-foreground"><Minus size={12} /></button>
                     <span className="text-xs font-bold min-w-[16px] text-center">{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.dish._id, 1)} className="text-gold hover:text-gold/80"><Plus size={12} /></button>
+                    <button onClick={() => updateQuantity(item.dish._id, 1, index)} className="text-gold hover:text-gold/80"><Plus size={12} /></button>
                   </div>
                 </div>
-                <div className="ml-3 font-black text-xs w-14 text-right shrink-0">₹{item.dish.price * item.quantity}</div>
+                <div className="ml-3 font-black text-xs w-14 text-right shrink-0">₹{(item.dish.price + (item.addons ? item.addons.reduce((a, b) => a + b.price, 0) : 0)) * item.quantity}</div>
               </motion.div>
             ))}
           </AnimatePresence>
@@ -1473,9 +1580,14 @@ export default function POSTerminal() {
                   );
                 })()}
 
+                {paymentMethod === 'Split' && Math.abs((splitCash || 0) + (splitOnline || 0) - grandTotal) > 1 && (
+                  <div className="w-full text-center text-red-500 text-[10px] font-bold mt-2">
+                    Split amounts must equal Grand Total (₹{grandTotal})
+                  </div>
+                )}
                 <button 
                   onClick={handleCheckout}
-                  disabled={cart.length === 0}
+                  disabled={cart.length === 0 || (paymentMethod === 'Split' && Math.abs((splitCash || 0) + (splitOnline || 0) - grandTotal) > 1)}
                   className="flex-1 py-2.5 rounded-lg font-black text-[11px] uppercase tracking-widest transition-all shadow-xl disabled:opacity-50 dark:bg-gold dark:text-black bg-foreground text-background hover:scale-[1.02] active:scale-95"
                 >
                   Checkout
@@ -1636,6 +1748,11 @@ export default function POSTerminal() {
                   <tr key={idx}>
                     <td className="py-0.5 pr-1 leading-tight">
                       <span className="font-bold">{item.dishId?.name || item.dish?.name || item.name || 'Unknown Dish'}</span>
+                      {item.addons && item.addons.length > 0 && (
+                        <div className="text-[10px] font-normal leading-tight text-black/80 pl-2">
+                          {item.addons.map((a: any) => `+ ${a.name}`).join(', ')}
+                        </div>
+                      )}
                       {item.note && (
                         <div className="text-[10px] italic mt-0 font-bold leading-none">
                           * Note: {item.note}
@@ -1683,13 +1800,23 @@ export default function POSTerminal() {
                   </tr>
                 </thead>
                 <tbody>
-                  {cart.map((item, idx) => (
-                    <tr key={idx} className="border-b border-black/5 last:border-0">
-                      <td className="py-0.5 pr-1 leading-tight text-[12px] font-bold">{item.dish.name}</td>
-                      <td className="py-0.5 text-center align-top text-[11px] font-bold">{item.quantity}</td>
-                  <td className="py-0.5 text-right font-bold align-top">₹{item.dish.price * item.quantity}</td>
-                    </tr>
-                  ))}
+                  {cart.map((item, idx) => {
+                    const addonsTotal = item.addons ? item.addons.reduce((a, b) => a + b.price, 0) : 0;
+                    return (
+                      <tr key={idx} className="border-b border-black/5 last:border-0">
+                        <td className="py-0.5 pr-1 leading-tight text-[12px] font-bold">
+                          {item.dish.name}
+                          {item.addons && item.addons.length > 0 && (
+                            <div className="text-[10px] font-normal leading-tight text-black/60 pl-2">
+                              {item.addons.map(a => `+ ${a.name}`).join(', ')}
+                            </div>
+                          )}
+                        </td>
+                        <td className="py-0.5 px-1 text-center font-bold text-[12px] whitespace-nowrap align-top">x {item.quantity}</td>
+                        <td className="py-0.5 pl-1 text-right font-black text-[12px] whitespace-nowrap align-top">₹{(item.dish.price + addonsTotal) * item.quantity}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -1864,7 +1991,10 @@ export default function POSTerminal() {
                     const isActive = activeTable === t.id;
                     const tableKotStatus = session && session.kotStatus;
                     
-                    const tableSubtotal = hasItems ? session.cart.reduce((sum, item) => sum + (item.dish.price * item.quantity), 0) : 0;
+                    const tableSubtotal = hasItems ? session.cart.reduce((sum: number, item: any) => {
+                      const addonsTotal = item.addons ? item.addons.reduce((a: any, b: any) => a + b.price, 0) : 0;
+                      return sum + ((item.dish.price + addonsTotal) * item.quantity);
+                    }, 0) : 0;
 
                     return (
                       <button
@@ -2272,8 +2402,7 @@ export default function POSTerminal() {
                 <button 
                   onClick={() => {
                     if (!selectedVariation) return alert('Please select a size!');
-                    addToCart(selectedVariation);
-                    selectedAddons.forEach(a => addToCart(a));
+                    addToCart(selectedVariation, selectedAddons);
                     setSelectedGroupedDish(null);
                     setSelectedVariation(null);
                     setSelectedAddons([]);
@@ -2309,7 +2438,7 @@ export default function POSTerminal() {
                 </button>
                 <button 
                   onClick={handleCheckout}
-                  disabled={isProcessingCheckout}
+                  disabled={isProcessingCheckout || (paymentMethod === 'Split' && Math.abs((splitCash || 0) + (splitOnline || 0) - grandTotal) > 1)}
                   className="flex-[2] py-4 bg-green-500 text-foreground font-black uppercase rounded-xl shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {isProcessingCheckout ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle size={18} />}

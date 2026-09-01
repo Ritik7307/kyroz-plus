@@ -27,6 +27,7 @@ export interface IOrder extends Document {
   orderType?: 'DineIn' | 'Takeaway' | 'Delivery';
   offline_id?: string;
   billNumber?: number;
+  displayBillNumber?: string;
   createdAt: Date;
 }
 
@@ -57,6 +58,7 @@ const OrderSchema: Schema = new Schema({
   orderType: { type: String, enum: ['DineIn', 'Takeaway', 'Delivery'], default: 'DineIn' },
   offline_id: { type: String },
   billNumber: { type: Number },
+  displayBillNumber: { type: String },
   createdAt: { type: Date, default: Date.now }
 });
 
