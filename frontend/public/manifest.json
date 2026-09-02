@@ -1,6 +1,6 @@
 {
-  "name": "Kyroz Plus POS",
-  "short_name": "Kyroz POS",
+  "name": "KYROZ+",
+  "short_name": "KYROZ+",
   "description": "Offline-first Restaurant POS",
   "start_url": "/",
   "display": "standalone",

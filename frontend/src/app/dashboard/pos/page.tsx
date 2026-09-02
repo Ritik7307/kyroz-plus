@@ -2355,7 +2355,12 @@ export default function POSTerminal() {
                 <div>
                   <h3 className="text-sm font-bold text-foreground/60 uppercase tracking-widest mb-4">Select Size <span className="text-red-500">*</span></h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {selectedGroupedDish.variations.map((v: any) => (
+                    {selectedGroupedDish.variations
+                      .filter((v: any) => {
+                         const varName = v.variationName.toLowerCase();
+                         return !varName.includes('extra') && !varName.includes('addon') && !varName.includes('add-on') && !varName.includes('add on');
+                      })
+                      .map((v: any) => (
                       <button
                         key={v._id}
                         onClick={() => setSelectedVariation(v)}
@@ -2370,7 +2375,33 @@ export default function POSTerminal() {
 
                 {/* Addons */}
                 {(() => {
-                  const rawAddons = dishes.filter(d => d.category.toLowerCase().includes('add-on') || d.category.toLowerCase().includes('addon') || d.name.toLowerCase().includes('extra'));
+                  const rawAddons = dishes.filter(d => {
+                    const cat = (d.category || '').toLowerCase();
+                    const name = (d.name || '').toLowerCase();
+                    const isAddonCat = cat.includes('add-on') || cat.includes('addon');
+                    const hasExtra = name.includes('extra') || name.includes('addon') || name.includes('add on');
+                    
+                    if (!isAddonCat && !hasExtra) return false;
+
+                    if (d.name.includes(' - ')) {
+                      const baseName = d.name.split(' - ')[0].trim().toLowerCase();
+                      const baseHasExtra = baseName.includes('extra') || baseName.includes('addon') || baseName.includes('add on');
+                      
+                      // Allow if the base name itself indicates it's an addon group (e.g. "Extra Cheese - Large")
+                      if (baseHasExtra) return true;
+                      
+                      // If it's a specific variation for the CURRENT dish, show it in Addons.
+                      if (selectedGroupedDish && baseName === selectedGroupedDish.name.toLowerCase()) {
+                        return true;
+                      }
+
+                      // Otherwise, this is a variation of a DIFFERENT main dish
+                      // We should NOT show it as a generic addon.
+                      return false;
+                    }
+                    
+                    return true;
+                  });
                   const uniqueAddons: any[] = [];
                   const seenNames = new Set();
                   rawAddons.forEach(addon => {
