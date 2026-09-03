@@ -44,6 +44,9 @@ import whatsappWebhookRoutes from './routes/whatsappWebhook.routes';
 import googleFormRoutes from './routes/googleForm.routes';
 import businessAiRoutes from './routes/businessAi.routes';
 import printerRoutes from './routes/printer.routes';
+import biRoutes from './routes/bi.routes';
+import menuEngineeringRoutes from './routes/menuEngineering.routes';
+import aiConsultantRoutes from './routes/aiConsultant.routes';
 console.log('All routes imported');
 import startPurchaseReminderCron from './cron/purchaseReminder.cron';
 import SyncWorker from './services/SyncWorker';
@@ -142,6 +145,9 @@ app.use('/api/whatsapp-webhook', whatsappWebhookRoutes);
 app.use('/api/google-form', googleFormRoutes);
 app.use('/api/business-ai', businessAiRoutes);
 app.use('/api/printers', printerRoutes);
+app.use('/api/bi', biRoutes);
+app.use('/api/menu-engineering', menuEngineeringRoutes);
+app.use('/api/ai-consultant', aiConsultantRoutes);
 
 app.get('/api/debug-routes', (req, res) => {
   res.json({ message: 'Routes are active' });
