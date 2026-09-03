@@ -30,8 +30,8 @@ const premiumFeatures = [
     title: 'Multi Outlet Dashboard',
     description: 'Get a bird\'s eye view of all your restaurant locations in one unified dashboard.',
     icon: Network,
-    href: '#',
-    status: 'Coming Soon',
+    href: '/dashboard/premium/multi-outlet',
+    status: 'Active',
   },
   {
     title: 'Advance Business Intelligence',

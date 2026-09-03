@@ -96,6 +96,74 @@ export const getSalesTrend = async (req: AuthRequest, res: Response): Promise<vo
   }
 };
 
+export const getMultiOutletSummary = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const parentUserId = req.user?.userId;
+    if (!parentUserId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const { start = new Date(new Date().setDate(new Date().getDate() - 30)), end = new Date() } = req.query;
+
+    // Fetch all users that belong to this owner
+    const User = (await import('../models/User')).default;
+    const outlets = await User.find({ ownerId: parentUserId }).select('_id shopName shopAddress').lean();
+    
+    // Also include the parent user if they operate a store themselves
+    const parentUser = await User.findById(parentUserId).select('_id shopName shopAddress').lean();
+    if (parentUser) outlets.push(parentUser);
+
+    const outletIds = outlets.map(o => o._id.toString());
+    if (outletIds.length === 0) {
+      res.status(200).json({ outlets: [] });
+      return;
+    }
+
+    const orders = await Order.find({
+      userId: { $in: outletIds },
+      createdAt: { $gte: start, $lte: end }
+    }).lean();
+
+    const outletStats = new Map();
+    outlets.forEach(o => {
+      outletStats.set(o._id.toString(), {
+        _id: o._id,
+        shopName: o.shopName || 'Unknown Outlet',
+        shopAddress: o.shopAddress || '',
+        revenue: 0,
+        orders: 0,
+        foodCost: 0
+      });
+    });
+
+    orders.forEach(order => {
+      const uId = order.userId.toString();
+      if (outletStats.has(uId)) {
+        const stats = outletStats.get(uId);
+        stats.revenue += order.totalRevenue || 0;
+        stats.orders += 1;
+        
+        order.items.forEach((item: any) => {
+          stats.foodCost += (item.ingredientPrice || 0) * (item.quantity || 1);
+        });
+      }
+    });
+
+    // Calculate margins
+    const results = Array.from(outletStats.values()).map(stat => ({
+      ...stat,
+      foodCostPercentage: stat.revenue > 0 ? ((stat.foodCost / stat.revenue) * 100).toFixed(1) : '0',
+      grossMargin: stat.revenue > 0 ? (((stat.revenue - stat.foodCost) / stat.revenue) * 100).toFixed(1) : '0'
+    }));
+
+    res.status(200).json({ outlets: results });
+  } catch (error) {
+    console.error('BI getMultiOutletSummary error:', error);
+    res.status(500).json({ error: 'Failed to fetch multi-outlet summary' });
+  }
+};
+
 export const getAnomalies = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId;
