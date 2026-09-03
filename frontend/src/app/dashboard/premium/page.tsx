@@ -23,8 +23,8 @@ const premiumFeatures = [
     title: 'Menu Engineering',
     description: 'Analyze item profitability and popularity to optimize your menu offerings.',
     icon: ChefHat,
-    href: '#',
-    status: 'Coming Soon',
+    href: '/dashboard/premium/menu-engineering',
+    status: 'Active',
   },
   {
     title: 'Multi Outlet Dashboard',
@@ -37,8 +37,8 @@ const premiumFeatures = [
     title: 'Advance Business Intelligence',
     description: 'Deep dive into advanced analytics, forecasting, and custom reports.',
     icon: BarChart3,
-    href: '#',
-    status: 'Coming Soon',
+    href: '/dashboard/premium/bi',
+    status: 'Active',
   },
 ];
 
