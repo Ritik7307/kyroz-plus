@@ -108,13 +108,13 @@ export const getMultiOutletSummary = async (req: AuthRequest, res: Response): Pr
 
     // Fetch all users that belong to this owner
     const User = (await import('../models/User')).default;
-    const outlets = await User.find({ ownerId: parentUserId }).select('_id shopName shopAddress').lean();
+    const outlets = (await User.find({ ownerId: parentUserId }).select('_id shopName shopAddress').lean()) as any[];
     
     // Also include the parent user if they operate a store themselves
-    const parentUser = await User.findById(parentUserId).select('_id shopName shopAddress').lean();
+    const parentUser = (await User.findById(parentUserId).select('_id shopName shopAddress').lean()) as any;
     if (parentUser) outlets.push(parentUser);
 
-    const outletIds = outlets.map(o => o._id.toString());
+    const outletIds = outlets.map((o: any) => o._id.toString());
     if (outletIds.length === 0) {
       res.status(200).json({ outlets: [] });
       return;
@@ -126,7 +126,7 @@ export const getMultiOutletSummary = async (req: AuthRequest, res: Response): Pr
     }).lean();
 
     const outletStats = new Map();
-    outlets.forEach(o => {
+    outlets.forEach((o: any) => {
       outletStats.set(o._id.toString(), {
         _id: o._id,
         shopName: o.shopName || 'Unknown Outlet',
