@@ -702,6 +702,7 @@ export default function POSTerminal() {
         : [{ name: newDish.name, price: Number(newDish.price) || 0, templateDishId: selectedTemplateDishId }];
         
       let successCount = 0;
+      let lastError = 'Failed to save dish with advanced setup.';
 
       for (const item of itemsToCreate) {
         let currentRecipeIngredients = recipeIngredients; // Default from main select
@@ -754,7 +755,14 @@ export default function POSTerminal() {
           body: JSON.stringify(payload)
         });
         
-        if (res.ok) successCount++;
+        if (res.ok) {
+          successCount++;
+        } else {
+          try {
+            const errData = await res.json();
+            if (errData.error) lastError = errData.error;
+          } catch (e) {}
+        }
       }
 
       if (successCount > 0) {
@@ -767,10 +775,10 @@ export default function POSTerminal() {
         setRecipeIngredients([]);
         mutateDishes();
         if (successCount < itemsToCreate.length) {
-          alert('Some variations failed to save.');
+          alert(`Some variations failed to save. Last error: ${lastError}`);
         }
       } else {
-        alert('Failed to save dish with advanced setup.');
+        alert(lastError);
       }
     } catch (err) {
       console.error('Failed to add dish', err);
