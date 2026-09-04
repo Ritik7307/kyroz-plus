@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Users, TrendingUp, Clock, Calendar, Phone, IndianRupee, Search, MessageSquare, Megaphone, ArrowRight, ImageIcon, X, Edit2, Trash2, Upload } from 'lucide-react';
 import { API_URL } from '@/lib/api';
-import * as XLSX from 'xlsx';
+import readXlsxFile from 'read-excel-file/browser';
+import Papa from 'papaparse';
 
 interface Customer {
   _id: string;
@@ -314,57 +315,67 @@ export default function CustomersPage() {
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setIsUploading(true);
-    const reader = new FileReader();
-    reader.onload = async (evt) => {
-      try {
-        const bstr = evt.target?.result;
-        const wb = XLSX.read(bstr, { type: 'binary' });
-        const wsname = wb.SheetNames[0];
-        const ws = wb.Sheets[wsname];
-        const data = XLSX.utils.sheet_to_json(ws);
-        
-        const formattedData = data.map((row: any) => ({
-          name: row.Name || row.name || 'Unknown',
-          phone: row.Phone || row.phone || row['Phone Number'] || ''
-        })).filter(c => c.phone);
-
-        if (formattedData.length === 0) {
-          alert('No valid customer data found. Please ensure your sheet has Name and Phone columns.');
-          setIsUploading(false);
-          return;
-        }
-
-        const token = localStorage.getItem('token');
-        const res = await fetch(`${API_URL}/api/customers/bulk`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ customers: formattedData })
-        });
-
-        if (res.ok) {
-          const resData = await res.json();
-          alert(resData.message || 'Import successful');
-          const fetchRes = await fetch(`${API_URL}/api/customers`, {
-            headers: { 'Authorization': `Bearer ${token}` }
+    try {
+      let data: any[] = [];
+      
+      if (file.name.toLowerCase().endsWith('.csv')) {
+        const text = await file.text();
+        const result = Papa.parse(text, { header: true, skipEmptyLines: true });
+        data = result.data;
+      } else {
+        const rows = await readXlsxFile(file);
+        if (rows.length > 1) {
+          const headers = rows[0] as unknown as string[];
+          data = rows.slice(1).map(row => {
+            const obj: any = {};
+            headers.forEach((header, index) => {
+              obj[header] = (row as any)[index];
+            });
+            return obj;
           });
-          if (fetchRes.ok) {
-            setCustomers(await fetchRes.json());
-          }
-        } else {
-          alert('Failed to import customers');
         }
-      } catch (err) {
-        alert('Error parsing or uploading file.');
-      } finally {
-        setIsUploading(false);
       }
-    };
-    reader.readAsBinaryString(file);
+
+      const formattedData = data.map((row: any) => ({
+        name: row.Name || row.name || 'Unknown',
+        phone: row.Phone || row.phone || row['Phone Number'] || ''
+      })).filter(c => c.phone);
+
+      if (formattedData.length === 0) {
+        alert('No valid customer data found. Please ensure your sheet has Name and Phone columns.');
+        setIsUploading(false);
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/customers/bulk`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customers: formattedData })
+      });
+
+      if (res.ok) {
+        const resData = await res.json();
+        alert(resData.message || 'Import successful');
+        const fetchRes = await fetch(`${API_URL}/api/customers`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (fetchRes.ok) {
+          setCustomers(await fetchRes.json());
+        }
+      } else {
+        alert('Failed to import customers');
+      }
+    } catch (err) {
+      alert('Error parsing or uploading file.');
+    } finally {
+      setIsUploading(false);
+    }
     e.target.value = '';
   };
 

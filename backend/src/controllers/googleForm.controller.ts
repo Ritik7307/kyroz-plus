@@ -100,7 +100,7 @@ Structure the report EXACTLY with these sections:
               content: `Here are the responses from the restaurant owner:\n${JSON.stringify(data.responses || data, null, 2)}`
             }
           ],
-          model: "llama-3.3-70b-versatile", // Switched to a much smarter, larger model for highly descriptive analytics
+          model: "openai/gpt-oss-120b", // Switched to a much smarter, larger model for highly descriptive analytics
           temperature: 0.7,
         });
 
