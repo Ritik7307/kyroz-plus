@@ -38,6 +38,14 @@ export const handleGoogleFormWebhook = async (req: Request, res: Response) => {
     // 1. Return 200 OK to the webhook immediately so Google Apps Script doesn't timeout
     res.status(200).json({ success: true, message: "Processing started" });
 
+    // 1.1 Send immediate acknowledgment message to the user
+    try {
+      await sendWhatsAppMessage(phone, "Aapka form successfully submit ho gaya hai! 🎉\n\nHmari team aur AI aapke restaurant ka data analyze kar rahi hai. Aapko lagbhag 30 minutes mein ek detailed Growth Assessment Report bhej di jayegi.\n\nThank you for choosing KYROZ+! 🚀");
+      console.log(`[ACK MESSAGE SENT] Acknowledgment sent to ${phone}`);
+    } catch (ackErr) {
+      console.error("[ACK MESSAGE ERROR] Failed to send acknowledgment:", ackErr);
+    }
+
     // 1.5 Setup a purchase reminder to fire in 24 hours if the user hasn't bought the software yet
     try {
       const reminderTime = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
