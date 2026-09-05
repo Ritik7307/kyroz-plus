@@ -19,14 +19,14 @@ export const generatePdfFromHtml = async (htmlContent: string): Promise<Buffer> 
     content: `
       body {
         font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        color: #333;
+        color: #000000; /* Black font */
         line-height: 1.6;
         padding: 40px;
         max-width: 800px;
         margin: 0 auto;
       }
-      h1, h2, h3 {
-        color: #D4AF37; /* KYROZ Gold */
+      h1, h2, h3, h4, h5, h6, strong, b {
+        color: #D4AF37; /* KYROZ Gold font */
       }
       h1 { border-bottom: 2px solid #D4AF37; padding-bottom: 10px; }
       ul, ol { margin-left: 20px; }

@@ -40,7 +40,7 @@ export const handleGoogleFormWebhook = async (req: Request, res: Response) => {
 
     // 1.1 Send immediate acknowledgment message to the user
     try {
-      await sendWhatsAppMessage(phone, "Aapka form successfully submit ho gaya hai! 🎉\n\nHmari team aur AI aapke restaurant ka data analyze kar rahi hai. Aapko lagbhag 30 minutes mein ek detailed Growth Assessment Report bhej di jayegi.\n\nThank you for choosing KYROZ+! 🚀");
+      await sendWhatsAppMessage(phone, "Aapka form successfully submit ho gaya hai! 🎉\n\nHmari team aur AI aapke restaurant ka data analyze kar rahi hai. Aapko lagbhag 4 ghante mein ek detailed Growth Assessment Report bhej di jayegi.\n\nThank you for choosing KYROZ+! 🚀");
       console.log(`[ACK MESSAGE SENT] Acknowledgment sent to ${phone}`);
     } catch (ackErr) {
       console.error("[ACK MESSAGE ERROR] Failed to send acknowledgment:", ackErr);
@@ -59,7 +59,7 @@ export const handleGoogleFormWebhook = async (req: Request, res: Response) => {
       console.error('[REMINDER ERROR] Failed to set purchase reminder:', reminderErr);
     }
 
-    // 2. Process AI Report in the background after 30 mins
+    // 2. Process AI Report in the background after 4 hours
     setTimeout(async () => {
       try {
         const completion = await groq.chat.completions.create({
@@ -154,7 +154,7 @@ Structure the report EXACTLY with these sections:
         const ownerPhone = '918874581717';
         await sendWhatsAppMessage(ownerPhone, `*New Form Submission (Lead)* 🚨\n\n*Phone:* ${phone}\n\n*Note:* The AI failed with error: ${aiError.message}`);
       }
-    }, 30 * 60 * 1000); // 30 minutes delay
+    }, 4 * 60 * 60 * 1000); // 4 hours delay
 
   } catch (error) {
     console.error('Error handling Google Form webhook:', error);
