@@ -24,7 +24,7 @@ const startPurchaseReminderCron = () => {
       for (const reminder of pendingReminders) {
         try {
           // A polite, formal message
-          const message = `Dear Restaurant Owner,\n\nWe hope this message finds you well. You recently received a comprehensive Business Growth Assessment Report from KYROZ+.\n\nOur system is specifically designed to help restaurant owners standardize their operations, eliminate daily wastage, and significantly increase profit margins.\n\nWe invite you to upgrade to KYROZ+ and take the next step toward scaling your business. Should you have any questions or require assistance, please feel free to reply to this message.\n\nWarm regards,\nThe KYROZ+ Team`;
+          const message = `Dear Restaurant Owner,\n\nWe hope this message finds you well. You recently interacted with us regarding KYROZ+.\n\nOur system is specifically designed to help restaurant owners standardize their operations, eliminate daily wastage, and significantly increase profit margins.\n\nWe invite you to upgrade to KYROZ+ and take the next step toward scaling your business. Should you have any questions or require assistance, please feel free to reply to this message.\n\nWarm regards,\nThe KYROZ+ Team`;
           
           await sendWhatsAppMessage(reminder.phone, message);
           

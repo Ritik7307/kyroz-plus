@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
 import WhatsAppOptOut from '../models/WhatsAppOptOut';
+import PurchaseReminder from '../models/PurchaseReminder';
 
 // Get these from env variables (we will add them to .env)
 // For now, we fall back to placeholders so the code runs.
@@ -233,6 +234,12 @@ export const handleIncomingMessage = async (req: Request, res: Response) => {
                   { upsert: true, new: true }
                 );
                 
+                // Cancel any pending reminders
+                await PurchaseReminder.updateMany(
+                  { phone: from, status: 'PENDING' },
+                  { $set: { status: 'SENT' } }
+                );
+                
                 // Directly bypass the opt-out check to send the confirmation message
                 const token = getAccessToken();
                 const phoneId = getPhoneNumberId();
@@ -259,6 +266,24 @@ export const handleIncomingMessage = async (req: Request, res: Response) => {
                 }
                 console.log(`[OPT-OUT] User ${from} opted out successfully.`);
                 return; // Stop processing further for this message
+              }
+
+              // Set up the 3-day purchase reminder if they interacted on WhatsApp and haven't purchased
+              try {
+                const existingReminder = await PurchaseReminder.findOne({ phone: from });
+                if (!existingReminder) {
+                  await PurchaseReminder.create({
+                    phone: from,
+                    reminderTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                    status: 'PENDING',
+                    sendCount: 0
+                  });
+                  console.log(`[REMINDER SET] Initial 24h purchase reminder set for ${from} after interaction.`);
+                } else if (existingReminder.status === 'SENT' && existingReminder.sendCount < 3) {
+                   // If they interacted again and we had stopped, maybe resume? Or just leave it.
+                }
+              } catch (remErr) {
+                console.error("Error setting purchase reminder on interaction:", remErr);
               }
 
               if (text === '1' || text === '1️⃣') {
