@@ -49,6 +49,8 @@ import menuEngineeringRoutes from './routes/menuEngineering.routes';
 import aiConsultantRoutes from './routes/aiConsultant.routes';
 console.log('All routes imported');
 import startPurchaseReminderCron from './cron/purchaseReminder.cron';
+import startReportGeneratorCron from './cron/reportGenerator.cron';
+import startGoogleSheetsSyncCron from './cron/googleSheetsSync.cron';
 import SyncWorker from './services/SyncWorker';
 import cluster from 'cluster';
 import os from 'os';
@@ -87,6 +89,8 @@ if (cluster.isPrimary && process.env.NODE_ENV === 'production') {
 
   // Initialize cron jobs
   startPurchaseReminderCron();
+  startReportGeneratorCron();
+  startGoogleSheetsSyncCron();
   SyncWorker.start();
 
 app.use(helmet());

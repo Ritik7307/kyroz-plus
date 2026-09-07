@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
+import WhatsAppOptOut from '../models/WhatsAppOptOut';
 
 // Get these from env variables (we will add them to .env)
 // For now, we fall back to placeholders so the code runs.
@@ -40,6 +41,17 @@ export const sendWhatsAppMessage = async (toPhone: string, text: string) => {
   if (!token || !phoneId) {
     console.error('WhatsApp token or phone ID missing. Cannot send message.');
     return;
+  }
+
+  // Opt-out Check
+  try {
+    const optOutRecord = await WhatsAppOptOut.findOne({ phone: toPhone });
+    if (optOutRecord && optOutRecord.optedOut) {
+      console.log(`[OPT-OUT] User ${toPhone} has opted out. Skipping message.`);
+      return;
+    }
+  } catch (err) {
+    console.error('Error checking opt-out status:', err);
   }
 
   try {
@@ -104,6 +116,17 @@ export const sendWhatsAppDocument = async (toPhone: string, mediaId: string, cap
   if (!token || !phoneId) {
     console.error('WhatsApp token or phone ID missing. Cannot send document.');
     return;
+  }
+
+  // Opt-out Check
+  try {
+    const optOutRecord = await WhatsAppOptOut.findOne({ phone: toPhone });
+    if (optOutRecord && optOutRecord.optedOut) {
+      console.log(`[OPT-OUT] User ${toPhone} has opted out. Skipping document.`);
+      return;
+    }
+  } catch (err) {
+    console.error('Error checking opt-out status:', err);
   }
 
   try {
@@ -201,6 +224,42 @@ export const handleIncomingMessage = async (req: Request, res: Response) => {
 
             if (msg_body) {
               const text = msg_body.trim().toLowerCase();
+
+              // Handle Opt-Out
+              if (text === 'stop' || text === 'unsubscribe') {
+                await WhatsAppOptOut.findOneAndUpdate(
+                  { phone: from },
+                  { phone: from, optedOut: true, updatedAt: new Date() },
+                  { upsert: true, new: true }
+                );
+                
+                // Directly bypass the opt-out check to send the confirmation message
+                const token = getAccessToken();
+                const phoneId = getPhoneNumberId();
+                if (token && phoneId) {
+                  try {
+                    await axios.post(
+                      `https://graph.facebook.com/v17.0/${phoneId}/messages`,
+                      {
+                        messaging_product: 'whatsapp',
+                        to: from,
+                        type: 'text',
+                        text: { body: `Aapka number humari notification list se remove kar diya gaya hai. Ab aapko aage se koi message nahi ayega.\n\nAgar aap wapas notifications chahte hain ya assessment form submit karte hain, toh messages dobara shuru ho jayenge. 🙏` }
+                      },
+                      {
+                        headers: {
+                          'Authorization': `Bearer ${token}`,
+                          'Content-Type': 'application/json'
+                        }
+                      }
+                    );
+                  } catch (e) {
+                    console.error("Failed to send stop confirmation:", e);
+                  }
+                }
+                console.log(`[OPT-OUT] User ${from} opted out successfully.`);
+                return; // Stop processing further for this message
+              }
 
               if (text === '1' || text === '1️⃣') {
                 const reply = `Bahut badhiya.\n\nRestaurant Assessment complete karne me lagbhag 3-5 minute lagenge.\n\n🔗 Assessment Link:\n${GOOGLE_FORM_LINK}\n\nForm submit karne ke baad aapko KYROZ+ Growth Report di jayegi.\n\n---\n*Anya options:*\n2️⃣ KYROZ+ Kya Hai?\n3️⃣ Demo Request`;

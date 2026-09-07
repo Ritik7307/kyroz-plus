@@ -5,8 +5,14 @@ import User from '../models/User';
 import MasterSop from '../models/MasterSop';
 import Notification from '../models/Notification';
 import GlobalSetting from '../models/GlobalSetting';
+import { syncLeadRemarks } from './../controllers/googleSheetsSync.controller';
 
 const router = Router();
+
+// Google Sheets Sync
+router.post('/sync-sheets', authenticateToken, isAdmin, async (req: AuthRequest, res: Response) => {
+  await syncLeadRemarks(req as any, res as any);
+});
 
 // Get all users (Admin or Manager)
 router.get('/users', authenticateToken, async (req: AuthRequest, res: Response) => {
