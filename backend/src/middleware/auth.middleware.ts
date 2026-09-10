@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import User from '../models/User';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'kyroz_super_secret_key_123';
 
@@ -9,6 +10,7 @@ export interface AuthRequest extends Request {
     role: string;
     plan?: string;
     sessionId?: string;
+    subscriptionExpiryDate?: Date;
   };
 }
 
@@ -22,11 +24,19 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
   }
 
   try {
-    const verified = jwt.verify(token, JWT_SECRET) as { userId: string; role: string; plan?: string; sessionId?: string };
+    const verified = jwt.verify(token, JWT_SECRET) as { userId: string; role: string; plan?: string; sessionId?: string; subscriptionExpiryDate?: Date };
 
     if (verified.plan === 'Basic') verified.plan = 'Starter';
     if (verified.plan === 'Pro') verified.plan = 'Growth';
     if (verified.plan === 'Elite') verified.plan = 'Scale';
+
+    if (verified.plan !== 'None' && verified.plan !== 'Admin' && verified.subscriptionExpiryDate) {
+      if (new Date() > new Date(verified.subscriptionExpiryDate)) {
+        verified.plan = 'None';
+        // Fire and forget DB update to downgrade user, preserving the date
+        User.findByIdAndUpdate(verified.userId, { subscriptionPlan: 'None' }).catch(console.error);
+      }
+    }
 
     req.user = verified;
     next();

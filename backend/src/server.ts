@@ -51,6 +51,7 @@ console.log('All routes imported');
 import startPurchaseReminderCron from './cron/purchaseReminder.cron';
 import startReportGeneratorCron from './cron/reportGenerator.cron';
 import startGoogleSheetsSyncCron from './cron/googleSheetsSync.cron';
+import startSubscriptionReminderCron from './cron/subscriptionReminder.cron';
 import SyncWorker from './services/SyncWorker';
 import cluster from 'cluster';
 import os from 'os';
@@ -91,6 +92,7 @@ if (cluster.isPrimary && process.env.NODE_ENV === 'production') {
   startPurchaseReminderCron();
   startReportGeneratorCron();
   startGoogleSheetsSyncCron();
+  startSubscriptionReminderCron();
   SyncWorker.start();
 
 app.use(helmet());

@@ -12,6 +12,7 @@ export interface IUser extends Document {
   role: 'admin' | 'manager' | 'cook' | 'billing' | 'user';
   permissions: string[]; // List of accessible module IDs
   subscriptionPlan: 'None' | 'Starter' | 'Growth' | 'Scale' | 'Admin';
+  subscriptionExpiryDate?: Date;
   selectedSopCategory?: string;
   ownerId?: mongoose.Types.ObjectId; // Links staff to their Manager
   otpHash?: string;
@@ -41,6 +42,7 @@ const UserSchema: Schema = new Schema(
     role: { type: String, enum: ['admin', 'manager', 'cook', 'billing', 'user'], default: 'user' },
     permissions: { type: [String], default: [] },
     subscriptionPlan: { type: String, enum: ['None', 'Starter', 'Growth', 'Scale', 'Admin'], default: 'None' },
+    subscriptionExpiryDate: { type: Date },
     selectedSopCategory: { type: String },
     ownerId: { type: Schema.Types.ObjectId, ref: 'User' },
     otpHash: { type: String },

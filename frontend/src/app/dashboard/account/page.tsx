@@ -255,7 +255,13 @@ return (
           <div className="flex items-center justify-between mb-6">
             <div>
               <p className="text-2xl font-bold text-gold">{user?.subscriptionPlan || 'KYROZ STARTER'}</p>
-              <p className="text-xs text-foreground/30 uppercase mt-1">Billed Monthly</p>
+              {user?.subscriptionExpiryDate ? (
+                <p className="text-xs text-foreground/50 mt-1">
+                  Expires: {new Date(user.subscriptionExpiryDate).toLocaleDateString()}
+                </p>
+              ) : (
+                <p className="text-xs text-foreground/30 uppercase mt-1">Billed Monthly</p>
+              )}
             </div>
             <div className="p-3 bg-gold/10 rounded-2xl text-gold">
               <CreditCard size={24} />

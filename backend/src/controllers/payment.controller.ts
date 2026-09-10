@@ -90,6 +90,7 @@ export const verifyPayment = async (req: AuthRequest, res: Response): Promise<vo
     }
 
     user.subscriptionPlan = plan;
+    user.subscriptionExpiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
     await user.save();
 
     // Cancel any pending purchase reminders since the user has now purchased
@@ -105,9 +106,8 @@ export const verifyPayment = async (req: AuthRequest, res: Response): Promise<vo
     }
 
     // Generate a new token with the upgraded plan
-    // Preserve the old sessionId so we don't log them out
     const token = jwt.sign(
-      { userId: user._id, role: user.role, plan: user.subscriptionPlan, sessionId: req.user?.sessionId }, 
+      { userId: user._id, role: user.role, plan: user.subscriptionPlan, sessionId: req.user?.sessionId, subscriptionExpiryDate: user.subscriptionExpiryDate }, 
       JWT_SECRET, 
       { expiresIn: '7d' }
     );
@@ -115,7 +115,7 @@ export const verifyPayment = async (req: AuthRequest, res: Response): Promise<vo
     res.status(200).json({ 
       message: 'Payment successful, plan upgraded!',
       token,
-      user: { id: user._id, email: user.email, name: user.name, role: user.role, plan: user.subscriptionPlan }
+      user: { id: user._id, email: user.email, name: user.name, role: user.role, plan: user.subscriptionPlan, subscriptionExpiryDate: user.subscriptionExpiryDate }
     });
   } catch (error) {
     console.error('Error verifying payment:', error);

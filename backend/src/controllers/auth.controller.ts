@@ -101,6 +101,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       console.log(`[AUTH] User Login: ${email}`);
     }
 
+    // Check subscription expiry
+    if (user.subscriptionPlan !== 'None' && user.subscriptionPlan !== 'Admin' && user.subscriptionExpiryDate) {
+      if (new Date() > new Date(user.subscriptionExpiryDate)) {
+        console.log(`[AUTH] Subscription expired for ${user.email}. Downgrading to None.`);
+        user.subscriptionPlan = 'None';
+        // We preserve subscriptionExpiryDate so we can send expired reminders later
+        await user.save();
+      }
+    }
+
     // Sync Master SOPs in background after response is sent
     setTimeout(() => {
       syncMasterSopsForUser(user._id as any).catch(err => console.error('BG Sync failed:', err));
@@ -135,7 +145,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     // ----------------------------------------------------
 
     const token = jwt.sign(
-      { userId: user._id, role: user.role, plan: user.subscriptionPlan, sessionId: newSession._id },
+      { userId: user._id, role: user.role, plan: user.subscriptionPlan, sessionId: newSession._id, subscriptionExpiryDate: user.subscriptionExpiryDate },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -143,7 +153,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.status(200).json({
       message: 'Login successful',
       token,
-      user: { id: user._id, email: user.email, name: user.name, role: user.role, plan: user.subscriptionPlan, shopName: user.shopName, permissions: user.permissions || [] }
+      user: { id: user._id, email: user.email, name: user.name, role: user.role, plan: user.subscriptionPlan, shopName: user.shopName, permissions: user.permissions || [], subscriptionExpiryDate: user.subscriptionExpiryDate }
     });
   } catch (error: any) {
     console.error('❌ [AUTH] Login Error:', error);
