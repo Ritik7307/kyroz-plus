@@ -1079,8 +1079,6 @@ export default function CostingMaster() {
         )}
       </AnimatePresence>
 
-      </AnimatePresence>
-
       {/* Global Master Modal */}
       <AnimatePresence>
         {showMasterModal && (
