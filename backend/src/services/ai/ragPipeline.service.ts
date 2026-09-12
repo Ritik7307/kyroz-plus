@@ -1123,14 +1123,22 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
     if (!contextText) {
       // Try fetching from Costing Master (Dish & Recipe)
       try {
-        const dishMatch = await Dish.findOne({
-          userId,
-          name: { $regex: new RegExp(standaloneQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') }
-        }).lean() as any;
+        const allDishes = await Dish.find({ userId }).select('name _id').lean() as any[];
+        let dishMatch = null;
+        const sqLower = standaloneQuery.toLowerCase();
+        
+        for (const dish of allDishes) {
+          const dNameLower = dish.name.toLowerCase();
+          // Match if query contains the dish name, or dish name contains the query (minimum 3 chars to avoid false positives)
+          if ((sqLower.includes(dNameLower) || (sqLower.length >= 3 && dNameLower.includes(sqLower)))) {
+            dishMatch = dish;
+            if (sqLower === dNameLower) break; // Perfect match
+          }
+        }
 
         if (dishMatch) {
           const recipe = await Recipe.findOne({ targetModel: 'Dish', targetId: dishMatch._id, userId }).populate('ingredients.itemId').lean() as any;
-          if (recipe && recipe.ingredients) {
+          if (recipe && recipe.ingredients && recipe.ingredients.length > 0) {
             let dynamicSop = `SOP and Recipe for ${dishMatch.name}:\n`;
             dynamicSop += `Target Yield: ${recipe.targetYield}, Operational Yield: ${recipe.operationalYield}\n`;
             dynamicSop += `Ingredients required:\n`;
@@ -1139,6 +1147,8 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
             });
             dynamicSop += `\nPlease guide the user based on these ingredients for ${dishMatch.name}.`;
             contextText = dynamicSop;
+          } else {
+            contextText = `I found "${dishMatch.name}" in your Costing Master, but there are no ingredients or recipe saved for it yet. Please add ingredients in the Costing Master first.`;
           }
         }
       } catch (e) {
