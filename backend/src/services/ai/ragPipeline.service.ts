@@ -914,11 +914,11 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
 
       'biryani': {
 
-        enReply: "We have the standard recipe and costing structure for **Kyroz Shahi Lucknowi Biryani**. Which specific style of Biryani would you like to know about?",
+        enReply: "We have the standard recipe and costing structure for **Kyroz Shahi Lucknowi Biryani**. Would you like to know about its recipe or costing?",
 
-        hiReply: "हमारे पास **Kyroz Shahi Lucknowi Biryani** की विशेष रेसिपी और कॉस्टिंग स्ट्रक्चर उपलब्ध है। आप कौन सी बिरयानी के बारे में जानना चाहते हैं?",
+        hiReply: "हमारे पास **Kyroz Shahi Lucknowi Biryani** की विशेष रेसिपी और कॉस्टिंग स्ट्रक्चर उपलब्ध है। क्या आप इसकी रेसिपी या कॉस्टिंग के बारे में जानना चाहते हैं?",
 
-        suggestions: ["Chicken Biryani", "Mutton Biryani", "Hyderabadi Biryani", "Veg Biryani"]
+        suggestions: ["Lucknowi Biryani Recipe", "Biryani Costing", "Biryani Packaging"]
 
       },
 
