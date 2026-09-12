@@ -12,7 +12,8 @@ import {
   Save,
   RefreshCw,
   Server,
-  Cloud
+  Cloud,
+  FileJson
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -27,6 +28,8 @@ export default function AdminSettingsPage() {
     pro: { price: 2999, discount: 0, finalPrice: 2999 },
     elite: { price: 4999, discount: 0, finalPrice: 4999 }
   });
+
+  const [costingMasterJson, setCostingMasterJson] = useState('{\n  \n}');
 
   React.useEffect(() => {
     fetch(`${API_URL}/api/admin/settings/pricing`)
@@ -43,6 +46,22 @@ export default function AdminSettingsPage() {
         }
       })
       .catch(err => console.error('Failed to load pricing:', err));
+
+    // Fetch Costing Master
+    fetch(`${API_URL}/api/admin/settings/costing_master`)
+      .then(res => {
+        if (!res.ok) {
+          if (res.status === 404) return null;
+          throw new Error('Network response was not ok');
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (data) {
+          setCostingMasterJson(JSON.stringify(data, null, 2));
+        }
+      })
+      .catch(err => console.error('Failed to load costing master:', err));
   }, []);
 
   const handleSavePricing = async () => {
@@ -71,8 +90,45 @@ export default function AdminSettingsPage() {
     }
   };
 
+  const handleSaveCostingMaster = async () => {
+    try {
+      setLoading(true);
+      // Validate JSON
+      let parsedJson;
+      try {
+        parsedJson = JSON.parse(costingMasterJson);
+      } catch (e) {
+        alert('Invalid JSON format. Please check your syntax.');
+        setLoading(false);
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/admin/settings/costing_master`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ value: parsedJson })
+      });
+      if (res.ok) {
+        alert('Costing Master updated successfully!');
+      } else {
+        const errText = await res.text();
+        alert(`Failed to update costing master. Error: ${errText}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error updating costing master');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const settingsTabs = [
     { name: 'Pricing', icon: Database },
+    { name: 'Costing Master', icon: FileJson },
     { name: 'General', icon: Settings },
     { name: 'Security', icon: Shield },
     { name: 'Infrastructure', icon: Server },
@@ -202,8 +258,33 @@ export default function AdminSettingsPage() {
                 </div>
               )}
 
+              {activeTab === 'Costing Master' && (
+                <div className="space-y-6">
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <h4 className="text-lg font-black text-white uppercase tracking-widest mb-2">Global Costing Master JSON</h4>
+                    <p className="text-white/40 text-xs mb-4">This JSON data will be accessible to all restaurant users in their Costing Master section.</p>
+                    <textarea
+                      value={costingMasterJson}
+                      onChange={(e) => setCostingMasterJson(e.target.value)}
+                      className="w-full h-[400px] bg-black/40 border border-white/10 rounded-xl p-4 text-sm font-mono text-green-400 focus:outline-none focus:border-gold transition-all resize-y"
+                      placeholder="{\n  // Enter valid JSON here\n}"
+                      spellCheck={false}
+                    />
+                  </div>
+                  <div className="flex justify-end">
+                    <button 
+                      onClick={handleSaveCostingMaster}
+                      disabled={loading}
+                      className="px-12 py-4 bg-gold-gradient text-black rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-2xl shadow-gold/20 flex items-center gap-3 hover:scale-105 transition-all disabled:opacity-50"
+                    >
+                      <Save size={18} /> {loading ? 'Saving...' : 'Save JSON'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* MOCK SETTINGS FOR DEMO */}
-              {activeTab !== 'Pricing' && (
+              {activeTab !== 'Pricing' && activeTab !== 'Costing Master' && (
                 <div className="space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-3">

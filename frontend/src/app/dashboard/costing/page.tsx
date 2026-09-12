@@ -14,7 +14,9 @@ import {
   AlertTriangle,
   Loader2,
   Lock,
-  Edit2
+  Edit2,
+  FileJson,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_URL } from '@/lib/api';
@@ -99,6 +101,21 @@ export default function CostingMaster() {
   });
   const [savingRawMaterial, setSavingRawMaterial] = useState(false);
   const [savingRecipe, setSavingRecipe] = useState(false);
+
+  const [globalMasterCosting, setGlobalMasterCosting] = useState<any>(null);
+  const [showMasterModal, setShowMasterModal] = useState(false);
+
+  // Fetch global master costing
+  useEffect(() => {
+    fetch(`${API_URL}/api/admin/settings/costing_master`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data) {
+          setGlobalMasterCosting(data);
+        }
+      })
+      .catch(err => console.error('Failed to load global costing master:', err));
+  }, []);
 
   // Group dishes by category for the template selector
   const ALLOWED_CATEGORIES = ['Cafe', 'Chinese', 'Biryani', 'Mandi', 'South Indian', 'Indian Curry', 'Tandoor'];
@@ -575,9 +592,19 @@ export default function CostingMaster() {
           <h1 className="text-3xl md:text-5xl font-black tracking-tighter leading-none">
             COSTING <span className="text-gold">MASTER</span>
           </h1>
-          <p className="text-foreground/40 text-sm md:text-lg max-w-xl font-medium leading-relaxed italic mx-auto lg:mx-0">
-            "Optimize your margins. Protect your profits."
-          </p>
+          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mt-2">
+            <p className="text-foreground/40 text-sm md:text-lg font-medium leading-relaxed italic">
+              "Optimize your margins. Protect your profits."
+            </p>
+            {globalMasterCosting && (
+              <button
+                onClick={() => setShowMasterModal(true)}
+                className="flex items-center gap-2 bg-gold/10 hover:bg-gold/20 text-gold px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest border border-gold/20 transition-colors"
+              >
+                <FileJson size={14} /> View Global Master
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-col items-center lg:items-end gap-3 relative z-10 w-full lg:w-[450px]">
@@ -1052,6 +1079,51 @@ export default function CostingMaster() {
         )}
       </AnimatePresence>
 
+      </AnimatePresence>
+
+      {/* Global Master Modal */}
+      <AnimatePresence>
+        {showMasterModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
+              onClick={() => setShowMasterModal(false)}
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }} 
+              animate={{ opacity: 1, scale: 1 }} 
+              exit={{ opacity: 0, scale: 0.95 }} 
+              className="relative w-full max-w-4xl bg-card rounded-[2.5rem] border border-border shadow-2xl p-8 md:p-10 z-10 overflow-hidden max-h-[90vh] flex flex-col"
+            >
+              <div className="flex items-center justify-between mb-8 shrink-0">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-gold/10 flex items-center justify-center border border-gold/20">
+                    <FileJson className="text-gold" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black uppercase tracking-tight text-foreground">Global Costing Master</h3>
+                    <p className="text-foreground/40 text-xs font-bold uppercase tracking-widest mt-1">Reference Data</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setShowMasterModal(false)} 
+                  className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center text-foreground/40 hover:text-foreground hover:bg-foreground/10 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                <pre className="bg-black/50 p-6 rounded-2xl text-green-400 text-sm font-mono overflow-x-auto whitespace-pre-wrap border border-white/5">
+                  {JSON.stringify(globalMasterCosting, null, 2)}
+                </pre>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

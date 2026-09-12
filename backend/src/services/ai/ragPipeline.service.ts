@@ -11,6 +11,8 @@ import Sop from '../../models/Sop';
 import SopChunk from '../../models/SopChunk';
 
 import MasterSop from '../../models/MasterSop';
+import Dish from '../../models/Dish';
+import Recipe from '../../models/Recipe';
 
 import { processSopText } from './ingestion.service';
 
@@ -1118,7 +1120,31 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
       }
     }
 
+    if (!contextText) {
+      // Try fetching from Costing Master (Dish & Recipe)
+      try {
+        const dishMatch = await Dish.findOne({
+          userId,
+          name: { $regex: new RegExp(standaloneQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') }
+        }).lean() as any;
 
+        if (dishMatch) {
+          const recipe = await Recipe.findOne({ targetModel: 'Dish', targetId: dishMatch._id, userId }).populate('ingredients.itemId').lean() as any;
+          if (recipe && recipe.ingredients) {
+            let dynamicSop = `SOP and Recipe for ${dishMatch.name}:\n`;
+            dynamicSop += `Target Yield: ${recipe.targetYield}, Operational Yield: ${recipe.operationalYield}\n`;
+            dynamicSop += `Ingredients required:\n`;
+            recipe.ingredients.forEach((ing: any) => {
+              dynamicSop += `- ${ing.itemId?.name || 'Unknown Item'}: ${ing.quantity}\n`;
+            });
+            dynamicSop += `\nPlease guide the user based on these ingredients for ${dishMatch.name}.`;
+            contextText = dynamicSop;
+          }
+        }
+      } catch (e) {
+        console.error('Error fetching dynamic SOP from Dish:', e);
+      }
+    }
 
     const languageRule = targetLang === 'hi'
 
