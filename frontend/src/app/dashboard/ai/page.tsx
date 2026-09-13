@@ -691,10 +691,10 @@ export default function AiDashboard() {
              <Mic className="w-5 h-5 sm:w-6 sm:h-6" />}
           </button>
 
-          <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder="Type here..." className="flex-1 bg-transparent border-none outline-none text-foreground text-xs sm:text-sm placeholder-white/20 min-w-0" />
+          <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder="Type here..." className="flex-1 bg-transparent border-none outline-none text-foreground text-xs sm:text-sm placeholder-foreground/40 min-w-0" />
 
           <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} accept=".pdf,.docx,.txt" />
-          <button onClick={() => fileInputRef.current?.click()} className="p-2 text-foreground/25 hover:text-gold flex-shrink-0"><FileUp size={18} /></button>
+          <button onClick={() => fileInputRef.current?.click()} className="p-2 text-foreground/40 hover:text-gold flex-shrink-0"><FileUp size={18} /></button>
 
           <button
             onClick={() => handleSend()}
