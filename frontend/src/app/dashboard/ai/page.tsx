@@ -691,15 +691,15 @@ export default function AiDashboard() {
              <Mic className="w-5 h-5 sm:w-6 sm:h-6" />}
           </button>
 
-          <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder="Type here..." className="flex-1 bg-transparent border-none outline-none text-foreground text-xs sm:text-sm placeholder-foreground/40 min-w-0" />
+          <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder="Type here..." className="flex-1 bg-transparent border-none outline-none text-foreground text-xs sm:text-sm placeholder-gray-500 dark:placeholder-gray-400 min-w-0" />
 
           <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} accept=".pdf,.docx,.txt" />
-          <button onClick={() => fileInputRef.current?.click()} className="p-2 text-foreground/40 hover:text-gold flex-shrink-0"><FileUp size={18} /></button>
+          <button onClick={() => fileInputRef.current?.click()} className="p-2 text-gray-500 hover:text-gold dark:text-gray-400 dark:hover:text-gold flex-shrink-0"><FileUp size={18} /></button>
 
           <button
             onClick={() => handleSend()}
             disabled={!input.trim() || assistantState === 'processing' || assistantState === 'speaking'}
-            className="w-10 h-10 sm:w-auto sm:px-8 sm:py-4 bg-gold text-black font-black text-xs uppercase rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0 disabled:opacity-30"
+            className="w-10 h-10 sm:w-auto sm:px-8 sm:py-4 bg-gold text-black font-black text-xs uppercase rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0 disabled:bg-gray-300 disabled:text-gray-500 dark:disabled:bg-gold/20 dark:disabled:text-white/30 transition-colors"
           >
             <span className="hidden sm:inline">Send</span>
             <Send className="sm:hidden w-4 h-4" />

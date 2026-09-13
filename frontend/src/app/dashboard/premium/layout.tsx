@@ -24,7 +24,8 @@ export default function PremiumLayout({ children }: { children: React.ReactNode 
         
         if (res.ok) {
           const user = await res.json();
-          if (user.subscriptionPlan === 'Scale' || user.subscriptionPlan === 'Admin') {
+          // To access Premium HQ features, user must be on Scale/Admin AND NOT be a staff/branch member (i.e. no ownerId)
+          if ((user.subscriptionPlan === 'Scale' || user.subscriptionPlan === 'Admin') && !user.ownerId) {
             setIsAuthorized(true);
           }
         }

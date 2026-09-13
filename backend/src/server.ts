@@ -47,6 +47,7 @@ import printerRoutes from './routes/printer.routes';
 import biRoutes from './routes/bi.routes';
 import menuEngineeringRoutes from './routes/menuEngineering.routes';
 import aiConsultantRoutes from './routes/aiConsultant.routes';
+import multiOutletRoutes from './routes/multiOutlet.routes';
 console.log('All routes imported');
 import startPurchaseReminderCron from './cron/purchaseReminder.cron';
 import startReportGeneratorCron from './cron/reportGenerator.cron';
@@ -154,6 +155,7 @@ app.use('/api/printers', printerRoutes);
 app.use('/api/bi', biRoutes);
 app.use('/api/menu-engineering', menuEngineeringRoutes);
 app.use('/api/ai-consultant', aiConsultantRoutes);
+app.use('/api/multi-outlet', multiOutletRoutes);
 
 app.get('/api/debug-routes', (req, res) => {
   res.json({ message: 'Routes are active' });
