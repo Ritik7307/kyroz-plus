@@ -615,7 +615,7 @@ export default function BusinessAiDashboard() {
             )}
           </div>
           <div>
-            <h2 className="text-foreground font-black text-xs sm:text-lg tracking-tight uppercase">BUSINESS AI</h2>
+            <h2 className="text-foreground font-black text-xs sm:text-lg tracking-tight uppercase">PREMIUM AI CONSULTANT</h2>
             <p className="text-foreground/40 text-[7px] sm:text-xs font-bold uppercase tracking-[0.2em]">
               {assistantState === 'idle' ? 'Idle' : assistantState === 'listening' ? 'Listening...' : assistantState === 'processing' ? 'Processing...' : 'Speaking...'}
             </p>
@@ -635,29 +635,67 @@ export default function BusinessAiDashboard() {
 
       {/* Chat Area */}
       <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-4 sm:space-y-8 custom-scrollbar">
-        {messages.map((msg, idx) => (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} key={idx} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-            <div className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[90%] sm:max-w-[80%] rounded-2xl sm:rounded-[1.8rem] p-3.5 sm:p-5 shadow-2xl ${msg.role === 'user' ? 'bg-gold text-black font-bold' : 'bg-card shadow-sm text-foreground/80 border border-border'}`}>
-                <div className="text-xs sm:text-[13px] whitespace-pre-wrap leading-relaxed">{msg.content}</div>
+        {messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full max-w-2xl mx-auto text-center space-y-6 animate-in fade-in zoom-in duration-700">
+            <h3 className="text-2xl sm:text-3xl font-black text-foreground">Good Evening</h3>
+            
+            <div className="w-full bg-card border border-border rounded-3xl p-6 shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-400 to-[#d4af37]"></div>
+              <h4 className="text-xs font-bold uppercase tracking-widest text-foreground/50 mb-4">Your Business Today</h4>
+              <div className="flex justify-between items-center text-sm sm:text-base font-bold">
+                <div className="flex flex-col gap-1"><span className="text-foreground/60 text-xs">Sales</span><span className="text-green-400">↑ 8.2%</span></div>
+                <div className="w-px h-8 bg-border"></div>
+                <div className="flex flex-col gap-1"><span className="text-foreground/60 text-xs">Food Cost</span><span className="text-red-400">↑ 2.4%</span></div>
+                <div className="w-px h-8 bg-border"></div>
+                <div className="flex flex-col gap-1"><span className="text-foreground/60 text-xs">Profit</span><span className="text-red-400">↓ 1.1%</span></div>
               </div>
             </div>
-            {msg.role === 'kosa' && msg.suggestions && msg.suggestions.length > 0 && idx === messages.length - 1 && (
-              <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3 ml-1 sm:ml-2 max-w-full sm:max-w-[80%]">
-                {msg.suggestions.map((suggestion, sIdx) => (
-                  <button
-                    key={sIdx}
-                    onClick={() => handleSend(suggestion)}
-                    disabled={assistantState === 'processing' || assistantState === 'speaking'}
-                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-card shadow-sm hover:bg-gold/20 border border-border hover:border-gold/30 text-foreground/80 hover:text-gold text-xs sm:text-xs rounded-full transition-all shadow-md font-medium"
-                  >
-                    {suggestion}
-                  </button>
-                ))}
+
+            <div className="w-full text-left space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-widest text-[#d4af37] flex items-center gap-2"><Bot size={14}/> AI Priority Alerts</h4>
+              <ul className="space-y-2">
+                <li className="bg-card border border-border p-3 rounded-xl text-sm text-foreground/80 flex items-start gap-3">
+                  <span className="w-2 h-2 rounded-full bg-red-400 mt-1.5 flex-shrink-0"></span>
+                  Lucknow food cost increased by 3.1% this week.
+                </li>
+                <li className="bg-card border border-border p-3 rounded-xl text-sm text-foreground/80 flex items-start gap-3">
+                  <span className="w-2 h-2 rounded-full bg-orange-400 mt-1.5 flex-shrink-0"></span>
+                  Chicken Biryani margin decreased due to oil cost.
+                </li>
+                <li className="bg-card border border-border p-3 rounded-xl text-sm text-foreground/80 flex items-start gap-3">
+                  <span className="w-2 h-2 rounded-full bg-green-400 mt-1.5 flex-shrink-0"></span>
+                  Raebareli outlet sales opportunity detected for combos.
+                </li>
+              </ul>
+            </div>
+            
+            <p className="text-foreground/40 text-sm italic pt-4">Ask KYROZ AI "What should I focus on today?"</p>
+          </div>
+        ) : (
+          messages.map((msg, idx) => (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} key={idx} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+              <div className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[90%] sm:max-w-[80%] rounded-2xl sm:rounded-[1.8rem] p-3.5 sm:p-5 shadow-2xl ${msg.role === 'user' ? 'bg-gold text-black font-bold' : 'bg-card shadow-sm text-foreground/80 border border-border'}`}>
+                  <div className="text-xs sm:text-[13px] whitespace-pre-wrap leading-relaxed">{msg.content}</div>
+                </div>
               </div>
-            )}
-          </motion.div>
-        ))}
+              {msg.role === 'kosa' && msg.suggestions && msg.suggestions.length > 0 && idx === messages.length - 1 && (
+                <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3 ml-1 sm:ml-2 max-w-full sm:max-w-[80%]">
+                  {msg.suggestions.map((suggestion, sIdx) => (
+                    <button
+                      key={sIdx}
+                      onClick={() => handleSend(suggestion)}
+                      disabled={assistantState === 'processing' || assistantState === 'speaking'}
+                      className="px-3 py-1.5 sm:px-4 sm:py-2 bg-card shadow-sm hover:bg-gold/20 border border-border hover:border-gold/30 text-foreground/80 hover:text-gold text-xs sm:text-xs rounded-full transition-all shadow-md font-medium"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          ))
+        )}
       </div>
 
       {/* Input Area */}
