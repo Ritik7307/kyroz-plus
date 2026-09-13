@@ -35,7 +35,6 @@ export const createOutlet = async (req: AuthRequest, res: Response): Promise<voi
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const parentUser = await User.findById(parentUserId);
     const subscriptionPlan = parentUser?.subscriptionPlan || 'None';
 
     const newOutlet = new User({
