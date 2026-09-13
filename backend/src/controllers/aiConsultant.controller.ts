@@ -75,7 +75,7 @@ ${query}
 Provide a structured, professional, and actionable response in the context of the data above. If the user asks for a price change, propose the change clearly but remind them to use the approval UI.`;
 
     // --- 3. Call Gemini ---
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
     const result = await model.generateContent(systemPrompt);
     const responseText = result.response.text();
 
