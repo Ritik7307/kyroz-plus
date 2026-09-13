@@ -115,7 +115,7 @@ CRITICAL RULES:
 `;
 
     // 3. Generate Response
-    const model = gemini.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = gemini.getGenerativeModel({ model: "gemini-3.6-flash" });
     const chat = model.startChat({
       history: [
         { role: 'user', parts: [{ text: businessContext }] },

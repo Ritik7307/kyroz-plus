@@ -467,7 +467,7 @@ const translateToEnglish = async (query: string): Promise<string> => {
     // Fallback to Gemini if Groq fails (e.g. 429 Rate Limits)
     if (gemini) {
       try {
-        const model = gemini.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const model = gemini.getGenerativeModel({ model: "gemini-3.6-flash" });
         const result = await model.generateContent(`Translate the kitchen query to English. Correct any spelling errors, transcription typos, or phonetics (e.g. "बिर्यानी" to "Biryani", "लक्नदी" to "Lucknowi", "Lye Siddeley" to "Rice Idli"). Reply ONLY with the plain English translation, nothing else.\n\nQuery: ${query}`);
         return result.response.text().trim() || query;
       } catch (geminiErr) {
@@ -1269,7 +1269,7 @@ ${suggestionsInstruction}
 
       try {
 
-        const model = gemini.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const model = gemini.getGenerativeModel({ model: "gemini-3.6-flash" });
 
         const geminiHistory = [];
 
