@@ -1018,13 +1018,15 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
 
     // Specific query check to bypass general answers if user asks a specific question
 
-    const englishSpecific = /\b(recipe|ingredient|make|cook|prepare|cost|price|packaging|sop|method|step|how|what|button|batches|portion|plates|kg|gm|ml|chicken|mutton|veg|rava|onion|masala|white|shahi|lucknowi|arabic|batter|stuffing|mini|regular|large|medium|small|size|about|scale|yield|quantity|ratio|water|tadka|tempering|store|storage|troubleshoot|spoilage|yields|plates|pieces|piece|sops|coconut|red|kara|rice|medu|premium|indo)\b/i.test(queryLower);
+    const englishSpecific = /\b(recipe|ingredient|make|cook|prepare|cost|price|packaging|sop|method|step|how|what|button|batches|portion|plates|kg|gm|ml|chicken|mutton|veg|rava|onion|masala|white|shahi|lucknowi|arabic|batter|stuffing|mini|regular|large|medium|small|size|about|scale|yield|quantity|ratio|water|tadka|tempering|store|storage|troubleshoot|spoilage|yields|plates|pieces|piece|sops|coconut|red|kara|rice|medu|premium|indo|burn|burnt|raw|undercooked|salty|spicy|thick|thin|sticky|bad|smell|fix|help|wrong)\b/i.test(queryLower);
 
-    const hindiSpecific = /(विधि|सामग्री|बनाएं|बनाएँ|कैसे|मूल्य|कीमत|चिकन|मटन|वेज|रवा|प्याज़|मसाला|सफेद|शाही|लखनऊ|बैटर|स्टफिंग|साइज|मात्रा|अनुपात|पानी|स्टोर|फ्रिज|तापमान|उबाल|पकाना|परोस|नारियल|लाल|कारा|चावल|मेदु|प्रीमियम|इंडो)/i.test(queryLower);
+    const hindiSpecific = /(विधि|सामग्री|बनाएं|बनाएँ|कैसे|मूल्य|कीमत|चिकन|मटन|वेज|रवा|प्याज़|मसाला|सफेद|शाही|लखनऊ|बैटर|स्टफिंग|साइज|मात्रा|अनुपात|पानी|स्टोर|फ्रिज|तापमान|उबाल|पकाना|परोस|नारियल|लाल|कारा|चावल|मेदु|प्रीमियम|इंडो|जल|कच्चा|नमक|मिर्च|ज़्यादा|ज्यादा|कम|खराब|स्मेल|क्यों|क्या|करूं|करु|करें|करू|पतला|गाढ़ा|टूट|चिपक|jal|kaccha|namak|mirch|zyada|kam|kharab|kyu|kya|karu|kare|patla|gaada|toot|chipak|thik|theek)/i.test(queryLower);
 
     
 
-    const isSpecificQuery = englishSpecific || hindiSpecific || isExactSopMatch;
+    const isSentence = queryLower.trim().split(/\s+/).length >= 3;
+
+    const isSpecificQuery = englishSpecific || hindiSpecific || isExactSopMatch || isSentence;
 
 
 
