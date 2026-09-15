@@ -5,6 +5,7 @@ export interface IDish extends Document {
   price: number;
   ingredientPrice: number;
   category: string;
+  subCategory?: string;
   imageUrl?: string;
   packagingLogic?: {
     dineIn: mongoose.Types.ObjectId[];
@@ -21,6 +22,7 @@ const DishSchema: Schema = new Schema({
   price: { type: Number, required: true },
   ingredientPrice: { type: Number, default: 0 },
   category: { type: String, required: true, default: 'General' },
+  subCategory: { type: String, default: '' },
   imageUrl: { type: String },
   packagingLogic: {
     dineIn: [{ type: Schema.Types.ObjectId, ref: 'Packaging' }],

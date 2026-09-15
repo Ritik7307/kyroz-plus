@@ -47,6 +47,7 @@ interface Dish {
   price: number;
   ingredientPrice: number;
   category: string;
+  subCategory?: string;
   imageUrl?: string;
 }
 
@@ -56,6 +57,7 @@ interface Dish {
   price: number;
   ingredientPrice: number;
   category: string;
+  subCategory?: string;
   imageUrl?: string;
 }
 
@@ -179,6 +181,7 @@ export default function POSTerminal() {
   const [selectedAddons, setSelectedAddons] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+  const [activeSubCategory, setActiveSubCategory] = useState('All');
   const [isManagementMode, setIsManagementMode] = useState(false);
   
   const { data: userData } = useSWR(`${API_URL}/api/auth/me`, fetcher);
@@ -235,9 +238,13 @@ export default function POSTerminal() {
     activeTableRef.current = activeTable;
   }, [activeTable]);
 
+  useEffect(() => {
+    setActiveSubCategory('All');
+  }, [activeCategory]);
+
   const [showAddModal, setShowAddModal] = useState(false);
   const [setupStep, setSetupStep] = useState(1);
-  const [newDish, setNewDish] = useState({ name: '', price: '', ingredientPrice: '', category: 'Main Course', imageUrl: '' });
+  const [newDish, setNewDish] = useState({ name: '', price: '', ingredientPrice: '', category: 'Main Course', subCategory: '', imageUrl: '' });
   const [hasVariations, setHasVariations] = useState(false);
   const [variations, setVariations] = useState<{name: string, price: string}[]>([{ name: 'Half', price: '' }, { name: 'Full', price: '' }]);
   const [advancedSetupData, setAdvancedSetupData] = useState({
@@ -733,6 +740,7 @@ export default function POSTerminal() {
             price: item.price,
             ingredientPrice: Number(newDish.ingredientPrice) || 0,
             category: newDish.category || 'Main Course',
+            subCategory: newDish.subCategory || '',
             imageUrl: currentImageUrl,
             allowedWastagePercentage: Number(advancedSetupData.allowedWastagePercentage) || 0
           },
@@ -768,7 +776,7 @@ export default function POSTerminal() {
       if (successCount > 0) {
         setShowAddModal(false);
         setSetupStep(1);
-        setNewDish({ name: '', price: '', ingredientPrice: '', category: 'Main Course', imageUrl: '' });
+        setNewDish({ name: '', price: '', ingredientPrice: '', category: 'Main Course', subCategory: '', imageUrl: '' });
         setHasVariations(false);
         setVariations([{ name: 'Half', price: '' }, { name: 'Full', price: '' }]);
         setAdvancedSetupData({ allowedWastagePercentage: 0, platesPerPacket: 10, totalPlates: 0, lowStockThreshold: 5, baseUnitName: 'Packet', subUnitName: 'Plate' });
@@ -884,12 +892,21 @@ export default function POSTerminal() {
     return ['All', ...availableCategories];
   }, [availableCategories]);
 
+  const availableSubCategories = useMemo(() => {
+    if (activeCategory === 'All') return [];
+    const subCats = dishes
+      .filter(d => d.category === activeCategory && d.subCategory)
+      .map(d => d.subCategory as string);
+    return Array.from(new Set(subCats));
+  }, [dishes, activeCategory]);
+
   const filteredDishes = useMemo(() => {
     return dishes.filter(d => 
       (activeCategory === 'All' || d.category === activeCategory) &&
+      (activeSubCategory === 'All' || d.subCategory === activeSubCategory) &&
       d.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [dishes, activeCategory, searchQuery]);
+  }, [dishes, activeCategory, activeSubCategory, searchQuery]);
 
   const groupedDishes = useMemo(() => {
     if (isManagementMode) return filteredDishes;
@@ -2048,6 +2065,30 @@ export default function POSTerminal() {
             )}
           </div>
           
+          {availableSubCategories.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
+              <button
+                onClick={() => setActiveSubCategory('All')}
+                className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border ${
+                  activeSubCategory === 'All' ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/70 border-foreground/10'
+                }`}
+              >
+                All
+              </button>
+              {availableSubCategories.map(subCat => (
+                <button
+                  key={subCat}
+                  onClick={() => setActiveSubCategory(subCat)}
+                  className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border ${
+                    activeSubCategory === subCat ? 'bg-gold text-black border-gold' : 'bg-foreground/5 text-foreground/70 border-foreground/10'
+                  }`}
+                >
+                  {subCat}
+                </button>
+              ))}
+            </div>
+          )}
+
           <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 pr-1 pb-24">
             {!dishesData ? (
               <div className="col-span-full flex flex-col items-center justify-center py-20 text-foreground/50 gap-4">
@@ -2162,6 +2203,7 @@ export default function POSTerminal() {
                 {editingDish ? (
                   <>
                     <input type="text" value={editingDish.name} onChange={(e) => setEditingDish({...editingDish, name: e.target.value})} placeholder="Item Name" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" />
+                    <input type="text" value={editingDish.subCategory || ''} onChange={(e) => setEditingDish({...editingDish, subCategory: e.target.value})} placeholder="Sub Category (e.g. Starter)" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" />
                     <div className="grid grid-cols-2 gap-4">
                       <input type="number" value={editingDish.price} onChange={(e) => setEditingDish({...editingDish, price: Number(e.target.value)})} placeholder="Price" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" />
                       <input type="number" value={editingDish.ingredientPrice} onChange={(e) => setEditingDish({...editingDish, ingredientPrice: Number(e.target.value)})} placeholder="Cost" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" />
@@ -2231,6 +2273,7 @@ export default function POSTerminal() {
                             </select>
                           )}
                         </div>
+                        <input type="text" value={newDish.subCategory} onChange={(e) => setNewDish({...newDish, subCategory: e.target.value})} placeholder="Sub Category (e.g. Starter) - Optional" className="w-full bg-card shadow-sm p-4 rounded-xl border border-foreground/10" />
                         <div className="flex items-center gap-2 mt-2 mb-2">
                           <input type="checkbox" id="hasVariations" checked={hasVariations} onChange={(e) => setHasVariations(e.target.checked)} className="accent-gold w-4 h-4 cursor-pointer" />
                           <label htmlFor="hasVariations" className="text-sm font-bold text-foreground cursor-pointer">Dish has sizes/variations (e.g. Half/Full)</label>

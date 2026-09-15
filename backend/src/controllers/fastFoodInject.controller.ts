@@ -271,59 +271,11 @@ export const injectFastFood = async (req: Request, res: Response): Promise<void>
       }
     }
 
+    /*
     const dishesToCreate = [
-      { name: '10 Inch Pizza', category: 'Pizza', price: 299 },
-      { name: '12 Inch Pizza', category: 'Pizza', price: 399 },
-      { name: 'Veg Burger', category: 'Burger', price: 149 },
-      { name: 'Chicken Burger', category: 'Burger', price: 199 },
-      { name: 'Popcorn Chicken', category: 'Snacks', price: 199 },
-      { name: 'Chicken Strips', category: 'Snacks', price: 249 },
-      { name: 'Chicken Wings', category: 'Snacks', price: 299 },
-      { name: 'Chicken Leg Piece', category: 'Snacks', price: 159 }
+      ... (Removed to prevent automatic dish creation in POS)
     ];
-
-    for (const d of dishesToCreate) {
-      let dish = await Dish.findOne({ name: d.name, userId });
-      if (!dish) {
-        dish = new Dish({ name: d.name, category: d.category, price: d.price, userId, packagingLogic: { dineIn: [], takeaway: [], delivery: [] } });
-        await dish.save();
-      }
-      
-      const dishRecipeIngs = [];
-      let ptName = d.name + ' Portion';
-      const pt = await resolveIng(ptName);
-      if (pt) dishRecipeIngs.push({ itemModel: pt.model, itemId: pt.id, quantity: 1 });
-
-      if (d.name.includes('Burger')) {
-        const bun = await resolveIng('Burger Bun');
-        if (bun) dishRecipeIngs.push({ itemModel: bun.model, itemId: bun.id, quantity: 1 });
-        const sauce = await resolveIng(d.name === 'Veg Burger' ? 'Classic Burger Sauce' : 'Tandoori Burger Sauce');
-        if (sauce) dishRecipeIngs.push({ itemModel: sauce.model, itemId: sauce.id, quantity: 30 });
-        const lettuce = await resolveIng('Lettuce/Cabbage');
-        if (lettuce) dishRecipeIngs.push({ itemModel: lettuce.model, itemId: lettuce.id, quantity: 10 });
-        const tomato = await resolveIng('Tomato');
-        if (tomato) dishRecipeIngs.push({ itemModel: tomato.model, itemId: tomato.id, quantity: 20 });
-        const onion = await resolveIng('Onion');
-        if (onion) dishRecipeIngs.push({ itemModel: onion.model, itemId: onion.id, quantity: 15 });
-        const butter = await resolveIng('Soft Butter');
-        if (butter) dishRecipeIngs.push({ itemModel: butter.model, itemId: butter.id, quantity: 5 });
-        const fireDust = await resolveIng('C-509 FIRE DUST');
-        if (fireDust) dishRecipeIngs.push({ itemModel: fireDust.model, itemId: fireDust.id, quantity: 1 });
-      }
-
-      if (d.category === 'Snacks') {
-        const fireDust = await resolveIng('C-509 FIRE DUST');
-        if (fireDust) dishRecipeIngs.push({ itemModel: fireDust.model, itemId: fireDust.id, quantity: 1 });
-        const oil = await resolveIng('Refined Frying Oil');
-        if (oil) dishRecipeIngs.push({ itemModel: oil.model, itemId: oil.id, quantity: 15 });
-      }
-
-      await Recipe.findOneAndUpdate(
-        { targetModel: 'Dish', targetId: dish._id, userId },
-        { targetYield: 1, operationalYield: 1, ingredients: dishRecipeIngs },
-        { upsert: true }
-      );
-    }
+    */
 
     res.json({ success: true, message: 'Fast food items injected successfully!' });
   } catch (err: any) {

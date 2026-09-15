@@ -73,7 +73,7 @@ export const getDishes = async (req: AuthRequest, res: Response): Promise<void> 
 
 export const createDish = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { name, price, ingredientPrice, category, imageUrl, allowedWastagePercentage } = req.body;
+    const { name, price, ingredientPrice, category, subCategory, imageUrl, allowedWastagePercentage } = req.body;
     const userId = req.user?.userId;
 
     const existingDish = await Dish.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }, userId }).lean();
@@ -87,6 +87,7 @@ export const createDish = async (req: AuthRequest, res: Response): Promise<void>
       price,
       ingredientPrice,
       category,
+      subCategory,
       imageUrl,
       allowedWastagePercentage,
       userId
@@ -120,6 +121,7 @@ export const createDishAdvancedSetup = async (req: AuthRequest, res: Response): 
       price: dishDetails.price,
       ingredientPrice: dishDetails.ingredientPrice || 0,
       category: dishDetails.category,
+      subCategory: dishDetails.subCategory,
       imageUrl: dishDetails.imageUrl,
       allowedWastagePercentage: dishDetails.allowedWastagePercentage || 0,
       packagingLogic: inventoryDetails?.packagingLogic || undefined,
@@ -164,11 +166,11 @@ export const createDishAdvancedSetup = async (req: AuthRequest, res: Response): 
 export const updateDish = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, price, ingredientPrice, category, imageUrl } = req.body;
+    const { name, price, ingredientPrice, category, subCategory, imageUrl } = req.body;
     
     const dish = await Dish.findOneAndUpdate(
       { _id: id, userId: req.user?.userId },
-      { name, price, ingredientPrice, category, imageUrl },
+      { name, price, ingredientPrice, category, subCategory, imageUrl },
       { new: true }
     );
 

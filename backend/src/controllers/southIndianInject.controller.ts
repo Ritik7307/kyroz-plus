@@ -360,58 +360,11 @@ export const injectSouthIndian = async (req: Request, res: Response): Promise<vo
       }
     ];
 
+    /*
     for (const d of dishesToCreate) {
-      let dish = await Dish.findOne({ name: d.name, userId: activeUserId });
-      if (!dish) {
-        dish = new Dish({
-          name: d.name,
-          category: d.category,
-          price: d.price,
-          imageUrl: "",
-          userId: activeUserId
-        });
-        await dish.save();
-      }
-
-      const mappedIngredients: any[] = [];
-      for (const ingDef of d.ingredients) {
-        const rmDoc = await getIng(ingDef.name);
-        mappedIngredients.push({
-          sfgId: rmDoc._id,
-          name: rmDoc.name,
-          quantity: ingDef.qty,
-          unit: ingDef.unit
-        });
-      }
-
-      let recipe = await Recipe.findOne({ targetModel: 'Dish', targetId: dish._id, userId: activeUserId });
-      if (!recipe) {
-        recipe = new Recipe({
-          targetModel: 'Dish',
-          targetId: dish._id,
-          targetYield: 1,
-          operationalYield: 1,
-          ingredients: mappedIngredients,
-          userId: activeUserId
-        });
-        await recipe.save();
-      } else {
-        recipe.ingredients = mappedIngredients;
-        await recipe.save();
-      }
-
-      let inventory = await Inventory.findOne({ dishId: dish._id, userId: activeUserId });
-      if (!inventory) {
-        inventory = new Inventory({
-          dishId: dish._id,
-          platesPerPacket: 10,
-          totalPlates: 0,
-          lowStockThreshold: 5,
-          userId: activeUserId
-        });
-        await inventory.save();
-      }
+      ... (Removed to prevent automatic dish creation in POS)
     }
+    */
 
     res.status(200).json({ message: "South Indian architecture injected successfully!" });
   } catch (err: any) {

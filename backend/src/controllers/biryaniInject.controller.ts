@@ -144,6 +144,7 @@ export const injectBiryani = async (req: Request, res: Response): Promise<void> 
       }
     }
 
+    /*
     let dish = await Dish.findOne({ name: 'Shahi Lucknowi Biryani', userId });
     if (!dish) {
       dish = new Dish({ name: 'Shahi Lucknowi Biryani', category: 'Biryani', price: 299, userId, packagingLogic: { dineIn: [], takeaway: [], delivery: [] } });
@@ -177,6 +178,7 @@ export const injectBiryani = async (req: Request, res: Response): Promise<void> 
       { targetYield: 1, operationalYield: 1, ingredients: dishRecipeIngs },
       { upsert: true }
     );
+    */
 
     res.json({ success: true, message: 'Shahi Lucknowi Biryani injected successfully!' });
   } catch (err: any) {

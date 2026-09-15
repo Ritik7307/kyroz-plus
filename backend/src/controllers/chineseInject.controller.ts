@@ -221,59 +221,11 @@ export const injectChinese = async (req: Request, res: Response): Promise<void> 
       }
     ];
 
+    /*
     for (const d of dishesToCreate) {
-      let dish = await Dish.findOne({ name: d.name, userId: activeUserId });
-      if (!dish) {
-        dish = new Dish({
-          name: d.name,
-          category: d.category,
-          price: d.price,
-          imageUrl: "",
-          userId: activeUserId
-        });
-        await dish.save();
-      }
-
-      // Ingredients mapping
-      const mappedIngredients: any[] = [];
-      for (const ingDef of d.ingredients) {
-        const rmDoc = await getIng(ingDef.name);
-        mappedIngredients.push({
-          itemId: rmDoc._id, itemModel: rmDoc.code && rmDoc.code.includes('SFG') ? 'SemiFinishedGood' : 'RawMaterial',
-          name: rmDoc.name,
-          quantity: ingDef.qty,
-          unit: ingDef.unit
-        });
-      }
-
-      let recipe = await Recipe.findOne({ targetModel: 'Dish', targetId: dish._id, userId: activeUserId });
-      if (!recipe) {
-        recipe = new Recipe({
-          targetModel: 'Dish',
-          targetId: dish._id,
-          targetYield: 1,
-          operationalYield: 1,
-          ingredients: mappedIngredients,
-          userId: activeUserId
-        });
-        await recipe.save();
-      } else {
-        recipe.ingredients = mappedIngredients;
-        await recipe.save();
-      }
-
-      let inventory = await Inventory.findOne({ dishId: dish._id, userId: activeUserId });
-      if (!inventory) {
-        inventory = new Inventory({
-          dishId: dish._id,
-          platesPerPacket: 10,
-          totalPlates: 0,
-          lowStockThreshold: 5,
-          userId: activeUserId
-        });
-        await inventory.save();
-      }
+      ... (Removed to prevent automatic dish creation in POS)
     }
+    */
     
     // Also inject the Master Chilli/Garlic Oil SFGs if possible, or just raw materials.
     // They are used as components.
