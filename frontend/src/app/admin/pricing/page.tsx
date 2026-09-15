@@ -105,7 +105,7 @@ export default function AdminPricingPage() {
                   type="number"
                   value={pricing[plan].price}
                   onChange={e => handleChange(plan, 'price', Number(e.target.value))}
-                  className="w-full bg-background/40 border border-foreground/10 rounded-xl px-4 py-3 text-foreground focus:border-gold outline-none"
+                  className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 text-foreground focus:border-gold outline-none"
                 />
               </div>
 
@@ -115,13 +115,13 @@ export default function AdminPricingPage() {
                   type="number"
                   value={pricing[plan].discount}
                   onChange={e => handleChange(plan, 'discount', Number(e.target.value))}
-                  className="w-full bg-background/40 border border-foreground/10 rounded-xl px-4 py-3 text-foreground focus:border-gold outline-none"
+                  className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 text-foreground focus:border-gold outline-none"
                 />
               </div>
 
               <div className="pt-4 border-t border-foreground/10 mt-4">
                 <p className="text-xs text-foreground/40 uppercase tracking-widest mb-1">Final Price</p>
-                <p className="text-2xl font-black text-green-400">
+                <p className="text-2xl font-black text-green-600 dark:text-green-400">
                   ₹{Math.round(pricing[plan].price * (1 - pricing[plan].discount / 100))}
                 </p>
               </div>

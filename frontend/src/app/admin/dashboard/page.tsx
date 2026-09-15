@@ -79,7 +79,7 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {[
             { label: 'Total Members', value: stats?.memberCount || 0, icon: Users, color: 'text-blue-400' },
-            { label: 'Platform Revenue', value: `₹${(stats?.revenue || 0).toLocaleString()}`, icon: IndianRupee, color: 'text-green-400' },
+            { label: 'Platform Revenue', value: `₹${(stats?.revenue || 0).toLocaleString()}`, icon: IndianRupee, color: 'text-green-600 dark:text-green-400' },
             { label: 'Global SOPs', value: stats?.masterSopCount || 0, icon: FileText, color: 'text-gold' },
             { label: 'System Health', value: stats?.systemStatus || 'Online', icon: ShieldCheck, color: 'text-purple-400' },
           ].map((stat, idx) => (
@@ -257,7 +257,7 @@ export default function AdminDashboard() {
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-foreground/60">Active Sessions</span>
-                      <span className="font-bold text-green-400">12</span>
+                      <span className="font-bold text-green-600 dark:text-green-400">12</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-foreground/60">Pending Approvals</span>

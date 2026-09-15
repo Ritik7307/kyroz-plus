@@ -188,7 +188,9 @@ export default function AdminSettingsPage() {
                     const plan = pricing[planKey as keyof typeof pricing];
                     return (
                       <div key={planKey} className="bg-foreground/5 border border-foreground/10 rounded-2xl p-6">
-                        <h4 className="text-lg font-black text-foreground uppercase tracking-widest mb-4">{planKey} Plan</h4>
+                        <h4 className="text-lg font-black text-foreground uppercase tracking-widest mb-4">
+                          {planKey === 'basic' ? 'Kyroz Starter' : planKey === 'pro' ? 'Kyroz Premium' : 'Kyroz Scale'}
+                        </h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                           <div className="space-y-3">
                             <label className="text-xs font-black uppercase tracking-[0.2em] text-foreground/30">Base Price (₹)</label>
@@ -206,7 +208,7 @@ export default function AdminSettingsPage() {
                                   }
                                 }))
                               }}
-                              className="w-full bg-background/40 border border-foreground/10 rounded-xl p-4 text-sm font-bold text-foreground focus:outline-none focus:border-gold transition-all"
+                              className="w-full bg-foreground/5 border border-foreground/10 rounded-xl p-4 text-sm font-bold text-foreground focus:outline-none focus:border-gold transition-all"
                             />
                           </div>
                           <div className="space-y-3">
@@ -227,7 +229,7 @@ export default function AdminSettingsPage() {
                                   }
                                 }))
                               }}
-                              className="w-full bg-background/40 border border-foreground/10 rounded-xl p-4 text-sm font-bold text-foreground focus:outline-none focus:border-gold transition-all"
+                              className="w-full bg-foreground/5 border border-foreground/10 rounded-xl p-4 text-sm font-bold text-foreground focus:outline-none focus:border-gold transition-all"
                             />
                           </div>
                           <div className="space-y-3">
@@ -239,7 +241,7 @@ export default function AdminSettingsPage() {
                                 ...prev,
                                 [planKey]: { ...prev[planKey as keyof typeof pricing], finalPrice: e.target.value === '' ? '' as any : Number(e.target.value) }
                               }))}
-                              className="w-full bg-background/40 border border-foreground/10 rounded-xl p-4 text-sm font-bold text-green-400 focus:outline-none focus:border-gold transition-all"
+                              className="w-full bg-foreground/5 border border-foreground/10 rounded-xl p-4 text-sm font-bold text-green-600 dark:text-green-400 focus:outline-none focus:border-gold transition-all"
                             />
                           </div>
                         </div>
@@ -266,7 +268,7 @@ export default function AdminSettingsPage() {
                     <textarea
                       value={costingMasterJson}
                       onChange={(e) => setCostingMasterJson(e.target.value)}
-                      className="w-full h-[400px] bg-background/40 border border-foreground/10 rounded-xl p-4 text-sm font-mono text-green-400 focus:outline-none focus:border-gold transition-all resize-y"
+                      className="w-full h-[400px] bg-foreground/5 border border-foreground/10 rounded-xl p-4 text-sm font-mono text-green-600 dark:text-green-400 focus:outline-none focus:border-gold transition-all resize-y"
                       placeholder="{\n  // Enter valid JSON here\n}"
                       spellCheck={false}
                     />
