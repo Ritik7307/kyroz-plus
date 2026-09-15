@@ -88,14 +88,14 @@ export default function GlobalSopsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-black tracking-tighter flex items-center gap-3">
               <ChefHat className="text-gold" size={32} /> GLOBAL SOP LIBRARY
             </h1>
-            <p className="text-white/40 text-sm font-bold uppercase tracking-widest mt-1">Manage content for all members</p>
+            <p className="text-foreground/40 text-sm font-bold uppercase tracking-widest mt-1">Manage content for all members</p>
           </div>
           <button 
             onClick={() => {
@@ -114,7 +114,7 @@ export default function GlobalSopsPage() {
             <motion.div 
               key={sop._id}
               layout
-              className="bg-card glass-card p-6 rounded-2xl border border-white/5 group hover:border-gold/30 transition-all"
+              className="bg-card glass-card p-6 rounded-2xl border border-foreground/5 group hover:border-gold/30 transition-all"
             >
               <div className="flex justify-between items-start mb-4">
                 <div className="w-12 h-12 bg-gold/10 rounded-xl flex items-center justify-center text-gold">
@@ -132,13 +132,13 @@ export default function GlobalSopsPage() {
                       });
                       setIsModalOpen(true);
                     }}
-                    className="p-2 text-white/20 hover:text-gold transition-colors"
+                    className="p-2 text-foreground/20 hover:text-gold transition-colors"
                   >
                     <Edit size={18} />
                   </button>
                   <button 
                     onClick={() => handleDelete(sop._id)}
-                    className="p-2 text-white/20 hover:text-red-500 transition-colors"
+                    className="p-2 text-foreground/20 hover:text-red-500 transition-colors"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -146,7 +146,7 @@ export default function GlobalSopsPage() {
               </div>
               <h3 className="font-bold text-lg mb-1">{sop.title}</h3>
               <p className="text-xs font-black text-gold uppercase tracking-widest">{sop.category}</p>
-              <div className="mt-4 pt-4 border-t border-white/5 flex justify-between items-center text-xs text-white/40 font-bold uppercase tracking-widest">
+              <div className="mt-4 pt-4 border-t border-foreground/5 flex justify-between items-center text-xs text-foreground/40 font-bold uppercase tracking-widest">
                 <span>Last Updated</span>
                 <span>{new Date(sop.updatedAt).toLocaleDateString()}</span>
               </div>
@@ -164,15 +164,15 @@ export default function GlobalSopsPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsModalOpen(false)}
-              className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+              className="absolute inset-0 bg-background/90 backdrop-blur-sm"
             />
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-card glass-card w-full max-w-2xl rounded-[2.5rem] border border-white/10 p-10 relative z-10 shadow-2xl"
+              className="bg-card glass-card w-full max-w-2xl rounded-[2.5rem] border border-foreground/10 p-10 relative z-10 shadow-2xl"
             >
-              <button onClick={() => setIsModalOpen(false)} className="absolute top-8 right-8 text-white/20 hover:text-white">
+              <button onClick={() => setIsModalOpen(false)} className="absolute top-8 right-8 text-foreground/20 hover:text-foreground">
                 <X size={24} />
               </button>
               
@@ -182,13 +182,13 @@ export default function GlobalSopsPage() {
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-white/40">SOP Title</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-foreground/40">SOP Title</label>
                   <input 
                     type="text" 
                     value={formData.title}
                     onChange={(e) => setFormData({...formData, title: e.target.value})}
                     placeholder="e.g. SHAHI PANEER RECIPE"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all"
+                    className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all"
                     required
                   />
                 </div>
@@ -216,22 +216,22 @@ export default function GlobalSopsPage() {
 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-white/40">Content (English)</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-foreground/40">Content (English)</label>
                     <textarea 
                       value={formData.contentEn}
                       onChange={(e) => setFormData({...formData, contentEn: e.target.value})}
                       rows={6}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all resize-none text-sm"
+                      className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all resize-none text-sm"
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-white/40">Content (Hindi)</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-foreground/40">Content (Hindi)</label>
                     <textarea 
                       value={formData.contentHi}
                       onChange={(e) => setFormData({...formData, contentHi: e.target.value})}
                       rows={6}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all resize-none text-sm font-hindi"
+                      className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all resize-none text-sm font-hindi"
                       required
                     />
                   </div>

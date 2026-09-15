@@ -93,11 +93,11 @@ export default function UserManagementPage() {
             Administration
           </div>
           <h1 className="text-4xl font-black tracking-tighter">MEMBER <span className="text-gold">MANAGEMENT</span></h1>
-          <p className="text-white/40 text-sm mt-2 font-medium">Control platform access and manage user roles across the KYROZ ecosystem.</p>
+          <p className="text-foreground/40 text-sm mt-2 font-medium">Control platform access and manage user roles across the KYROZ ecosystem.</p>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="bg-white/5 border border-white/10 px-6 py-3 rounded-2xl flex items-center gap-3">
+          <div className="bg-foreground/5 border border-foreground/10 px-6 py-3 rounded-2xl flex items-center gap-3">
             <Users size={18} className="text-gold" />
             <span className="text-sm font-black tracking-widest">{users.length} TOTAL USERS</span>
           </div>
@@ -105,20 +105,20 @@ export default function UserManagementPage() {
       </header>
 
       {/* FILTER BAR */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-card glass-card p-6 rounded-3xl border border-white/5">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-card glass-card p-6 rounded-3xl border border-foreground/5">
         <div className="relative w-full md:w-[400px]">
-          <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-white/30" />
+          <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-foreground/30" />
           <input 
             type="text" 
             placeholder="Search name, email or shop..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-14 pr-6 text-sm text-white focus:outline-none focus:border-gold/50 transition-all font-medium"
+            className="w-full bg-foreground/5 border border-foreground/10 rounded-2xl py-3.5 pl-14 pr-6 text-sm text-foreground focus:outline-none focus:border-gold/50 transition-all font-medium"
           />
         </div>
         
         <div className="flex items-center gap-3">
-          <button className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2">
+          <button className="px-6 py-3 bg-foreground/5 hover:bg-foreground/10 border border-foreground/5 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2">
             <Filter size={14} /> Filter
           </button>
           <button 
@@ -142,17 +142,17 @@ export default function UserManagementPage() {
           <p className="text-red-400 font-bold">{error}</p>
         </div>
       ) : (
-        <div className="bg-card glass-card rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl">
+        <div className="bg-card glass-card rounded-[2.5rem] border border-foreground/5 overflow-hidden shadow-2xl">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-white/5 border-b border-white/5">
-                  <th className="p-6 pl-10 text-xs font-black uppercase tracking-[0.2em] text-white/30">Member Details</th>
-                  <th className="p-6 text-xs font-black uppercase tracking-[0.2em] text-white/30">Establishment</th>
-                  <th className="p-6 text-xs font-black uppercase tracking-[0.2em] text-white/30">Access Level</th>
-                  <th className="p-6 text-xs font-black uppercase tracking-[0.2em] text-white/30">Account Plan</th>
-                  <th className="p-6 text-xs font-black uppercase tracking-[0.2em] text-white/30">Joining Date</th>
-                  <th className="p-6 pr-10 text-right text-xs font-black uppercase tracking-[0.2em] text-white/30">Actions</th>
+                <tr className="bg-foreground/5 border-b border-foreground/5">
+                  <th className="p-6 pl-10 text-xs font-black uppercase tracking-[0.2em] text-foreground/30">Member Details</th>
+                  <th className="p-6 text-xs font-black uppercase tracking-[0.2em] text-foreground/30">Establishment</th>
+                  <th className="p-6 text-xs font-black uppercase tracking-[0.2em] text-foreground/30">Access Level</th>
+                  <th className="p-6 text-xs font-black uppercase tracking-[0.2em] text-foreground/30">Account Plan</th>
+                  <th className="p-6 text-xs font-black uppercase tracking-[0.2em] text-foreground/30">Joining Date</th>
+                  <th className="p-6 pr-10 text-right text-xs font-black uppercase tracking-[0.2em] text-foreground/30">Actions</th>
                 </tr>
               </thead>
               <tbody className="text-sm">
@@ -162,7 +162,7 @@ export default function UserManagementPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.03 }}
                     key={u._id} 
-                    className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group"
+                    className="border-b border-foreground/5 hover:bg-foreground/[0.02] transition-colors group"
                   >
                     <td className="p-6 pl-10">
                       <div className="flex items-center gap-4">
@@ -170,16 +170,16 @@ export default function UserManagementPage() {
                           {u.name?.[0].toUpperCase() || '?'}
                         </div>
                         <div>
-                          <div className="font-bold text-white group-hover:text-gold transition-colors">{u.name}</div>
-                          <div className="text-xs text-white/30 flex items-center gap-1.5 mt-0.5">
+                          <div className="font-bold text-foreground group-hover:text-gold transition-colors">{u.name}</div>
+                          <div className="text-xs text-foreground/30 flex items-center gap-1.5 mt-0.5">
                             <Mail size={10} /> {u.email}
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="p-6">
-                      <div className="flex items-center gap-2 text-white/60 font-medium italic">
-                        <Store size={14} className="text-white/20" /> {u.shopName || 'Not Specified'}
+                      <div className="flex items-center gap-2 text-foreground/60 font-medium italic">
+                        <Store size={14} className="text-foreground/20" /> {u.shopName || 'Not Specified'}
                       </div>
                     </td>
                     <td className="px-8 py-6">
@@ -199,18 +199,18 @@ export default function UserManagementPage() {
                       <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border ${
                         u.subscriptionPlan === 'Elite' ? 'bg-gold/10 border-gold/30 text-gold' :
                         u.subscriptionPlan === 'Pro' ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' :
-                        'bg-white/5 border-white/10 text-white/40'
+                        'bg-foreground/5 border-foreground/10 text-foreground/40'
                       }`}>
                         {u.subscriptionPlan || 'Basic'}
                       </span>
                     </td>
-                    <td className="p-6 text-white/30 text-xs">
+                    <td className="p-6 text-foreground/30 text-xs">
                       <div className="flex items-center gap-2">
                         <Calendar size={12} /> {new Date(u.createdAt).toLocaleDateString()}
                       </div>
                     </td>
                     <td className="p-6 pr-10 text-right">
-                      <button className="p-2 text-white/20 hover:text-gold hover:bg-white/5 rounded-lg transition-all">
+                      <button className="p-2 text-foreground/20 hover:text-gold hover:bg-foreground/5 rounded-lg transition-all">
                         <ArrowUpRight size={18} />
                       </button>
                     </td>
@@ -219,7 +219,7 @@ export default function UserManagementPage() {
               </tbody>
             </table>
             {filteredUsers.length === 0 && (
-              <div className="p-20 text-center text-white/10 font-black uppercase tracking-[0.3em]">
+              <div className="p-20 text-center text-foreground/10 font-black uppercase tracking-[0.3em]">
                 No matching members found
               </div>
             )}

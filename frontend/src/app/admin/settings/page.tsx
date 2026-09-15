@@ -144,7 +144,7 @@ export default function AdminSettingsPage() {
           System Config
         </div>
         <h1 className="text-4xl font-black tracking-tighter">GLOBAL <span className="text-gold">SETTINGS</span></h1>
-        <p className="text-white/40 text-sm mt-2 font-medium">Fine-tune the KYROZ neural network and platform-wide configurations.</p>
+        <p className="text-foreground/40 text-sm mt-2 font-medium">Fine-tune the KYROZ neural network and platform-wide configurations.</p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
@@ -157,7 +157,7 @@ export default function AdminSettingsPage() {
               className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 ${
                 activeTab === tab.name 
                 ? 'bg-gold/10 text-gold font-bold border border-gold/20 shadow-[0_0_20px_rgba(212,175,55,0.05)]' 
-                : 'text-white/40 hover:text-white hover:bg-white/5 border border-transparent'
+                : 'text-foreground/40 hover:text-foreground hover:bg-foreground/5 border border-transparent'
               }`}
             >
               <tab.icon size={20} />
@@ -168,16 +168,16 @@ export default function AdminSettingsPage() {
 
         {/* CONTENT AREA */}
         <div className="lg:col-span-9">
-          <div className="bg-card glass-card rounded-[2.5rem] border border-white/5 p-12 shadow-2xl relative overflow-hidden min-h-[600px]">
+          <div className="bg-card glass-card rounded-[2.5rem] border border-foreground/5 p-12 shadow-2xl relative overflow-hidden min-h-[600px]">
             <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-gold/5 rounded-full -mr-48 -mt-48 blur-[100px]"></div>
             
             <div className="relative z-10 space-y-12">
-              <div className="flex items-center justify-between border-b border-white/5 pb-8">
+              <div className="flex items-center justify-between border-b border-foreground/5 pb-8">
                 <div>
                   <h3 className="text-2xl font-black tracking-tight">{activeTab.toUpperCase()} CONTROLS</h3>
-                  <p className="text-white/40 text-xs mt-1 font-bold uppercase tracking-widest">Update global parameters for {activeTab.toLowerCase()}</p>
+                  <p className="text-foreground/40 text-xs mt-1 font-bold uppercase tracking-widest">Update global parameters for {activeTab.toLowerCase()}</p>
                 </div>
-                <button className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-gold transition-all border border-white/10 group">
+                <button className="p-3 bg-foreground/5 hover:bg-foreground/10 rounded-2xl text-gold transition-all border border-foreground/10 group">
                   <RefreshCw size={20} className="group-hover:rotate-180 transition-transform duration-700" />
                 </button>
               </div>
@@ -187,11 +187,11 @@ export default function AdminSettingsPage() {
                   {['basic', 'pro', 'elite'].map((planKey) => {
                     const plan = pricing[planKey as keyof typeof pricing];
                     return (
-                      <div key={planKey} className="bg-white/5 border border-white/10 rounded-2xl p-6">
-                        <h4 className="text-lg font-black text-white uppercase tracking-widest mb-4">{planKey} Plan</h4>
+                      <div key={planKey} className="bg-foreground/5 border border-foreground/10 rounded-2xl p-6">
+                        <h4 className="text-lg font-black text-foreground uppercase tracking-widest mb-4">{planKey} Plan</h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                           <div className="space-y-3">
-                            <label className="text-xs font-black uppercase tracking-[0.2em] text-white/30">Base Price (₹)</label>
+                            <label className="text-xs font-black uppercase tracking-[0.2em] text-foreground/30">Base Price (₹)</label>
                             <input 
                               type="number"
                               value={plan.price === 0 && !String(plan.price).includes('0') ? '' : plan.price}
@@ -206,11 +206,11 @@ export default function AdminSettingsPage() {
                                   }
                                 }))
                               }}
-                              className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm font-bold text-white focus:outline-none focus:border-gold transition-all"
+                              className="w-full bg-background/40 border border-foreground/10 rounded-xl p-4 text-sm font-bold text-foreground focus:outline-none focus:border-gold transition-all"
                             />
                           </div>
                           <div className="space-y-3">
-                            <label className="text-xs font-black uppercase tracking-[0.2em] text-white/30">Discount (%)</label>
+                            <label className="text-xs font-black uppercase tracking-[0.2em] text-foreground/30">Discount (%)</label>
                             <input 
                               type="number"
                               min="0"
@@ -227,11 +227,11 @@ export default function AdminSettingsPage() {
                                   }
                                 }))
                               }}
-                              className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm font-bold text-white focus:outline-none focus:border-gold transition-all"
+                              className="w-full bg-background/40 border border-foreground/10 rounded-xl p-4 text-sm font-bold text-foreground focus:outline-none focus:border-gold transition-all"
                             />
                           </div>
                           <div className="space-y-3">
-                            <label className="text-xs font-black uppercase tracking-[0.2em] text-white/30">Final Price (₹)</label>
+                            <label className="text-xs font-black uppercase tracking-[0.2em] text-foreground/30">Final Price (₹)</label>
                             <input 
                               type="number"
                               value={plan.finalPrice === undefined ? Math.round(plan.price * (1 - plan.discount / 100)) : (plan.finalPrice === 0 && !String(plan.finalPrice).includes('0') ? '' : plan.finalPrice)}
@@ -239,14 +239,14 @@ export default function AdminSettingsPage() {
                                 ...prev,
                                 [planKey]: { ...prev[planKey as keyof typeof pricing], finalPrice: e.target.value === '' ? '' as any : Number(e.target.value) }
                               }))}
-                              className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm font-bold text-green-400 focus:outline-none focus:border-gold transition-all"
+                              className="w-full bg-background/40 border border-foreground/10 rounded-xl p-4 text-sm font-bold text-green-400 focus:outline-none focus:border-gold transition-all"
                             />
                           </div>
                         </div>
                       </div>
                     );
                   })}
-                  <div className="pt-6 border-t border-white/5 flex justify-end">
+                  <div className="pt-6 border-t border-foreground/5 flex justify-end">
                     <button 
                       onClick={handleSavePricing}
                       disabled={loading}
@@ -260,13 +260,13 @@ export default function AdminSettingsPage() {
 
               {activeTab === 'Costing Master' && (
                 <div className="space-y-6">
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-                    <h4 className="text-lg font-black text-white uppercase tracking-widest mb-2">Global Costing Master JSON</h4>
-                    <p className="text-white/40 text-xs mb-4">This JSON data will be accessible to all restaurant users in their Costing Master section.</p>
+                  <div className="bg-foreground/5 border border-foreground/10 rounded-2xl p-6">
+                    <h4 className="text-lg font-black text-foreground uppercase tracking-widest mb-2">Global Costing Master JSON</h4>
+                    <p className="text-foreground/40 text-xs mb-4">This JSON data will be accessible to all restaurant users in their Costing Master section.</p>
                     <textarea
                       value={costingMasterJson}
                       onChange={(e) => setCostingMasterJson(e.target.value)}
-                      className="w-full h-[400px] bg-black/40 border border-white/10 rounded-xl p-4 text-sm font-mono text-green-400 focus:outline-none focus:border-gold transition-all resize-y"
+                      className="w-full h-[400px] bg-background/40 border border-foreground/10 rounded-xl p-4 text-sm font-mono text-green-400 focus:outline-none focus:border-gold transition-all resize-y"
                       placeholder="{\n  // Enter valid JSON here\n}"
                       spellCheck={false}
                     />
@@ -288,26 +288,26 @@ export default function AdminSettingsPage() {
                 <div className="space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-3">
-                      <label className="text-xs font-black uppercase tracking-[0.2em] text-white/30">Platform Mode</label>
-                      <select className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm font-bold focus:outline-none focus:border-gold transition-all text-white">
+                      <label className="text-xs font-black uppercase tracking-[0.2em] text-foreground/30">Platform Mode</label>
+                      <select className="w-full bg-foreground/5 border border-foreground/10 rounded-2xl p-4 text-sm font-bold focus:outline-none focus:border-gold transition-all text-foreground">
                         <option>Production (Stable)</option>
                         <option>Maintenance Mode</option>
                         <option>Development (Sandbox)</option>
                       </select>
                     </div>
                     <div className="space-y-3">
-                      <label className="text-xs font-black uppercase tracking-[0.2em] text-white/30">Global API Cache</label>
-                      <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl p-4">
+                      <label className="text-xs font-black uppercase tracking-[0.2em] text-foreground/30">Global API Cache</label>
+                      <div className="flex items-center gap-4 bg-foreground/5 border border-foreground/10 rounded-2xl p-4">
                         <div className="flex-1 text-sm font-bold">Enabled (Redis 7.0)</div>
                         <div className="w-12 h-6 bg-gold rounded-full relative">
-                          <div className="absolute right-1 top-1 w-4 h-4 bg-black rounded-full"></div>
+                          <div className="absolute right-1 top-1 w-4 h-4 bg-background rounded-full"></div>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-3">
-                    <label className="text-xs font-black uppercase tracking-[0.2em] text-white/30">Master Security Level</label>
+                    <label className="text-xs font-black uppercase tracking-[0.2em] text-foreground/30">Master Security Level</label>
                     <div className="grid grid-cols-3 gap-4">
                       {['Standard', 'High', 'Maximum'].map((level) => (
                         <button 
@@ -315,7 +315,7 @@ export default function AdminSettingsPage() {
                           className={`py-4 rounded-2xl border text-xs font-black uppercase tracking-widest transition-all ${
                             level === 'High' 
                             ? 'bg-gold/10 border-gold text-gold' 
-                            : 'bg-white/5 border-white/5 text-white/40 hover:bg-white/10'
+                            : 'bg-foreground/5 border-foreground/5 text-foreground/40 hover:bg-foreground/10'
                           }`}
                         >
                           {level}
@@ -324,8 +324,8 @@ export default function AdminSettingsPage() {
                     </div>
                   </div>
 
-                  <div className="pt-10 border-t border-white/5 flex justify-end gap-6">
-                    <button className="px-10 py-4 text-white/20 font-black uppercase text-[11px] tracking-widest hover:text-white transition-all">
+                  <div className="pt-10 border-t border-foreground/5 flex justify-end gap-6">
+                    <button className="px-10 py-4 text-foreground/20 font-black uppercase text-[11px] tracking-widest hover:text-foreground transition-all">
                       Reset Changes
                     </button>
                     <button className="px-16 py-4 bg-gold-gradient text-black rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-2xl shadow-gold/20 flex items-center gap-3 hover:scale-105 transition-all">
@@ -336,7 +336,7 @@ export default function AdminSettingsPage() {
               )}
 
               {/* Status Footer */}
-              <div className="pt-12 flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-white/20">
+              <div className="pt-12 flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-foreground/20">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   Database: Connected

@@ -77,50 +77,50 @@ export default function AdminPricingPage() {
   };
 
   if (loading) {
-    return <div className="p-8 text-center text-white">Loading pricing settings...</div>;
+    return <div className="p-8 text-center text-foreground">Loading pricing settings...</div>;
   }
 
   return (
     <div className="max-w-4xl mx-auto py-8">
       <div className="flex items-center gap-4 mb-8">
-        <button onClick={() => router.push('/admin/dashboard')} className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors text-white">
+        <button onClick={() => router.push('/admin/dashboard')} className="p-2 bg-foreground/5 hover:bg-foreground/10 rounded-full transition-colors text-foreground">
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-3xl font-black text-white flex items-center gap-3">
+        <h1 className="text-3xl font-black text-foreground flex items-center gap-3">
           <IndianRupee className="text-gold" /> Pricing Settings
         </h1>
       </div>
 
-      <div className="bg-card glass-card p-8 rounded-3xl border border-white/5 space-y-8">
-        <p className="text-white/40 text-sm">Update the subscription prices. Changes will instantly reflect on the public Home page and the user Membership upgrade page.</p>
+      <div className="bg-card glass-card p-8 rounded-3xl border border-foreground/5 space-y-8">
+        <p className="text-foreground/40 text-sm">Update the subscription prices. Changes will instantly reflect on the public Home page and the user Membership upgrade page.</p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {(['starter', 'growth', 'scale'] as const).map(plan => (
-            <div key={plan} className="bg-white/5 p-6 rounded-2xl border border-white/10 space-y-4">
+            <div key={plan} className="bg-foreground/5 p-6 rounded-2xl border border-foreground/10 space-y-4">
               <h3 className="text-xl font-bold text-gold uppercase tracking-widest">{plan === 'growth' ? 'Premium' : plan} Plan</h3>
               
               <div className="space-y-2">
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest">Base Price (₹/mo)</label>
+                <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest">Base Price (₹/mo)</label>
                 <input
                   type="number"
                   value={pricing[plan].price}
                   onChange={e => handleChange(plan, 'price', Number(e.target.value))}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-gold outline-none"
+                  className="w-full bg-background/40 border border-foreground/10 rounded-xl px-4 py-3 text-foreground focus:border-gold outline-none"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest">Discount (%)</label>
+                <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest">Discount (%)</label>
                 <input
                   type="number"
                   value={pricing[plan].discount}
                   onChange={e => handleChange(plan, 'discount', Number(e.target.value))}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-gold outline-none"
+                  className="w-full bg-background/40 border border-foreground/10 rounded-xl px-4 py-3 text-foreground focus:border-gold outline-none"
                 />
               </div>
 
-              <div className="pt-4 border-t border-white/10 mt-4">
-                <p className="text-xs text-white/40 uppercase tracking-widest mb-1">Final Price</p>
+              <div className="pt-4 border-t border-foreground/10 mt-4">
+                <p className="text-xs text-foreground/40 uppercase tracking-widest mb-1">Final Price</p>
                 <p className="text-2xl font-black text-green-400">
                   ₹{Math.round(pricing[plan].price * (1 - pricing[plan].discount / 100))}
                 </p>

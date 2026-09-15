@@ -58,7 +58,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (!isAuthorized) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-gold font-bold uppercase tracking-[0.3em]">
+      <div className="min-h-screen bg-background flex items-center justify-center text-gold font-bold uppercase tracking-[0.3em]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin"></div>
           Verifying Admin Access...

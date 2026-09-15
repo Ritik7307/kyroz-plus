@@ -137,14 +137,14 @@ export default function SopPacketsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-black tracking-tighter flex items-center gap-3">
               <Package className="text-gold" size={32} /> SOP PACKETS
             </h1>
-            <p className="text-white/40 text-sm font-bold uppercase tracking-widest mt-1">Commercial SOP Collections</p>
+            <p className="text-foreground/40 text-sm font-bold uppercase tracking-widest mt-1">Commercial SOP Collections</p>
           </div>
           <button 
             onClick={() => {
@@ -163,13 +163,13 @@ export default function SopPacketsPage() {
             <motion.div 
               key={packet._id}
               layout
-              className="bg-card glass-card rounded-2xl border border-white/5 group hover:border-gold/30 transition-all overflow-hidden flex flex-col"
+              className="bg-card glass-card rounded-2xl border border-foreground/5 group hover:border-gold/30 transition-all overflow-hidden flex flex-col"
             >
-              <div className="aspect-video bg-white/5 relative group-hover:scale-105 transition-transform duration-500">
+              <div className="aspect-video bg-foreground/5 relative group-hover:scale-105 transition-transform duration-500">
                 {packet.images && packet.images.length > 0 ? (
                   <img src={packet.images[0]} alt={packet.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-white/10">
+                  <div className="w-full h-full flex items-center justify-center text-foreground/10">
                     <ImageIcon size={48} />
                   </div>
                 )}
@@ -187,7 +187,7 @@ export default function SopPacketsPage() {
                       });
                       setIsModalOpen(true);
                     }}
-                    className="p-2 bg-black/50 backdrop-blur-md text-white/50 hover:text-gold rounded-lg transition-colors"
+                    className="p-2 bg-background/50 backdrop-blur-md text-foreground/50 hover:text-gold rounded-lg transition-colors"
                   >
                     <Edit size={16} />
                   </button>
@@ -196,7 +196,7 @@ export default function SopPacketsPage() {
                       e.stopPropagation();
                       handleDelete(packet._id);
                     }}
-                    className="p-2 bg-black/50 backdrop-blur-md text-white/50 hover:text-red-500 rounded-lg transition-colors"
+                    className="p-2 bg-background/50 backdrop-blur-md text-foreground/50 hover:text-red-500 rounded-lg transition-colors"
                   >
                     <Trash2 size={16} />
                   </button>
@@ -209,15 +209,15 @@ export default function SopPacketsPage() {
               <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
                 <div>
                   <h3 className="font-bold text-lg mb-1">{packet.name}</h3>
-                  <p className="text-white/40 text-xs line-clamp-2">{packet.description}</p>
+                  <p className="text-foreground/40 text-xs line-clamp-2">{packet.description}</p>
                 </div>
                 
-                <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                <div className="flex items-center justify-between pt-4 border-t border-foreground/5">
                   <div className="flex items-center gap-1 text-gold font-black">
                     <IndianRupee size={14} />
                     <span className="text-xl">{packet.price}</span>
                   </div>
-                  <div className="text-xs text-white/20 font-bold uppercase">
+                  <div className="text-xs text-foreground/20 font-bold uppercase">
                     {packet.images?.length || 0} Images
                   </div>
                 </div>
@@ -225,9 +225,9 @@ export default function SopPacketsPage() {
             </motion.div>
           ))}
           {packets.length === 0 && (
-            <div className="col-span-full py-20 text-center border-2 border-dashed border-white/5 rounded-3xl">
-              <Package size={48} className="mx-auto text-white/5 mb-4" />
-              <p className="text-white/20 font-bold uppercase tracking-widest">No packets found. Create your first one!</p>
+            <div className="col-span-full py-20 text-center border-2 border-dashed border-foreground/5 rounded-3xl">
+              <Package size={48} className="mx-auto text-foreground/5 mb-4" />
+              <p className="text-foreground/20 font-bold uppercase tracking-widest">No packets found. Create your first one!</p>
             </div>
           )}
         </div>
@@ -242,15 +242,15 @@ export default function SopPacketsPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsModalOpen(false)}
-              className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+              className="absolute inset-0 bg-background/90 backdrop-blur-sm"
             />
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-card glass-card w-full max-w-2xl rounded-[2.5rem] border border-white/10 p-10 relative z-10 shadow-2xl overflow-y-auto max-h-[90vh]"
+              className="bg-card glass-card w-full max-w-2xl rounded-[2.5rem] border border-foreground/10 p-10 relative z-10 shadow-2xl overflow-y-auto max-h-[90vh]"
             >
-              <button onClick={() => setIsModalOpen(false)} className="absolute top-8 right-8 text-white/20 hover:text-white">
+              <button onClick={() => setIsModalOpen(false)} className="absolute top-8 right-8 text-foreground/20 hover:text-foreground">
                 <X size={24} />
               </button>
               
@@ -261,26 +261,26 @@ export default function SopPacketsPage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-white/40">Packet Name</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-foreground/40">Packet Name</label>
                     <input 
                       type="text" 
                       value={formData.name}
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
                       placeholder="e.g. North Indian Gravy Masterclass"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all"
+                      className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all"
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-white/40">Price (INR)</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-foreground/40">Price (INR)</label>
                     <div className="relative">
-                      <IndianRupee size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" />
+                      <IndianRupee size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/20" />
                       <input 
                         type="number" 
                         value={formData.price}
                         onChange={(e) => setFormData({...formData, price: e.target.value})}
                         placeholder="999"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:border-gold/50 outline-none transition-all"
+                        className="w-full bg-foreground/5 border border-foreground/10 rounded-xl pl-10 pr-4 py-3 focus:border-gold/50 outline-none transition-all"
                         required
                       />
                     </div>
@@ -303,31 +303,31 @@ export default function SopPacketsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-white/40">Description (Optional)</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-foreground/40">Description (Optional)</label>
                   <textarea 
                     value={formData.description}
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
                     rows={4}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all resize-none text-sm"
+                    className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all resize-none text-sm"
                   />
                 </div>
 
                 <div className="space-y-4">
-                  <label className="text-xs font-black uppercase tracking-widest text-white/40">Images</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-foreground/40">Images</label>
                   <div className="grid grid-cols-4 gap-4">
                     {formData.images.map((img, idx) => (
-                      <div key={idx} className="aspect-square rounded-xl bg-white/5 relative group overflow-hidden">
+                      <div key={idx} className="aspect-square rounded-xl bg-foreground/5 relative group overflow-hidden">
                         <img src={img} className="w-full h-full object-cover" />
                         <button 
                           type="button"
                           onClick={() => removeImage(idx)}
-                          className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-red-500 transition-opacity"
+                          className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-red-500 transition-opacity"
                         >
                           <Trash2 size={20} />
                         </button>
                       </div>
                     ))}
-                    <label className="aspect-square rounded-xl border-2 border-dashed border-white/10 hover:border-gold/50 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all hover:bg-white/5 group">
+                    <label className="aspect-square rounded-xl border-2 border-dashed border-foreground/10 hover:border-gold/50 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all hover:bg-foreground/5 group">
                       <input 
                         type="file" 
                         className="hidden" 
@@ -339,8 +339,8 @@ export default function SopPacketsPage() {
                         <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin"></div>
                       ) : (
                         <>
-                          <Upload size={20} className="text-white/20 group-hover:text-gold" />
-                          <span className="text-[8px] font-black uppercase tracking-widest text-white/20 group-hover:text-gold">Upload</span>
+                          <Upload size={20} className="text-foreground/20 group-hover:text-gold" />
+                          <span className="text-[8px] font-black uppercase tracking-widest text-foreground/20 group-hover:text-gold">Upload</span>
                         </>
                       )}
                     </label>

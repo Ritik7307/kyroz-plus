@@ -88,14 +88,14 @@ export default function TestimonialsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-black tracking-tighter flex items-center gap-3">
               <MessageSquare className="text-gold" size={32} /> TESTIMONIALS
             </h1>
-            <p className="text-white/40 text-sm font-bold uppercase tracking-widest mt-1">Manage platform social proof</p>
+            <p className="text-foreground/40 text-sm font-bold uppercase tracking-widest mt-1">Manage platform social proof</p>
           </div>
           <button 
             onClick={() => {
@@ -114,7 +114,7 @@ export default function TestimonialsPage() {
             <motion.div 
               key={t._id}
               layout
-              className="bg-card glass-card p-8 rounded-3xl border border-white/5 relative group"
+              className="bg-card glass-card p-8 rounded-3xl border border-foreground/5 relative group"
             >
               <div className="absolute top-6 right-6 flex gap-2">
                 <button 
@@ -129,13 +129,13 @@ export default function TestimonialsPage() {
                     });
                     setIsModalOpen(true);
                   }}
-                  className="p-2 text-white/20 hover:text-gold transition-colors"
+                  className="p-2 text-foreground/20 hover:text-gold transition-colors"
                 >
                   <Edit size={18} />
                 </button>
                 <button 
                   onClick={() => handleDelete(t._id)}
-                  className="p-2 text-white/20 hover:text-red-500 transition-colors"
+                  className="p-2 text-foreground/20 hover:text-red-500 transition-colors"
                 >
                   <Trash2 size={18} />
                 </button>
@@ -143,18 +143,18 @@ export default function TestimonialsPage() {
 
               <Quote className="text-gold/20 mb-4" size={40} />
               
-              <p className="text-lg text-white/80 italic mb-8 leading-relaxed">"{t.content}"</p>
+              <p className="text-lg text-foreground/80 italic mb-8 leading-relaxed">"{t.content}"</p>
               
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
+                <div className="w-12 h-12 rounded-full bg-foreground/5 border border-foreground/10 flex items-center justify-center overflow-hidden">
                   {t.avatarUrl ? (
                     <img src={t.avatarUrl} alt={t.userName} className="w-full h-full object-cover" />
                   ) : (
-                    <UserIcon size={24} className="text-white/20" />
+                    <UserIcon size={24} className="text-foreground/20" />
                   )}
                 </div>
                 <div>
-                  <h4 className="font-bold text-white">{t.userName}</h4>
+                  <h4 className="font-bold text-foreground">{t.userName}</h4>
                   <p className="text-xs font-black uppercase tracking-widest text-gold">{t.userRole}</p>
                 </div>
                 <div className="ml-auto flex gap-1">
@@ -162,7 +162,7 @@ export default function TestimonialsPage() {
                     <Star 
                       key={i} 
                       size={12} 
-                      className={i < t.rating ? "text-gold fill-gold" : "text-white/10"} 
+                      className={i < t.rating ? "text-gold fill-gold" : "text-foreground/10"} 
                     />
                   ))}
                 </div>
@@ -181,15 +181,15 @@ export default function TestimonialsPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsModalOpen(false)}
-              className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+              className="absolute inset-0 bg-background/90 backdrop-blur-sm"
             />
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-card glass-card w-full max-w-xl rounded-[2.5rem] border border-white/10 p-10 relative z-10 shadow-2xl"
+              className="bg-card glass-card w-full max-w-xl rounded-[2.5rem] border border-foreground/10 p-10 relative z-10 shadow-2xl"
             >
-              <button onClick={() => setIsModalOpen(false)} className="absolute top-8 right-8 text-white/20 hover:text-white">
+              <button onClick={() => setIsModalOpen(false)} className="absolute top-8 right-8 text-foreground/20 hover:text-foreground">
                 <X size={24} />
               </button>
               
@@ -200,50 +200,50 @@ export default function TestimonialsPage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-white/40">User Name</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-foreground/40">User Name</label>
                     <input 
                       type="text" 
                       value={formData.userName}
                       onChange={(e) => setFormData({...formData, userName: e.target.value})}
                       placeholder="e.g. Rahul Sharma"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all"
+                      className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all"
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-white/40">User Role</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-foreground/40">User Role</label>
                     <input 
                       type="text" 
                       value={formData.userRole}
                       onChange={(e) => setFormData({...formData, userRole: e.target.value})}
                       placeholder="e.g. Restaurant Owner"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all"
+                      className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all"
                       required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-white/40">Testimonial Content</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-foreground/40">Testimonial Content</label>
                   <textarea 
                     value={formData.content}
                     onChange={(e) => setFormData({...formData, content: e.target.value})}
                     rows={4}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all resize-none text-sm"
+                    className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all resize-none text-sm"
                     required
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-white/40">Rating (1-5)</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-foreground/40">Rating (1-5)</label>
                     <div className="flex gap-4 items-center h-[50px]">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
                           key={star}
                           type="button"
                           onClick={() => setFormData({...formData, rating: star})}
-                          className={`transition-all ${formData.rating >= star ? 'text-gold' : 'text-white/10'}`}
+                          className={`transition-all ${formData.rating >= star ? 'text-gold' : 'text-foreground/10'}`}
                         >
                           <Star size={24} fill={formData.rating >= star ? 'currentColor' : 'none'} />
                         </button>
@@ -251,13 +251,13 @@ export default function TestimonialsPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-white/40">Avatar URL (Optional)</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-foreground/40">Avatar URL (Optional)</label>
                     <input 
                       type="text" 
                       value={formData.avatarUrl}
                       onChange={(e) => setFormData({...formData, avatarUrl: e.target.value})}
                       placeholder="https://..."
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all"
+                      className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all"
                     />
                   </div>
                 </div>
