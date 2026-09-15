@@ -73,6 +73,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'SOP Packets', path: '/admin/packets' },
     { name: 'Testimonials', path: '/admin/testimonials' },
     { name: 'User Management', path: '/admin/users' },
+    { name: 'Costing Master', path: '/admin/costing-master' },
     { name: 'Settings', path: '/admin/settings' },
   ];
 
