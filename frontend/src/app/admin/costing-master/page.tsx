@@ -5,30 +5,46 @@ import { Save, FileJson, AlertTriangle } from 'lucide-react';
 import { API_URL } from '@/lib/api';
 
 const COSTING_TEMPLATE = {
+  "rawMaterials": [
+    { "code": "RM_CHICKEN", "name": "Chicken", "consumptionUnit": "gm", "purchaseUnit": "kg", "costPerPurchaseUnit": 250, "conversionFactor": 1000 },
+    { "code": "RM_BASMATI_RICE", "name": "Long Grain Basmati Rice", "consumptionUnit": "gm", "purchaseUnit": "kg", "costPerPurchaseUnit": 110, "conversionFactor": 1000 }
+  ],
+  "semiFinishedGoods": [
+    { "code": "SFG_70_BOILED_RICE", "name": "70% Boiled Rice", "batchYield": 2200, "yieldUnit": "gm" }
+  ],
+  "sfgRecipes": [
+    {
+      "sfgName": "70% Boiled Rice",
+      "ingredients": [
+        { "name": "Long Grain Basmati Rice", "quantity": 1000 }
+      ],
+      "targetYield": 2200,
+      "operationalYield": 2200
+    }
+  ],
+  "portionMasters": [
+    { "code": "PT_COOKED_BIRYANI", "name": "Cooked Biryani Portion", "sfgName": "70% Boiled Rice", "quantity": 270, "unit": "gm" }
+  ],
+  "packaging": [
+    { "code": "PKG_BIRYANI_CONTAINER", "name": "Biryani Container", "unit": "pc", "costPerUnit": 15 }
+  ],
   "dishes": [
     {
-      "dishName": "Example Dish",
-      "category": "Starter",
-      "ingredients": [
-        {
-          "name": "Chicken",
-          "quantity": 200,
-          "unit": "g",
-          "rateUnit": "kg",
-          "purchasePrice": 250
-        }
+      "name": "Shahi Lucknowi Biryani",
+      "category": "Biryani",
+      "price": 299,
+      "recipeIngredients": [
+        { "name": "Cooked Biryani Portion", "quantity": 1 }
       ],
-      "packaging": {
+      "packagingLogic": {
         "dineIn": [],
         "takeaway": [
-          {
-            "name": "Container",
-            "quantity": 1,
-            "price": 10
-          }
+          { "name": "Biryani Container", "quantity": 1 }
+        ],
+        "delivery": [
+          { "name": "Biryani Container", "quantity": 1 }
         ]
-      },
-      "suggestedPrice": 300
+      }
     }
   ]
 };
