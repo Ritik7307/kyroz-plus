@@ -89,7 +89,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="flex items-center gap-6">
           <button 
             onClick={() => setIsSidebarOpen(true)} 
-            className="text-foreground/40 hover:text-gold p-3 hover:bg-foreground/5 rounded-2xl transition-all"
+            className="text-foreground/70 hover:text-gold p-3 hover:bg-foreground/5 rounded-2xl transition-all"
           >
             <Menu size={24} />
           </button>
@@ -115,7 +115,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 className={`transition-all pb-2 border-b-2 ${
                   pathname === link.path 
                     ? 'text-gold border-gold' 
-                    : 'text-foreground/50 hover:text-foreground border-transparent'
+                    : 'text-foreground/70 hover:text-foreground border-transparent'
                 }`}
               >
                 {link.name}
@@ -126,10 +126,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex items-center gap-6 border-l border-foreground/5 pl-12">
             <button 
               onClick={() => setIsSearchOpen(true)}
-              className="p-3 bg-foreground/5 hover:bg-foreground/10 rounded-2xl text-foreground/40 hover:text-gold transition-all flex items-center gap-3 border border-foreground/5"
+              className="p-3 bg-foreground/5 hover:bg-foreground/10 rounded-2xl text-foreground/70 hover:text-gold transition-all flex items-center gap-3 border border-foreground/5"
             >
               <SearchIcon size={18} />
-              <div className="hidden xl:flex items-center gap-1.5 opacity-40 text-[10px] font-black uppercase">
+              <div className="hidden xl:flex items-center gap-1.5 opacity-70 text-[10px] font-black uppercase">
                 <Command size={10} /> K
               </div>
             </button>
