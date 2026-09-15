@@ -85,17 +85,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} userRole="admin" />
 
       {/* Top Header */}
-      <header className="h-24 border-b border-white/5 bg-background/50 backdrop-blur-xl sticky top-0 z-50 px-6 md:px-12 flex items-center justify-between">
+      <header className="h-24 border-b border-foreground/5 bg-background/50 backdrop-blur-xl sticky top-0 z-50 px-6 md:px-12 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <button 
             onClick={() => setIsSidebarOpen(true)} 
-            className="text-white/40 hover:text-gold p-3 hover:bg-white/5 rounded-2xl transition-all"
+            className="text-foreground/40 hover:text-gold p-3 hover:bg-foreground/5 rounded-2xl transition-all"
           >
             <Menu size={24} />
           </button>
           
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gold-gradient rounded-2xl flex items-center justify-center shadow-[0_10px_30px_rgba(212,175,55,0.2)] border border-white/10">
+            <div className="w-12 h-12 bg-gold-gradient rounded-2xl flex items-center justify-center shadow-[0_10px_30px_rgba(212,175,55,0.2)] border border-foreground/10">
               <ShieldCheck size={24} className="text-black" />
             </div>
             <div className="hidden sm:block">
@@ -115,7 +115,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 className={`transition-all pb-2 border-b-2 ${
                   pathname === link.path 
                     ? 'text-gold border-gold' 
-                    : 'text-white/30 hover:text-white border-transparent'
+                    : 'text-foreground/50 hover:text-foreground border-transparent'
                 }`}
               >
                 {link.name}
@@ -123,10 +123,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             ))}
           </nav>
 
-          <div className="flex items-center gap-6 border-l border-white/5 pl-12">
+          <div className="flex items-center gap-6 border-l border-foreground/5 pl-12">
             <button 
               onClick={() => setIsSearchOpen(true)}
-              className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-white/40 hover:text-gold transition-all flex items-center gap-3 border border-white/5"
+              className="p-3 bg-foreground/5 hover:bg-foreground/10 rounded-2xl text-foreground/40 hover:text-gold transition-all flex items-center gap-3 border border-foreground/5"
             >
               <SearchIcon size={18} />
               <div className="hidden xl:flex items-center gap-1.5 opacity-40 text-[10px] font-black uppercase">
