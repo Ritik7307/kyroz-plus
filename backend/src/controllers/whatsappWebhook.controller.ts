@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import axios from 'axios';
 import WhatsAppOptOut from '../models/WhatsAppOptOut';
 import PurchaseReminder from '../models/PurchaseReminder';
+import OnboardingReminder from '../models/OnboardingReminder';
 
 // Get these from env variables (we will add them to .env)
 // For now, we fall back to placeholders so the code runs.
@@ -159,29 +160,43 @@ export const sendWhatsAppDocument = async (toPhone: string, mediaId: string, cap
 // In-memory cache to prevent processing duplicate messages from Meta webhooks
 const processedMessageIds = new Set<string>();
 
-// Map to keep track of reminder timeouts for each phone number
-const formReminders = new Map<string, NodeJS.Timeout>();
-
 // Exported function so googleForm.controller.ts can cancel the reminder when the form is submitted
-export const clearFormReminder = (phone: string) => {
-  if (formReminders.has(phone)) {
-    clearTimeout(formReminders.get(phone));
-    formReminders.delete(phone);
-    console.log(`[REMINDER CANCELLED] User ${phone} submitted the form.`);
+export const clearFormReminder = async (phone: string) => {
+  try {
+    const result = await OnboardingReminder.updateMany(
+      { phone, status: 'PENDING' },
+      { $set: { status: 'CANCELLED' } }
+    );
+    if (result.modifiedCount > 0) {
+      console.log(`[REMINDER CANCELLED] User ${phone} submitted the form. Cancelled ${result.modifiedCount} reminders.`);
+    }
+  } catch (err) {
+    console.error(`Error cancelling form reminder for ${phone}:`, err);
   }
 };
 
-const setReminder = (phone: string, text: string) => {
-  // Clear any existing reminder for this phone number
-  clearFormReminder(phone);
-  
-  // Set a new reminder for 1 hour (60 * 60 * 1000 ms)
-  const timeoutId = setTimeout(async () => {
-    await sendWhatsAppMessage(phone, text);
-    formReminders.delete(phone);
-  }, 60 * 60 * 1000); 
-  
-  formReminders.set(phone, timeoutId);
+const setReminder = async (phone: string, text: string) => {
+  try {
+    // Clear any existing pending reminder for this phone number
+    await OnboardingReminder.updateMany(
+      { phone, status: 'PENDING' },
+      { $set: { status: 'CANCELLED' } }
+    );
+    
+    // Set a new reminder for 1 hour
+    const reminderTime = new Date(Date.now() + 60 * 60 * 1000);
+    
+    await OnboardingReminder.create({
+      phone,
+      reminderTime,
+      messageText: text,
+      status: 'PENDING'
+    });
+    
+    console.log(`[REMINDER SET] Onboarding reminder set for ${phone} at ${reminderTime}`);
+  } catch (err) {
+    console.error(`Error setting reminder for ${phone}:`, err);
+  }
 };
 
 export const handleIncomingMessage = async (req: Request, res: Response) => {
@@ -291,7 +306,7 @@ export const handleIncomingMessage = async (req: Request, res: Response) => {
                 await sendWhatsAppMessage(from, reply);
                 
                 // Set a reminder specifically for not filling the form after clicking 1
-                setReminder(from, `Hi! ⏳\n\nLagta hai aapne apna Restaurant Assessment abhi tak complete nahi kiya hai. Sirf 3 minute lagte hain aur ye aapke restaurant ke growth me bahut madad karega.\n\n🔗 Link: ${GOOGLE_FORM_LINK}`);
+                await setReminder(from, `Hi! ⏳\n\nLagta hai aapne apna Restaurant Assessment abhi tak complete nahi kiya hai. Sirf 3 minute lagte hain aur ye aapke restaurant ke growth me bahut madad karega.\n\n🔗 Link: ${GOOGLE_FORM_LINK}`);
                 
               } else if (text === '2' || text === '2️⃣') {
                 const reply = `KYROZ+ kya hai?\n\nKYROZ+ ek Restaurant Systemization Platform hai jo growing restaurants ke kitchen aur operations ko system par lane me help karta hai.\n\nAgar aapko lagta hai ki:\n✔ Taste har baar same nahi rehta\n✔ Chef ke bina restaurant chalana mushkil hai\n✔ Naye staff ko training dene me prompt lagta hai\n✔ Food cost aur wastage control nahi ho pata\n✔ Owner ko har chhoti-badi cheez dekhni padti hai\n\nTo KYROZ+ aapke liye useful ho sakta hai.\nKYROZ+ ka uddeshya restaurant ko logon par nahi, systems par chalana hai.\n\nAgar aap dekhna chahte hain ki KYROZ+ aapke restaurant me kitna useful ho sakta hai, to niche diye gaye option ka chunav karein:\n\n1️⃣ Start Assessment\n3️⃣ Demo Request`;
@@ -301,7 +316,7 @@ export const handleIncomingMessage = async (req: Request, res: Response) => {
                 await sendWhatsAppMessage(from, reply);
                 
                 // Set a reminder for the demo request form
-                setReminder(from, `Hi! ⏳\n\nAapne Demo Request kiya tha, par assessment abhi tak pending hai. Demo schedule karne ke liye is form ko bharna zaroori hai.\n\n🔗 Link: ${GOOGLE_FORM_LINK}`);
+                await setReminder(from, `Hi! ⏳\n\nAapne Demo Request kiya tha, par assessment abhi tak pending hai. Demo schedule karne ke liye is form ko bharna zaroori hai.\n\n🔗 Link: ${GOOGLE_FORM_LINK}`);
                 
               } else if (text.includes('purchase the following sop packets') || text.includes('order details:')) {
                 const reply = `Thank you for your order! 🙏\n\nWe have received your request for the SOP Packets. Our team will review the details and contact you shortly to process the payment and deliver your files.\n\nIf you have any urgent queries, please wait for our admin to reply.`;
@@ -312,7 +327,7 @@ export const handleIncomingMessage = async (req: Request, res: Response) => {
                 await sendWhatsAppMessage(from, reply);
                 
                 // Set a generic reminder for first contact
-                setReminder(from, `Hi! 👋\n\nHumne aapko kuch options bheje the. Agar aap KYROZ+ ka free assessment try karna chahte hain, to bas "1" reply karein!\n\n🔗 Direct Link: ${GOOGLE_FORM_LINK}`);
+                await setReminder(from, `Hi! 👋\n\nHumne aapko kuch options bheje the. Agar aap KYROZ+ ka free assessment try karna chahte hain, to bas "1" reply karein!\n\n🔗 Direct Link: ${GOOGLE_FORM_LINK}`);
               }
             }
           }
