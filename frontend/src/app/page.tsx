@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { API_URL } from '@/lib/api';
 
 async function getPricingConfig() {
@@ -38,52 +39,53 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-[#d4af37] selection:text-black">
-      {/* Navigation */}
-      <nav className="flex items-center justify-between px-6 md:px-12 py-6 border-b border-[#222]">
+      {/* 1. Header */}
+      <nav className="flex items-center justify-between px-4 md:px-12 py-6 border-b border-[#222]">
         <div className="flex items-center gap-2">
-          <span className="text-2xl font-extrabold tracking-tighter text-[#d4af37]">KYROZ-PLUS</span>
+          <span className="text-xl md:text-2xl font-extrabold tracking-tighter text-[#d4af37] whitespace-nowrap">KYROZ+</span>
         </div>
         <div className="hidden md:flex gap-8 text-sm font-medium text-gray-300">
-          <Link href="#features" className="hover:text-[#d4af37] transition">Features</Link>
-          <Link href="#solution" className="hover:text-[#d4af37] transition">Solution</Link>
+          <Link href="#how-it-works" className="hover:text-[#d4af37] transition">How it works</Link>
+          <Link href="#features" className="hover:text-[#d4af37] transition">Solution</Link>
           <Link href="#pricing" className="hover:text-[#d4af37] transition">Pricing</Link>
         </div>
-        <div className="flex gap-4">
-          <Link href="/login" className="px-5 py-2 text-sm font-medium hover:text-[#d4af37] transition">Log in</Link>
-          <Link href="/signup" className="px-5 py-2 text-sm font-medium bg-[#d4af37] text-black rounded-full hover:bg-[#c5a028] transition shadow-[0_0_15px_rgba(212,175,55,0.3)]">Get Started</Link>
+        <div className="flex gap-2 md:gap-4 items-center">
+          <Link href="/login" className="px-3 md:px-5 py-2 text-sm font-medium hover:text-[#d4af37] transition whitespace-nowrap">Log in</Link>
+          <Link href="/signup" className="px-4 md:px-5 py-2 text-sm font-medium bg-[#d4af37] text-black rounded-full hover:bg-[#c5a028] transition shadow-[0_0_15px_rgba(212,175,55,0.3)] whitespace-nowrap">Get Started</Link>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6 overflow-hidden">
+      {/* 2. Hero Section */}
+      <section className="relative pt-16 md:pt-48 pb-12 md:pb-24 px-6 overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#d4af37]/5 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <div className="inline-block mb-6 px-4 py-1.5 rounded-full border border-[#d4af37]/30 bg-[#d4af37]/10 text-[#d4af37] text-xs font-semibold tracking-wide uppercase">
-            KYROZ: Your Growth Partner in Restaurant Excellence
+            KYROZ+: YOUR GROWTH PARTNER IN RESTAURANT EXCELLENCE
           </div>
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-tight">
-            Standardize. Optimize. <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-[#f3e5ab]">Scale.</span>
+          <h1 className="text-4xl md:text-7xl font-extrabold tracking-tight mb-8 leading-tight">
+            Staff on leave? <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-[#f3e5ab]">Your kitchen shouldn't stop.</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-            The AI-powered restaurant operating system. Reduce chef dependency, control food costs, and enforce SOPs effortlessly.
+            KYROZ+ standardizes your base gravy, recipes and SOPs so a trained fresher can run your kitchen. No head chef needed. Your own brand. Your signature taste. No franchise fee. No royalty.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/signup" className="w-full sm:w-auto px-8 py-4 bg-[#d4af37] text-black font-bold rounded-full hover:bg-[#c5a028] transition shadow-[0_0_20px_rgba(212,175,55,0.4)] text-lg">
-              Start Free Trial
-            </Link>
-            <Link href="#solution" className="w-full sm:w-auto px-8 py-4 bg-transparent border border-[#333] text-white font-bold rounded-full hover:bg-[#111] transition text-lg">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+            <Link href="#how-it-works" className="w-full sm:w-auto px-8 py-4 bg-transparent border border-[#333] text-white font-bold rounded-full hover:bg-[#111] transition text-lg whitespace-nowrap">
               See How It Works
             </Link>
           </div>
+          {/* 3. Proof strip */}
+          <p className="text-sm text-gray-500 max-w-xl mx-auto">
+            Built inside a real restaurant. At Hungry Mak's, freshers trained for one week now handle the kitchen, and the owner stays free-minded.
+          </p>
         </div>
       </section>
 
-      {/* Problem Section */}
-      <section className="py-24 bg-[#0a0a0a] px-6">
+      {/* 4. Problem Section */}
+      <section className="py-20 bg-[#0a0a0a] px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Running a restaurant is chaos.</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-lg">You shouldn't have to be held hostage by your head chef or lose margins to uncontrolled wastage.</p>
+            <p className="text-gray-400 max-w-2xl mx-auto text-lg">You shouldn't be held hostage by your head chef or lose margins to uncontrolled wastage.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="p-8 border border-[#222] bg-[#111] rounded-2xl">
@@ -94,30 +96,118 @@ export default async function Home() {
             <div className="p-8 border border-[#222] bg-[#111] rounded-2xl">
               <div className="text-[#d4af37] text-4xl mb-4">📉</div>
               <h3 className="text-xl font-bold mb-3">Hidden Food Costs</h3>
-              <p className="text-gray-400">Unmeasured wastage and inaccurate costing kill your profit margins silently every single day.</p>
+              <p className="text-gray-400">Unmeasured wastage and inaccurate costing hurt your profit margins every single day.</p>
             </div>
             <div className="p-8 border border-[#222] bg-[#111] rounded-2xl">
-              <div className="text-[#d4af37] text-4xl mb-4">🤯</div>
-              <h3 className="text-xl font-bold mb-3">Operational Chaos</h3>
-              <p className="text-gray-400">Staff discipline and daily routines are hard to enforce without a centralized operating system.</p>
+              <div className="text-[#d4af37] text-4xl mb-4">🚪</div>
+              <h3 className="text-xl font-bold mb-3">Sudden Staff Leave</h3>
+              <p className="text-gray-400">When several staff go on leave at once, the kitchen stops. Your business shouldn't depend on any one person.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Solution Section (Features) */}
+      {/* 5. How it works */}
+      <section id="how-it-works" className="py-20 px-6 relative">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-5xl font-bold mb-16">One system. Four simple steps.</h2>
+          
+          <div className="space-y-8 text-left">
+            <div className="bg-[#111] border border-[#222] p-6 rounded-2xl flex flex-col md:flex-row gap-6 items-start md:items-center">
+              <div className="w-12 h-12 rounded-full bg-[#d4af37] text-black font-bold text-xl flex items-center justify-center shrink-0">1</div>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-2">Morning:</h3>
+                <p className="text-gray-400">A kitchen helper prepares KYROZ+ Base in small batches from the standard formula.</p>
+              </div>
+            </div>
+            
+            <div className="bg-[#111] border border-[#222] p-6 rounded-2xl flex flex-col md:flex-row gap-6 items-start md:items-center">
+              <div className="w-12 h-12 rounded-full bg-[#d4af37] text-black font-bold text-xl flex items-center justify-center shrink-0">2</div>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-2">Service:</h3>
+                <p className="text-gray-400">Your staff finish each dish with your own signature taste, written in your recipe.</p>
+              </div>
+            </div>
+
+            <div className="bg-[#111] border border-[#222] p-6 rounded-2xl flex flex-col md:flex-row gap-6 items-start md:items-center">
+              <div className="w-12 h-12 rounded-full bg-[#d4af37] text-black font-bold text-xl flex items-center justify-center shrink-0">3</div>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-2">Control:</h3>
+                <p className="text-gray-400">Software tracks costing, wastage, inventory and billing.</p>
+              </div>
+            </div>
+
+            <div className="bg-[#111] border border-[#222] p-6 rounded-2xl flex flex-col md:flex-row gap-6 items-start md:items-center">
+              <div className="w-12 h-12 rounded-full bg-[#d4af37] text-black font-bold text-xl flex items-center justify-center shrink-0">4</div>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-2">New staff?</h3>
+                <p className="text-gray-400">The SOP library and KYROZ KOSA help you train them quickly.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Founder box */}
+      <section className="py-20 bg-[#0a0a0a] px-6">
+        <div className="max-w-4xl mx-auto bg-gradient-to-br from-[#1a1505] to-[#111] border border-[#d4af37]/30 rounded-3xl p-8 md:p-12 shadow-[0_0_40px_rgba(212,175,55,0.05)]">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-8 text-center md:text-left">A note from the founder</h2>
+          
+          <div className="flex flex-col md:flex-row gap-8 items-start mb-10 border-b border-white/10 pb-10">
+            <div className="w-32 h-40 md:w-48 md:h-60 rounded-2xl bg-[#222] shrink-0 border border-[#333] flex items-center justify-center mx-auto md:mx-0 overflow-hidden relative">
+               <Image src="/founder.jpg" alt="Mohd Arif Kamal - Founder" fill className="object-cover object-top" />
+            </div>
+            <div>
+              <div className="text-gray-300 leading-relaxed space-y-4">
+                <p>I run a spice manufacturing company, Aroma Agro International, and a restaurant, Hungry Mak's. In my own kitchen I faced what every owner faces: dependence on chefs, changing taste, cost leakage, and the stress when several staff suddenly take leave.</p>
+                <p>So I built a system: a standard base formula, recipes with SOPs, and software. At Hungry Mak's, freshers trained for one week now handle the kitchen, and I don't worry about who is on leave.</p>
+                <p>KYROZ+ is that system, made for your restaurant. Your brand stays yours. No franchise fee. No royalty. We charge only for the product and the software, and we help you with training and kitchen setup.</p>
+              </div>
+              <div className="mt-6 text-[#d4af37] font-bold">
+                Mohd Arif Kamal
+                <span className="block text-sm text-gray-500 font-normal">Founder, KYROZ+</span>
+                <a href="https://wa.me/918874581717" target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/20 rounded-full hover:bg-[#25D366]/20 transition text-sm font-medium">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
+                  </svg>
+                  Chat with us on WhatsApp
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 mb-10">
+            <div>
+              <h3 className="text-[#d4af37] font-bold uppercase tracking-wider text-sm mb-3">Vision</h3>
+              <p className="text-gray-400 italic text-sm">"Every restaurant runs on systems, not on individuals. Great food and consistent quality should never depend on one chef or one employee."</p>
+            </div>
+            <div>
+              <h3 className="text-[#d4af37] font-bold uppercase tracking-wider text-sm mb-3">Mission</h3>
+              <p className="text-gray-400 italic text-sm">"To give restaurant owners a practical kitchen system, made of standard base formulas, SOPs and software, so they can control costs, train new staff quickly and grow under their own brand and signature taste."</p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-3 text-sm font-medium">
+            <span className="px-4 py-2 bg-black/50 border border-[#333] rounded-full text-gray-300">• Your brand stays yours.</span>
+            <span className="px-4 py-2 bg-black/50 border border-[#333] rounded-full text-gray-300">• No franchise fee. No royalty.</span>
+            <span className="px-4 py-2 bg-black/50 border border-[#333] rounded-full text-gray-300">• Built and tested in a real kitchen.</span>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. Meet KYROZ KOSA */}
       <section id="features" className="py-24 px-6 relative">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center gap-16">
             <div className="flex-1">
               <h2 className="text-3xl md:text-5xl font-bold mb-6">Meet KYROZ KOSA. <br /><span className="text-[#d4af37]">Your AI Consultant.</span></h2>
               <p className="text-gray-400 text-lg mb-8 leading-relaxed">
-                Stop guessing. Ask KYROZ. Our RAG-powered AI ingests your specific SOPs, recipes, and costing files to give you precise, actionable answers instantly.
+                Stop guessing. Ask KOSA. It answers from SOPs, recipes and costing files.
               </p>
               <ul className="space-y-4">
                 <li className="flex items-center gap-3">
                   <div className="w-6 h-6 rounded-full bg-[#d4af37]/20 flex items-center justify-center text-[#d4af37]">✓</div>
-                  <span className="text-gray-300">Instant answers from your SOP Library</span>
+                  <span className="text-gray-300">Instant answers from SOP Library</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <div className="w-6 h-6 rounded-full bg-[#d4af37]/20 flex items-center justify-center text-[#d4af37]">✓</div>
@@ -132,11 +222,11 @@ export default async function Home() {
             <div className="flex-1 w-full">
               <div className="bg-[#111] border border-[#333] rounded-2xl p-6 shadow-2xl relative">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#d4af37] to-transparent opacity-50"></div>
-                <div className="flex gap-3 mb-6 border-b border-[#222] pb-4">
+                <div className="flex gap-3 mb-6 border-b border-[#222] pb-4 items-center">
                   <div className="w-10 h-10 rounded-full bg-[#d4af37] flex items-center justify-center font-bold text-black text-xl">K</div>
                   <div>
-                    <h4 className="font-bold text-white">KYROZ AI</h4>
-                    <p className="text-xs text-gray-500">Always active</p>
+                    <h4 className="font-bold text-white">KYROZ KOSA</h4>
+                    <p className="text-xs text-gray-500">Example</p>
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -144,8 +234,7 @@ export default async function Home() {
                     What is the standard marination time for the house chicken tikka?
                   </div>
                   <div className="bg-[#d4af37]/10 border border-[#d4af37]/30 rounded-xl p-4 mr-auto w-[90%] text-sm text-[#d4af37]">
-                    <span className="block font-bold mb-1">Problem → Rule → Solution</span>
-                    Based on [Dish SOP - Chicken Tikka v2], the standard marination time is strictly 6 hours. Do not exceed 8 hours to prevent texture degradation.
+                    Based on the Hungry Mak's SOP, the standard marination time is strictly 6 hours. Do not exceed 8 hours to prevent texture degradation.
                   </div>
                 </div>
               </div>
@@ -154,16 +243,78 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-24 bg-[#0a0a0a] px-6">
+      {/* 8. Why KYROZ+ (comparison table) */}
+      <section className="py-20 bg-[#0a0a0a] px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">Franchise-style support. Without the franchise.</h2>
+          </div>
+          
+          <div className="overflow-x-auto mb-12">
+            <table className="w-full text-left border-collapse min-w-[600px]">
+              <thead>
+                <tr>
+                  <th className="p-4 border-b border-[#333] text-gray-500 w-1/3"></th>
+                  <th className="p-4 border-b border-[#333] text-white font-bold text-lg w-1/3">Typical franchise</th>
+                  <th className="p-4 border-b border-[#333] text-[#d4af37] font-bold text-lg w-1/3">KYROZ+</th>
+                </tr>
+              </thead>
+              <tbody className="text-gray-300">
+                <tr>
+                  <td className="p-4 border-b border-[#222] font-medium">Franchise fee</td>
+                  <td className="p-4 border-b border-[#222]">Yes</td>
+                  <td className="p-4 border-b border-[#222] text-[#d4af37] font-bold">None</td>
+                </tr>
+                <tr>
+                  <td className="p-4 border-b border-[#222] font-medium">Monthly royalty</td>
+                  <td className="p-4 border-b border-[#222]">Yes</td>
+                  <td className="p-4 border-b border-[#222] text-[#d4af37] font-bold">None</td>
+                </tr>
+                <tr>
+                  <td className="p-4 border-b border-[#222] font-medium">Brand name</td>
+                  <td className="p-4 border-b border-[#222]">Franchisor's</td>
+                  <td className="p-4 border-b border-[#222] text-[#d4af37] font-bold">Yours</td>
+                </tr>
+                <tr>
+                  <td className="p-4 border-b border-[#222] font-medium">Taste</td>
+                  <td className="p-4 border-b border-[#222]">Fixed by franchisor</td>
+                  <td className="p-4 border-b border-[#222] text-[#d4af37] font-bold">Your signature taste</td>
+                </tr>
+                <tr>
+                  <td className="p-4 border-b border-[#222] font-medium">Training and kitchen setup</td>
+                  <td className="p-4 border-b border-[#222]">Yes</td>
+                  <td className="p-4 border-b border-[#222] text-[#d4af37] font-bold">Yes</td>
+                </tr>
+                <tr>
+                  <td className="p-4 border-b border-[#222] font-medium">Software</td>
+                  <td className="p-4 border-b border-[#222]">Varies</td>
+                  <td className="p-4 border-b border-[#222] text-[#d4af37] font-bold">Included</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <ul className="space-y-4 max-w-2xl mx-auto bg-[#111] p-8 rounded-2xl border border-[#222]">
+            <li className="flex items-center gap-3 text-lg text-gray-300"><span className="text-[#d4af37]">✔</span> Base formula + SOP + Software</li>
+            <li className="flex items-center gap-3 text-lg text-gray-300"><span className="text-[#d4af37]">✔</span> Less dependence on a head chef</li>
+            <li className="flex items-center gap-3 text-lg text-gray-300"><span className="text-[#d4af37]">✔</span> Consistent quality, your signature taste</li>
+            <li className="flex items-center gap-3 text-lg text-gray-300"><span className="text-[#d4af37]">✔</span> Track and control food cost</li>
+            <li className="flex items-center gap-3 text-lg text-gray-300"><span className="text-[#d4af37]">✔</span> Track wastage</li>
+            <li className="flex items-center gap-3 text-lg text-gray-300"><span className="text-[#d4af37]">✔</span> See where your profit comes from</li>
+          </ul>
+        </div>
+      </section>
+
+      {/* 9. Pricing Section */}
+      <section id="pricing" className="py-24 px-6 relative">
         <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">Simple, transparent pricing.</h2>
-          <p className="text-gray-400 mb-16 text-lg">Scale your restaurant operations without breaking the bank.</p>
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">Simple pricing. No franchise fee. No royalty.</h2>
+          <p className="text-gray-400 mb-16 text-lg">Your brand. Your signature taste. We give you the system.</p>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto text-left mb-16">
             {/* Starter Plan */}
             <div className="bg-[#111] border border-[#222] rounded-3xl p-8 hover:border-[#444] transition flex flex-col">
-              <h3 className="text-xl font-bold text-white mb-2 uppercase tracking-widest">KYROZ STARTER</h3>
+              <h3 className="text-xl font-bold text-white mb-2 uppercase tracking-widest">KYROZ Starter</h3>
               <div className="flex flex-col mb-6">
                 <span className="text-xl font-bold text-gray-500 line-through">₹1,999</span>
                 <div className="flex items-baseline gap-2">
@@ -172,32 +323,33 @@ export default async function Home() {
                 </div>
                 <span className="text-[#d4af37] text-sm font-bold mt-1">Founding Member Price</span>
               </div>
+              <p className="text-gray-400 text-sm mb-6 pb-6 border-b border-[#222]">Billing and team control.</p>
               <div className="mb-6">
                 <h4 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-2">Best For:</h4>
                 <ul className="text-sm text-gray-400 space-y-1">
-                  <li>• New Restaurant</li>
-                  <li>• Cafe</li>
-                  <li>• Single Cuisine Setup</li>
-                  <li>• Small Outlet</li>
+                  <li>• New restaurant</li>
+                  <li>• Café</li>
+                  <li>• Single cuisine setup</li>
+                  <li>• Small outlet</li>
                 </ul>
               </div>
               <div className="mb-8 flex-1">
                 <h4 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-3">Includes:</h4>
                 <ul className="space-y-3">
-                  {['POS Terminal', 'KOT Display', 'WhatsApp Billing', 'Customer Directory', 'Sales Analytics', 'Team Management', '1 Cuisine SOP Library Access', 'Premix Purchase Access', 'Basic Support'].map(feature => (
+                  {['POS Terminal', 'KOT Display', 'WhatsApp Billing', 'Customer Directory', 'Sales Analytics', 'Team Management', '1 Cuisine SOP Library Access'].map(feature => (
                     <li key={feature} className="flex items-start gap-3 text-sm text-gray-300">
                       <span className="text-[#d4af37]">✓</span> {feature}
                     </li>
                   ))}
                 </ul>
               </div>
-              <Link href="/signup" className="w-full block text-center py-3 rounded-xl border border-[#333] hover:bg-[#222] transition font-medium">Get Starter</Link>
+              <Link href="/signup" className="w-full block text-center py-3 rounded-xl border border-[#333] hover:bg-[#222] transition font-medium">Get Started</Link>
             </div>
 
             {/* Premium Plan */}
             <div className="bg-gradient-to-b from-[#1a1505] to-[#111] border border-[#d4af37]/50 rounded-3xl p-8 relative transform md:-translate-y-4 shadow-[0_10px_40px_rgba(212,175,55,0.15)] flex flex-col">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#d4af37] text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Most Popular</div>
-              <h3 className="text-xl font-bold text-[#d4af37] mb-2 uppercase tracking-widest">KYROZ PREMIUM</h3>
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#d4af37] text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Recommended</div>
+              <h3 className="text-xl font-bold text-[#d4af37] mb-2 uppercase tracking-widest">KYROZ Premium</h3>
               <div className="flex flex-col mb-6">
                 <span className="text-xl font-bold text-gray-500 line-through">₹4,999</span>
                 <div className="flex items-baseline gap-2">
@@ -206,12 +358,13 @@ export default async function Home() {
                 </div>
                 <span className="text-[#d4af37] text-sm font-bold mt-1">Founding Member Price</span>
               </div>
+              <p className="text-gray-400 text-sm mb-6 pb-6 border-b border-[#222]">The kitchen system that runs without a head chef.</p>
               <div className="mb-6">
                 <h4 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-2">Best For:</h4>
                 <ul className="text-sm text-gray-400 space-y-1">
-                  <li>• Running Restaurants</li>
-                  <li>• Multi Cuisine Restaurants</li>
-                  <li>• Owners focused on Profit & Consistency</li>
+                  <li>• Running restaurants</li>
+                  <li>• Multi-cuisine restaurants</li>
+                  <li>• Owners focused on profit and consistency</li>
                 </ul>
               </div>
               <div className="mb-8 flex-1">
@@ -220,7 +373,7 @@ export default async function Home() {
                   <li className="flex items-start gap-3 text-sm text-white font-medium">
                     <span className="text-[#d4af37]">✓</span> Everything in Starter
                   </li>
-                  {['Full SOP Library', 'Costing Master', 'Inventory Management', 'AI Assistance', 'Menu Engineering', 'Multi Outlet Dashboard', 'Advance Business Intelligence', 'Marketing Engine', 'Premix Purchase Access', 'Priority Support'].map(feature => (
+                  {['Full SOP Library', 'KYROZ+ Base Access', 'Costing Master', 'Inventory Management', 'KYROZ KOSA (AI Assistance)', 'Menu Engineering', 'Priority Support'].map(feature => (
                     <li key={feature} className="flex items-start gap-3 text-sm text-gray-300">
                       <span className="text-[#d4af37]">✓</span> {feature}
                     </li>
@@ -232,19 +385,19 @@ export default async function Home() {
 
             {/* Scale Plan */}
             <div className="bg-[#111] border border-[#222] rounded-3xl p-8 hover:border-[#444] transition flex flex-col relative overflow-hidden">
-              <h3 className="text-xl font-bold text-white mb-2 uppercase tracking-widest">KYROZ SCALE</h3>
+              <h3 className="text-xl font-bold text-white mb-2 uppercase tracking-widest">KYROZ Scale</h3>
               <div className="flex flex-col mb-6">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-extrabold text-white">₹{pricing.scale.price}</span>
-                  <span className="text-gray-500">/mo</span>
+                <div className="flex items-baseline gap-2 mt-7">
+                  <span className="text-3xl font-extrabold text-gray-400 uppercase tracking-widest">Coming Soon</span>
                 </div>
               </div>
+              <p className="text-gray-400 text-sm mb-6 pb-6 border-b border-[#222]">Multi-outlet growth.</p>
               <div className="mb-6">
                 <h4 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-2">Best For:</h4>
                 <ul className="text-sm text-gray-400 space-y-1">
-                  <li>• Growing Restaurant Brands</li>
-                  <li>• Multi Outlet Businesses</li>
-                  <li>• Expansion-Focused Owners</li>
+                  <li>• Growing restaurant brands</li>
+                  <li>• Multi-outlet businesses</li>
+                  <li>• Expansion-focused owners</li>
                 </ul>
               </div>
               <div className="mb-8 flex-1">
@@ -253,61 +406,59 @@ export default async function Home() {
                   <li className="flex items-start gap-3 text-sm text-white font-medium">
                     <span className="text-[#d4af37]">✓</span> Everything in Premium
                   </li>
-                  {['Multi Outlet Dashboard', 'Menu Engineering', 'Premium AI Restaurant Consultant', 'Marketing Engine', 'Advanced Business Intelligence'].map(feature => (
+                  {['Multi-Outlet Dashboard', 'Advanced Business Intelligence', 'Marketing Engine', 'Premium AI Restaurant Consultant'].map(feature => (
                     <li key={feature} className="flex items-start gap-3 text-sm text-gray-300">
                       <span className="text-[#d4af37]">✓</span> {feature}
                     </li>
                   ))}
                 </ul>
               </div>
-              <Link href="/signup" className="w-full block text-center py-3 rounded-xl border border-white text-white hover:bg-white hover:text-black transition font-bold">Get Scale</Link>
+              <div className="w-full block text-center py-3 rounded-xl border border-[#333] text-gray-500 font-bold cursor-not-allowed">Coming Soon</div>
             </div>
           </div>
 
-          {/* Why KYROZ & Founding Offer */}
-          <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8 text-left mt-24 border-t border-white/10 pt-16">
-            <div className="bg-white/5 p-10 rounded-3xl border border-white/10">
-              <h3 className="text-3xl font-black text-white mb-6 uppercase tracking-wider">Why KYROZ?</h3>
-              <ul className="space-y-4">
-                <li className="flex items-center gap-3 text-lg text-gray-300"><span className="text-green-500">✔</span> SOP + Premix + Software</li>
-                <li className="flex items-center gap-3 text-lg text-gray-300"><span className="text-green-500">✔</span> Reduce Chef Dependency</li>
-                <li className="flex items-center gap-3 text-lg text-gray-300"><span className="text-green-500">✔</span> Maintain Taste Consistency</li>
-                <li className="flex items-center gap-3 text-lg text-gray-300"><span className="text-green-500">✔</span> Control Food Cost</li>
-                <li className="flex items-center gap-3 text-lg text-gray-300"><span className="text-green-500">✔</span> Reduce Wastage</li>
-                <li className="flex items-center gap-3 text-lg text-gray-300"><span className="text-green-500">✔</span> Improve Profitability</li>
-              </ul>
+          {/* Founding Offer */}
+          <div className="max-w-2xl mx-auto bg-gradient-to-br from-[#1a1505] to-[#111] p-10 rounded-3xl border border-[#d4af37]/30 shadow-[0_0_30px_rgba(212,175,55,0.1)] flex flex-col justify-center">
+            <h3 className="text-xl md:text-2xl font-black text-[#d4af37] mb-2 uppercase tracking-widest">FOUNDING MEMBER OFFER: First 50 Restaurants Only</h3>
+            
+            <div className="space-y-4 mb-8 mt-6">
+              <div className="flex justify-between items-center bg-black/40 px-6 py-4 rounded-xl border border-white/5">
+                <span className="text-gray-300 font-bold uppercase tracking-wider">Starter</span>
+                <span className="text-2xl font-black text-white">₹999<span className="text-sm text-gray-500 font-normal">/mo</span></span>
+              </div>
+              <div className="flex justify-between items-center bg-black/40 px-6 py-4 rounded-xl border border-white/5">
+                <span className="text-gray-300 font-bold uppercase tracking-wider">Premium</span>
+                <span className="text-2xl font-black text-[#d4af37]">₹2999<span className="text-sm text-gray-500 font-normal">/mo</span></span>
+              </div>
             </div>
-
-            <div className="bg-gradient-to-br from-[#1a1505] to-[#111] p-10 rounded-3xl border border-[#d4af37]/30 shadow-[0_0_30px_rgba(212,175,55,0.1)] flex flex-col justify-center">
-              <h3 className="text-2xl font-black text-[#d4af37] mb-2 uppercase tracking-widest">Founding Member Offer</h3>
-              <p className="text-white font-medium mb-8">First 50 Restaurants Only</p>
-              
-              <div className="space-y-4 mb-8">
-                <div className="flex justify-between items-center bg-black/40 px-6 py-4 rounded-xl border border-white/5">
-                  <span className="text-gray-300 font-bold uppercase tracking-wider">Starter</span>
-                  <span className="text-2xl font-black text-white">₹999<span className="text-sm text-gray-500 font-normal">/mo</span></span>
-                </div>
-                <div className="flex justify-between items-center bg-black/40 px-6 py-4 rounded-xl border border-white/5">
-                  <span className="text-gray-300 font-bold uppercase tracking-wider">Premium</span>
-                  <span className="text-2xl font-black text-[#d4af37]">₹2999<span className="text-sm text-gray-500 font-normal">/mo</span></span>
-                </div>
-              </div>
-              
-              <div className="inline-block px-4 py-2 bg-green-500/10 border border-green-500/20 text-green-400 font-bold rounded-lg text-center uppercase tracking-wider text-sm">
-                24 months Founder Pricing Lock
-              </div>
+            
+            <div className="inline-block px-4 py-2 bg-green-500/10 border border-green-500/20 text-green-400 font-bold rounded-lg text-center uppercase tracking-wider text-sm mx-auto">
+              24 months founder pricing lock
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-[#222] py-6 px-6">
+      {/* 10. Footer */}
+      <footer className="border-t border-[#222] py-8 px-6 bg-[#0a0a0a]">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
-          <div className="text-2xl font-extrabold tracking-tighter text-[#d4af37]">
-            KYROZ-PLUS <span className="text-sm font-medium text-gray-400 ml-2 tracking-normal block md:inline mt-1 md:mt-0">powered by AROMA AGRO INTERNATIONAL</span>
+          <div>
+            <div className="text-2xl font-extrabold tracking-tighter text-[#d4af37] mb-2">
+              KYROZ+
+            </div>
+            <div className="text-sm font-medium text-gray-400">powered by Aroma Agro International</div>
           </div>
-          <div className="text-sm text-gray-500">© {new Date().getFullYear()} KYROZ OS. All rights reserved.</div>
+          
+          <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-400">
+            <a href="tel:+917887009800" className="hover:text-[#d4af37] transition">+91 78870 09800</a>
+            <a href="mailto:info@kyrozplus.com" className="hover:text-[#d4af37] transition">info@kyrozplus.com</a>
+            <a href="#" className="hover:text-[#d4af37] transition">[OWNER: Privacy Policy]</a>
+            <a href="#" className="hover:text-[#d4af37] transition">[OWNER: Terms]</a>
+          </div>
+
+          <div className="text-sm text-gray-500">
+            © {new Date().getFullYear()} KYROZ+. All rights reserved.
+          </div>
         </div>
       </footer>
     </div>
