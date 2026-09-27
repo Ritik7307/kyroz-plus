@@ -87,21 +87,26 @@ export default async function Home() {
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Running a restaurant is chaos.</h2>
             <p className="text-gray-400 max-w-2xl mx-auto text-lg">You shouldn't be held hostage by your head chef or lose margins to uncontrolled wastage.</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="p-8 border border-[#222] bg-[#111] rounded-2xl">
               <div className="text-[#d4af37] text-4xl mb-4">👨‍🍳</div>
-              <h3 className="text-xl font-bold mb-3">Chef Dependency</h3>
+              <h3 className="text-xl font-bold mb-3 uppercase">CHEF DEPENDENCY</h3>
               <p className="text-gray-400">Recipes change when the chef changes. Consistency is impossible without strict, documented standards.</p>
             </div>
             <div className="p-8 border border-[#222] bg-[#111] rounded-2xl">
               <div className="text-[#d4af37] text-4xl mb-4">📉</div>
-              <h3 className="text-xl font-bold mb-3">Hidden Food Costs</h3>
+              <h3 className="text-xl font-bold mb-3 uppercase">HIDDEN FOOD COSTS</h3>
               <p className="text-gray-400">Unmeasured wastage and inaccurate costing hurt your profit margins every single day.</p>
             </div>
             <div className="p-8 border border-[#222] bg-[#111] rounded-2xl">
               <div className="text-[#d4af37] text-4xl mb-4">🚪</div>
-              <h3 className="text-xl font-bold mb-3">Sudden Staff Leave</h3>
+              <h3 className="text-xl font-bold mb-3 uppercase">SUDDEN STAFF LEAVE</h3>
               <p className="text-gray-400">When several staff go on leave at once, the kitchen stops. Your business shouldn't depend on any one person.</p>
+            </div>
+            <div className="p-8 border border-[#222] bg-[#111] rounded-2xl">
+              <div className="text-[#d4af37] text-4xl mb-4">💸</div>
+              <h3 className="text-xl font-bold mb-3 uppercase">NO ROYALTY</h3>
+              <p className="text-gray-400">Keep 100% of your profits. Stop giving away your hard-earned margins every month to franchisors.</p>
             </div>
           </div>
         </div>
@@ -110,7 +115,10 @@ export default async function Home() {
       {/* 5. How it works */}
       <section id="how-it-works" className="py-20 px-6 relative">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-16">One system. Four simple steps.</h2>
+          <h2 className="text-3xl md:text-5xl font-bold mb-16 flex flex-col md:block">
+            <span>One system.</span>
+            <span>Four simple steps.</span>
+          </h2>
           
           <div className="space-y-8 text-left">
             <div className="bg-[#111] border border-[#222] p-6 rounded-2xl flex flex-col md:flex-row gap-6 items-start md:items-center">
@@ -166,7 +174,7 @@ export default async function Home() {
               <div className="mt-6 text-[#d4af37] font-bold">
                 Mohd Arif Kamal
                 <span className="block text-sm text-gray-500 font-normal">Founder, KYROZ+</span>
-                <a href="https://wa.me/918874581717" target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/20 rounded-full hover:bg-[#25D366]/20 transition text-sm font-medium">
+                <a href="https://wa.me/918874581717?text=Hi%20Sir%2C%20I%20read%20your%20note%20on%20the%20KYROZ%2B%20website%20and%20would%20like%20to%20talk%20to%20you%20directly%20about%20my%20restaurant." target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/20 rounded-full hover:bg-[#25D366]/20 transition text-sm font-medium">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
                   </svg>
@@ -247,10 +255,33 @@ export default async function Home() {
       <section className="py-20 bg-[#0a0a0a] px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">Franchise-style support. Without the franchise.</h2>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4 flex flex-col md:block">
+              <span>Franchise-style support.</span>
+              <span>Without the franchise.</span>
+            </h2>
           </div>
           
-          <div className="overflow-x-auto mb-12">
+          {/* Mobile view: Stacked cards */}
+          <div className="block md:hidden space-y-4 mb-12">
+            {[
+              { label: 'Total upfront cost', typical: '₹2 lakh – ₹2 crore', kyroz: '₹0' },
+              { label: 'Franchise fee', typical: 'Yes', kyroz: 'None' },
+              { label: 'Monthly royalty', typical: 'Yes', kyroz: 'None' },
+              { label: 'Brand name', typical: "Franchisor's", kyroz: 'Yours' },
+              { label: 'Taste', typical: 'Fixed by franchisor', kyroz: 'Your signature taste' },
+              { label: 'Training and kitchen setup', typical: 'Yes', kyroz: 'Yes' },
+              { label: 'Software', typical: 'Varies', kyroz: 'Included' },
+            ].map((item, index) => (
+              <div key={index} className="bg-[#111] border border-[#222] p-5 rounded-xl text-left">
+                <div className="font-bold text-white text-lg mb-3">{item.label}</div>
+                <div className="text-sm text-gray-400 mb-1">Typical franchise: <span className="text-gray-300 font-medium">{item.typical}</span></div>
+                <div className="text-sm font-bold text-[#d4af37]">KYROZ+: {item.kyroz}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop view: Table */}
+          <div className="hidden md:block overflow-x-auto mb-12">
             <table className="w-full text-left border-collapse min-w-[600px]">
               <thead>
                 <tr>
@@ -260,6 +291,11 @@ export default async function Home() {
                 </tr>
               </thead>
               <tbody className="text-gray-300">
+                <tr>
+                  <td className="p-4 border-b border-[#222] font-medium">Total upfront cost</td>
+                  <td className="p-4 border-b border-[#222]">₹2 lakh – ₹2 crore</td>
+                  <td className="p-4 border-b border-[#222] text-[#d4af37] font-bold">₹0</td>
+                </tr>
                 <tr>
                   <td className="p-4 border-b border-[#222] font-medium">Franchise fee</td>
                   <td className="p-4 border-b border-[#222]">Yes</td>
@@ -308,8 +344,15 @@ export default async function Home() {
       {/* 9. Pricing Section */}
       <section id="pricing" className="py-24 px-6 relative">
         <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">Simple pricing. No franchise fee. No royalty.</h2>
-          <p className="text-gray-400 mb-16 text-lg">Your brand. Your signature taste. We give you the system.</p>
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 flex flex-col md:block">
+            <span>Simple pricing.</span>
+            <span>No franchise fee.</span>
+            <span>No royalty.</span>
+          </h2>
+          <p className="text-gray-400 mb-16 text-lg flex flex-col md:block">
+            <span>Your brand. Your signature taste.</span>
+            <span>We give you the system.</span>
+          </p>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto text-left mb-16">
             {/* Starter Plan */}
@@ -452,8 +495,8 @@ export default async function Home() {
           <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-400">
             <a href="tel:+917887009800" className="hover:text-[#d4af37] transition">+91 78870 09800</a>
             <a href="mailto:info@kyrozplus.com" className="hover:text-[#d4af37] transition">info@kyrozplus.com</a>
-            <a href="#" className="hover:text-[#d4af37] transition">[OWNER: Privacy Policy]</a>
-            <a href="#" className="hover:text-[#d4af37] transition">[OWNER: Terms]</a>
+            <Link href="/privacy-policy" className="hover:text-[#d4af37] transition">Privacy Policy</Link>
+            <Link href="/terms-of-service" className="hover:text-[#d4af37] transition">Terms of Service</Link>
           </div>
 
           <div className="text-sm text-gray-500">

@@ -326,8 +326,7 @@ export const handleIncomingMessage = async (req: Request, res: Response) => {
                 const reply = `Hello 👋\nWelcome to KYROZ+\n\nKYROZ restaurant owners ko chef dependency, taste inconsistency, staff training aur food cost control jaise operational challenges ko solve karne me help karta hai.\n\nApne restaurant ko behtar banane ke liye niche diye gaye option me se ek number (1, 2, ya 3) reply karein:\n\n1️⃣ Kya aap apna complimentary KYROZ Assessment shuru karna chahte hain? (Reply 1)\n\n2️⃣ Kya aap janna chahte hain ki KYROZ+ kya hai aur ye kaise madad karta hai? (Reply 2)\n\n3️⃣ Kya aap hamari team ke saath Demo Request schedule karna chahte hain? (Reply 3)`;
                 await sendWhatsAppMessage(from, reply);
                 
-                // Set a generic reminder for first contact
-                await setReminder(from, `Hi! 👋\n\nHumne aapko kuch options bheje the. Agar aap KYROZ+ ka free assessment try karna chahte hain, to bas "1" reply karein!\n\n🔗 Direct Link: ${GOOGLE_FORM_LINK}`);
+                await setReminder(from, `Hi! 👋\n\nHumne aapko kuch options bheje the par aapka koi reply nahi aaya. Agar aap KYROZ+ ke baare me aur janna chahte hain, toh niche diye gaye links check karein:\n\n🌐 Website: https://kyrozplus.com\n\n💬 Chat with us: https://wa.me/917887009800?text=Hi%20KYROZ%2B%20team!%20I%20saw%20your%20website%20and%20I'm%20interested%20in%20knowing%20more%20about%20how%20KYROZ%2B%20can%20help%20my%20restaurant.%20Can%20we%20talk%3F`);
               }
             }
           }
