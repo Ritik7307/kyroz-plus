@@ -47,52 +47,49 @@ export default function DashboardPage() {
       }
 
       try {
-        const userRes = await fetch(`${API_URL}/api/auth/me`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const userData = await userRes.json();
-        
-        if (userData.role === 'admin') {
-          router.push('/admin/dashboard');
-          return;
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          const userData = JSON.parse(storedUser);
+          if (userData.role === 'admin') {
+            router.push('/admin/dashboard');
+            return;
+          }
+          setUser(userData);
         }
-        setUser(userData);
 
-        const sopRes = await fetch(`${API_URL}/api/sops`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const sopData = await sopRes.json();
-        setSops(Array.isArray(sopData) ? sopData : []);
+        const headers = { 'Authorization': `Bearer ${token}` };
 
-        const packetsRes = await fetch(`${API_URL}/api/sop-packets`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const packetsData = await packetsRes.json();
-        setPackets(Array.isArray(packetsData) ? packetsData : []);
+        // Run data fetching in parallel
+        const [sopRes, packetsRes, testimonialsRes, profitRes] = await Promise.allSettled([
+          fetch(`${API_URL}/api/sops`, { headers }),
+          fetch(`${API_URL}/api/sop-packets`, { headers }),
+          fetch(`${API_URL}/api/testimonials`, { headers }),
+          fetch(`${API_URL}/api/orders/daily-profit`, { headers })
+        ]);
 
-        const testimonialsRes = await fetch(`${API_URL}/api/testimonials`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (testimonialsRes.ok) {
-          const testimonialsData = await testimonialsRes.json();
+        if (sopRes.status === 'fulfilled' && sopRes.value.ok) {
+          const sopData = await sopRes.value.json();
+          setSops(Array.isArray(sopData) ? sopData : []);
+        }
+
+        if (packetsRes.status === 'fulfilled' && packetsRes.value.ok) {
+          const packetsData = await packetsRes.value.json();
+          setPackets(Array.isArray(packetsData) ? packetsData : []);
+        }
+
+        if (testimonialsRes.status === 'fulfilled' && testimonialsRes.value.ok) {
+          const testimonialsData = await testimonialsRes.value.json();
           setTestimonials(Array.isArray(testimonialsData) ? testimonialsData : []);
         }
 
-        // Fetch daily profit
-        try {
-          const profitRes = await fetch(`${API_URL}/api/orders/daily-profit`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          if (profitRes.ok) {
-            const profitData = await profitRes.json();
-            setDailyProfit(profitData.dailyProfit || 0);
-            setDailyRevenue(profitData.dailyRevenue || 0);
-          }
-        } catch (e) {
-          console.error("Failed to fetch daily profit", e);
+        if (profitRes.status === 'fulfilled' && profitRes.value.ok) {
+          const profitData = await profitRes.value.json();
+          setDailyProfit(profitData.dailyProfit || 0);
+          setDailyRevenue(profitData.dailyRevenue || 0);
         }
+
       } catch (err) {
-        router.push('/login');
+        console.error('Failed to fetch dashboard data:', err);
       }
     };
     fetchData();

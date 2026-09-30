@@ -50,9 +50,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const token = localStorage.getItem('token');
     if (!token) {
       router.push('/login');
-    } else {
-      fetchUser(token);
+      return;
     }
+
+    // Immediately authorize if we have user in localStorage to prevent blocking the UI
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+        setIsAuthorized(true);
+        fetchNotifications(token);
+      } catch (e) {
+        console.error('Error parsing stored user', e);
+      }
+    }
+
+    // Fetch fresh user data in the background to ensure permissions/plan are up to date
+    fetchUser(token);
     
     // Check impersonation status
     const eliteToken = localStorage.getItem('eliteToken');
