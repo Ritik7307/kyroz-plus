@@ -125,16 +125,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const deviceInfo = `${browser.name || 'Unknown Browser'} on ${os.name || 'Unknown OS'}`;
     const ipAddress = req.ip || req.socket?.remoteAddress || 'Unknown IP';
 
-    const activeSessions = await Session.find({ userId: user._id }).sort({ lastActive: 1 });
-    const limit = PLAN_LIMITS[user.subscriptionPlan as keyof typeof PLAN_LIMITS] || 1;
-
-    if (activeSessions.length >= limit) {
-      const excessCount = activeSessions.length - limit + 1;
-      const sessionsToDelete = activeSessions.slice(0, excessCount).map(s => s._id);
-      await Session.deleteMany({ _id: { $in: sessionsToDelete } });
-      console.log(`Removed ${excessCount} old session(s) for user ${user.email} due to device limits.`);
-    }
-
     const newSession = new Session({
       userId: user._id,
       deviceInfo,
@@ -142,6 +132,23 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       lastActive: new Date()
     });
     await newSession.save();
+
+    // Clean up old sessions in the background
+    setTimeout(async () => {
+      try {
+        const activeSessions = await Session.find({ userId: user._id }).sort({ lastActive: 1 });
+        const limit = PLAN_LIMITS[user.subscriptionPlan as keyof typeof PLAN_LIMITS] || 1;
+
+        if (activeSessions.length > limit) {
+          const excessCount = activeSessions.length - limit;
+          const sessionsToDelete = activeSessions.slice(0, excessCount).map(s => s._id);
+          await Session.deleteMany({ _id: { $in: sessionsToDelete } });
+          console.log(`Removed ${excessCount} old session(s) for user ${user.email} due to device limits.`);
+        }
+      } catch (err) {
+        console.error('BG Session Cleanup failed:', err);
+      }
+    }, 1000);
     // ----------------------------------------------------
 
     const token = jwt.sign(

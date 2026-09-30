@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IOnboardingReminder extends Document {
   phone: string;
+  userName?: string;
   reminderTime: Date;
   messageText: string;
   status: 'PENDING' | 'SENT' | 'CANCELLED';
@@ -12,6 +13,7 @@ export interface IOnboardingReminder extends Document {
 const OnboardingReminderSchema: Schema = new Schema(
   {
     phone: { type: String, required: true },
+    userName: { type: String },
     reminderTime: { type: Date, required: true },
     messageText: { type: String, required: true },
     status: { type: String, enum: ['PENDING', 'SENT', 'CANCELLED'], default: 'PENDING' },

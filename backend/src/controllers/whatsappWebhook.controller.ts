@@ -175,7 +175,7 @@ export const clearFormReminder = async (phone: string) => {
   }
 };
 
-const setReminder = async (phone: string, text: string) => {
+const setReminder = async (phone: string, text: string, senderName?: string) => {
   try {
     // Clear any existing pending reminder for this phone number
     await OnboardingReminder.updateMany(
@@ -188,6 +188,7 @@ const setReminder = async (phone: string, text: string) => {
     
     await OnboardingReminder.create({
       phone,
+      userName: senderName,
       reminderTime,
       messageText: text,
       status: 'PENDING'
@@ -237,6 +238,13 @@ export const handleIncomingMessage = async (req: Request, res: Response) => {
             const phone_number_id = body.entry[0].changes[0].value.metadata.phone_number_id;
             const from = messageObj.from; // sender phone number
             const msg_body = messageObj.text?.body; // text message content
+            
+            // Extract profile name if available
+            let senderName = 'Unknown User';
+            if (body.entry[0].changes[0].value.contacts && body.entry[0].changes[0].value.contacts[0]) {
+              senderName = body.entry[0].changes[0].value.contacts[0].profile?.name || 'Unknown User';
+            }
+            console.log(`[WHATSAPP MESSAGE] From: ${senderName} (${from})`);
 
             if (msg_body) {
               const text = msg_body.trim().toLowerCase();
@@ -289,6 +297,7 @@ export const handleIncomingMessage = async (req: Request, res: Response) => {
                 if (!existingReminder) {
                   await PurchaseReminder.create({
                     phone: from,
+                    userName: senderName,
                     reminderTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
                     status: 'PENDING',
                     sendCount: 0
@@ -306,7 +315,7 @@ export const handleIncomingMessage = async (req: Request, res: Response) => {
                 await sendWhatsAppMessage(from, reply);
                 
                 // Set a reminder specifically for not filling the form after clicking 1
-                await setReminder(from, `Hi! ⏳\n\nLagta hai aapne apna Restaurant Assessment abhi tak complete nahi kiya hai. Sirf 3 minute lagte hain aur ye aapke restaurant ke growth me bahut madad karega.\n\n🔗 Link: ${GOOGLE_FORM_LINK}`);
+                await setReminder(from, `Hi! ⏳\n\nLagta hai aapne apna Restaurant Assessment abhi tak complete nahi kiya hai. Sirf 3 minute lagte hain aur ye aapke restaurant ke growth me bahut madad karega.\n\n🔗 Link: ${GOOGLE_FORM_LINK}`, senderName);
                 
               } else if (text === '2' || text === '2️⃣') {
                 const reply = `KYROZ+ kya hai?\n\nKYROZ+ ek Restaurant Systemization Platform hai jo growing restaurants ke kitchen aur operations ko system par lane me help karta hai.\n\nAgar aapko lagta hai ki:\n✔ Taste har baar same nahi rehta\n✔ Chef ke bina restaurant chalana mushkil hai\n✔ Naye staff ko training dene me prompt lagta hai\n✔ Food cost aur wastage control nahi ho pata\n✔ Owner ko har chhoti-badi cheez dekhni padti hai\n\nTo KYROZ+ aapke liye useful ho sakta hai.\nKYROZ+ ka uddeshya restaurant ko logon par nahi, systems par chalana hai.\n\nAgar aap dekhna chahte hain ki KYROZ+ aapke restaurant me kitna useful ho sakta hai, to niche diye gaye option ka chunav karein:\n\n1️⃣ Start Assessment\n3️⃣ Demo Request`;
@@ -316,7 +325,7 @@ export const handleIncomingMessage = async (req: Request, res: Response) => {
                 await sendWhatsAppMessage(from, reply);
                 
                 // Set a reminder for the demo request form
-                await setReminder(from, `Hi! ⏳\n\nAapne Demo Request kiya tha, par assessment abhi tak pending hai. Demo schedule karne ke liye is form ko bharna zaroori hai.\n\n🔗 Link: ${GOOGLE_FORM_LINK}`);
+                await setReminder(from, `Hi! ⏳\n\nAapne Demo Request kiya tha, par assessment abhi tak pending hai. Demo schedule karne ke liye is form ko bharna zaroori hai.\n\n🔗 Link: ${GOOGLE_FORM_LINK}`, senderName);
                 
               } else if (text.includes('purchase the following sop packets') || text.includes('order details:')) {
                 const reply = `Thank you for your order! 🙏\n\nWe have received your request for the SOP Packets. Our team will review the details and contact you shortly to process the payment and deliver your files.\n\nIf you have any urgent queries, please wait for our admin to reply.`;
@@ -326,7 +335,7 @@ export const handleIncomingMessage = async (req: Request, res: Response) => {
                 const reply = `Hello 👋\nWelcome to KYROZ+\n\nKYROZ restaurant owners ko chef dependency, taste inconsistency, staff training aur food cost control jaise operational challenges ko solve karne me help karta hai.\n\nApne restaurant ko behtar banane ke liye niche diye gaye option me se ek number (1, 2, ya 3) reply karein:\n\n1️⃣ Kya aap apna complimentary KYROZ Assessment shuru karna chahte hain? (Reply 1)\n\n2️⃣ Kya aap janna chahte hain ki KYROZ+ kya hai aur ye kaise madad karta hai? (Reply 2)\n\n3️⃣ Kya aap hamari team ke saath Demo Request schedule karna chahte hain? (Reply 3)`;
                 await sendWhatsAppMessage(from, reply);
                 
-                await setReminder(from, `Hi! 👋\n\nHumne aapko kuch options bheje the par aapka koi reply nahi aaya. Agar aap KYROZ+ ke baare me aur janna chahte hain, toh niche diye gaye links check karein:\n\n🌐 Website: https://kyrozplus.com\n\n💬 Chat with us: https://wa.me/917887009800?text=Hi%20KYROZ%2B%20team!%20I%20saw%20your%20website%20and%20I'm%20interested%20in%20knowing%20more%20about%20how%20KYROZ%2B%20can%20help%20my%20restaurant.%20Can%20we%20talk%3F`);
+                await setReminder(from, `Hi! 👋\n\nHumne aapko kuch options bheje the par aapka koi reply nahi aaya. Agar aap KYROZ+ ke baare me aur janna chahte hain, toh niche diye gaye links check karein:\n\n🌐 Website: https://kyrozplus.com\n\n💬 Chat with us: https://wa.me/917887009800?text=Hi%20KYROZ%2B%20team!%20I%20saw%20your%20website%20and%20I'm%20interested%20in%20knowing%20more%20about%20how%20KYROZ%2B%20can%20help%20my%20restaurant.%20Can%20we%20talk%3F`, senderName);
               }
             }
           }
