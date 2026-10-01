@@ -39,10 +39,13 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user', permissi
     // If we are in the Admin section, show Admin menu
     if (pathname.startsWith('/admin')) {
       return [
-        { name: 'Admin Dashboard', icon: LayoutDashboard, path: '/admin/dashboard', id: 'admin' },
+        { name: 'Dashboard', icon: LayoutDashboard, path: '/admin/dashboard', id: 'admin' },
+        { name: 'Live Chat', icon: MessageSquare, path: '/admin/whatsapp-inbox', id: 'admin' },
+        { name: 'Broadcast Manager', icon: Megaphone, path: '/admin/whatsapp-broadcast', id: 'admin' },
+        { name: 'Templates', icon: FileText, path: '/admin/whatsapp-templates', id: 'admin' },
+        { name: 'Contacts', icon: Users, path: '/admin/whatsapp-contacts', id: 'admin' },
         { name: 'Member List', icon: Users, path: '/admin/users', id: 'admin' },
         { name: 'Global SOPs', icon: ChefHat, path: '/admin/sops', id: 'admin' },
-        { name: 'Member View (Test)', icon: Utensils, path: '/dashboard', id: 'admin' },
         { name: 'System Settings', icon: Settings, path: '/admin/settings', id: 'admin' },
       ];
     }

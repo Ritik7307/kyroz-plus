@@ -3,6 +3,10 @@ import axios from 'axios';
 import WhatsAppOptOut from '../models/WhatsAppOptOut';
 import PurchaseReminder from '../models/PurchaseReminder';
 import OnboardingReminder from '../models/OnboardingReminder';
+import WhatsappConversation from '../models/WhatsappConversation';
+import WhatsappMessage from '../models/WhatsappMessage';
+import { getIo } from '../socket';
+import mongoose from 'mongoose';
 
 // Get these from env variables (we will add them to .env)
 // For now, we fall back to placeholders so the code runs.
@@ -37,7 +41,7 @@ export const verifyWebhook = (req: Request, res: Response) => {
   }
 };
 
-export const sendWhatsAppMessage = async (toPhone: string, text: string) => {
+export const sendWhatsAppMessage = async (toPhone: string, text: string, isAdminManualReply = false) => {
   const token = getAccessToken();
   const phoneId = getPhoneNumberId();
   if (!token || !phoneId) {
@@ -57,7 +61,7 @@ export const sendWhatsAppMessage = async (toPhone: string, text: string) => {
   }
 
   try {
-    await axios.post(
+    const response = await axios.post(
       `https://graph.facebook.com/v17.0/${phoneId}/messages`,
       {
         messaging_product: 'whatsapp',
@@ -73,6 +77,39 @@ export const sendWhatsAppMessage = async (toPhone: string, text: string) => {
       }
     );
     console.log(`Sent message to ${toPhone}`);
+    
+    // Log outbound message
+    try {
+      let conv = await WhatsappConversation.findOneAndUpdate(
+        { phone: toPhone },
+        { 
+          $set: { 
+            lastMessageAt: new Date(), 
+            lastMessagePreview: text.substring(0, 50) + (text.length > 50 ? '...' : '') 
+          },
+          $setOnInsert: { name: 'Unknown User' }
+        },
+        { upsert: true, new: true }
+      );
+      
+      const msg = await WhatsappMessage.create({
+        conversationId: conv._id,
+        messageId: response.data?.messages?.[0]?.id || 'outbound_' + Date.now(),
+        sender: isAdminManualReply ? 'admin' : 'system',
+        direction: 'outbound',
+        type: 'text',
+        text,
+        status: 'sent',
+        timestamp: new Date()
+      });
+      
+      try {
+        const io = getIo();
+        io.emit('new_whatsapp_message', { conversation: conv, message: msg });
+      } catch (e) {}
+    } catch(dbErr) {
+      console.error('Failed to log outbound message', dbErr);
+    }
   } catch (error: any) {
     console.error('Error sending WhatsApp message:', error.response?.data || error.message);
   }
