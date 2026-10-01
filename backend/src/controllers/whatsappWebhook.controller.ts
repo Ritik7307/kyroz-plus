@@ -284,6 +284,40 @@ export const handleIncomingMessage = async (req: Request, res: Response) => {
             console.log(`[WHATSAPP MESSAGE] From: ${senderName} (${from})`);
 
             if (msg_body) {
+              // Log inbound message
+              try {
+                let conv = await WhatsappConversation.findOneAndUpdate(
+                  { phone: from },
+                  { 
+                    $set: { 
+                      lastMessageAt: new Date(), 
+                      lastMessagePreview: msg_body.substring(0, 50) + (msg_body.length > 50 ? '...' : '') 
+                    },
+                    $inc: { unreadCount: 1 },
+                    $setOnInsert: { name: senderName }
+                  },
+                  { upsert: true, new: true }
+                );
+                
+                const inboundMsg = await WhatsappMessage.create({
+                  conversationId: conv._id,
+                  messageId: messageId || 'inbound_' + Date.now(),
+                  sender: 'user',
+                  direction: 'inbound',
+                  type: 'text',
+                  text: msg_body,
+                  status: 'received',
+                  timestamp: new Date()
+                });
+                
+                try {
+                  const io = getIo();
+                  io.emit('new_whatsapp_message', { conversation: conv, message: inboundMsg });
+                } catch (e) {}
+              } catch(dbErr) {
+                console.error('Failed to log inbound message', dbErr);
+              }
+
               const text = msg_body.trim().toLowerCase();
 
               // Handle Opt-Out
