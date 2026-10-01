@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { MessageCircle, Send, User, Clock, Check, CheckCheck } from 'lucide-react';
+import { MessageCircle, Send, User, Clock, Check, CheckCheck, Search, Phone, MoreVertical, Bot, Paperclip, Image as ImageIcon, Video, SwitchCamera } from 'lucide-react';
 import { API_URL } from '@/lib/api';
 
 interface Conversation {
@@ -30,7 +30,9 @@ export default function WhatsappInbox() {
   const [activeConv, setActiveConv] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [replyText, setReplyText] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [takeover, setTakeover] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -136,125 +138,322 @@ export default function WhatsappInbox() {
     return new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  const filteredConversations = conversations.filter(c => 
+    c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    c.phone.includes(searchQuery)
+  );
+
+  const getDisplayName = (conv: Conversation) => {
+    if (!conv.name || conv.name.toLowerCase() === 'unknown user') {
+      return conv.phone;
+    }
+    return conv.name;
+  };
+
+  // Helper to get initials
+  const getInitials = (name: string) => {
+    if (!name || name.toLowerCase() === 'unknown user') return '?';
+    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  };
+
+  // Helper to assign a consistent random color to avatars based on phone
+  const getAvatarColor = (phone: string) => {
+    const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-teal-500'];
+    const index = phone.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
+    return colors[index];
+  };
+
   return (
-    <div className="flex h-[calc(100vh-80px)] bg-background">
+    <div className="flex h-[calc(100vh-140px)] bg-card border border-border shadow-2xl overflow-hidden mt-2 relative z-10" style={{ borderRadius: '24px' }}>
       {/* LEFT PANE - CONVERSATIONS */}
-      <div className="w-1/3 border-r border-border bg-card flex flex-col">
-        <div className="p-4 border-b border-border bg-foreground/5 flex items-center justify-between">
-          <h2 className="text-xl font-black text-gold tracking-widest uppercase">WhatsApp Inbox</h2>
-          <div className="flex items-center gap-2 text-xs font-bold text-foreground/50">
-            <MessageCircle size={16} /> {conversations.length}
+      <div className="w-[380px] min-w-[320px] border-r border-border bg-background flex flex-col z-20">
+        
+        {/* Header */}
+        <div className="p-4 px-5 border-b border-border bg-card/80 flex items-center justify-between h-[72px]">
+          <h2 className="text-[15px] font-black text-foreground tracking-widest uppercase">Live Chats <span className="text-foreground/40 font-normal">({conversations.length} Active)</span></h2>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={async () => {
+                const text = prompt('Enter message to send to all users:');
+                if (text) {
+                  try {
+                    await fetch(`${API_URL}/api/admin/whatsapp/messages/send-all`, {
+                      method: 'POST',
+                      headers: { 
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({ text })
+                    });
+                    alert('Message sent to all users');
+                  } catch (e) {
+                    alert('Failed to send message to all');
+                  }
+                }
+              }}
+              className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs font-bold transition-colors"
+            >
+              Send to All
+            </button>
+            <span className="text-[10px] font-bold text-foreground/50 uppercase">Takeover</span>
+            <button 
+              onClick={() => setTakeover(!takeover)}
+              className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 ease-in-out ${takeover ? 'bg-green-500' : 'bg-foreground/20'}`}
+            >
+              <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ${takeover ? 'translate-x-4' : 'translate-x-0'}`} />
+            </button>
           </div>
         </div>
         
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
-          {conversations.map(conv => (
-            <div 
-              key={conv._id} 
-              onClick={() => setActiveConv(conv)}
-              className={`p-4 border-b border-border cursor-pointer hover:bg-foreground/5 transition-colors flex flex-col gap-1 ${activeConv?._id === conv._id ? 'bg-foreground/10 border-l-4 border-l-gold' : ''}`}
-            >
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-foreground text-sm uppercase tracking-wide truncate pr-2">{conv.name}</span>
-                <span className="text-[10px] text-foreground/50 whitespace-nowrap flex items-center gap-1">
-                  <Clock size={10} /> {formatTime(conv.lastMessageAt)}
-                </span>
+        {/* Search */}
+        <div className="p-3 border-b border-border bg-background">
+          <div className="bg-card border border-border rounded-xl flex items-center px-3 py-2">
+            <Search size={16} className="text-foreground/40 mr-2" />
+            <input 
+              type="text" 
+              placeholder="Search by name or phone" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-transparent border-none outline-none text-sm text-foreground w-full placeholder-foreground/30"
+            />
+          </div>
+        </div>
+
+        {/* Chat List */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar bg-background">
+          {filteredConversations.map(conv => {
+            const isActive = activeConv?._id === conv._id;
+            const displayName = getDisplayName(conv);
+            return (
+              <div 
+                key={conv._id} 
+                onClick={() => setActiveConv(conv)}
+                className={`flex items-center gap-3 p-3 px-4 cursor-pointer hover:bg-foreground/5 transition-colors border-b border-border/50 relative ${
+                  isActive ? 'bg-[#1a202c] hover:bg-[#1a202c]' : ''
+                }`}
+              >
+                {isActive && <div className="absolute left-0 top-0 bottom-0 w-1 bg-green-500 rounded-r-md"></div>}
+                
+                {/* Avatar */}
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm flex-shrink-0 ${getAvatarColor(conv.phone)}`}>
+                  {getInitials(displayName)}
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-baseline mb-1">
+                    <span className={`font-bold text-sm truncate pr-2 ${isActive ? 'text-white' : 'text-foreground'}`}>
+                      {displayName}
+                    </span>
+                    <span className={`text-[11px] whitespace-nowrap ${conv.unreadCount > 0 ? 'text-green-500 font-bold' : 'text-foreground/40'}`}>
+                      {formatTime(conv.lastMessageAt)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className={`text-[13px] truncate ${conv.unreadCount > 0 ? 'text-foreground font-semibold' : 'text-foreground/50'}`}>
+                      {conv.lastMessagePreview || 'Media Message'}
+                    </span>
+                    {conv.unreadCount > 0 && (
+                      <span className="bg-green-500 text-white text-[10px] font-bold min-w-[20px] h-5 rounded-full flex items-center justify-center px-1.5 ml-2">
+                        {conv.unreadCount}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-foreground/60 truncate">{conv.lastMessagePreview || 'Media Message'}</span>
-                {conv.unreadCount > 0 && (
-                  <span className="bg-gold text-black text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center">
-                    {conv.unreadCount}
-                  </span>
-                )}
-              </div>
-            </div>
-          ))}
-          {conversations.length === 0 && (
+            );
+          })}
+          {filteredConversations.length === 0 && (
             <div className="p-8 text-center text-foreground/40 text-sm">
-              No conversations yet.
+              No chats found.
             </div>
           )}
         </div>
       </div>
 
       {/* RIGHT PANE - CHAT */}
-      <div className="w-2/3 flex flex-col bg-[#0a0a0a]">
+      <div className="flex-1 flex flex-col relative bg-[#e5ddd5] dark:bg-[#0b141a]">
+        {/* WhatsApp Web Style Background Pattern */}
+        <div className="absolute inset-0 opacity-40 dark:opacity-20 pointer-events-none z-0" 
+             style={{ backgroundImage: 'url("https://w7.pngwing.com/pngs/351/361/png-transparent-whatsapp-background-thumbnail.png")', backgroundRepeat: 'repeat', backgroundSize: '400px' }}>
+        </div>
+
         {activeConv ? (
-          <>
-            {/* Header */}
-            <div className="p-4 border-b border-border bg-card flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-foreground/10 flex items-center justify-center text-gold">
-                <User size={20} />
+          <div className="flex flex-col h-full z-10">
+            {/* Chat Header */}
+            <div className="h-[72px] px-5 bg-[#f0f2f5] dark:bg-[#202c33] border-b border-[#d1d7db] dark:border-[#2a3942] flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm ${getAvatarColor(activeConv.phone)}`}>
+                  {getInitials(getDisplayName(activeConv))}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-[16px] text-[#111b21] dark:text-[#e9edef] leading-5">{getDisplayName(activeConv)}</h3>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <p className="text-[13px] text-[#667781] dark:text-[#8696a0] leading-4">{activeConv.phone}</p>
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                    <span className="text-[12px] text-green-500 font-medium">Online</span>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-foreground uppercase tracking-wide">{activeConv.name}</h3>
-                <p className="text-xs text-foreground/50">{activeConv.phone}</p>
+              <div className="flex gap-4 text-[#54656f] dark:text-[#aebac1]">
+                <button className="hover:bg-foreground/5 p-2 rounded-full"><Search size={20} /></button>
+                <button className="hover:bg-foreground/5 p-2 rounded-full"><MoreVertical size={20} /></button>
               </div>
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-2 custom-scrollbar relative">
+              {/* Date Badge */}
+              <div className="flex justify-center my-2">
+                <div className="bg-white dark:bg-[#182229] shadow-sm text-[#54656f] dark:text-[#8696a0] text-[12px] px-3 py-1 rounded-lg uppercase tracking-wide font-medium">
+                  TODAY
+                </div>
+              </div>
+
               {messages.map(msg => {
                 const isOutbound = msg.direction === 'outbound';
                 const isAdmin = msg.sender === 'admin';
+                const isSystem = msg.sender === 'system';
+                
                 return (
-                  <div key={msg._id} className={`flex flex-col max-w-[70%] ${isOutbound ? 'self-end' : 'self-start'}`}>
-                    <div className={`p-3 rounded-2xl text-sm shadow-sm ${
-                      isOutbound 
-                        ? (isAdmin ? 'bg-gold text-black rounded-tr-sm' : 'bg-foreground/20 text-foreground rounded-tr-sm') 
-                        : 'bg-card border border-border text-foreground rounded-tl-sm'
-                    }`}>
-                      {msg.text}
-                    </div>
-                    <div className={`flex items-center gap-1 mt-1 text-[10px] text-foreground/40 ${isOutbound ? 'justify-end' : 'justify-start'}`}>
-                      {isAdmin && <span className="font-bold text-gold mr-1">Admin</span>}
-                      {msg.sender === 'system' && <span className="font-bold mr-1">AI Bot</span>}
-                      {formatTime(msg.timestamp)}
-                      {isOutbound && (
-                        <span>
-                          {msg.status === 'read' ? <CheckCheck size={12} className="text-blue-400" /> : <Check size={12} />}
-                        </span>
+                  <div key={msg._id} className={`flex flex-col max-w-[85%] md:max-w-[70%] ${isOutbound ? 'self-end' : 'self-start'} mb-1 group`}>
+                    
+                    {/* Sender Label for Outbound context */}
+                    {isOutbound && (
+                      <div className="text-[10px] text-foreground/50 mb-0.5 ml-2 font-bold flex items-center gap-1 justify-end">
+                        {isAdmin ? (
+                           <><User size={10}/> Admin</>
+                        ) : (
+                           <><Bot size={10}/> Kyroz AI Bot</>
+                        )}
+                      </div>
+                    )}
+                    
+                    <div className="flex gap-2">
+                      {/* Avatar for Inbound */}
+                      {!isOutbound && (
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-[9px] font-bold mt-1 shadow-sm flex-shrink-0 ${getAvatarColor(activeConv.phone)}`}>
+                          {getInitials(getDisplayName(activeConv))}
+                        </div>
                       )}
+
+                      <div className={`relative px-3 py-2 text-[14.5px] shadow-sm leading-relaxed ${
+                        isOutbound 
+                          ? (isAdmin ? 'bg-[#d9fdd3] dark:bg-[#005c4b] text-[#111b21] dark:text-[#e9edef] rounded-l-xl rounded-tr-xl rounded-br-sm' : 'bg-[#e7f8e3] dark:bg-[#1a4a3e] text-[#111b21] dark:text-[#e9edef] rounded-l-xl rounded-tr-xl rounded-br-sm') 
+                          : 'bg-white dark:bg-[#202c33] text-[#111b21] dark:text-[#e9edef] rounded-r-xl rounded-tl-xl rounded-bl-sm'
+                      }`}>
+                        
+                        {/* The Tail */}
+                        {isOutbound ? (
+                          <svg viewBox="0 0 8 13" width="8" height="13" className={`absolute -right-[8px] top-0 ${isAdmin ? 'text-[#d9fdd3] dark:text-[#005c4b]' : 'text-[#e7f8e3] dark:text-[#1a4a3e]'} fill-current`}>
+                            <path opacity=".13" d="M5.188 1H0v11.193l6.467-8.625C7.526 2.156 6.958 1 5.188 1z"></path>
+                            <path d="M5.188 0H0v11.193l6.467-8.625C7.526 1.156 6.958 0 5.188 0z"></path>
+                          </svg>
+                        ) : (
+                          <svg viewBox="0 0 8 13" width="8" height="13" className="absolute -left-[8px] top-0 text-white dark:text-[#202c33] fill-current">
+                            <path opacity=".13" fill="#0000000" d="M1.533 3.568L8 12.193V1H2.812C1.042 1 .474 2.156 1.533 3.568z"></path>
+                            <path d="M1.533 2.568L8 11.193V0H2.812C1.042 0 .474 1.156 1.533 2.568z"></path>
+                          </svg>
+                        )}
+
+                        <span className="whitespace-pre-wrap">{msg.text}</span>
+                        
+                        <div className={`flex items-center gap-1 float-right mt-2 ml-4 text-[10px] ${
+                          isOutbound 
+                            ? 'text-[#667781] dark:text-[#8696a0]' 
+                            : 'text-[#667781] dark:text-[#8696a0]'
+                        }`}>
+                          <span>{formatTime(msg.timestamp)}</span>
+                          {isOutbound && (
+                            <span className="ml-0.5">
+                              {msg.status === 'read' ? <CheckCheck size={14} className="text-[#53bdeb]" /> : <Check size={14} />}
+                            </span>
+                          )}
+                        </div>
+                        {/* Clear float hack */}
+                        <div className="clear-both"></div>
+                      </div>
                     </div>
                   </div>
                 );
               })}
-              <div ref={messagesEndRef} />
+              <div ref={messagesEndRef} className="h-4" />
             </div>
 
             {/* Input Area */}
-            <div className="p-4 bg-card border-t border-border">
-              <div className="flex gap-2">
-                <input 
-                  type="text" 
+            <div className="min-h-[62px] px-4 py-3 bg-[#f0f2f5] dark:bg-[#202c33] flex items-end gap-3 z-20">
+              <div className="flex gap-2 text-[#54656f] dark:text-[#aebac1] pb-2">
+                <button className="hover:bg-foreground/10 p-2 rounded-full transition-colors"><Paperclip size={22} /></button>
+              </div>
+              
+              <div className="flex-1 bg-white dark:bg-[#2a3942] rounded-lg shadow-sm border border-transparent dark:border-[#31434e] flex items-end">
+                <textarea 
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSendReply()}
-                  placeholder="Type a manual reply..."
-                  className="flex-1 bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gold transition-colors"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendReply();
+                    }
+                  }}
+                  placeholder={takeover ? "Type your manual reply here..." : "Takeover is OFF. Turn ON to reply manually..."}
+                  disabled={!takeover}
+                  rows={1}
+                  style={{ minHeight: '40px', maxHeight: '120px' }}
+                  className="w-full bg-transparent border-none outline-none resize-none px-4 py-2.5 text-[15px] text-[#111b21] dark:text-[#e9edef] placeholder-[#8696a0] custom-scrollbar disabled:opacity-50"
                 />
-                <button 
-                  onClick={handleSendReply}
-                  disabled={!replyText.trim()}
-                  className="bg-gold text-black px-6 rounded-xl font-bold uppercase tracking-widest hover:bg-gold/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                >
-                  <Send size={16} /> <span className="hidden sm:inline">Send</span>
-                </button>
               </div>
-              <p className="text-[10px] text-foreground/40 mt-2 text-center">
-                Manual replies are sent directly via Meta Cloud API. AI will continue to process inbound messages normally.
-              </p>
+              
+              <button 
+                onClick={handleSendReply}
+                disabled={!replyText.trim() || !takeover}
+                className={`p-3 rounded-full flex items-center justify-center transition-colors pb-2 ${
+                  replyText.trim() && takeover ? 'text-green-500 bg-green-500/10' : 'text-[#54656f] dark:text-[#aebac1]'
+                }`}
+              >
+                {replyText.trim() ? <Send size={22} className="ml-1" /> : <Send size={22} className="opacity-50" />}
+              </button>
             </div>
-          </>
+            {!takeover && (
+               <div className="absolute bottom-[70px] left-1/2 -translate-x-1/2 bg-[#111b21]/80 dark:bg-black/60 backdrop-blur text-white text-[11px] px-4 py-1.5 rounded-full z-30 font-medium tracking-wide">
+                 Enable Takeover from the top left switch to reply manually
+               </div>
+            )}
+          </div>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-foreground/30">
-            <MessageCircle size={48} className="mb-4 opacity-50" />
-            <p className="text-lg font-bold uppercase tracking-widest">Select a Conversation</p>
-            <p className="text-sm">Click on any chat on the left to view messages</p>
+          <div className="flex-1 flex flex-col items-center justify-center text-center px-6 border-b-8 border-green-500 z-10 bg-[#f0f2f5] dark:bg-[#222e35]">
+            <div className="w-[300px] mb-8">
+              {/* WhatsApp like placeholder image */}
+              <div className="relative mx-auto w-64 h-48 mb-8 opacity-70">
+                <div className="absolute inset-0 border-2 border-dashed border-foreground/20 rounded-3xl flex items-center justify-center bg-background/50 backdrop-blur-sm">
+                   <div className="flex gap-4 items-end">
+                     <div className="w-12 h-10 bg-green-500/20 rounded-t-xl rounded-br-xl"></div>
+                     <div className="w-16 h-12 bg-foreground/10 rounded-t-xl rounded-bl-xl"></div>
+                   </div>
+                   <MessageCircle size={64} className="absolute text-foreground/20" strokeWidth={1} />
+                </div>
+              </div>
+            </div>
+            <h1 className="text-3xl font-light text-[#41525d] dark:text-[#e9edef] mb-4">KYROZ+ Admin WhatsApp</h1>
+            <p className="text-[14px] text-[#667781] dark:text-[#8696a0] max-w-md leading-relaxed">
+              Send and receive messages seamlessly from the Dashboard. <br/>
+              Select a conversation to view your AI Bot's interactions or take over manually.
+            </p>
+            <div className="mt-8 flex items-center gap-2 text-[12px] text-[#8696a0]">
+              <Lock size={12} /> End-to-end encrypted integration
+            </div>
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+// Simple Lock icon since it wasn't imported at top
+function Lock(props: any) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+    </svg>
   );
 }

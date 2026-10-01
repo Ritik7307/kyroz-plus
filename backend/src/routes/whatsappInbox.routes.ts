@@ -48,4 +48,20 @@ router.post('/messages/send', async (req: Request, res: Response): Promise<void>
   }
 });
 
+// POST send to all
+router.post('/messages/send-all', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { text } = req.body;
+    const conversations = await WhatsappConversation.find();
+    
+    for (const conv of conversations) {
+      await sendWhatsAppMessage(conv.phone, text, true);
+    }
+    
+    res.status(200).json({ message: 'Messages sent to all successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to send messages to all' });
+  }
+});
+
 export default router;
