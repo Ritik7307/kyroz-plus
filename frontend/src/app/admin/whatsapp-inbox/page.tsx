@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { MessageCircle, Send, User, Clock, Check, CheckCheck, Search, Phone, MoreVertical, Bot, Paperclip, Image as ImageIcon, Video, SwitchCamera } from 'lucide-react';
+import { MessageCircle, Send, User, Clock, Check, CheckCheck, Search, Phone, MoreVertical, Bot, Paperclip, Image as ImageIcon, Video, SwitchCamera, Upload, Filter, X } from 'lucide-react';
 import { API_URL } from '@/lib/api';
 
 interface Conversation {
@@ -33,8 +33,12 @@ export default function WhatsappInbox() {
   const [searchQuery, setSearchQuery] = useState('');
   const [socket, setSocket] = useState<Socket | null>(null);
   const [takeover, setTakeover] = useState(false);
+  const [isSendAllModalOpen, setIsSendAllModalOpen] = useState(false);
+  const [sendAllMessage, setSendAllMessage] = useState('');
+  const [filterType, setFilterType] = useState('all');
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchConversations();
@@ -138,10 +142,87 @@ export default function WhatsappInbox() {
     return new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const filteredConversations = conversations.filter(c => 
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    c.phone.includes(searchQuery)
-  );
+  const filteredConversations = conversations.filter(c => {
+    const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.phone.includes(searchQuery);
+    if (!matchesSearch) return false;
+    if (filterType === 'unread') return c.unreadCount > 0;
+    return true;
+  });
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      try {
+        const text = evt.target?.result as string;
+        // Basic CSV parsing
+        const lines = text.split('\n').filter(l => l.trim() !== '');
+        const contacts = [];
+        
+        // Skip header if first line looks like header
+        let startIndex = 0;
+        if (lines[0].toLowerCase().includes('restaurant') || lines[0].toLowerCase().includes('name')) {
+          startIndex = 1;
+        }
+
+        for (let i = startIndex; i < lines.length; i++) {
+          // split by comma, handling potential quotes roughly
+          const cols = lines[i].split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+          if (cols.length >= 2) {
+            contacts.push({ name: cols[0], phone: cols[1] });
+          }
+        }
+
+        if (contacts.length === 0) {
+          alert('No valid contacts found in CSV. Expected format: Restaurant Name, Contact No.');
+          return;
+        }
+
+        const res = await fetch(`${API_URL}/api/admin/whatsapp/import-contacts`, {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ contacts })
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          alert(data.message);
+          fetchConversations();
+        } else {
+          alert('Failed to import contacts');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error parsing CSV');
+      }
+    };
+    reader.readAsText(file);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const executeSendAll = async () => {
+    if (!sendAllMessage.trim()) return;
+    try {
+      await fetch(`${API_URL}/api/admin/whatsapp/messages/send-all`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ text: sendAllMessage })
+      });
+      alert('Message sent to all users');
+      setIsSendAllModalOpen(false);
+      setSendAllMessage('');
+    } catch (e) {
+      alert('Failed to send message to all');
+    }
+  };
 
   const getDisplayName = (conv: Conversation) => {
     if (!conv.name || conv.name.toLowerCase() === 'unknown user') {
@@ -172,25 +253,16 @@ export default function WhatsappInbox() {
         <div className="p-4 px-5 border-b border-border bg-card/80 flex items-center justify-between h-[72px]">
           <h2 className="text-[15px] font-black text-foreground tracking-widest uppercase">Live Chats <span className="text-foreground/40 font-normal">({conversations.length} Active)</span></h2>
           <div className="flex items-center gap-2">
+            <input type="file" accept=".csv" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
             <button 
-              onClick={async () => {
-                const text = prompt('Enter message to send to all users:');
-                if (text) {
-                  try {
-                    await fetch(`${API_URL}/api/admin/whatsapp/messages/send-all`, {
-                      method: 'POST',
-                      headers: { 
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                        'Content-Type': 'application/json'
-                      },
-                      body: JSON.stringify({ text })
-                    });
-                    alert('Message sent to all users');
-                  } catch (e) {
-                    alert('Failed to send message to all');
-                  }
-                }
-              }}
+              onClick={() => fileInputRef.current?.click()}
+              className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 px-2 py-1 rounded text-xs font-bold transition-colors flex items-center gap-1"
+              title="Import CSV (Format: Restaurant Name, Contact No)"
+            >
+              <Upload size={14} /> Import
+            </button>
+            <button 
+              onClick={() => setIsSendAllModalOpen(true)}
               className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs font-bold transition-colors"
             >
               Send to All
@@ -205,8 +277,8 @@ export default function WhatsappInbox() {
           </div>
         </div>
         
-        {/* Search */}
-        <div className="p-3 border-b border-border bg-background">
+        {/* Search & Filter */}
+        <div className="p-3 border-b border-border bg-background space-y-2">
           <div className="bg-card border border-border rounded-xl flex items-center px-3 py-2">
             <Search size={16} className="text-foreground/40 mr-2" />
             <input 
@@ -216,6 +288,17 @@ export default function WhatsappInbox() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="bg-transparent border-none outline-none text-sm text-foreground w-full placeholder-foreground/30"
             />
+          </div>
+          <div className="flex items-center gap-2">
+            <Filter size={14} className="text-foreground/40" />
+            <select 
+              value={filterType} 
+              onChange={(e) => setFilterType(e.target.value)}
+              className="bg-card border border-border rounded-lg text-xs px-2 py-1 outline-none text-foreground flex-1"
+            >
+              <option value="all">All Chats</option>
+              <option value="unread">Unread Only</option>
+            </select>
           </div>
         </div>
 
@@ -444,6 +527,46 @@ export default function WhatsappInbox() {
           </div>
         )}
       </div>
+
+      {/* Send to All Modal */}
+      {isSendAllModalOpen && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-card border border-border p-6 rounded-2xl w-[90%] max-w-md shadow-2xl relative">
+            <button 
+              onClick={() => setIsSendAllModalOpen(false)}
+              className="absolute top-4 right-4 text-foreground/50 hover:text-foreground"
+            >
+              <X size={20} />
+            </button>
+            <h3 className="text-lg font-bold mb-4">Send Broadcast Message</h3>
+            <p className="text-sm text-foreground/60 mb-4">
+              This message will be sent to all {conversations.length} active contacts in your Live Chats list.
+            </p>
+            <textarea
+              value={sendAllMessage}
+              onChange={(e) => setSendAllMessage(e.target.value)}
+              placeholder="Type your message here..."
+              rows={5}
+              className="w-full bg-background border border-border rounded-xl p-3 outline-none resize-none mb-4 custom-scrollbar"
+            />
+            <div className="flex justify-end gap-3">
+              <button 
+                onClick={() => setIsSendAllModalOpen(false)}
+                className="px-4 py-2 rounded-xl text-sm font-bold text-foreground/70 hover:bg-foreground/5"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={executeSendAll}
+                disabled={!sendAllMessage.trim()}
+                className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-xl text-sm font-bold disabled:opacity-50"
+              >
+                Send Message
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

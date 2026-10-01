@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import OnboardingReminder from '../models/OnboardingReminder';
-import { sendWhatsAppMessage } from '../controllers/whatsappWebhook.controller';
+import { sendWhatsAppMessage, sendWhatsAppDocument } from '../controllers/whatsappWebhook.controller';
 
 const startOnboardingReminderCron = () => {
   // Run every 5 minutes to check for pending reminders
@@ -25,6 +25,12 @@ const startOnboardingReminderCron = () => {
         try {
           await sendWhatsAppMessage(reminder.phone, reminder.messageText);
           
+          // Send PDF Brochure if configured
+          const brochureMediaId = process.env.WHATSAPP_BROCHURE_MEDIA_ID;
+          if (brochureMediaId) {
+            await sendWhatsAppDocument(reminder.phone, brochureMediaId, 'KYROZ+ Brochure', 'KYROZ_Brochure.pdf');
+          }
+
           reminder.status = 'SENT';
           console.log(`[CRON] Onboarding Reminder sent to ${reminder.phone}. Marking as SENT.`);
           

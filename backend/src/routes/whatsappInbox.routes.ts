@@ -86,4 +86,40 @@ router.post('/messages/send-all', async (req: Request, res: Response): Promise<v
   }
 });
 
+// POST import contacts from CSV
+router.post('/import-contacts', async (req: Request, res: Response) => {
+  try {
+    const { contacts } = req.body;
+    if (!contacts || !Array.isArray(contacts)) {
+      return res.status(400).json({ error: 'Invalid contacts format' });
+    }
+
+    let importedCount = 0;
+    for (const contact of contacts) {
+      if (contact.phone) {
+        // Clean phone
+        const cleanPhone = contact.phone.toString().replace(/[^0-9]/g, '');
+        if (cleanPhone) {
+          await WhatsappConversation.findOneAndUpdate(
+            { phone: cleanPhone },
+            { 
+              $setOnInsert: { 
+                name: contact.name || 'Imported User',
+                lastMessageAt: new Date(), 
+                status: 'active'
+              }
+            },
+            { upsert: true }
+          );
+          importedCount++;
+        }
+      }
+    }
+    
+    res.status(200).json({ message: `Successfully imported ${importedCount} contacts`, count: importedCount });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to import contacts' });
+  }
+});
+
 export default router;
