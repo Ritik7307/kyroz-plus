@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { MessageSquare, Search, Send, Phone, RefreshCw, Loader2, Paperclip, X } from 'lucide-react';
+import { MessageSquare, Search, Send, Phone, RefreshCw, Loader2, Paperclip, X, ArrowLeft } from 'lucide-react';
 import io from 'socket.io-client';
 import { API_URL } from '@/lib/api';
 
@@ -181,8 +181,8 @@ export default function WhatsAppInboxPage() {
         <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">{error}</div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-4 h-[calc(100vh-16rem)] min-h-[520px]">
-        <aside className="bg-card border border-foreground/10 rounded-3xl overflow-hidden flex flex-col">
+      <div className="flex flex-col lg:grid lg:grid-cols-[340px_1fr] gap-4 h-[calc(100vh-16rem)] min-h-[520px] lg:h-[calc(100vh-16rem)]">
+        <aside className={`${selectedId ? 'hidden lg:flex' : 'flex'} bg-card border border-foreground/10 rounded-3xl overflow-hidden flex-col h-full lg:h-auto`}>
           <div className="p-4 border-b border-foreground/5">
             <div className="relative">
               <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30" />
@@ -226,15 +226,20 @@ export default function WhatsAppInboxPage() {
           </div>
         </aside>
 
-        <section className="bg-card border border-foreground/10 rounded-3xl overflow-hidden flex flex-col">
+        <section className={`${selectedId ? 'flex' : 'hidden lg:flex'} bg-card border border-foreground/10 rounded-3xl overflow-hidden flex-col h-[70vh] lg:h-auto`}>
           {selected ? (
             <>
-              <div className="px-6 py-4 border-b border-foreground/5 flex items-center justify-between">
-                <div>
-                  <h2 className="font-black text-lg tracking-tight">{selected.name}</h2>
-                  <p className="text-xs text-foreground/40 flex items-center gap-2 mt-1">
-                    <Phone size={12} /> {selected.phone}
-                  </p>
+              <div className="px-4 lg:px-6 py-4 border-b border-foreground/5 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button onClick={() => setSelectedId(null)} className="lg:hidden text-foreground/60 p-2 -ml-2 rounded-xl hover:bg-foreground/5">
+                    <ArrowLeft size={18} />
+                  </button>
+                  <div>
+                    <h2 className="font-black text-lg tracking-tight truncate max-w-[200px] lg:max-w-full">{selected.name}</h2>
+                    <p className="text-xs text-foreground/40 flex items-center gap-2 mt-1">
+                      <Phone size={12} /> {selected.phone}
+                    </p>
+                  </div>
                 </div>
               </div>
               <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-3">
@@ -273,7 +278,7 @@ export default function WhatsAppInboxPage() {
                   />
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-12 h-12 rounded-2xl bg-foreground/5 border border-foreground/10 text-foreground/60 flex items-center justify-center hover:bg-foreground/10"
+                    className="w-10 h-10 lg:w-12 lg:h-12 flex-shrink-0 rounded-2xl bg-foreground/5 border border-foreground/10 text-foreground/60 flex items-center justify-center hover:bg-foreground/10"
                   >
                     <Paperclip size={18} />
                   </button>
@@ -281,13 +286,13 @@ export default function WhatsAppInboxPage() {
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-                    placeholder="Type a reply or attach a file..."
-                    className="flex-1 bg-foreground/5 border border-foreground/10 rounded-2xl px-4 py-3 text-sm outline-none focus:border-gold/40"
+                    placeholder="Type a reply..."
+                    className="flex-1 min-w-0 bg-foreground/5 border border-foreground/10 rounded-2xl px-3 py-2 lg:px-4 lg:py-3 text-sm outline-none focus:border-gold/40"
                   />
                   <button
                     onClick={handleSend}
                     disabled={sending || (!draft.trim() && !selectedFile)}
-                    className="w-12 h-12 rounded-2xl bg-gold text-black flex items-center justify-center disabled:opacity-40"
+                    className="w-10 h-10 lg:w-12 lg:h-12 flex-shrink-0 rounded-2xl bg-gold text-black flex items-center justify-center disabled:opacity-40"
                   >
                     {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
                   </button>
