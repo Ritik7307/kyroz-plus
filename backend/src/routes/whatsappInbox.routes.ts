@@ -34,6 +34,12 @@ const DEFAULT_TEMPLATES = [
     category: 'utility',
     language: 'hi',
     body: 'नमस्ते {{name}}! KYROZ-PLUS में आपका स्वागत है। मदद के लिए HELP लिखें।'
+  },
+  {
+    name: 'Meta Approved Partnership',
+    category: 'utility',
+    language: 'en',
+    body: 'Hello! We are excited to partner with {{restaurantName}}. Your KYROZ-PLUS platform access is ready.'
   }
 ];
 
@@ -139,6 +145,54 @@ router.post('/broadcast', async (req: AuthRequest, res: Response): Promise<void>
     res.status(200).json({ message: `Broadcast sent to ${sent} contacts`, count: sent });
   } catch (error) {
     res.status(500).json({ error: 'Failed to send broadcast' });
+  }
+});
+
+// POST send broadcast from CSV with variables
+router.post('/broadcast-csv', async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { templateText, contacts } = req.body;
+    
+    if (!templateText || !Array.isArray(contacts) || contacts.length === 0) {
+      res.status(400).json({ error: 'Template text and contacts array are required' });
+      return;
+    }
+
+    let sent = 0;
+    for (const contact of contacts) {
+      if (!contact.phone) continue;
+      
+      const cleanPhone = contact.phone.toString().replace(/[^0-9]/g, '');
+      if (!cleanPhone) continue;
+
+      // Replace variables in template
+      let message = templateText;
+      for (const [key, value] of Object.entries(contact)) {
+        message = message.replace(new RegExp(`{{${key}}}`, 'g'), String(value || ''));
+      }
+
+      await sendWhatsAppMessage(cleanPhone, message, true);
+      
+      // Upsert conversation to keep history
+      await WhatsappConversation.findOneAndUpdate(
+        { phone: cleanPhone },
+        { 
+          $setOnInsert: { 
+            name: contact.restaurantName || 'CSV Contact',
+            lastMessageAt: new Date(), 
+            status: 'active'
+          }
+        },
+        { upsert: true }
+      );
+      
+      sent += 1;
+    }
+
+    res.status(200).json({ message: `CSV Broadcast sent to ${sent} contacts`, count: sent });
+  } catch (error) {
+    console.error('CSV Broadcast error:', error);
+    res.status(500).json({ error: 'Failed to send CSV broadcast' });
   }
 });
 
