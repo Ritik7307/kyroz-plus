@@ -72,6 +72,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Global SOPs', path: '/admin/sops' },
     { name: 'SOP Packets', path: '/admin/packets' },
     { name: 'WhatsApp Inbox', path: '/admin/whatsapp-inbox' },
+    { name: 'Broadcast', path: '/admin/whatsapp-broadcast' },
+    { name: 'Templates', path: '/admin/whatsapp-templates' },
     { name: 'Testimonials', path: '/admin/testimonials' },
     { name: 'User Management', path: '/admin/users' },
     { name: 'Costing Master', path: '/admin/costing-master' },

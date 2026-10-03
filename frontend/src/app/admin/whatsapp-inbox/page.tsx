@@ -1,8 +1,256 @@
+'use client';
+
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { MessageSquare, Search, Send, Phone, RefreshCw, Loader2 } from 'lucide-react';
+import io from 'socket.io-client';
+import { API_URL } from '@/lib/api';
+
+type Conversation = {
+  _id: string;
+  name: string;
+  phone: string;
+  lastMessagePreview?: string;
+  lastMessageAt?: string;
+  unreadCount?: number;
+};
+
+type ChatMessage = {
+  _id: string;
+  conversationId: string;
+  sender: 'user' | 'system' | 'admin';
+  direction: 'inbound' | 'outbound';
+  text?: string;
+  timestamp?: string;
+  status?: string;
+};
+
+const authHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  };
+};
+
 export default function WhatsAppInboxPage() {
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [draft, setDraft] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const selected = conversations.find((c) => c._id === selectedId) || null;
+
+  const loadConversations = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/whatsapp/conversations`, { headers: authHeaders() });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to load conversations');
+      setConversations(Array.isArray(data) ? data : []);
+      setError('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load conversations');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const loadMessages = useCallback(async (conversationId: string) => {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/whatsapp/conversations/${conversationId}/messages`, {
+        headers: authHeaders(),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to load messages');
+      setMessages(Array.isArray(data) ? data : []);
+      setConversations((prev) => prev.map((c) => (c._id === conversationId ? { ...c, unreadCount: 0 } : c)));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load messages');
+    }
+  }, []);
+
+  useEffect(() => {
+    loadConversations();
+  }, [loadConversations]);
+
+  useEffect(() => {
+    if (selectedId) loadMessages(selectedId);
+  }, [selectedId, loadMessages]);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    const socket = io(API_URL, { transports: ['websocket', 'polling'] });
+    socket.on('new_whatsapp_message', (payload: { conversation?: Conversation; message?: ChatMessage }) => {
+      if (payload.conversation) {
+        setConversations((prev) => {
+          const next = prev.filter((c) => c._id !== payload.conversation?._id);
+          return [payload.conversation as Conversation, ...next];
+        });
+      }
+      if (payload.message && payload.message.conversationId === selectedId) {
+        setMessages((prev) => [...prev, payload.message as ChatMessage]);
+      }
+    });
+    return () => {
+      socket.disconnect();
+    };
+  }, [selectedId]);
+
+  const filtered = useMemo(() => {
+    const q = searchQuery.toLowerCase();
+    return conversations.filter((c) =>
+      (c.name || '').toLowerCase().includes(q) || (c.phone || '').includes(q)
+    );
+  }, [conversations, searchQuery]);
+
+  const handleSend = async () => {
+    if (!selectedId || !draft.trim() || sending) return;
+    setSending(true);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/whatsapp/messages/send`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ conversationId: selectedId, text: draft.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send');
+      setDraft('');
+      await loadMessages(selectedId);
+      await loadConversations();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send message');
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">WhatsApp Inbox</h1>
-      <p>This page is currently under construction.</p>
+    <div className="space-y-6">
+      <header className="flex items-center justify-between gap-4">
+        <div>
+          <p className="text-gold text-xs font-black uppercase tracking-[0.3em] mb-2">WhatsApp</p>
+          <h1 className="text-4xl font-black tracking-tighter">LIVE <span className="text-gold">INBOX</span></h1>
+          <p className="text-foreground/40 text-sm mt-2">Reply to customer and member WhatsApp chats from one place.</p>
+        </div>
+        <button
+          onClick={loadConversations}
+          className="flex items-center gap-2 px-4 py-3 rounded-2xl border border-foreground/10 text-foreground/60 hover:text-gold hover:border-gold/40"
+        >
+          <RefreshCw size={16} /> Refresh
+        </button>
+      </header>
+
+      {error && (
+        <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">{error}</div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-4 h-[calc(100vh-16rem)] min-h-[520px]">
+        <aside className="bg-card border border-foreground/10 rounded-3xl overflow-hidden flex flex-col">
+          <div className="p-4 border-b border-foreground/5">
+            <div className="relative">
+              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30" />
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search name or phone"
+                className="w-full bg-foreground/5 border border-foreground/10 rounded-2xl py-3 pl-11 pr-4 text-sm outline-none focus:border-gold/40"
+              />
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            {loading ? (
+              <div className="p-8 text-center text-foreground/40 text-sm">Loading conversations...</div>
+            ) : filtered.length === 0 ? (
+              <div className="p-8 text-center text-foreground/40 text-sm">No conversations yet.</div>
+            ) : (
+              filtered.map((conv) => (
+                <button
+                  key={conv._id}
+                  onClick={() => setSelectedId(conv._id)}
+                  className={`w-full text-left px-4 py-4 border-b border-foreground/5 hover:bg-foreground/5 ${
+                    selectedId === conv._id ? 'bg-gold/10' : ''
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-bold text-sm">{conv.name || 'Unknown'}</p>
+                      <p className="text-xs text-foreground/40 mt-1">{conv.phone}</p>
+                    </div>
+                    {(conv.unreadCount || 0) > 0 && (
+                      <span className="min-w-5 h-5 px-1.5 rounded-full bg-gold text-black text-[10px] font-black flex items-center justify-center">
+                        {conv.unreadCount}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-foreground/50 mt-2 line-clamp-1">{conv.lastMessagePreview || 'No messages yet'}</p>
+                </button>
+              ))
+            )}
+          </div>
+        </aside>
+
+        <section className="bg-card border border-foreground/10 rounded-3xl overflow-hidden flex flex-col">
+          {selected ? (
+            <>
+              <div className="px-6 py-4 border-b border-foreground/5 flex items-center justify-between">
+                <div>
+                  <h2 className="font-black text-lg tracking-tight">{selected.name}</h2>
+                  <p className="text-xs text-foreground/40 flex items-center gap-2 mt-1">
+                    <Phone size={12} /> {selected.phone}
+                  </p>
+                </div>
+              </div>
+              <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-3">
+                {messages.map((msg) => {
+                  const outbound = msg.direction === 'outbound';
+                  return (
+                    <div key={msg._id} className={`flex ${outbound ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm ${
+                        outbound ? 'bg-gold text-black font-medium' : 'bg-foreground/5 border border-foreground/10'
+                      }`}>
+                        <p className="whitespace-pre-wrap">{msg.text || '[media]'}</p>
+                        <p className={`text-[10px] mt-2 ${outbound ? 'text-black/60' : 'text-foreground/30'}`}>
+                          {msg.timestamp ? new Date(msg.timestamp).toLocaleString() : ''}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="p-4 border-t border-foreground/5 flex items-center gap-3">
+                <input
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
+                  placeholder="Type a reply..."
+                  className="flex-1 bg-foreground/5 border border-foreground/10 rounded-2xl px-4 py-3 text-sm outline-none focus:border-gold/40"
+                />
+                <button
+                  onClick={handleSend}
+                  disabled={sending || !draft.trim()}
+                  className="w-12 h-12 rounded-2xl bg-gold text-black flex items-center justify-center disabled:opacity-40"
+                >
+                  {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center text-foreground/40 gap-3">
+              <MessageSquare size={36} className="text-gold/40" />
+              <p className="text-sm font-medium">Select a conversation to start chatting</p>
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 }
