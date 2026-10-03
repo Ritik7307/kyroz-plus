@@ -73,18 +73,32 @@ export const handleGoogleFormWebhook = async (req: Request, res: Response) => {
       console.error('[REMINDER ERROR] Failed to set purchase reminder:', reminderErr);
     }
 
-    // 2. Schedule AI Report to process in the background after 4 hours
+    // 2. Schedule AI Report to process in the background after 5 minutes
     try {
-      const executeAt = new Date(Date.now() + 4 * 60 * 60 * 1000); // 4 hours from now
+      const executeAt5Mins = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
       await PendingReport.create({
         phone: phone,
         data: data,
-        executeAt: executeAt,
+        executeAt: executeAt5Mins,
         status: 'PENDING'
       });
-      console.log(`[REPORT SCHEDULED] AI Report for ${phone} scheduled to run at ${executeAt}`);
+      console.log(`[REPORT SCHEDULED] Initial AI Report for ${phone} scheduled to run at ${executeAt5Mins}`);
     } catch (scheduleErr) {
-      console.error("[REPORT SCHEDULE ERROR] Failed to schedule AI report:", scheduleErr);
+      console.error("[REPORT SCHEDULE ERROR] Failed to schedule initial AI report:", scheduleErr);
+    }
+
+    // 3. Schedule another AI Report to process in the background after 4 hours
+    try {
+      const executeAt4Hours = new Date(Date.now() + 4 * 60 * 60 * 1000); // 4 hours from now
+      await PendingReport.create({
+        phone: phone,
+        data: data,
+        executeAt: executeAt4Hours,
+        status: 'PENDING'
+      });
+      console.log(`[REPORT SCHEDULED] Follow-up AI Report for ${phone} scheduled to run at ${executeAt4Hours}`);
+    } catch (scheduleErr) {
+      console.error("[REPORT SCHEDULE ERROR] Failed to schedule follow-up AI report:", scheduleErr);
     }
 
   } catch (error) {

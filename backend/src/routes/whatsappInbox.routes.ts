@@ -2,10 +2,13 @@ import { Router, Response } from 'express';
 import WhatsappConversation from '../models/WhatsappConversation';
 import WhatsappMessage from '../models/WhatsappMessage';
 import WhatsappTemplate from '../models/WhatsappTemplate';
-import { sendWhatsAppMessage } from '../controllers/whatsappWebhook.controller';
+import { sendWhatsAppMessage, uploadWhatsAppMedia, sendWhatsAppDocument } from '../controllers/whatsappWebhook.controller';
 import User from '../models/User';
 import Customer from '../models/Customer';
 import { authenticateToken, isAdmin, AuthRequest } from '../middleware/auth.middleware';
+import multer from 'multer';
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 const router = Router();
 router.use(authenticateToken, isAdmin);
@@ -103,6 +106,61 @@ router.post('/messages/send', async (req: AuthRequest, res: Response): Promise<v
     res.status(200).json({ message: 'Message sent successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to send message' });
+  }
+});
+
+// POST send a media message
+router.post('/messages/send-media', upload.single('file'), async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { conversationId, text } = req.body;
+    const file = req.file;
+
+    if (!file) {
+      res.status(400).json({ error: 'File is required' });
+      return;
+    }
+
+    const conversation = await WhatsappConversation.findById(conversationId);
+    if (!conversation) {
+      res.status(404).json({ error: 'Conversation not found' });
+      return;
+    }
+
+    // Upload to Meta
+    const mediaId = await uploadWhatsAppMedia(file.buffer, file.mimetype, file.originalname);
+    if (!mediaId) {
+      res.status(500).json({ error: 'Failed to upload media to WhatsApp' });
+      return;
+    }
+
+    // Send the document
+    await sendWhatsAppDocument(conversation.phone, mediaId, text || '', file.originalname);
+
+    // Note: Log the message to the DB as well, so it shows up in chat history
+    let msgText = text ? `[Media: ${file.originalname}]\n${text}` : `[Media: ${file.originalname}]`;
+    const msg = await WhatsappMessage.create({
+      conversationId: conversation._id,
+      messageId: 'outbound_media_' + Date.now(),
+      sender: 'admin',
+      direction: 'outbound',
+      type: 'document',
+      text: msgText,
+      status: 'sent',
+      timestamp: new Date()
+    });
+
+    // Update conversation snippet
+    await WhatsappConversation.findByIdAndUpdate(conversation._id, {
+      $set: { 
+        lastMessageAt: new Date(), 
+        lastMessagePreview: msgText.substring(0, 50) + (msgText.length > 50 ? '...' : '') 
+      }
+    });
+
+    res.status(200).json({ message: 'Media sent successfully', data: msg });
+  } catch (error) {
+    console.error('Send media error:', error);
+    res.status(500).json({ error: 'Failed to send media' });
   }
 });
 

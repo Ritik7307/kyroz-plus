@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { MessageSquare, Search, Send, Phone, RefreshCw, Loader2 } from 'lucide-react';
+import { MessageSquare, Search, Send, Phone, RefreshCw, Loader2, Paperclip, X } from 'lucide-react';
 import io from 'socket.io-client';
 import { API_URL } from '@/lib/api';
 
@@ -41,6 +41,8 @@ export default function WhatsAppInboxPage() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const selected = conversations.find((c) => c._id === selectedId) || null;
@@ -113,23 +115,49 @@ export default function WhatsAppInboxPage() {
   }, [conversations, searchQuery]);
 
   const handleSend = async () => {
-    if (!selectedId || !draft.trim() || sending) return;
+    if (!selectedId || sending || (!draft.trim() && !selectedFile)) return;
     setSending(true);
     try {
-      const res = await fetch(`${API_URL}/api/admin/whatsapp/messages/send`, {
-        method: 'POST',
-        headers: authHeaders(),
-        body: JSON.stringify({ conversationId: selectedId, text: draft.trim() }),
-      });
+      let res;
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append('conversationId', selectedId);
+        formData.append('file', selectedFile);
+        if (draft.trim()) {
+          formData.append('text', draft.trim());
+        }
+
+        res = await fetch(`${API_URL}/api/admin/whatsapp/messages/send-media`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: formData,
+        });
+      } else {
+        res = await fetch(`${API_URL}/api/admin/whatsapp/messages/send`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({ conversationId: selectedId, text: draft.trim() }),
+        });
+      }
+      
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to send');
       setDraft('');
+      setSelectedFile(null);
       await loadMessages(selectedId);
       await loadConversations();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send message');
     } finally {
       setSending(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
     }
   };
 
@@ -226,21 +254,44 @@ export default function WhatsAppInboxPage() {
                   );
                 })}
               </div>
-              <div className="p-4 border-t border-foreground/5 flex items-center gap-3">
-                <input
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-                  placeholder="Type a reply..."
-                  className="flex-1 bg-foreground/5 border border-foreground/10 rounded-2xl px-4 py-3 text-sm outline-none focus:border-gold/40"
-                />
-                <button
-                  onClick={handleSend}
-                  disabled={sending || !draft.trim()}
-                  className="w-12 h-12 rounded-2xl bg-gold text-black flex items-center justify-center disabled:opacity-40"
-                >
-                  {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
-                </button>
+              <div className="p-4 border-t border-foreground/5 flex flex-col gap-2">
+                {selectedFile && (
+                  <div className="flex items-center justify-between bg-gold/10 px-4 py-2 rounded-xl text-sm font-medium">
+                    <span className="truncate max-w-[250px]">{selectedFile.name}</span>
+                    <button onClick={() => setSelectedFile(null)} className="text-foreground/50 hover:text-red-500">
+                      <X size={16} />
+                    </button>
+                  </div>
+                )}
+                <div className="flex items-center gap-3">
+                  <input
+                    type="file"
+                    className="hidden"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="image/*,application/pdf,.doc,.docx"
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-12 h-12 rounded-2xl bg-foreground/5 border border-foreground/10 text-foreground/60 flex items-center justify-center hover:bg-foreground/10"
+                  >
+                    <Paperclip size={18} />
+                  </button>
+                  <input
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
+                    placeholder="Type a reply or attach a file..."
+                    className="flex-1 bg-foreground/5 border border-foreground/10 rounded-2xl px-4 py-3 text-sm outline-none focus:border-gold/40"
+                  />
+                  <button
+                    onClick={handleSend}
+                    disabled={sending || (!draft.trim() && !selectedFile)}
+                    className="w-12 h-12 rounded-2xl bg-gold text-black flex items-center justify-center disabled:opacity-40"
+                  >
+                    {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                  </button>
+                </div>
               </div>
             </>
           ) : (
