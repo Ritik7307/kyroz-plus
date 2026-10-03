@@ -223,7 +223,7 @@ const setReminder = async (phone: string, text: string, senderName?: string) => 
     // Set a new reminder for 1 hour
     const reminderTime = new Date(Date.now() + 60 * 60 * 1000);
     
-    await OnboardingReminder.create({
+    await (OnboardingReminder as any).create({
       phone,
       userName: senderName,
       reminderTime,
@@ -364,9 +364,9 @@ export const handleIncomingMessage = async (req: Request, res: Response) => {
 
               // Set up the 3-day purchase reminder if they interacted on WhatsApp and haven't purchased
               try {
-                const existingReminder = await PurchaseReminder.findOne({ phone: from });
+                const existingReminder = await (PurchaseReminder as any).findOne({ phone: from });
                 if (!existingReminder) {
-                  await PurchaseReminder.create({
+                  await (PurchaseReminder as any).create({
                     phone: from,
                     userName: senderName,
                     reminderTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
