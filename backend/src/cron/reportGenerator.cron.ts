@@ -82,23 +82,42 @@ Structure the report EXACTLY with these sections:
         if (reportContent) {
           const htmlReport = await marked.parse(reportContent);
           const pdfBuffer = await generatePdfFromHtml(`
-            <div class="header">
-              <h1>KYROZ+</h1>
-              <p>Restaurant Growth Assessment Report</p>
-            </div>
-            ${htmlReport}
-            <div class="footer">Generated automatically by KYROZ+ AI</div>
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+            </head>
+            <body>
+              <div class="header">
+                <h1>KYROZ+</h1>
+                <p>Restaurant Growth Assessment Report</p>
+              </div>
+              ${htmlReport}
+              <div class="footer">Generated automatically by KYROZ+ AI</div>
+            </body>
+            </html>
           `);
 
           const mediaId = await uploadWhatsAppMedia(pdfBuffer, 'application/pdf', 'KYROZ_Growth_Report.pdf');
 
           if (mediaId) {
             await sendWhatsAppDocument(phone, mediaId, `Hi,\n\nAapki custom restaurant growth report taiyar ho gayi hai aur niche attach kar di gayi hai.\n\nIs report ko detail me samajhne aur aapke restaurant ke liye next steps discuss karne ke liye, KYROZ+ ki Expert Team aapse contact karegi.\n\nRegards,\nTeam KYROZ+`, 'Kyroz_Growth_Report.pdf');
+            
+            const customerName = data?.responses?.['Customer Name'] || data?.['Customer Name'] || data?.responses?.['Name'] || data?.['Name'] || 'Not Provided';
+            const mainPainPoint = data?.responses?.['Main Pain Point'] || data?.['Main Pain Point'] || data?.responses?.['What is your main pain point?'] || data?.['What is your main pain point?'] || 'Not Provided';
+
+            const leadMessage = `🚨 *NEW LEAD ASSIGNMENT - KYROZ+* 🚨\n\nTeam, ek customer ne expert discussion request kiya hai. Kripya unki attached custom report ko review karein aur niche diye gaye details par turant contact karein:\n\n*Customer Name:* ${customerName}\n\n*Contact Number:* ${phone}\n\n*Main Pain Point:* ${mainPainPoint}\n\nNote: Baat karne ke baad Google Sheet me customer ka current status update karein.`;
+
             const ownerPhone = '918874581717';
-            await sendWhatsAppDocument(ownerPhone, mediaId, `*New Form Submission (Lead)* 🚨\n\n*Phone:* ${phone}\n\n*Generated Report attached.*`, 'Lead_Report.pdf');
+            await sendWhatsAppDocument(ownerPhone, mediaId, leadMessage, 'Kyroz_Growth_Report.pdf');
           } else {
+            const customerName = data?.responses?.['Customer Name'] || data?.['Customer Name'] || data?.responses?.['Name'] || data?.['Name'] || 'Not Provided';
+            const mainPainPoint = data?.responses?.['Main Pain Point'] || data?.['Main Pain Point'] || data?.responses?.['What is your main pain point?'] || data?.['What is your main pain point?'] || 'Not Provided';
+
+            const leadMessage = `🚨 *NEW LEAD ASSIGNMENT - KYROZ+* 🚨\n\nTeam, ek customer ne expert discussion request kiya hai. Kripya unki report review karein aur niche diye gaye details par turant contact karein:\n\n*Customer Name:* ${customerName}\n\n*Contact Number:* ${phone}\n\n*Main Pain Point:* ${mainPainPoint}\n\nNote: Baat karne ke baad Google Sheet me customer ka current status update karein.\n\n*Generated Report:* 👇\n\n${reportContent}`;
+
             const ownerPhone = '918874581717';
-            await sendWhatsAppMessage(ownerPhone, `*New Form Submission (Lead)* 🚨\n\n*Phone:* ${phone}\n\n*Generated Report:* 👇\n\n${reportContent}`);
+            await sendWhatsAppMessage(ownerPhone, leadMessage);
           }
         } else {
           const ownerPhone = '918874581717';

@@ -141,7 +141,7 @@ export default function WhatsAppInboxPage() {
           body: JSON.stringify({ conversationId: selectedId, text: draft.trim() }),
         });
       }
-      
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to send');
       setDraft('');
@@ -204,9 +204,8 @@ export default function WhatsAppInboxPage() {
                 <button
                   key={conv._id}
                   onClick={() => setSelectedId(conv._id)}
-                  className={`w-full text-left px-4 py-4 border-b border-foreground/5 hover:bg-foreground/5 ${
-                    selectedId === conv._id ? 'bg-gold/10' : ''
-                  }`}
+                  className={`w-full text-left px-4 py-4 border-b border-foreground/5 hover:bg-foreground/5 ${selectedId === conv._id ? 'bg-gold/10' : ''
+                    }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -247,9 +246,8 @@ export default function WhatsAppInboxPage() {
                   const outbound = msg.direction === 'outbound';
                   return (
                     <div key={msg._id} className={`flex ${outbound ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm ${
-                        outbound ? 'bg-gold text-black font-medium' : 'bg-foreground/5 border border-foreground/10'
-                      }`}>
+                      <div className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm ${outbound ? 'bg-gold text-black font-medium' : 'bg-foreground/5 border border-foreground/10'
+                        }`}>
                         <p className="whitespace-pre-wrap">{msg.text || '[media]'}</p>
                         <p className={`text-[10px] mt-2 ${outbound ? 'text-black/60' : 'text-foreground/30'}`}>
                           {msg.timestamp ? new Date(msg.timestamp).toLocaleString() : ''}

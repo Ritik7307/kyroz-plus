@@ -17,8 +17,9 @@ export const generatePdfFromHtml = async (htmlContent: string): Promise<Buffer> 
   // Add some basic styling if not already present
   await page.addStyleTag({
     content: `
+      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari&display=swap');
       body {
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-family: 'Helvetica Neue', Helvetica, Arial, 'Noto Sans Devanagari', sans-serif;
         color: #000000; /* Black font */
         line-height: 1.6;
         padding: 40px;
