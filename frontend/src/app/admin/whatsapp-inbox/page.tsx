@@ -50,6 +50,7 @@ export default function WhatsAppInboxPage() {
   const [broadcastFile, setBroadcastFile] = useState<File | null>(null);
   const [broadcasting, setBroadcasting] = useState(false);
   const [broadcastProgress, setBroadcastProgress] = useState({ done: 0, total: 0 });
+  const [selectedBroadcastIds, setSelectedBroadcastIds] = useState<string[]>([]);
   const broadcastFileInputRef = useRef<HTMLInputElement>(null);
 
   const selected = conversations.find((c) => c._id === selectedId) || null;
@@ -170,11 +171,13 @@ export default function WhatsAppInboxPage() {
 
   const handleBroadcast = async () => {
     if (!broadcastDraft.trim() && !broadcastFile) return;
-    if (conversations.length === 0) return;
+    if (selectedBroadcastIds.length === 0) return;
     setBroadcasting(true);
-    setBroadcastProgress({ done: 0, total: conversations.length });
+    setBroadcastProgress({ done: 0, total: selectedBroadcastIds.length });
 
-    for (const conv of conversations) {
+    const selectedConvs = conversations.filter(c => selectedBroadcastIds.includes(c._id));
+
+    for (const conv of selectedConvs) {
       try {
         if (broadcastFile) {
           const formData = new FormData();
@@ -218,7 +221,10 @@ export default function WhatsAppInboxPage() {
         </div>
         <div className="flex gap-3">
           <button
-            onClick={() => setShowBroadcastModal(true)}
+            onClick={() => {
+              setSelectedBroadcastIds(conversations.map(c => c._id));
+              setShowBroadcastModal(true);
+            }}
             className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-gold text-black font-black uppercase tracking-widest text-xs hover:scale-105 transition-all shadow-lg shadow-gold/20"
           >
             <Send size={16} /> Broadcast
@@ -371,9 +377,48 @@ export default function WhatsAppInboxPage() {
               </button>
             </div>
             
-            <p className="text-sm text-foreground/60 mb-6">
-              This message will be sent to all {conversations.length} contacts in your inbox.
-            </p>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm text-foreground/60">
+                Select the contacts to send the message to.
+              </p>
+              <button
+                onClick={() => {
+                  setSelectedBroadcastIds(
+                    selectedBroadcastIds.length === conversations.length 
+                      ? [] 
+                      : conversations.map((c) => c._id)
+                  );
+                }}
+                className="text-xs font-bold text-gold uppercase"
+              >
+                {selectedBroadcastIds.length === conversations.length ? 'Unselect All' : 'Select All'}
+              </button>
+            </div>
+
+            <div className="max-h-[160px] overflow-y-auto custom-scrollbar space-y-2 mb-6 border border-foreground/10 p-3 rounded-2xl bg-foreground/5">
+              {conversations.map(c => {
+                const checked = selectedBroadcastIds.includes(c._id);
+                return (
+                  <button
+                    key={c._id}
+                    onClick={() => {
+                      setSelectedBroadcastIds(prev => 
+                        prev.includes(c._id) ? prev.filter(id => id !== c._id) : [...prev, c._id]
+                      );
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-foreground/10 text-left transition-colors"
+                  >
+                    <div>
+                      <p className="font-bold text-sm">{c.name || 'Unknown'}</p>
+                      <p className="text-xs text-foreground/50">{c.phone}</p>
+                    </div>
+                    <div className={`w-5 h-5 rounded-md border flex items-center justify-center ${checked ? 'bg-gold border-gold text-black' : 'border-foreground/30'}`}>
+                      {checked && <CheckSquare size={14} className="text-black" />}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
 
             <div className="space-y-4">
               <textarea

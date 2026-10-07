@@ -1113,10 +1113,40 @@ export default function CostingMaster() {
                   <X size={20} />
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                <pre className="bg-black/50 p-6 rounded-2xl text-green-400 text-sm font-mono overflow-x-auto whitespace-pre-wrap border border-white/5">
-                  {JSON.stringify(globalMasterCosting, null, 2)}
-                </pre>
+              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar pb-10">
+                {!globalMasterCosting ? (
+                   <p className="text-foreground/40 p-6">Loading...</p>
+                ) : (
+                  <div className="space-y-10">
+                    {Object.entries(globalMasterCosting).map(([key, items]: [string, any]) => {
+                      if (!Array.isArray(items) || items.length === 0) return null;
+                      return (
+                        <div key={key} className="space-y-4">
+                          <h4 className="text-sm font-black text-gold uppercase tracking-widest border-b border-white/10 pb-2">
+                            {key.replace(/([A-Z])/g, ' $1').trim()}
+                          </h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {items.map((item, idx) => (
+                              <div key={idx} className="p-4 bg-white/5 border border-white/10 rounded-xl flex flex-col gap-2">
+                                <p className="font-bold text-foreground text-sm uppercase tracking-wider">{item.name || item.sfgName || item.code || 'Item'}</p>
+                                <div className="text-xs text-foreground/60 space-y-1 border-t border-white/5 pt-2 mt-1">
+                                  {Object.entries(item).filter(([k]) => k !== 'name' && k !== 'sfgName' && k !== 'code').map(([k, v]) => (
+                                    <div key={k} className="flex justify-between items-start gap-4">
+                                      <span className="capitalize whitespace-nowrap text-foreground/40">{k.replace(/([A-Z])/g, ' $1').trim()}</span>
+                                      <span className="font-medium text-foreground/80 text-right break-words">
+                                        {typeof v === 'object' ? JSON.stringify(v) : String(v)}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>

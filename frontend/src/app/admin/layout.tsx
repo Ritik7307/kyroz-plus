@@ -110,13 +110,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         {/* Unified Navbar Section */}
-        <div className="flex items-center gap-12">
-          <nav className="hidden lg:flex items-center gap-10 text-[11px] font-black uppercase tracking-[0.2em]">
+        <div className="flex flex-1 items-center justify-end lg:justify-between gap-4 lg:gap-8 ml-6 overflow-hidden">
+          <nav className="hidden lg:flex items-center gap-6 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] text-[11px] font-black uppercase tracking-[0.2em] flex-1 mask-linear-fade whitespace-nowrap">
             {navLinks.map((link) => (
               <Link 
                 key={link.path}
                 href={link.path} 
-                className={`transition-all pb-2 border-b-2 ${
+                className={`transition-all pb-2 border-b-2 flex-shrink-0 ${
                   pathname === link.path 
                     ? 'text-gold border-gold' 
                     : 'text-foreground/70 hover:text-foreground border-transparent'
@@ -127,7 +127,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             ))}
           </nav>
 
-          <div className="flex items-center gap-6 border-l border-foreground/5 pl-12">
+          <div className="flex items-center gap-4 lg:gap-6 lg:border-l border-foreground/5 lg:pl-8 flex-shrink-0">
             <button 
               onClick={() => setIsSearchOpen(true)}
               className="p-3 bg-foreground/5 hover:bg-foreground/10 rounded-2xl text-foreground/70 hover:text-gold transition-all flex items-center gap-3 border border-foreground/5"
@@ -140,9 +140,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             
             <button 
               onClick={() => { localStorage.clear(); router.push('/login'); }} 
-              className="flex items-center gap-2 text-red-500 hover:text-red-400 transition-colors text-sm font-bold ml-4"
+              className="flex items-center gap-2 text-red-500 hover:text-red-400 transition-colors text-sm font-bold"
             >
-              <LogOut size={18} /> Logout
+              <LogOut size={18} /> <span className="hidden sm:inline">Logout</span>
             </button>
           </div>
         </div>
