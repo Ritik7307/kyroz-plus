@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { MessageSquare, Search, Send, Phone, RefreshCw, Loader2, Paperclip, X, ArrowLeft } from 'lucide-react';
+import { MessageSquare, Search, Send, Phone, RefreshCw, Loader2, Paperclip, X, ArrowLeft, CheckSquare } from 'lucide-react';
 import io from 'socket.io-client';
 import { API_URL } from '@/lib/api';
 
