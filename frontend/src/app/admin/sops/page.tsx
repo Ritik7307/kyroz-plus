@@ -200,11 +200,11 @@ export default function GlobalSopsPage() {
                       options={[
                         { label: 'South Indian', value: 'South Indian' },
                         { label: 'Cafe', value: 'Cafe' },
-                        { label: 'Mandi/Biryani', value: 'Mandi/Biryani' },
+                        { label: 'Biryani', value: 'Biryani' },
+                        { label: 'Mandi', value: 'Mandi' },
                         { label: 'Chinese', value: 'Chinese' },
+                        { label: 'Indian Curry', value: 'Indian Curry' },
                         { label: 'Discipline', value: 'Discipline' },
-                        { label: 'Veg', value: 'Veg' },
-                        { label: 'Non-Veg', value: 'Non-Veg' },
                         { label: 'Preparation', value: 'Preparation' },
                         { label: 'Tandoor', value: 'Tandoor' }
                       ]}

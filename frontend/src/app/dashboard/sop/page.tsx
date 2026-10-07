@@ -87,6 +87,17 @@ function SOPLibraryContent() {
     setError(null);
     try {
       const token = localStorage.getItem('token');
+      
+      // Auto-sync master SOPs first
+      try {
+        await fetch(`${API_URL}/api/sops/sync`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      } catch (syncErr) {
+        console.error('Failed to sync master SOPs:', syncErr);
+      }
+
       const userRes = await fetch(`${API_URL}/api/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -156,7 +167,7 @@ function SOPLibraryContent() {
     }
   };
 
-  const categories = ['All', 'Cafe', 'Chinese', 'Biryani', 'Mandi', 'South Indian', 'Indian Curry', 'Tandoor', 'Preparation'];
+  const categories = ['All', 'Cafe', 'Chinese', 'Biryani', 'Mandi', 'South Indian', 'Indian Curry', 'Tandoor', 'Preparation', 'Discipline'];
   
   const displayedCategories = (userPlan === 'Starter' && userRole !== 'admin' && selectedSopCategory) 
     ? [selectedSopCategory]
