@@ -611,7 +611,11 @@ function SOPLibraryContent() {
             display: block !important;
           }
 
-          .text-foreground/80 { 
+          .prose p, .prose span, .prose div, .prose th, .prose td, .prose h3 {
+            color: black !important;
+          }
+
+          .text-foreground\\/80 { 
             color: black !important; 
             font-size: 11pt !important;
             line-height: 1.6 !important; 
