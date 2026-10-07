@@ -45,6 +45,13 @@ export default function WhatsAppInboxPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const [showBroadcastModal, setShowBroadcastModal] = useState(false);
+  const [broadcastDraft, setBroadcastDraft] = useState('');
+  const [broadcastFile, setBroadcastFile] = useState<File | null>(null);
+  const [broadcasting, setBroadcasting] = useState(false);
+  const [broadcastProgress, setBroadcastProgress] = useState({ done: 0, total: 0 });
+  const broadcastFileInputRef = useRef<HTMLInputElement>(null);
+
   const selected = conversations.find((c) => c._id === selectedId) || null;
 
   const loadConversations = useCallback(async () => {
@@ -161,6 +168,46 @@ export default function WhatsAppInboxPage() {
     }
   };
 
+  const handleBroadcast = async () => {
+    if (!broadcastDraft.trim() && !broadcastFile) return;
+    if (conversations.length === 0) return;
+    setBroadcasting(true);
+    setBroadcastProgress({ done: 0, total: conversations.length });
+
+    for (const conv of conversations) {
+      try {
+        if (broadcastFile) {
+          const formData = new FormData();
+          formData.append('conversationId', conv._id);
+          formData.append('file', broadcastFile);
+          if (broadcastDraft.trim()) {
+            formData.append('text', broadcastDraft.trim());
+          }
+          await fetch(`${API_URL}/api/admin/whatsapp/messages/send-media`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+            body: formData,
+          });
+        } else {
+          await fetch(`${API_URL}/api/admin/whatsapp/messages/send`, {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({ conversationId: conv._id, text: broadcastDraft.trim() }),
+          });
+        }
+      } catch (err) {
+        console.error(`Failed to send to ${conv.phone}:`, err);
+      }
+      setBroadcastProgress((prev) => ({ ...prev, done: prev.done + 1 }));
+    }
+
+    setBroadcasting(false);
+    setShowBroadcastModal(false);
+    setBroadcastDraft('');
+    setBroadcastFile(null);
+    loadConversations();
+  };
+
   return (
     <div className="space-y-6">
       <header className="flex items-center justify-between gap-4">
@@ -169,12 +216,20 @@ export default function WhatsAppInboxPage() {
           <h1 className="text-4xl font-black tracking-tighter">LIVE <span className="text-gold">INBOX</span></h1>
           <p className="text-foreground/40 text-sm mt-2">Reply to customer and member WhatsApp chats from one place.</p>
         </div>
-        <button
-          onClick={loadConversations}
-          className="flex items-center gap-2 px-4 py-3 rounded-2xl border border-foreground/10 text-foreground/60 hover:text-gold hover:border-gold/40"
-        >
-          <RefreshCw size={16} /> Refresh
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setShowBroadcastModal(true)}
+            className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-gold text-black font-black uppercase tracking-widest text-xs hover:scale-105 transition-all shadow-lg shadow-gold/20"
+          >
+            <Send size={16} /> Broadcast
+          </button>
+          <button
+            onClick={loadConversations}
+            className="flex items-center gap-2 px-4 py-3 rounded-2xl border border-foreground/10 text-foreground/60 hover:text-gold hover:border-gold/40 transition-all"
+          >
+            <RefreshCw size={16} /> Refresh
+          </button>
+        </div>
       </header>
 
       {error && (
@@ -305,6 +360,78 @@ export default function WhatsAppInboxPage() {
           )}
         </section>
       </div>
+
+      {showBroadcastModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+          <div className="bg-card w-full max-w-lg rounded-[2rem] border border-foreground/10 p-8 shadow-2xl">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-black uppercase tracking-tight text-gold">Broadcast Message</h2>
+              <button onClick={() => setShowBroadcastModal(false)} className="text-foreground/40 hover:text-foreground">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <p className="text-sm text-foreground/60 mb-6">
+              This message will be sent to all {conversations.length} contacts in your inbox.
+            </p>
+
+            <div className="space-y-4">
+              <textarea
+                value={broadcastDraft}
+                onChange={(e) => setBroadcastDraft(e.target.value)}
+                placeholder="Type your broadcast message..."
+                className="w-full bg-foreground/5 border border-foreground/10 rounded-2xl p-4 min-h-[120px] outline-none focus:border-gold/40 text-sm resize-none"
+              />
+              
+              <div className="flex items-center gap-4">
+                <input 
+                  type="file" 
+                  className="hidden" 
+                  ref={broadcastFileInputRef}
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setBroadcastFile(e.target.files[0]);
+                    }
+                  }}
+                />
+                <button 
+                  onClick={() => broadcastFileInputRef.current?.click()}
+                  className="px-4 py-2 border border-foreground/10 rounded-xl text-sm flex items-center gap-2 hover:bg-foreground/5 transition-all"
+                >
+                  <Paperclip size={16} /> 
+                  <span className="truncate max-w-[200px]">
+                    {broadcastFile ? broadcastFile.name : 'Attach File'}
+                  </span>
+                </button>
+                {broadcastFile && (
+                  <button onClick={() => setBroadcastFile(null)} className="text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition-all">
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-8">
+              <button
+                onClick={handleBroadcast}
+                disabled={broadcasting || (!broadcastDraft.trim() && !broadcastFile)}
+                className="w-full bg-gold text-black py-4 rounded-xl font-black uppercase tracking-widest text-sm hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-3"
+              >
+                {broadcasting ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Sending {broadcastProgress.done} / {broadcastProgress.total}
+                  </>
+                ) : (
+                  <>
+                    <Send size={18} /> Send to All
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
