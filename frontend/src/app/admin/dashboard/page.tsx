@@ -108,19 +108,20 @@ export default function AdminDashboard() {
           
           {/* USER MANAGEMENT TABLE */}
           <div className="lg:col-span-8 space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <h3 className="text-lg font-bold flex items-center gap-2 whitespace-nowrap">
                 <UserCheck size={20} className="text-gold" /> Recent Members
               </h3>
-              <div className="relative">
+              <div className="relative w-full sm:w-auto">
                 <Search size={16} className="absolute left-3 top-3 text-foreground/20" />
-                <input type="text" placeholder="Search users..." className="bg-foreground/5 border border-foreground/10 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-gold/50 transition-all w-64" />
+                <input type="text" placeholder="Search users..." className="bg-foreground/5 border border-foreground/10 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-gold/50 transition-all w-full sm:w-64" />
               </div>
             </div>
 
-            <div className="bg-card glass-card rounded-2xl overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[600px]">
-                <thead>
+            <div className="bg-card glass-card rounded-2xl overflow-hidden w-full">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse min-w-[600px]">
+                  <thead>
                   <tr className="bg-foreground/5 text-xs uppercase tracking-[0.2em] text-foreground/40">
                     <th className="p-4 pl-6 font-bold">User</th>
                     <th className="p-4 font-bold">Shop Name</th>
@@ -157,6 +158,7 @@ export default function AdminDashboard() {
               {users.length === 0 && (
                 <div className="p-12 text-center text-foreground/20 uppercase tracking-widest font-bold">No members found</div>
               )}
+              </div>
             </div>
 
             {/* SOP PACKETS PREVIEW SECTION */}
