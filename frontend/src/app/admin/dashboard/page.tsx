@@ -118,8 +118,8 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="bg-card glass-card rounded-2xl overflow-hidden">
-              <table className="w-full text-left border-collapse">
+            <div className="bg-card glass-card rounded-2xl overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[600px]">
                 <thead>
                   <tr className="bg-foreground/5 text-xs uppercase tracking-[0.2em] text-foreground/40">
                     <th className="p-4 pl-6 font-bold">User</th>

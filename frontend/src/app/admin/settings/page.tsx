@@ -231,7 +231,7 @@ export default function AdminSettingsPage() {
 
                   <div className="space-y-3">
                     <label className="text-xs font-black uppercase tracking-[0.2em] text-foreground/30">Master Security Level</label>
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {['Standard', 'High', 'Maximum'].map((level) => (
                         <button 
                           key={level}
