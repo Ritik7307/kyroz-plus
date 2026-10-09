@@ -90,7 +90,12 @@ export const verifyPayment = async (req: AuthRequest, res: Response): Promise<vo
     }
 
     user.subscriptionPlan = plan;
-    user.subscriptionExpiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+    const now = new Date();
+    if (user.subscriptionExpiryDate && new Date(user.subscriptionExpiryDate) > now) {
+      user.subscriptionExpiryDate = new Date(new Date(user.subscriptionExpiryDate).getTime() + 30 * 24 * 60 * 60 * 1000);
+    } else {
+      user.subscriptionExpiryDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    }
     await user.save();
 
     // Cancel any pending purchase reminders since the user has now purchased

@@ -359,7 +359,7 @@ export default async function Home() {
             <div className="bg-[#111] border border-[#222] rounded-3xl p-8 hover:border-[#444] transition flex flex-col">
               <h3 className="text-xl font-bold text-white mb-2 uppercase tracking-widest">KYROZ Starter</h3>
               <div className="flex flex-col mb-6">
-                <span className="text-xl font-bold text-gray-500 line-through">₹1,999</span>
+                <span className="text-xl font-bold text-gray-500 line-through">₹{pricing.starter.price}</span>
                 <div className="flex items-baseline gap-2">
                   <span className="text-4xl font-extrabold text-white">₹{getFinalPrice(pricing.starter)}</span>
                   <span className="text-gray-500">/mo</span>
@@ -394,7 +394,7 @@ export default async function Home() {
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#d4af37] text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Recommended</div>
               <h3 className="text-xl font-bold text-[#d4af37] mb-2 uppercase tracking-widest">KYROZ Premium</h3>
               <div className="flex flex-col mb-6">
-                <span className="text-xl font-bold text-gray-500 line-through">₹4,999</span>
+                <span className="text-xl font-bold text-gray-500 line-through">₹{pricing.growth.price}</span>
                 <div className="flex items-baseline gap-2">
                   <span className="text-5xl font-extrabold text-[#d4af37]">₹{getFinalPrice(pricing.growth)}</span>
                   <span className="text-gray-500">/mo</span>
@@ -430,9 +430,12 @@ export default async function Home() {
             <div className="bg-[#111] border border-[#222] rounded-3xl p-8 hover:border-[#444] transition flex flex-col relative overflow-hidden">
               <h3 className="text-xl font-bold text-white mb-2 uppercase tracking-widest">KYROZ Scale</h3>
               <div className="flex flex-col mb-6">
-                <div className="flex items-baseline gap-2 mt-7">
-                  <span className="text-3xl font-extrabold text-gray-400 uppercase tracking-widest">Coming Soon</span>
+                <span className="text-xl font-bold text-gray-500 line-through">₹{pricing.scale.price}</span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl font-extrabold text-white">₹{getFinalPrice(pricing.scale)}</span>
+                  <span className="text-gray-500">/mo</span>
                 </div>
+                <span className="text-[#d4af37] text-sm font-bold mt-1">Founding Member Price</span>
               </div>
               <p className="text-gray-400 text-sm mb-6 pb-6 border-b border-[#222]">Multi-outlet growth.</p>
               <div className="mb-6">
@@ -449,9 +452,14 @@ export default async function Home() {
                   <li className="flex items-start gap-3 text-sm text-white font-medium">
                     <span className="text-[#d4af37]">✓</span> Everything in Premium
                   </li>
-                  {['Multi-Outlet Dashboard', 'Advanced Business Intelligence', 'Marketing Engine', 'Premium AI Restaurant Consultant'].map(feature => (
+                  {['Multi-Outlet Dashboard', 'Marketing Engine'].map(feature => (
                     <li key={feature} className="flex items-start gap-3 text-sm text-gray-300">
                       <span className="text-[#d4af37]">✓</span> {feature}
+                    </li>
+                  ))}
+                  {['Advanced Business Intelligence', 'Premium AI Restaurant Consultant'].map(feature => (
+                    <li key={feature} className="flex items-start gap-3 text-sm text-gray-400">
+                      <span className="text-gray-500 text-xs mt-0.5 border border-gray-600 rounded px-1">SOON</span> {feature}
                     </li>
                   ))}
                 </ul>
@@ -467,11 +475,11 @@ export default async function Home() {
             <div className="space-y-4 mb-8 mt-6">
               <div className="flex justify-between items-center bg-black/40 px-6 py-4 rounded-xl border border-white/5">
                 <span className="text-gray-300 font-bold uppercase tracking-wider">Starter</span>
-                <span className="text-2xl font-black text-white">₹999<span className="text-sm text-gray-500 font-normal">/mo</span></span>
+                <span className="text-2xl font-black text-white">₹{getFinalPrice(pricing.starter)}<span className="text-sm text-gray-500 font-normal">/mo</span></span>
               </div>
               <div className="flex justify-between items-center bg-black/40 px-6 py-4 rounded-xl border border-white/5">
                 <span className="text-gray-300 font-bold uppercase tracking-wider">Premium</span>
-                <span className="text-2xl font-black text-[#d4af37]">₹2999<span className="text-sm text-gray-500 font-normal">/mo</span></span>
+                <span className="text-2xl font-black text-[#d4af37]">₹{getFinalPrice(pricing.growth)}<span className="text-sm text-gray-500 font-normal">/mo</span></span>
               </div>
             </div>
 

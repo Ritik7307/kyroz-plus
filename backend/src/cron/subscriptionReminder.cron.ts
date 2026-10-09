@@ -1,5 +1,6 @@
 import cron from 'node-cron';
 import User from '../models/User';
+import Notification from '../models/Notification';
 import { sendWhatsAppMessage } from '../controllers/whatsappWebhook.controller';
 
 const startSubscriptionReminderCron = () => {
@@ -47,6 +48,16 @@ const startSubscriptionReminderCron = () => {
           if (message) {
             await sendWhatsAppMessage(user.phone!, message);
             console.log(`[CRON] Sent subscription reminder (diff: ${diffDays} days) to ${user.phone}`);
+            
+            const title = diffDays === 0 ? 'Subscription Expiring Today' : diffDays > 0 ? `Subscription Expires in ${diffDays} day(s)` : 'Subscription Expired';
+            const type = diffDays === 0 || diffDays === -1 ? 'error' : 'warning';
+            await Notification.create({
+              userId: user._id,
+              title: title,
+              message: message,
+              type: type,
+              category: 'subscription'
+            });
           }
         } catch (sendErr) {
           console.error(`[CRON] Failed to send subscription reminder to ${user.phone}:`, sendErr);
