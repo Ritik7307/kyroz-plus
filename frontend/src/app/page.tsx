@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { API_URL } from '@/lib/api';
+import { AlertCircle, IndianRupee, User, MessageSquare } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,12 +37,34 @@ async function getPricingConfig() {
     }
   }
 
-  console.error('All fetch attempts failed for pricing config:', lastError);
   return { ...defaultPricing, isError: true, errorMessage: String(lastError) };
+}
+
+async function getTestimonials() {
+  const urlsToTry = [
+    `${API_URL}/api/testimonials`,
+    `http://127.0.0.1:5000/api/testimonials`,
+    `http://localhost:5000/api/testimonials`,
+    `https://kyroz-plus-backend.onrender.com/api/testimonials`
+  ];
+
+  for (const url of urlsToTry) {
+    try {
+      const res = await fetch(url, { next: { revalidate: 60 } }); // Cache for 60 seconds
+      if (res.ok) {
+        const data = await res.json();
+        return Array.isArray(data) ? data : [];
+      }
+    } catch (err) {
+      // Ignore and try next
+    }
+  }
+  return [];
 }
 
 export default async function Home() {
   const pricing = await getPricingConfig();
+  const testimonials = await getTestimonials();
 
   const getFinalPrice = (plan: any) => {
     if (!plan) return 0;
@@ -221,6 +244,53 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* 6.5 Testimonials */}
+      {testimonials && testimonials.length > 0 && (
+        <section className="py-24 bg-[#0a0a0a] px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-5xl font-black text-white mb-4 uppercase tracking-tighter">
+                What Owners <span className="text-[#d4af37]">Say</span>
+              </h2>
+              <p className="text-gray-400 font-medium max-w-2xl mx-auto">
+                Real feedback from restaurants running on KYROZ+.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {testimonials.map((t: any) => (
+                <div 
+                  key={t._id}
+                  className="bg-[#111] p-8 rounded-[2rem] border border-[#222] relative group hover:border-[#d4af37]/30 transition-all shadow-xl flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-start gap-4 mb-6">
+                      <div className="w-14 h-14 rounded-full bg-[#222] shadow-sm overflow-hidden shrink-0 border border-[#333] flex items-center justify-center">
+                        {t.avatarUrl ? (
+                          <img src={t.avatarUrl} alt={t.userName} className="w-full h-full object-cover" />
+                        ) : (
+                          <User size={24} className="text-gray-500" />
+                        )}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white text-lg">{t.userName}</h4>
+                        <p className="text-xs font-black uppercase tracking-widest text-[#d4af37] mt-1">{t.userRole}</p>
+                      </div>
+                    </div>
+                    <p className="text-gray-400 italic leading-relaxed line-clamp-4">"{t.content}"</p>
+                  </div>
+                  <div className="mt-8 flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <span key={i} className={`text-lg ${i < t.rating ? 'text-[#d4af37]' : 'text-[#333]'}`}>★</span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 7. Meet KYROZ KOSA */}
       <section id="features" className="py-24 px-6 relative">

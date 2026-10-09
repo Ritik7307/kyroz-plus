@@ -139,7 +139,7 @@ export default function SopPacketsPage() {
   return (
     <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-6xl mx-auto space-y-8">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl font-black tracking-tighter flex items-center gap-3">
               <Package className="text-gold" size={32} /> SOP PACKETS

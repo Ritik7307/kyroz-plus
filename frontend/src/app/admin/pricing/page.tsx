@@ -28,7 +28,11 @@ export default function AdminPricingPage() {
         if (res.ok) {
           const data = await res.json();
           if (data) {
-            setPricing(data);
+            setPricing({
+              starter: data.starter || data.basic || { price: 999, discount: 0 },
+              growth: data.growth || data.pro || { price: 2999, discount: 0 },
+              scale: data.scale || data.elite || { price: 9999, discount: 0 }
+            });
           }
         }
       } catch (error) {

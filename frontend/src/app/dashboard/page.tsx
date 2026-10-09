@@ -33,7 +33,6 @@ export default function DashboardPage() {
   const [user, setUser] = React.useState<any>(null);
   const [sops, setSops] = React.useState<any[]>([]);
   const [packets, setPackets] = React.useState<any[]>([]);
-  const [testimonials, setTestimonials] = React.useState<any[]>([]);
   const [dailyProfit, setDailyProfit] = React.useState<number>(0);
   const [dailyRevenue, setDailyRevenue] = React.useState<number>(0);
   const router = useRouter();
@@ -60,10 +59,9 @@ export default function DashboardPage() {
         const headers = { 'Authorization': `Bearer ${token}` };
 
         // Run data fetching in parallel
-        const [sopRes, packetsRes, testimonialsRes, profitRes] = await Promise.allSettled([
+        const [sopRes, packetsRes, profitRes] = await Promise.allSettled([
           fetch(`${API_URL}/api/sops`, { headers }),
           fetch(`${API_URL}/api/sop-packets`, { headers }),
-          fetch(`${API_URL}/api/testimonials`, { headers }),
           fetch(`${API_URL}/api/orders/daily-profit`, { headers })
         ]);
 
@@ -75,11 +73,6 @@ export default function DashboardPage() {
         if (packetsRes.status === 'fulfilled' && packetsRes.value.ok) {
           const packetsData = await packetsRes.value.json();
           setPackets(Array.isArray(packetsData) ? packetsData : []);
-        }
-
-        if (testimonialsRes.status === 'fulfilled' && testimonialsRes.value.ok) {
-          const testimonialsData = await testimonialsRes.value.json();
-          setTestimonials(Array.isArray(testimonialsData) ? testimonialsData : []);
         }
 
         if (profitRes.status === 'fulfilled' && profitRes.value.ok) {
@@ -308,51 +301,6 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-
-        {/* --- TESTIMONIALS SECTION --- */}
-        <section className="space-y-6 pt-8 border-t border-border">
-          <div className="flex items-center justify-between">
-            <h3 className="text-foreground/40 text-[11px] font-black tracking-[0.4em] uppercase flex items-center gap-2">
-              <MessageSquare size={16} className="text-gold" /> Member Stories
-            </h3>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.slice(0, 3).map((t: any) => (
-              <motion.div 
-                key={t._id}
-                className="bg-card glass-card p-6 rounded-[2rem] border border-border relative group hover:border-gold/30 transition-all shadow-xl flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-card shadow-sm overflow-hidden shrink-0 border border-border flex items-center justify-center">
-                      {t.avatarUrl ? (
-                        <img src={t.avatarUrl} alt={t.userName} className="w-full h-full object-cover" />
-                      ) : (
-                        <User size={20} className="text-foreground/20" />
-                      )}
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-sm text-foreground">{t.userName}</h4>
-                      <p className="text-xs font-black uppercase tracking-widest text-gold">{t.userRole}</p>
-                    </div>
-                  </div>
-                  <p className="text-xs text-foreground/60 italic leading-relaxed line-clamp-4">"{t.content}"</p>
-                </div>
-                <div className="mt-6 flex gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <span key={i} className={`text-sm ${i < t.rating ? 'text-gold' : 'text-foreground/10'}`}>★</span>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-            {testimonials.length === 0 && (
-              <div className="col-span-full py-12 text-center bg-card shadow-sm rounded-[2rem] border border-dashed border-border">
-                <p className="text-foreground/20 font-bold uppercase tracking-widest text-xs">No Member Stories available yet.</p>
-              </div>
-            )}
-          </div>
-        </section>
 
       {/* --- KOSA FLOATING AI HANDLED IN LAYOUT --- */}
     </div>
