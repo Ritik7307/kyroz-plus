@@ -2,6 +2,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { API_URL } from '@/lib/api';
 
+export const dynamic = 'force-dynamic';
+
 async function getPricingConfig() {
   const defaultPricing = {
     starter: { price: 999, discount: 0 },
@@ -10,8 +12,9 @@ async function getPricingConfig() {
   };
 
   try {
-    // Cache the pricing config for 1 hour to prevent blocking the landing page render
-    const res = await fetch(`${API_URL}/api/admin/settings/pricing`, {
+    // Fix Node 18+ IPv6 localhost resolution issue during SSR
+    const fetchUrl = API_URL.replace('localhost', '127.0.0.1') + '/api/admin/settings/pricing';
+    const res = await fetch(fetchUrl, {
       cache: 'no-store'
     });
     if (res.ok) {
