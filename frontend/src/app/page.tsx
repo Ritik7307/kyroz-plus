@@ -11,24 +11,32 @@ async function getPricingConfig() {
     scale: { price: 9999, discount: 0 }
   };
 
-  try {
-    // Fix Node 18+ IPv6 localhost resolution issue during SSR
-    const fetchUrl = API_URL.replace('localhost', '127.0.0.1') + '/api/admin/settings/pricing';
-    const res = await fetch(fetchUrl, {
-      cache: 'no-store'
-    });
-    if (res.ok) {
-      const data = await res.json();
-      return {
-        starter: data?.starter || defaultPricing.starter,
-        growth: data?.growth || defaultPricing.growth,
-        scale: data?.scale || defaultPricing.scale
-      };
+  const urlsToTry = [
+    `${API_URL}/api/admin/settings/pricing`,
+    `http://127.0.0.1:5000/api/admin/settings/pricing`,
+    `http://localhost:5000/api/admin/settings/pricing`
+  ];
+
+  let lastError = null;
+
+  for (const url of urlsToTry) {
+    try {
+      const res = await fetch(url, { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        return {
+          starter: data?.starter || defaultPricing.starter,
+          growth: data?.growth || defaultPricing.growth,
+          scale: data?.scale || defaultPricing.scale
+        };
+      }
+    } catch (err) {
+      lastError = err;
     }
-  } catch (err) {
-    console.error('Failed to fetch pricing config:', err);
   }
-  return defaultPricing;
+
+  console.error('All fetch attempts failed for pricing config:', lastError);
+  return { ...defaultPricing, isError: true, errorMessage: String(lastError) };
 }
 
 export default async function Home() {
@@ -60,6 +68,13 @@ export default async function Home() {
 
       {/* 2. Hero Section */}
       <section className="relative pt-16 md:pt-48 pb-12 md:pb-24 px-6 overflow-hidden">
+        {(pricing as any).isError && (
+          <div className="bg-red-500/20 text-red-500 p-4 rounded-xl max-w-4xl mx-auto mb-8 font-mono text-sm border border-red-500/50">
+            [DEBUG] Fetch Error: {(pricing as any).errorMessage}
+            <br />
+            API_URL: {API_URL}
+          </div>
+        )}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#d4af37]/5 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <div className="inline-block mb-6 px-4 py-1.5 rounded-full border border-[#d4af37]/30 bg-[#d4af37]/10 text-[#d4af37] text-xs font-semibold tracking-wide uppercase">
