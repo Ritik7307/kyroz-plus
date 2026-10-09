@@ -14,7 +14,8 @@ async function getPricingConfig() {
   const urlsToTry = [
     `${API_URL}/api/admin/settings/pricing`,
     `http://127.0.0.1:5000/api/admin/settings/pricing`,
-    `http://localhost:5000/api/admin/settings/pricing`
+    `http://localhost:5000/api/admin/settings/pricing`,
+    `https://kyroz-plus-backend.onrender.com/api/admin/settings/pricing`
   ];
 
   let lastError = null;
@@ -25,9 +26,9 @@ async function getPricingConfig() {
       if (res.ok) {
         const data = await res.json();
         return {
-          starter: data?.starter || defaultPricing.starter,
-          growth: data?.growth || defaultPricing.growth,
-          scale: data?.scale || defaultPricing.scale
+          starter: data?.starter || data?.basic || defaultPricing.starter,
+          growth: data?.growth || data?.pro || defaultPricing.growth,
+          scale: data?.scale || data?.elite || defaultPricing.scale
         };
       }
     } catch (err) {
