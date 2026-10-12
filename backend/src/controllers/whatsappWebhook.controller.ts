@@ -55,7 +55,8 @@ export const formatWhatsAppPhone = (phone: string): string => {
 export const sendWhatsAppMessage = async (
   toPhone: string,
   text: string,
-  isAdminManualReply = false
+  isAdminManualReply = false,
+  conversationId?: string
 ): Promise<{ success: boolean; messageId?: string; error?: string }> => {
   const token = getAccessToken();
   const phoneId = getPhoneNumberId();
@@ -97,18 +98,33 @@ export const sendWhatsAppMessage = async (
     
     // Log outbound message
     try {
-      let conv = await WhatsappConversation.findOneAndUpdate(
-        { phone: { $in: [toPhone, formattedPhone] } },
-        { 
-          $set: { 
+      let conv;
+      if (conversationId) {
+        conv = await WhatsappConversation.findById(conversationId);
+      }
+      if (!conv) {
+        conv = await WhatsappConversation.findOne({
+          phone: { $in: [toPhone, formattedPhone, formattedPhone.replace(/^91/, '')] }
+        });
+      }
+
+      if (!conv) {
+        conv = await WhatsappConversation.create({
+          phone: formattedPhone,
+          name: 'Unknown User',
+          lastMessageAt: new Date(),
+          lastMessagePreview: text.substring(0, 50) + (text.length > 50 ? '...' : ''),
+          status: 'active'
+        });
+      } else {
+        await WhatsappConversation.findByIdAndUpdate(conv._id, {
+          $set: {
             phone: formattedPhone,
-            lastMessageAt: new Date(), 
-            lastMessagePreview: text.substring(0, 50) + (text.length > 50 ? '...' : '') 
-          },
-          $setOnInsert: { name: 'Unknown User' }
-        },
-        { upsert: true, new: true }
-      );
+            lastMessageAt: new Date(),
+            lastMessagePreview: text.substring(0, 50) + (text.length > 50 ? '...' : '')
+          }
+        });
+      }
       
       const msg = await WhatsappMessage.create({
         conversationId: conv._id,
@@ -148,6 +164,7 @@ export const sendWhatsAppMessage = async (
 
 export const sendWhatsAppTemplateMessage = async ({
   toPhone,
+  conversationId,
   templateName,
   languageCode = 'en',
   headerFormat,
@@ -159,6 +176,7 @@ export const sendWhatsAppTemplateMessage = async ({
   isAdminManualReply = false
 }: {
   toPhone: string;
+  conversationId?: string;
   templateName: string;
   languageCode?: string;
   headerFormat?: string;
@@ -195,8 +213,8 @@ export const sendWhatsAppTemplateMessage = async ({
   try {
     const components: any[] = [];
 
-    // Header component handling
-    const brochureId = (process.env.WHATSAPP_BROCHURE_MEDIA_ID || '').replace(/"/g, '').trim();
+    // Header component handling with guaranteed brochure fallback
+    const brochureId = (process.env.WHATSAPP_BROCHURE_MEDIA_ID || '1651642209905010').replace(/"/g, '').trim();
     const effectiveHeaderFormat = (headerFormat || '').toUpperCase();
 
     // If template requires a DOCUMENT header or is the intro template
@@ -294,17 +312,33 @@ export const sendWhatsAppTemplateMessage = async ({
 
     // Log outbound message to DB
     try {
-      let conv = await WhatsappConversation.findOneAndUpdate(
-        { phone: formattedPhone },
-        { 
-          $set: { 
-            lastMessageAt: new Date(), 
-            lastMessagePreview: displayText.substring(0, 50) + (displayText.length > 50 ? '...' : '') 
-          },
-          $setOnInsert: { name: 'Unknown User' }
-        },
-        { upsert: true, new: true }
-      );
+      let conv;
+      if (conversationId) {
+        conv = await WhatsappConversation.findById(conversationId);
+      }
+      if (!conv) {
+        conv = await WhatsappConversation.findOne({
+          phone: { $in: [toPhone, formattedPhone, formattedPhone.replace(/^91/, '')] }
+        });
+      }
+
+      if (!conv) {
+        conv = await WhatsappConversation.create({
+          phone: formattedPhone,
+          name: 'Unknown User',
+          lastMessageAt: new Date(),
+          lastMessagePreview: displayText.substring(0, 50) + (displayText.length > 50 ? '...' : ''),
+          status: 'active'
+        });
+      } else {
+        await WhatsappConversation.findByIdAndUpdate(conv._id, {
+          $set: {
+            phone: formattedPhone,
+            lastMessageAt: new Date(),
+            lastMessagePreview: displayText.substring(0, 50) + (displayText.length > 50 ? '...' : '')
+          }
+        });
+      }
       
       const msg = await WhatsappMessage.create({
         conversationId: conv._id,

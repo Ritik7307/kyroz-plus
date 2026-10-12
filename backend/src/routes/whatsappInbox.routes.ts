@@ -54,14 +54,35 @@ router.get('/conversations', async (req: AuthRequest, res: Response) => {
     const customers = await Customer.find({ phone: { $exists: true, $nin: [null, ''] } }).lean();
     
     for (const u of [...users, ...customers]) {
-      const phone = u.phone as string;
+      const rawPhone = String(u.phone || '').trim();
+      const clean = rawPhone.replace(/\D/g, '');
+      if (!clean) continue;
+      const normalizedPhone = clean.length === 10 ? `91${clean}` : clean;
       const name = u.name || (u as any).shopName || 'Unknown User';
       
+      // If a non-normalized conversation exists, merge its messages into the normalized conversation
+      if (rawPhone !== normalizedPhone) {
+        const rawConv = await WhatsappConversation.findOne({ phone: rawPhone });
+        if (rawConv) {
+          const normConv = await WhatsappConversation.findOne({ phone: normalizedPhone });
+          if (normConv) {
+            await WhatsappMessage.updateMany({ conversationId: rawConv._id }, { $set: { conversationId: normConv._id } });
+            if (!normConv.name || normConv.name === 'Unknown User') {
+              await WhatsappConversation.findByIdAndUpdate(normConv._id, { $set: { name } });
+            }
+            await WhatsappConversation.findByIdAndDelete(rawConv._id);
+          } else {
+            await WhatsappConversation.findByIdAndUpdate(rawConv._id, { $set: { phone: normalizedPhone, name } });
+          }
+        }
+      }
+
+      // Upsert normalized conversation
       await WhatsappConversation.findOneAndUpdate(
-        { phone },
+        { phone: normalizedPhone },
         { 
+          $set: { name },
           $setOnInsert: { 
-            name,
             lastMessageAt: new Date(0), 
             status: 'active'
           }
@@ -81,9 +102,28 @@ router.get('/conversations', async (req: AuthRequest, res: Response) => {
 router.get('/conversations/:id/messages', async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const messages = await WhatsappMessage.find({ conversationId: id }).sort({ timestamp: 1 }).lean();
+    const conv = await WhatsappConversation.findById(id);
+    if (!conv) {
+      res.status(404).json({ error: 'Conversation not found' });
+      return;
+    }
+
+    const clean = conv.phone.replace(/\D/g, '');
+    const normalizedPhone = clean.length === 10 ? `91${clean}` : clean;
+    const rawPhone = clean.length === 12 && clean.startsWith('91') ? clean.substring(2) : clean;
+
+    // Match messages for this conversation ID or any matching duplicate conversation ID for this contact
+    const matchingConvs = await WhatsappConversation.find({
+      phone: { $in: [conv.phone, normalizedPhone, rawPhone] }
+    }).select('_id');
+    const convIds = matchingConvs.map((c) => c._id);
+
+    const messages = await WhatsappMessage.find({ 
+      conversationId: { $in: convIds } 
+    }).sort({ timestamp: 1 }).lean();
+
     // Mark as read
-    await WhatsappConversation.findByIdAndUpdate(id, { unreadCount: 0 });
+    await WhatsappConversation.updateMany({ _id: { $in: convIds } }, { unreadCount: 0 });
     res.status(200).json(messages);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch messages' });
@@ -101,7 +141,7 @@ router.post('/messages/send', async (req: AuthRequest, res: Response): Promise<v
     }
     
     // Send message via Meta
-    const result = await sendWhatsAppMessage(conversation.phone, text, true);
+    const result = await sendWhatsAppMessage(conversation.phone, text, true, conversation._id.toString());
     if (!result.success) {
       res.status(400).json({ error: result.error || 'Failed to send message' });
       return;
@@ -473,6 +513,7 @@ router.post('/messages/send-template', async (req: AuthRequest, res: Response): 
 
     const result = await sendWhatsAppTemplateMessage({
       toPhone: targetPhone,
+      conversationId: conv?._id?.toString(),
       templateName,
       languageCode,
       headerFormat,
