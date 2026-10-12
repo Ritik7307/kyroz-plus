@@ -413,6 +413,7 @@ router.get('/meta-templates', async (_req: AuthRequest, res: Response): Promise<
         language: t.language, // en, en_US, hi, etc.
         body: bodyText,
         header: headerComp?.text || (headerComp?.format ? `[${headerComp.format}]` : ''),
+        headerFormat: headerComp?.format || '',
         footer: footerComp?.text || '',
         buttons: buttonsComp?.buttons || [],
         variables: uniqueVars,
@@ -436,7 +437,18 @@ router.get('/meta-templates', async (_req: AuthRequest, res: Response): Promise<
 // POST send a Meta template message to a single conversation
 router.post('/messages/send-template', async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { conversationId, phone, templateName, languageCode = 'en', bodyParameters = [], renderedText } = req.body;
+    const { 
+      conversationId, 
+      phone, 
+      templateName, 
+      languageCode = 'en', 
+      headerFormat,
+      headerMediaId,
+      headerMediaUrl,
+      headerFilename,
+      bodyParameters = [], 
+      renderedText 
+    } = req.body;
 
     let targetPhone = phone;
     let conv;
@@ -463,6 +475,10 @@ router.post('/messages/send-template', async (req: AuthRequest, res: Response): 
       toPhone: targetPhone,
       templateName,
       languageCode,
+      headerFormat,
+      headerMediaId,
+      headerMediaUrl,
+      headerFilename,
       bodyParameters,
       renderedText,
       isAdminManualReply: true
@@ -479,7 +495,7 @@ router.post('/messages/send-template', async (req: AuthRequest, res: Response): 
     });
   } catch (error: any) {
     console.error('Send template error:', error);
-    res.status(500).json({ error: 'Failed to send template message' });
+    res.status(500).json({ error: error.message || 'Failed to send template message' });
   }
 });
 
@@ -489,6 +505,10 @@ router.post('/broadcast-template', async (req: AuthRequest, res: Response): Prom
     const { 
       templateName, 
       languageCode = 'en', 
+      headerFormat,
+      headerMediaId,
+      headerMediaUrl,
+      headerFilename,
       templateBody = '', 
       variableMapping = {}, 
       contacts, 
@@ -552,6 +572,10 @@ router.post('/broadcast-template', async (req: AuthRequest, res: Response): Prom
         toPhone: cleanPhone,
         templateName,
         languageCode,
+        headerFormat,
+        headerMediaId,
+        headerMediaUrl,
+        headerFilename,
         bodyParameters: bodyParams,
         renderedText,
         isAdminManualReply: true

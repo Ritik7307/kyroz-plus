@@ -35,6 +35,7 @@ type MetaTemplate = {
   language: string;
   body: string;
   header?: string;
+  headerFormat?: string;
   footer?: string;
   buttons?: any[];
   variables: string[];
@@ -275,6 +276,7 @@ export default function WhatsAppBroadcastPage() {
         const payload: any = {
           templateName: selectedMetaTemplate.name,
           languageCode: selectedMetaTemplate.language || 'en',
+          headerFormat: selectedMetaTemplate.headerFormat,
           templateBody: selectedMetaTemplate.body,
           variableMapping: varMapping,
         };
@@ -292,7 +294,16 @@ export default function WhatsAppBroadcastPage() {
         });
 
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Failed to broadcast template');
+        if (!res.ok) {
+          let msg = data.error || 'Failed to broadcast template';
+          try {
+            if (typeof msg === 'string' && msg.startsWith('{')) {
+              const parsed = JSON.parse(msg);
+              msg = parsed.error?.error_data?.details || parsed.error?.message || msg;
+            }
+          } catch (_) {}
+          throw new Error(msg);
+        }
         setStatus(`Template broadcast complete: ${data.sent} sent successfully, ${data.failed} failed.`);
       } else {
         // Custom Freeform Broadcast

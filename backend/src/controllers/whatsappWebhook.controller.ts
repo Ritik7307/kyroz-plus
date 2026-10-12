@@ -150,6 +150,10 @@ export const sendWhatsAppTemplateMessage = async ({
   toPhone,
   templateName,
   languageCode = 'en',
+  headerFormat,
+  headerMediaId,
+  headerMediaUrl,
+  headerFilename = 'KYROZ_Brochure.pdf',
   bodyParameters = [],
   renderedText = '',
   isAdminManualReply = false
@@ -157,6 +161,10 @@ export const sendWhatsAppTemplateMessage = async ({
   toPhone: string;
   templateName: string;
   languageCode?: string;
+  headerFormat?: string;
+  headerMediaId?: string;
+  headerMediaUrl?: string;
+  headerFilename?: string;
   bodyParameters?: string[];
   renderedText?: string;
   isAdminManualReply?: boolean;
@@ -186,6 +194,68 @@ export const sendWhatsAppTemplateMessage = async ({
 
   try {
     const components: any[] = [];
+
+    // Header component handling
+    const brochureId = (process.env.WHATSAPP_BROCHURE_MEDIA_ID || '').replace(/"/g, '').trim();
+    const effectiveHeaderFormat = (headerFormat || '').toUpperCase();
+
+    // If template requires a DOCUMENT header or is the intro template
+    if (effectiveHeaderFormat === 'DOCUMENT' || templateName === 'kyroz_plus_intro') {
+      const docId = headerMediaId || brochureId;
+      if (docId) {
+        components.push({
+          type: 'header',
+          parameters: [
+            {
+              type: 'document',
+              document: {
+                id: docId,
+                filename: headerFilename || 'KYROZ_Brochure.pdf'
+              }
+            }
+          ]
+        });
+      } else if (headerMediaUrl) {
+        components.push({
+          type: 'header',
+          parameters: [
+            {
+              type: 'document',
+              document: {
+                link: headerMediaUrl,
+                filename: headerFilename || 'KYROZ_Brochure.pdf'
+              }
+            }
+          ]
+        });
+      }
+    } else if (effectiveHeaderFormat === 'IMAGE') {
+      if (headerMediaId) {
+        components.push({
+          type: 'header',
+          parameters: [{ type: 'image', image: { id: headerMediaId } }]
+        });
+      } else if (headerMediaUrl) {
+        components.push({
+          type: 'header',
+          parameters: [{ type: 'image', image: { link: headerMediaUrl } }]
+        });
+      }
+    } else if (effectiveHeaderFormat === 'VIDEO') {
+      if (headerMediaId) {
+        components.push({
+          type: 'header',
+          parameters: [{ type: 'video', video: { id: headerMediaId } }]
+        });
+      } else if (headerMediaUrl) {
+        components.push({
+          type: 'header',
+          parameters: [{ type: 'video', video: { link: headerMediaUrl } }]
+        });
+      }
+    }
+
+    // Body parameters
     if (bodyParameters && bodyParameters.length > 0) {
       components.push({
         type: 'body',
@@ -257,9 +327,10 @@ export const sendWhatsAppTemplateMessage = async ({
 
     return { success: true, messageId };
   } catch (error: any) {
-    const errData = error.response?.data || error.message;
-    console.error('Error sending WhatsApp template message:', errData);
-    return { success: false, error: typeof errData === 'object' ? JSON.stringify(errData) : String(errData) };
+    const metaErr = error.response?.data?.error;
+    const friendlyMessage = metaErr?.error_data?.details || metaErr?.message || error.message || 'Failed to send WhatsApp template message';
+    console.error('Error sending WhatsApp template message:', metaErr || error.message);
+    return { success: false, error: friendlyMessage };
   }
 };
 

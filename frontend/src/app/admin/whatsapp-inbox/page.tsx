@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { MessageSquare, Search, Send, Phone, RefreshCw, Loader2, Paperclip, X, ArrowLeft, CheckSquare, Sparkles, LayoutTemplate, CheckCircle2, ChevronDown, Layers } from 'lucide-react';
+import { MessageSquare, Search, Send, Phone, RefreshCw, Loader2, Paperclip, X, ArrowLeft, CheckSquare, Sparkles, LayoutTemplate, CheckCircle2, ChevronDown, Layers, FileText } from 'lucide-react';
 import io from 'socket.io-client';
 import { API_URL } from '@/lib/api';
 
@@ -32,6 +32,7 @@ type MetaTemplate = {
   language: string;
   body: string;
   header?: string;
+  headerFormat?: string;
   footer?: string;
   buttons?: any[];
   variables: string[];
@@ -218,15 +219,26 @@ export default function WhatsAppInboxPage() {
           conversationId: selectedId,
           templateName: selectedTemplate.name,
           languageCode: selectedTemplate.language || 'en',
+          headerFormat: selectedTemplate.headerFormat,
           bodyParameters,
           renderedText: renderedChatTemplate,
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to send template message');
+      if (!res.ok) {
+        let msg = data.error || 'Failed to send template message';
+        try {
+          if (typeof msg === 'string' && msg.startsWith('{')) {
+            const parsed = JSON.parse(msg);
+            msg = parsed.error?.error_data?.details || parsed.error?.message || msg;
+          }
+        } catch (_) {}
+        throw new Error(msg);
+      }
 
       setSelectedTemplate(null);
       setTemplateVars({});
+      setError('');
       await loadMessages(selectedId);
       await loadConversations();
     } catch (err) {
@@ -408,8 +420,8 @@ export default function WhatsAppInboxPage() {
         <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">{error}</div>
       )}
 
-      <div className="flex flex-col lg:grid lg:grid-cols-[340px_1fr] gap-4 h-[calc(100vh-16rem)] min-h-[520px] lg:h-[calc(100vh-16rem)]">
-        <aside className={`${selectedId ? 'hidden lg:flex' : 'flex'} bg-card border border-foreground/10 rounded-3xl overflow-hidden flex-col h-full lg:h-auto`}>
+      <div className="flex flex-col lg:grid lg:grid-cols-[340px_1fr] gap-4 h-[calc(100vh-13rem)] min-h-[560px]">
+        <aside className={`${selectedId ? 'hidden lg:flex' : 'flex'} bg-card border border-foreground/10 rounded-3xl overflow-hidden flex-col h-full`}>
           <div className="p-4 border-b border-foreground/5">
             <div className="relative">
               <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30" />
@@ -452,10 +464,10 @@ export default function WhatsAppInboxPage() {
           </div>
         </aside>
 
-        <section className={`${selectedId ? 'flex' : 'hidden lg:flex'} bg-card border border-foreground/10 rounded-3xl overflow-hidden flex-col h-[70vh] lg:h-auto`}>
+        <section className={`${selectedId ? 'flex' : 'hidden lg:flex'} bg-card border border-foreground/10 rounded-3xl overflow-hidden flex-col h-full min-h-0`}>
           {selected ? (
             <>
-              <div className="px-4 lg:px-6 py-4 border-b border-foreground/5 flex items-center justify-between">
+              <div className="px-4 lg:px-6 py-4 border-b border-foreground/5 flex items-center justify-between flex-shrink-0">
                 <div className="flex items-center gap-3">
                   <button onClick={() => setSelectedId(null)} className="lg:hidden text-foreground/60 p-2 -ml-2 rounded-xl hover:bg-foreground/5">
                     <ArrowLeft size={18} />
@@ -484,7 +496,7 @@ export default function WhatsAppInboxPage() {
 
               {/* Inline In-Chat Policy / Error Alert */}
               {error && (
-                <div className="mx-4 mt-3 p-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center justify-between gap-2 shadow-sm">
+                <div className="mx-4 mt-3 p-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center justify-between gap-2 shadow-sm flex-shrink-0">
                   <span className="flex-1 font-medium leading-relaxed">{error}</span>
                   {(error.toLowerCase().includes('template') || error.toLowerCase().includes('window')) && (
                     <button
@@ -502,7 +514,7 @@ export default function WhatsAppInboxPage() {
                   </button>
                 </div>
               )}
-              <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-3">
+              <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-6 space-y-3">
                 {messages.map((msg) => {
                   const outbound = msg.direction === 'outbound';
                   return (
@@ -520,7 +532,7 @@ export default function WhatsAppInboxPage() {
               </div>
               {/* Active Selected Meta Template Form */}
               {selectedTemplate && (
-                <div className="mx-4 mt-2 p-4 bg-gradient-to-br from-gold/10 via-background to-gold/5 border border-gold/30 rounded-2xl space-y-3 shadow-lg">
+                <div className="mx-4 my-2 p-4 bg-gradient-to-br from-gold/10 via-background to-gold/5 border border-gold/30 rounded-2xl space-y-3 shadow-lg max-h-[46vh] overflow-y-auto custom-scrollbar flex-shrink-0">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Sparkles size={16} className="text-gold" />
@@ -539,6 +551,14 @@ export default function WhatsAppInboxPage() {
                       <X size={16} />
                     </button>
                   </div>
+
+                  {/* Document Header Attachment indicator */}
+                  {(selectedTemplate.headerFormat === 'DOCUMENT' || selectedTemplate.name === 'kyroz_plus_intro') && (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gold/10 border border-gold/25 text-gold text-xs">
+                      <FileText size={15} className="flex-shrink-0" />
+                      <span className="font-bold">Header Attachment: KYROZ Brochure (PDF) automatically attached</span>
+                    </div>
+                  )}
 
                   {/* Variables Inputs */}
                   {selectedTemplate.variables.length > 0 && (
@@ -576,7 +596,7 @@ export default function WhatsAppInboxPage() {
                     </p>
                   </div>
 
-                  <div className="flex justify-end gap-2 pt-1">
+                  <div className="flex justify-end gap-2 pt-1 sticky bottom-0 bg-background/95 backdrop-blur-md py-1">
                     <button
                       onClick={() => setSelectedTemplate(null)}
                       className="px-3 py-1.5 rounded-xl text-xs text-foreground/60 hover:bg-foreground/10"
