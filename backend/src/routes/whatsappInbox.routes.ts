@@ -2,7 +2,8 @@ import { Router, Response } from 'express';
 import WhatsappConversation from '../models/WhatsappConversation';
 import WhatsappMessage from '../models/WhatsappMessage';
 import WhatsappTemplate from '../models/WhatsappTemplate';
-import { sendWhatsAppMessage, uploadWhatsAppMedia, sendWhatsAppDocument } from '../controllers/whatsappWebhook.controller';
+import { sendWhatsAppMessage, uploadWhatsAppMedia, sendWhatsAppDocument, sendWhatsAppTemplateMessage } from '../controllers/whatsappWebhook.controller';
+import axios from 'axios';
 import User from '../models/User';
 import Customer from '../models/Customer';
 import { authenticateToken, isAdmin, AuthRequest } from '../middleware/auth.middleware';
@@ -99,13 +100,16 @@ router.post('/messages/send', async (req: AuthRequest, res: Response): Promise<v
       return;
     }
     
-    // We pass true as a third argument to indicate this is an admin manual reply
-    // so we can log it correctly as 'admin' in the db
-    await sendWhatsAppMessage(conversation.phone, text, true);
+    // Send message via Meta
+    const result = await sendWhatsAppMessage(conversation.phone, text, true);
+    if (!result.success) {
+      res.status(400).json({ error: result.error || 'Failed to send message' });
+      return;
+    }
     
-    res.status(200).json({ message: 'Message sent successfully' });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to send message' });
+    res.status(200).json({ message: 'Message sent successfully', messageId: result.messageId });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Failed to send message' });
   }
 });
 
@@ -134,13 +138,17 @@ router.post('/messages/send-media', upload.single('file'), async (req: AuthReque
     }
 
     // Send the document
-    await sendWhatsAppDocument(conversation.phone, mediaId, text || '', file.originalname);
+    const sendResult = await sendWhatsAppDocument(conversation.phone, mediaId, text || '', file.originalname);
+    if (!sendResult.success) {
+      res.status(400).json({ error: sendResult.error || 'Failed to send media via WhatsApp' });
+      return;
+    }
 
-    // Note: Log the message to the DB as well, so it shows up in chat history
+    // Note: Log the message to the DB only when Meta accepts it
     let msgText = text ? `[Media: ${file.originalname}]\n${text}` : `[Media: ${file.originalname}]`;
     const msg = await WhatsappMessage.create({
       conversationId: conversation._id,
-      messageId: 'outbound_media_' + Date.now(),
+      messageId: sendResult.messageId || ('outbound_media_' + Date.now()),
       sender: 'admin',
       direction: 'outbound',
       type: 'document',
@@ -158,9 +166,9 @@ router.post('/messages/send-media', upload.single('file'), async (req: AuthReque
     });
 
     res.status(200).json({ message: 'Media sent successfully', data: msg });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Send media error:', error);
-    res.status(500).json({ error: 'Failed to send media' });
+    res.status(500).json({ error: error.message || 'Failed to send media' });
   }
 });
 
@@ -349,6 +357,230 @@ router.post('/import-contacts', async (req: AuthRequest, res: Response): Promise
     res.status(200).json({ message: `Successfully imported ${importedCount} contacts`, count: importedCount });
   } catch (error) {
     res.status(500).json({ error: 'Failed to import contacts' });
+  }
+});
+
+// GET live approved message templates from Meta Graph API
+router.get('/meta-templates', async (_req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const wabaId = (process.env.WHATSAPP_BUSINESS_ACCOUNT_ID || '').replace(/"/g, '').trim();
+    const token = (process.env.WHATSAPP_ACCESS_TOKEN || '').replace(/"/g, '').trim();
+
+    if (!wabaId || !token) {
+      res.status(400).json({ 
+        error: 'Meta WhatsApp credentials (WHATSAPP_BUSINESS_ACCOUNT_ID or WHATSAPP_ACCESS_TOKEN) are not configured in environment.' 
+      });
+      return;
+    }
+
+    const response = await axios.get(
+      `https://graph.facebook.com/v20.0/${wabaId}/message_templates`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        params: {
+          limit: 100
+        }
+      }
+    );
+
+    const rawTemplates = response.data?.data || [];
+    
+    // Strictly filter for APPROVED Meta templates
+    const approvedTemplates = rawTemplates.filter((t: any) => t.status === 'APPROVED');
+    
+    // Parse and structure templates
+    const templates = approvedTemplates.map((t: any) => {
+      const components = Array.isArray(t.components) ? t.components : [];
+      const bodyComp = components.find((c: any) => c.type === 'BODY');
+      const headerComp = components.find((c: any) => c.type === 'HEADER');
+      const footerComp = components.find((c: any) => c.type === 'FOOTER');
+      const buttonsComp = components.find((c: any) => c.type === 'BUTTONS');
+
+      const bodyText = bodyComp?.text || '';
+      
+      // Extract variables in body, e.g. {{1}}, {{2}}
+      const varMatches = bodyText.match(/\{\{(\d+)\}\}/g) || [];
+      const uniqueVars = Array.from(new Set(varMatches.map((m: string) => m.replace(/[{}]/g, ''))))
+        .sort((a, b) => Number(a) - Number(b));
+
+      return {
+        id: t.id,
+        name: t.name,
+        status: t.status, // APPROVED
+        category: t.category, // MARKETING, UTILITY, etc.
+        language: t.language, // en, en_US, hi, etc.
+        body: bodyText,
+        header: headerComp?.text || (headerComp?.format ? `[${headerComp.format}]` : ''),
+        footer: footerComp?.text || '',
+        buttons: buttonsComp?.buttons || [],
+        variables: uniqueVars,
+        components
+      };
+    });
+
+    templates.sort((a: any, b: any) => a.name.localeCompare(b.name));
+
+    res.status(200).json(templates);
+  } catch (error: any) {
+    const errData = error.response?.data || error.message;
+    console.error('Failed to fetch Meta message templates:', errData);
+    res.status(500).json({ 
+      error: 'Failed to fetch templates from Meta Graph API',
+      details: errData 
+    });
+  }
+});
+
+// POST send a Meta template message to a single conversation
+router.post('/messages/send-template', async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { conversationId, phone, templateName, languageCode = 'en', bodyParameters = [], renderedText } = req.body;
+
+    let targetPhone = phone;
+    let conv;
+    if (conversationId) {
+      conv = await WhatsappConversation.findById(conversationId);
+      if (!conv) {
+        res.status(404).json({ error: 'Conversation not found' });
+        return;
+      }
+      targetPhone = conv.phone;
+    }
+
+    if (!targetPhone) {
+      res.status(400).json({ error: 'Phone number or conversationId is required' });
+      return;
+    }
+
+    if (!templateName) {
+      res.status(400).json({ error: 'Template name is required' });
+      return;
+    }
+
+    const result = await sendWhatsAppTemplateMessage({
+      toPhone: targetPhone,
+      templateName,
+      languageCode,
+      bodyParameters,
+      renderedText,
+      isAdminManualReply: true
+    });
+
+    if (!result.success) {
+      res.status(400).json({ error: result.error || 'Failed to send template message' });
+      return;
+    }
+
+    res.status(200).json({ 
+      message: 'Template message sent successfully', 
+      messageId: result.messageId 
+    });
+  } catch (error: any) {
+    console.error('Send template error:', error);
+    res.status(500).json({ error: 'Failed to send template message' });
+  }
+});
+
+// POST broadcast a Meta template message
+router.post('/broadcast-template', async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { 
+      templateName, 
+      languageCode = 'en', 
+      templateBody = '', 
+      variableMapping = {}, 
+      contacts, 
+      conversationIds 
+    } = req.body;
+
+    if (!templateName) {
+      res.status(400).json({ error: 'Template name is required' });
+      return;
+    }
+
+    let targetContacts: Array<{ phone: string; [key: string]: any }> = [];
+
+    if (Array.isArray(contacts) && contacts.length > 0) {
+      targetContacts = contacts.filter((c: any) => c && c.phone);
+    } else {
+      const query = Array.isArray(conversationIds) && conversationIds.length > 0
+        ? { _id: { $in: conversationIds } }
+        : {};
+      const convs = await WhatsappConversation.find(query).lean();
+      targetContacts = convs.map((c) => ({
+        phone: c.phone,
+        name: c.name,
+        restaurantName: c.name
+      }));
+    }
+
+    if (targetContacts.length === 0) {
+      res.status(400).json({ error: 'No recipients found to broadcast to' });
+      return;
+    }
+
+    let successCount = 0;
+    let failCount = 0;
+    const errors: string[] = [];
+
+    // Extract sorted variable numbers, e.g. ["1", "2"]
+    const varNumbers = Object.keys(variableMapping).sort((a, b) => Number(a) - Number(b));
+
+    for (const contact of targetContacts) {
+      const cleanPhone = String(contact.phone || '').replace(/[^0-9]/g, '');
+      if (!cleanPhone) continue;
+
+      // Map parameters for this contact
+      const bodyParams: string[] = [];
+      let renderedText = templateBody;
+
+      for (const varNum of varNumbers) {
+        const fieldKey = variableMapping[varNum];
+        let val = '';
+        if (fieldKey && contact[fieldKey] !== undefined) {
+          val = String(contact[fieldKey] || '');
+        } else if (fieldKey) {
+          val = String(fieldKey); // static fallback value
+        }
+        bodyParams.push(val);
+        renderedText = renderedText.replace(new RegExp(`\\{\\{${varNum}\\}\\}`, 'g'), val);
+      }
+
+      const sendRes = await sendWhatsAppTemplateMessage({
+        toPhone: cleanPhone,
+        templateName,
+        languageCode,
+        bodyParameters: bodyParams,
+        renderedText,
+        isAdminManualReply: true
+      });
+
+      if (sendRes.success) {
+        successCount++;
+      } else {
+        failCount++;
+        if (errors.length < 5 && sendRes.error) {
+          errors.push(`${cleanPhone}: ${sendRes.error}`);
+        }
+      }
+
+      // Small delay to prevent Meta rate spike
+      if (targetContacts.length > 1) {
+        await new Promise((r) => setTimeout(r, 100));
+      }
+    }
+
+    res.status(200).json({
+      message: `Template broadcast completed: ${successCount} sent, ${failCount} failed`,
+      sent: successCount,
+      failed: failCount,
+      errors: errors.slice(0, 5)
+    });
+  } catch (error: any) {
+    console.error('Broadcast template error:', error);
+    res.status(500).json({ error: 'Failed to broadcast template' });
   }
 });
 

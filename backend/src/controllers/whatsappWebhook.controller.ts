@@ -41,20 +41,37 @@ export const verifyWebhook = (req: Request, res: Response) => {
   }
 };
 
-export const sendWhatsAppMessage = async (toPhone: string, text: string, isAdminManualReply = false) => {
+export const formatWhatsAppPhone = (phone: string): string => {
+  if (!phone) return '';
+  let cleaned = String(phone).trim().replace(/\D/g, '');
+  if (cleaned.length === 10) {
+    cleaned = `91${cleaned}`;
+  } else if (cleaned.length === 11 && cleaned.startsWith('0')) {
+    cleaned = `91${cleaned.substring(1)}`;
+  }
+  return cleaned;
+};
+
+export const sendWhatsAppMessage = async (
+  toPhone: string,
+  text: string,
+  isAdminManualReply = false
+): Promise<{ success: boolean; messageId?: string; error?: string }> => {
   const token = getAccessToken();
   const phoneId = getPhoneNumberId();
   if (!token || !phoneId) {
     console.error('WhatsApp token or phone ID missing. Cannot send message.');
-    return;
+    return { success: false, error: 'WhatsApp credentials missing' };
   }
+
+  const formattedPhone = formatWhatsAppPhone(toPhone);
 
   // Opt-out Check
   try {
-    const optOutRecord = await WhatsAppOptOut.findOne({ phone: toPhone });
+    const optOutRecord = await WhatsAppOptOut.findOne({ phone: { $in: [toPhone, formattedPhone] } });
     if (optOutRecord && optOutRecord.optedOut) {
       console.log(`[OPT-OUT] User ${toPhone} has opted out. Skipping message.`);
-      return;
+      return { success: false, error: 'User opted out' };
     }
   } catch (err) {
     console.error('Error checking opt-out status:', err);
@@ -62,10 +79,10 @@ export const sendWhatsAppMessage = async (toPhone: string, text: string, isAdmin
 
   try {
     const response = await axios.post(
-      `https://graph.facebook.com/v17.0/${phoneId}/messages`,
+      `https://graph.facebook.com/v20.0/${phoneId}/messages`,
       {
         messaging_product: 'whatsapp',
-        to: toPhone,
+        to: formattedPhone,
         type: 'text',
         text: { body: text }
       },
@@ -76,14 +93,15 @@ export const sendWhatsAppMessage = async (toPhone: string, text: string, isAdmin
         }
       }
     );
-    console.log(`Sent message to ${toPhone}`);
+    console.log(`Sent message to ${formattedPhone}`);
     
     // Log outbound message
     try {
       let conv = await WhatsappConversation.findOneAndUpdate(
-        { phone: toPhone },
+        { phone: { $in: [toPhone, formattedPhone] } },
         { 
           $set: { 
+            phone: formattedPhone,
             lastMessageAt: new Date(), 
             lastMessagePreview: text.substring(0, 50) + (text.length > 50 ? '...' : '') 
           },
@@ -110,10 +128,141 @@ export const sendWhatsAppMessage = async (toPhone: string, text: string, isAdmin
     } catch(dbErr) {
       console.error('Failed to log outbound message', dbErr);
     }
+
+    return { success: true, messageId: response.data?.messages?.[0]?.id };
   } catch (error: any) {
-    console.error('Error sending WhatsApp message:', error.response?.data || error.message);
+    const errData = error.response?.data?.error;
+    console.error('Error sending WhatsApp message:', errData || error.message);
+    if (errData?.code === 131047) {
+      return {
+        success: false,
+        error: 'Customer care window expired (24+ hours since customer messaged). Meta requires an approved template.'
+      };
+    }
+    return {
+      success: false,
+      error: errData?.message || error.message || 'Failed to send WhatsApp message'
+    };
   }
 };
+
+export const sendWhatsAppTemplateMessage = async ({
+  toPhone,
+  templateName,
+  languageCode = 'en',
+  bodyParameters = [],
+  renderedText = '',
+  isAdminManualReply = false
+}: {
+  toPhone: string;
+  templateName: string;
+  languageCode?: string;
+  bodyParameters?: string[];
+  renderedText?: string;
+  isAdminManualReply?: boolean;
+}): Promise<{ success: boolean; messageId?: string; error?: string }> => {
+  const token = getAccessToken();
+  const phoneId = getPhoneNumberId();
+  if (!token || !phoneId) {
+    console.error('WhatsApp token or phone ID missing. Cannot send template message.');
+    return { success: false, error: 'WhatsApp credentials missing' };
+  }
+
+  let formattedPhone = toPhone.replace(/\D/g, '');
+  if (formattedPhone.length === 10) {
+    formattedPhone = `91${formattedPhone}`;
+  }
+
+  // Opt-out Check
+  try {
+    const optOutRecord = await WhatsAppOptOut.findOne({ phone: toPhone });
+    if (optOutRecord && optOutRecord.optedOut) {
+      console.log(`[OPT-OUT] User ${toPhone} has opted out. Skipping template message.`);
+      return { success: false, error: 'User opted out' };
+    }
+  } catch (err) {
+    console.error('Error checking opt-out status:', err);
+  }
+
+  try {
+    const components: any[] = [];
+    if (bodyParameters && bodyParameters.length > 0) {
+      components.push({
+        type: 'body',
+        parameters: bodyParameters.map((val) => ({
+          type: 'text',
+          text: String(val !== undefined && val !== null ? val : '')
+        }))
+      });
+    }
+
+    const payload: any = {
+      messaging_product: 'whatsapp',
+      recipient_type: 'individual',
+      to: formattedPhone,
+      type: 'template',
+      template: {
+        name: templateName,
+        language: { code: languageCode || 'en' },
+        ...(components.length > 0 ? { components } : {})
+      }
+    };
+
+    const response = await axios.post(
+      `https://graph.facebook.com/v20.0/${phoneId}/messages`,
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    const messageId = response.data?.messages?.[0]?.id || 'outbound_tpl_' + Date.now();
+    const displayText = renderedText || `[Template: ${templateName}]`;
+
+    // Log outbound message to DB
+    try {
+      let conv = await WhatsappConversation.findOneAndUpdate(
+        { phone: formattedPhone },
+        { 
+          $set: { 
+            lastMessageAt: new Date(), 
+            lastMessagePreview: displayText.substring(0, 50) + (displayText.length > 50 ? '...' : '') 
+          },
+          $setOnInsert: { name: 'Unknown User' }
+        },
+        { upsert: true, new: true }
+      );
+      
+      const msg = await WhatsappMessage.create({
+        conversationId: conv._id,
+        messageId,
+        sender: isAdminManualReply ? 'admin' : 'system',
+        direction: 'outbound',
+        type: 'template',
+        text: displayText,
+        status: 'sent',
+        timestamp: new Date()
+      });
+      
+      try {
+        const io = getIo();
+        io.emit('new_whatsapp_message', { conversation: conv, message: msg });
+      } catch (e) {}
+    } catch(dbErr) {
+      console.error('Failed to log outbound template message', dbErr);
+    }
+
+    return { success: true, messageId };
+  } catch (error: any) {
+    const errData = error.response?.data || error.message;
+    console.error('Error sending WhatsApp template message:', errData);
+    return { success: false, error: typeof errData === 'object' ? JSON.stringify(errData) : String(errData) };
+  }
+};
+
 
 export const uploadWhatsAppMedia = async (buffer: Buffer, mimetype: string, filename: string): Promise<string | null> => {
   const token = getAccessToken();
@@ -149,31 +298,38 @@ export const uploadWhatsAppMedia = async (buffer: Buffer, mimetype: string, file
   }
 };
 
-export const sendWhatsAppDocument = async (toPhone: string, mediaId: string, caption: string, filename: string) => {
+export const sendWhatsAppDocument = async (
+  toPhone: string,
+  mediaId: string,
+  caption: string,
+  filename: string
+): Promise<{ success: boolean; messageId?: string; error?: string }> => {
   const token = getAccessToken();
   const phoneId = getPhoneNumberId();
   if (!token || !phoneId) {
     console.error('WhatsApp token or phone ID missing. Cannot send document.');
-    return;
+    return { success: false, error: 'WhatsApp credentials missing' };
   }
+
+  const formattedPhone = formatWhatsAppPhone(toPhone);
 
   // Opt-out Check
   try {
-    const optOutRecord = await WhatsAppOptOut.findOne({ phone: toPhone });
+    const optOutRecord = await WhatsAppOptOut.findOne({ phone: { $in: [toPhone, formattedPhone] } });
     if (optOutRecord && optOutRecord.optedOut) {
       console.log(`[OPT-OUT] User ${toPhone} has opted out. Skipping document.`);
-      return;
+      return { success: false, error: 'User opted out' };
     }
   } catch (err) {
     console.error('Error checking opt-out status:', err);
   }
 
   try {
-    await axios.post(
-      `https://graph.facebook.com/v17.0/${phoneId}/messages`,
+    const response = await axios.post(
+      `https://graph.facebook.com/v20.0/${phoneId}/messages`,
       {
         messaging_product: 'whatsapp',
-        to: toPhone,
+        to: formattedPhone,
         type: 'document',
         document: {
           id: mediaId,
@@ -188,9 +344,21 @@ export const sendWhatsAppDocument = async (toPhone: string, mediaId: string, cap
         }
       }
     );
-    console.log(`Sent document to ${toPhone}`);
+    console.log(`Sent document to ${formattedPhone}`);
+    return { success: true, messageId: response.data?.messages?.[0]?.id };
   } catch (error: any) {
-    console.error('Error sending WhatsApp document:', error.response?.data || error.message);
+    const errData = error.response?.data?.error;
+    console.error('Error sending WhatsApp document:', errData || error.message);
+    if (errData?.code === 131047) {
+      return {
+        success: false,
+        error: 'Customer service window expired (24+ hrs). Media cannot be sent. Please use an approved Meta Template.'
+      };
+    }
+    return {
+      success: false,
+      error: errData?.message || error.message || 'Failed to send document via WhatsApp'
+    };
   }
 };
 

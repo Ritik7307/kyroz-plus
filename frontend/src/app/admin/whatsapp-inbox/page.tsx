@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { MessageSquare, Search, Send, Phone, RefreshCw, Loader2, Paperclip, X, ArrowLeft, CheckSquare } from 'lucide-react';
+import { MessageSquare, Search, Send, Phone, RefreshCw, Loader2, Paperclip, X, ArrowLeft, CheckSquare, Sparkles, LayoutTemplate, CheckCircle2, ChevronDown, Layers } from 'lucide-react';
 import io from 'socket.io-client';
 import { API_URL } from '@/lib/api';
 
@@ -22,6 +22,19 @@ type ChatMessage = {
   text?: string;
   timestamp?: string;
   status?: string;
+};
+
+type MetaTemplate = {
+  id: string;
+  name: string;
+  status: string;
+  category: string;
+  language: string;
+  body: string;
+  header?: string;
+  footer?: string;
+  buttons?: any[];
+  variables: string[];
 };
 
 const authHeaders = () => {
@@ -45,8 +58,21 @@ export default function WhatsAppInboxPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Meta Templates State
+  const [metaTemplates, setMetaTemplates] = useState<MetaTemplate[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<MetaTemplate | null>(null);
+  const [templateVars, setTemplateVars] = useState<Record<string, string>>({});
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
+  const [templateSearch, setTemplateSearch] = useState('');
+  const [sendingTemplate, setSendingTemplate] = useState(false);
+
+  // Broadcast Modal State
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
+  const [broadcastType, setBroadcastType] = useState<'custom' | 'template'>('template');
   const [broadcastDraft, setBroadcastDraft] = useState('');
+  const [broadcastSelectedTemplate, setBroadcastSelectedTemplate] = useState<MetaTemplate | null>(null);
+  const [broadcastVarMapping, setBroadcastVarMapping] = useState<Record<string, string>>({});
   const [broadcastFile, setBroadcastFile] = useState<File | null>(null);
   const [broadcasting, setBroadcasting] = useState(false);
   const [broadcastProgress, setBroadcastProgress] = useState({ done: 0, total: 0 });
@@ -54,6 +80,21 @@ export default function WhatsAppInboxPage() {
   const broadcastFileInputRef = useRef<HTMLInputElement>(null);
 
   const selected = conversations.find((c) => c._id === selectedId) || null;
+
+  const loadMetaTemplates = useCallback(async () => {
+    setLoadingTemplates(true);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/whatsapp/meta-templates`, { headers: authHeaders() });
+      const data = await res.json();
+      if (res.ok && Array.isArray(data)) {
+        setMetaTemplates(data);
+      }
+    } catch (err) {
+      console.error('Failed to load Meta templates:', err);
+    } finally {
+      setLoadingTemplates(false);
+    }
+  }, []);
 
   const loadConversations = useCallback(async () => {
     try {
@@ -85,11 +126,21 @@ export default function WhatsAppInboxPage() {
 
   useEffect(() => {
     loadConversations();
-  }, [loadConversations]);
+    loadMetaTemplates();
+  }, [loadConversations, loadMetaTemplates]);
 
   useEffect(() => {
-    if (selectedId) loadMessages(selectedId);
-  }, [selectedId, loadMessages]);
+    if (selectedId) {
+      loadMessages(selectedId);
+      // If template was selected, prefill {{1}} with the contact's name if available
+      if (selected?.name) {
+        setTemplateVars((prev) => ({
+          ...prev,
+          '1': prev['1'] || selected.name
+        }));
+      }
+    }
+  }, [selectedId, loadMessages, selected?.name]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -122,6 +173,69 @@ export default function WhatsAppInboxPage() {
     );
   }, [conversations, searchQuery]);
 
+  const filteredTemplates = useMemo(() => {
+    const q = templateSearch.toLowerCase();
+    return metaTemplates.filter((t) =>
+      t.name.toLowerCase().includes(q) ||
+      t.category.toLowerCase().includes(q) ||
+      (t.body || '').toLowerCase().includes(q)
+    );
+  }, [metaTemplates, templateSearch]);
+
+  const handleSelectTemplate = (tpl: MetaTemplate) => {
+    setSelectedTemplate(tpl);
+    setShowTemplatePicker(false);
+    const initialVars: Record<string, string> = {};
+    tpl.variables.forEach((v) => {
+      if (v === '1' && selected?.name) {
+        initialVars[v] = selected.name;
+      } else {
+        initialVars[v] = '';
+      }
+    });
+    setTemplateVars(initialVars);
+  };
+
+  const renderedChatTemplate = useMemo(() => {
+    if (!selectedTemplate) return '';
+    let text = selectedTemplate.body;
+    selectedTemplate.variables.forEach((v) => {
+      const val = templateVars[v] !== undefined && templateVars[v] !== '' ? templateVars[v] : `{{${v}}}`;
+      text = text.replace(new RegExp(`\\{\\{${v}\\}\\}`, 'g'), val);
+    });
+    return text;
+  }, [selectedTemplate, templateVars]);
+
+  const handleSendTemplate = async () => {
+    if (!selectedId || !selectedTemplate || sendingTemplate) return;
+    setSendingTemplate(true);
+    try {
+      const bodyParameters = selectedTemplate.variables.map((v) => templateVars[v] || '');
+      const res = await fetch(`${API_URL}/api/admin/whatsapp/messages/send-template`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({
+          conversationId: selectedId,
+          templateName: selectedTemplate.name,
+          languageCode: selectedTemplate.language || 'en',
+          bodyParameters,
+          renderedText: renderedChatTemplate,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send template message');
+
+      setSelectedTemplate(null);
+      setTemplateVars({});
+      await loadMessages(selectedId);
+      await loadConversations();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send template message');
+    } finally {
+      setSendingTemplate(false);
+    }
+  };
+
   const handleSend = async () => {
     if (!selectedId || sending || (!draft.trim() && !selectedFile)) return;
     setSending(true);
@@ -151,7 +265,20 @@ export default function WhatsAppInboxPage() {
       }
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to send');
+      if (!res.ok) {
+        const errorMsg = data.error || 'Failed to send message';
+        setError(errorMsg);
+        if (
+          errorMsg.toLowerCase().includes('template') ||
+          errorMsg.toLowerCase().includes('window') ||
+          errorMsg.toLowerCase().includes('expired')
+        ) {
+          setShowTemplatePicker(true);
+        }
+        return;
+      }
+
+      setError('');
       setDraft('');
       setSelectedFile(null);
       await loadMessages(selectedId);
@@ -170,10 +297,49 @@ export default function WhatsAppInboxPage() {
   };
 
   const handleBroadcast = async () => {
-    if (!broadcastDraft.trim() && !broadcastFile) return;
     if (selectedBroadcastIds.length === 0) return;
     setBroadcasting(true);
     setBroadcastProgress({ done: 0, total: selectedBroadcastIds.length });
+
+    if (broadcastType === 'template') {
+      if (!broadcastSelectedTemplate) {
+        setError('Please select an approved Meta template');
+        setBroadcasting(false);
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/api/admin/whatsapp/broadcast-template`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({
+            templateName: broadcastSelectedTemplate.name,
+            languageCode: broadcastSelectedTemplate.language || 'en',
+            templateBody: broadcastSelectedTemplate.body,
+            variableMapping: broadcastVarMapping,
+            conversationIds: selectedBroadcastIds,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to broadcast template');
+        
+        setShowBroadcastModal(false);
+        setBroadcastSelectedTemplate(null);
+        setBroadcastVarMapping({});
+        loadConversations();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Broadcast failed');
+      } finally {
+        setBroadcasting(false);
+      }
+      return;
+    }
+
+    // Custom Mode
+    if (!broadcastDraft.trim() && !broadcastFile) {
+      setBroadcasting(false);
+      return;
+    }
 
     const selectedConvs = conversations.filter(c => selectedBroadcastIds.includes(c._id));
 
@@ -301,7 +467,41 @@ export default function WhatsAppInboxPage() {
                     </p>
                   </div>
                 </div>
+
+                <button
+                  onClick={() => setShowTemplatePicker(!showTemplatePicker)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gold text-black font-bold text-xs uppercase tracking-wider hover:scale-105 active:scale-95 transition-all shadow-md shadow-gold/20"
+                >
+                  <Sparkles size={14} />
+                  <span>Templates</span>
+                  {metaTemplates.length > 0 && (
+                    <span className="text-[10px] px-1 rounded-full bg-black/20 text-black font-mono">
+                      {metaTemplates.length}
+                    </span>
+                  )}
+                </button>
               </div>
+
+              {/* Inline In-Chat Policy / Error Alert */}
+              {error && (
+                <div className="mx-4 mt-3 p-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center justify-between gap-2 shadow-sm">
+                  <span className="flex-1 font-medium leading-relaxed">{error}</span>
+                  {(error.toLowerCase().includes('template') || error.toLowerCase().includes('window')) && (
+                    <button
+                      onClick={() => {
+                        setShowTemplatePicker(true);
+                        setError('');
+                      }}
+                      className="px-2.5 py-1 rounded-xl bg-gold text-black font-bold text-[11px] whitespace-nowrap shadow-sm hover:scale-105 transition-transform"
+                    >
+                      Pick Template
+                    </button>
+                  )}
+                  <button onClick={() => setError('')} className="text-red-400/60 hover:text-red-400 p-1">
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
               <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-3">
                 {messages.map((msg) => {
                   const outbound = msg.direction === 'outbound';
@@ -318,7 +518,84 @@ export default function WhatsAppInboxPage() {
                   );
                 })}
               </div>
-              <div className="p-4 border-t border-foreground/5 flex flex-col gap-2">
+              {/* Active Selected Meta Template Form */}
+              {selectedTemplate && (
+                <div className="mx-4 mt-2 p-4 bg-gradient-to-br from-gold/10 via-background to-gold/5 border border-gold/30 rounded-2xl space-y-3 shadow-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Sparkles size={16} className="text-gold" />
+                      <span className="font-bold text-sm text-gold">{selectedTemplate.name}</span>
+                      <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        {selectedTemplate.status}
+                      </span>
+                      <span className="text-[10px] uppercase px-2 py-0.5 rounded-full bg-foreground/10 text-foreground/60">
+                        {selectedTemplate.language}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setSelectedTemplate(null)}
+                      className="text-foreground/40 hover:text-red-400 transition-colors p-1"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+
+                  {/* Variables Inputs */}
+                  {selectedTemplate.variables.length > 0 && (
+                    <div className="space-y-2 pt-1">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/50">
+                        Fill Template Variables ({selectedTemplate.variables.length} detected)
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {selectedTemplate.variables.map((varNum) => (
+                          <div key={varNum} className="flex flex-col gap-1">
+                            <label className="text-[10px] font-medium text-foreground/60">
+                              Variable {`{{${varNum}}}`}:
+                            </label>
+                            <input
+                              value={templateVars[varNum] || ''}
+                              onChange={(e) =>
+                                setTemplateVars((prev) => ({ ...prev, [varNum]: e.target.value }))
+                              }
+                              placeholder={varNum === '1' ? 'e.g. ' + (selected?.name || 'Customer Name') : `Value for {{${varNum}}}`}
+                              className="bg-card border border-foreground/10 rounded-xl px-3 py-1.5 text-xs outline-none focus:border-gold/50"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Live Rendered Preview */}
+                  <div className="bg-background/80 rounded-xl p-3 border border-foreground/5">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-foreground/40 mb-1">
+                      Live Preview (As Recipient Sees It):
+                    </p>
+                    <p className="text-xs whitespace-pre-wrap text-foreground/80 leading-relaxed font-mono">
+                      {renderedChatTemplate}
+                    </p>
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-1">
+                    <button
+                      onClick={() => setSelectedTemplate(null)}
+                      className="px-3 py-1.5 rounded-xl text-xs text-foreground/60 hover:bg-foreground/10"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSendTemplate}
+                      disabled={sendingTemplate}
+                      className="px-4 py-2 rounded-xl bg-gold text-black font-bold text-xs uppercase tracking-wider flex items-center gap-2 hover:scale-105 active:scale-95 transition-all shadow-md shadow-gold/20 disabled:opacity-50"
+                    >
+                      {sendingTemplate ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                      Send Meta Template
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="p-4 border-t border-foreground/5 flex flex-col gap-2 relative">
                 {selectedFile && (
                   <div className="flex items-center justify-between bg-gold/10 px-4 py-2 rounded-xl text-sm font-medium">
                     <span className="truncate max-w-[250px]">{selectedFile.name}</span>
@@ -327,7 +604,75 @@ export default function WhatsAppInboxPage() {
                     </button>
                   </div>
                 )}
-                <div className="flex items-center gap-3">
+
+                {/* Template Picker Popover */}
+                {showTemplatePicker && (
+                  <div className="absolute bottom-20 left-2 right-2 sm:left-4 sm:right-auto sm:w-96 z-50 bg-card border border-foreground/15 rounded-3xl p-4 shadow-2xl backdrop-blur-xl">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Sparkles size={16} className="text-gold" />
+                        <h3 className="font-black text-xs uppercase tracking-wider text-gold">
+                          Meta Approved Templates
+                        </h3>
+                      </div>
+                      <button
+                        onClick={() => setShowTemplatePicker(false)}
+                        className="text-foreground/40 hover:text-foreground"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+
+                    <div className="relative mb-3">
+                      <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" />
+                      <input
+                        value={templateSearch}
+                        onChange={(e) => setTemplateSearch(e.target.value)}
+                        placeholder="Search templates..."
+                        className="w-full bg-foreground/5 border border-foreground/10 rounded-xl py-2 pl-9 pr-3 text-xs outline-none focus:border-gold/40"
+                      />
+                    </div>
+
+                    <div className="max-h-60 overflow-y-auto custom-scrollbar space-y-2">
+                      {loadingTemplates ? (
+                        <div className="p-4 text-center text-xs text-foreground/40 flex items-center justify-center gap-2">
+                          <Loader2 size={14} className="animate-spin" /> Fetching from Meta...
+                        </div>
+                      ) : filteredTemplates.length === 0 ? (
+                        <div className="p-4 text-center text-xs text-foreground/40">
+                          No approved templates found.
+                        </div>
+                      ) : (
+                        filteredTemplates.map((tpl) => (
+                          <button
+                            key={tpl.id}
+                            onClick={() => handleSelectTemplate(tpl)}
+                            className="w-full text-left p-3 rounded-2xl bg-foreground/5 hover:bg-gold/10 border border-foreground/5 hover:border-gold/30 transition-all group"
+                          >
+                            <div className="flex items-center justify-between gap-2 mb-1">
+                              <span className="font-bold text-xs group-hover:text-gold truncate">
+                                {tpl.name}
+                              </span>
+                              <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400">
+                                {tpl.status}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-foreground/50 line-clamp-2 leading-relaxed">
+                              {tpl.body}
+                            </p>
+                            {tpl.variables.length > 0 && (
+                              <p className="text-[10px] text-gold/70 mt-1">
+                                {tpl.variables.length} variable{tpl.variables.length > 1 ? 's' : ''} ({tpl.variables.map(v => `{{${v}}}`).join(', ')})
+                              </p>
+                            )}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2 sm:gap-3">
                   <input
                     type="file"
                     className="hidden"
@@ -337,21 +682,41 @@ export default function WhatsAppInboxPage() {
                   />
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-10 h-10 lg:w-12 lg:h-12 flex-shrink-0 rounded-2xl bg-foreground/5 border border-foreground/10 text-foreground/60 flex items-center justify-center hover:bg-foreground/10"
+                    title="Attach File"
+                    className="w-10 h-10 lg:w-12 lg:h-12 flex-shrink-0 rounded-2xl bg-foreground/5 border border-foreground/10 text-foreground/60 flex items-center justify-center hover:bg-foreground/10 transition-colors"
                   >
                     <Paperclip size={18} />
                   </button>
+
+                  <button
+                    onClick={() => setShowTemplatePicker(!showTemplatePicker)}
+                    title="Select Meta Template"
+                    className={`h-10 lg:h-12 px-3 rounded-2xl border flex items-center gap-1.5 text-xs font-bold transition-all ${
+                      selectedTemplate || showTemplatePicker
+                        ? 'bg-gold/20 border-gold text-gold'
+                        : 'bg-foreground/5 border-foreground/10 text-foreground/70 hover:bg-foreground/10'
+                    }`}
+                  >
+                    <Sparkles size={16} className="text-gold" />
+                    <span className="hidden sm:inline">Templates</span>
+                    {metaTemplates.length > 0 && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gold/20 text-gold font-mono">
+                        {metaTemplates.length}
+                      </span>
+                    )}
+                  </button>
+
                   <input
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-                    placeholder="Type a reply..."
+                    placeholder="Type a reply or pick a template..."
                     className="flex-1 min-w-0 bg-foreground/5 border border-foreground/10 rounded-2xl px-3 py-2 lg:px-4 lg:py-3 text-sm outline-none focus:border-gold/40"
                   />
                   <button
                     onClick={handleSend}
                     disabled={sending || (!draft.trim() && !selectedFile)}
-                    className="w-10 h-10 lg:w-12 lg:h-12 flex-shrink-0 rounded-2xl bg-gold text-black flex items-center justify-center disabled:opacity-40"
+                    className="w-10 h-10 lg:w-12 lg:h-12 flex-shrink-0 rounded-2xl bg-gold text-black flex items-center justify-center disabled:opacity-40 hover:scale-105 active:scale-95 transition-all"
                   >
                     {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
                   </button>
@@ -369,17 +734,46 @@ export default function WhatsAppInboxPage() {
 
       {showBroadcastModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
-          <div className="bg-card w-full max-w-lg rounded-[2rem] border border-foreground/10 p-8 shadow-2xl">
+          <div className="bg-card w-full max-w-xl rounded-[2rem] border border-foreground/10 p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-black uppercase tracking-tight text-gold">Broadcast Message</h2>
+              <div>
+                <h2 className="text-xl font-black uppercase tracking-tight text-gold">Broadcast Message</h2>
+                <p className="text-xs text-foreground/50 mt-0.5">Send bulk messages or Meta approved templates</p>
+              </div>
               <button onClick={() => setShowBroadcastModal(false)} className="text-foreground/40 hover:text-foreground">
                 <X size={20} />
               </button>
             </div>
+
+            {/* Mode Switcher */}
+            <div className="grid grid-cols-2 gap-2 p-1 bg-foreground/5 rounded-2xl border border-foreground/10 mb-6">
+              <button
+                type="button"
+                onClick={() => setBroadcastType('template')}
+                className={`py-2.5 px-3 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
+                  broadcastType === 'template'
+                    ? 'bg-gold text-black shadow-md shadow-gold/20'
+                    : 'text-foreground/60 hover:text-foreground'
+                }`}
+              >
+                <Sparkles size={14} /> Meta Approved Template
+              </button>
+              <button
+                type="button"
+                onClick={() => setBroadcastType('custom')}
+                className={`py-2.5 px-3 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
+                  broadcastType === 'custom'
+                    ? 'bg-gold text-black shadow-md shadow-gold/20'
+                    : 'text-foreground/60 hover:text-foreground'
+                }`}
+              >
+                <MessageSquare size={14} /> Custom Text / Media
+              </button>
+            </div>
             
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-foreground/60">
-                Select the contacts to send the message to.
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-bold uppercase tracking-wider text-foreground/60">
+                Select Recipients ({selectedBroadcastIds.length} of {conversations.length} selected)
               </p>
               <button
                 onClick={() => {
@@ -395,7 +789,7 @@ export default function WhatsAppInboxPage() {
               </button>
             </div>
 
-            <div className="max-h-[160px] overflow-y-auto custom-scrollbar space-y-2 mb-6 border border-foreground/10 p-3 rounded-2xl bg-foreground/5">
+            <div className="max-h-[140px] overflow-y-auto custom-scrollbar space-y-1.5 mb-6 border border-foreground/10 p-3 rounded-2xl bg-foreground/5">
               {conversations.map(c => {
                 const checked = selectedBroadcastIds.includes(c._id);
                 return (
@@ -409,8 +803,8 @@ export default function WhatsAppInboxPage() {
                     className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-foreground/10 text-left transition-colors"
                   >
                     <div>
-                      <p className="font-bold text-sm">{c.name || 'Unknown'}</p>
-                      <p className="text-xs text-foreground/50">{c.phone}</p>
+                      <p className="font-bold text-xs">{c.name || 'Unknown'}</p>
+                      <p className="text-[11px] text-foreground/50">{c.phone}</p>
                     </div>
                     <div className={`w-5 h-5 rounded-md border flex items-center justify-center ${checked ? 'bg-gold border-gold text-black' : 'border-foreground/30'}`}>
                       {checked && <CheckSquare size={14} className="text-black" />}
@@ -420,47 +814,123 @@ export default function WhatsAppInboxPage() {
               })}
             </div>
 
-            <div className="space-y-4">
-              <textarea
-                value={broadcastDraft}
-                onChange={(e) => setBroadcastDraft(e.target.value)}
-                placeholder="Type your broadcast message..."
-                className="w-full bg-foreground/5 border border-foreground/10 rounded-2xl p-4 min-h-[120px] outline-none focus:border-gold/40 text-sm resize-none"
-              />
-              
-              <div className="flex items-center gap-4">
-                <input 
-                  type="file" 
-                  className="hidden" 
-                  ref={broadcastFileInputRef}
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      setBroadcastFile(e.target.files[0]);
-                    }
-                  }}
-                />
-                <button 
-                  onClick={() => broadcastFileInputRef.current?.click()}
-                  className="px-4 py-2 border border-foreground/10 rounded-xl text-sm flex items-center gap-2 hover:bg-foreground/5 transition-all"
-                >
-                  <Paperclip size={16} /> 
-                  <span className="truncate max-w-[200px]">
-                    {broadcastFile ? broadcastFile.name : 'Attach File'}
-                  </span>
-                </button>
-                {broadcastFile && (
-                  <button onClick={() => setBroadcastFile(null)} className="text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition-all">
-                    <X size={16} />
-                  </button>
+            {broadcastType === 'template' ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-foreground/60 mb-2">
+                    Select Approved Template
+                  </label>
+                  <select
+                    value={broadcastSelectedTemplate?.name || ''}
+                    onChange={(e) => {
+                      const tpl = metaTemplates.find((t) => t.name === e.target.value) || null;
+                      setBroadcastSelectedTemplate(tpl);
+                      const initialMap: Record<string, string> = {};
+                      tpl?.variables.forEach((v) => {
+                        initialMap[v] = v === '1' ? 'restaurantName' : '';
+                      });
+                      setBroadcastVarMapping(initialMap);
+                    }}
+                    className="w-full bg-foreground/5 border border-foreground/10 rounded-2xl p-3.5 text-sm outline-none focus:border-gold/40 text-foreground cursor-pointer"
+                  >
+                    <option value="" className="bg-card text-foreground">-- Select Meta Approved Template --</option>
+                    {metaTemplates.map((t) => (
+                      <option key={t.id} value={t.name} className="bg-card text-foreground">
+                        {t.name} ({t.status} • {t.language})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {broadcastSelectedTemplate && (
+                  <div className="p-4 rounded-2xl bg-foreground/5 border border-foreground/10 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-gold">{broadcastSelectedTemplate.name}</span>
+                      <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400">
+                        {broadcastSelectedTemplate.status}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-background/60 rounded-xl border border-foreground/5 text-xs text-foreground/80 font-mono whitespace-pre-wrap">
+                      {broadcastSelectedTemplate.body}
+                    </div>
+
+                    {broadcastSelectedTemplate.variables.length > 0 && (
+                      <div className="space-y-2 pt-2 border-t border-foreground/5">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-foreground/60">
+                          Variable Mapping / Inputs
+                        </p>
+                        {broadcastSelectedTemplate.variables.map((varNum) => (
+                          <div key={varNum} className="flex items-center gap-3">
+                            <span className="text-xs font-bold text-gold w-20 flex-shrink-0">
+                              {`{{${varNum}}}`}
+                            </span>
+                            <input
+                              value={broadcastVarMapping[varNum] || ''}
+                              onChange={(e) =>
+                                setBroadcastVarMapping((prev) => ({
+                                  ...prev,
+                                  [varNum]: e.target.value,
+                                }))
+                              }
+                              placeholder={varNum === '1' ? 'restaurantName or recipient name' : `Value for {{${varNum}}}`}
+                              className="flex-1 bg-card border border-foreground/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-gold/40"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
-            </div>
+            ) : (
+              <div className="space-y-4">
+                <textarea
+                  value={broadcastDraft}
+                  onChange={(e) => setBroadcastDraft(e.target.value)}
+                  placeholder="Type your broadcast message..."
+                  className="w-full bg-foreground/5 border border-foreground/10 rounded-2xl p-4 min-h-[120px] outline-none focus:border-gold/40 text-sm resize-none"
+                />
+                
+                <div className="flex items-center gap-4">
+                  <input 
+                    type="file" 
+                    className="hidden" 
+                    ref={broadcastFileInputRef}
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        setBroadcastFile(e.target.files[0]);
+                      }
+                    }}
+                  />
+                  <button 
+                    onClick={() => broadcastFileInputRef.current?.click()}
+                    className="px-4 py-2 border border-foreground/10 rounded-xl text-sm flex items-center gap-2 hover:bg-foreground/5 transition-all"
+                  >
+                    <Paperclip size={16} /> 
+                    <span className="truncate max-w-[200px]">
+                      {broadcastFile ? broadcastFile.name : 'Attach File'}
+                    </span>
+                  </button>
+                  {broadcastFile && (
+                    <button onClick={() => setBroadcastFile(null)} className="text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition-all">
+                      <X size={16} />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className="mt-8">
               <button
                 onClick={handleBroadcast}
-                disabled={broadcasting || (!broadcastDraft.trim() && !broadcastFile)}
-                className="w-full bg-gold text-black py-4 rounded-xl font-black uppercase tracking-widest text-sm hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-3"
+                disabled={
+                  broadcasting ||
+                  selectedBroadcastIds.length === 0 ||
+                  (broadcastType === 'template' && !broadcastSelectedTemplate) ||
+                  (broadcastType === 'custom' && !broadcastDraft.trim() && !broadcastFile)
+                }
+                className="w-full bg-gold text-black py-4 rounded-xl font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-lg shadow-gold/20"
               >
                 {broadcasting ? (
                   <>
@@ -469,7 +939,7 @@ export default function WhatsAppInboxPage() {
                   </>
                 ) : (
                   <>
-                    <Send size={18} /> Send to All
+                    <Send size={18} /> Send Broadcast to {selectedBroadcastIds.length} Contact{selectedBroadcastIds.length === 1 ? '' : 's'}
                   </>
                 )}
               </button>
