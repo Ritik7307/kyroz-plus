@@ -128,6 +128,19 @@ function SOPLibraryContent() {
           const targetSop = data.find((s: Sop) => s._id === idParam);
           if (targetSop) setViewingSop(targetSop);
         }
+
+        // Fetch dynamic categories
+        try {
+          const catRes = await fetch(`${API_URL}/api/admin/settings/sop_categories`);
+          if (catRes.ok) {
+            const dynamicCats = await catRes.json();
+            if (Array.isArray(dynamicCats) && dynamicCats.length > 0) {
+              setCategoriesList(['All', ...dynamicCats]);
+            }
+          }
+        } catch (e) {
+          console.error('Error fetching sop categories:', e);
+        }
       } else {
         setError(`Server Error: ${res.status}`);
       }
@@ -167,7 +180,21 @@ function SOPLibraryContent() {
     }
   };
 
-  const categories = ['All', 'Cafe', 'Chinese', 'Biryani', 'Mandi', 'South Indian', 'Indian Curry', 'Tandoor', 'Preparation', 'Discipline'];
+  const [categoriesList, setCategoriesList] = useState<string[]>([
+    'All',
+    'South Indian',
+    'Cafe',
+    'Biryani',
+    'Mandi',
+    'Chinese',
+    'Indian Veg Curry',
+    'Indian Non-Veg Curry',
+    'Tandoor',
+    'Preparation',
+    'Discipline'
+  ]);
+
+  const categories = categoriesList;
   
   const displayedCategories = (userPlan === 'Starter' && userRole !== 'admin' && selectedSopCategory) 
     ? [selectedSopCategory]
@@ -202,7 +229,9 @@ function SOPLibraryContent() {
 
   const filteredSops = sops.filter(sop => {
     let cat = sop.category || '';
-    if (cat === 'Veg' || cat === 'Non-Veg') cat = 'Indian Curry';
+    if (cat === 'Indian Curry') cat = 'Indian Veg Curry';
+    if (cat === 'Veg') cat = 'Indian Veg Curry';
+    if (cat === 'Non-Veg') cat = 'Indian Non-Veg Curry';
     
     const sopTitle = (sop.title || '').toLowerCase();
     const isPrepSop = sopTitle.includes('prep');
@@ -406,7 +435,18 @@ function SOPLibraryContent() {
               <form onSubmit={handleCreateSop} className="space-y-8 md:space-y-12">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
                   <div className="space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-foreground/40">Recipe Name</label><input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full bg-card shadow-sm border border-border rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all" required /></div>
-                  <div className="space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-foreground/40">Category</label><select value={formData.category} onChange={(e: any) => setFormData({ ...formData, category: e.target.value })} className="w-full bg-card shadow-sm border border-border rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all appearance-none"><option value="South Indian">South Indian</option><option value="Cafe">Cafe</option><option value="Biryani">Biryani</option><option value="Mandi">Mandi</option><option value="Chinese">Chinese</option><option value="Indian Curry">Indian Curry</option><option value="Tandoor">Tandoor</option><option value="Discipline">Discipline</option><option value="Preparation">Preparation</option></select></div>
+                  <div className="space-y-3">
+                    <label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-foreground/40">Category</label>
+                    <select 
+                      value={formData.category} 
+                      onChange={(e: any) => setFormData({ ...formData, category: e.target.value })} 
+                      className="w-full bg-card shadow-sm border border-border rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all appearance-none"
+                    >
+                      {categories.filter(c => c !== 'All').map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
                   <div className="space-y-3"><label className="text-xs md:text-[11px] font-black uppercase tracking-widest text-foreground/40">Sub-Category (Optional)</label><select value={formData.subCategory} onChange={(e: any) => setFormData({ ...formData, subCategory: e.target.value })} className="w-full bg-card shadow-sm border border-border rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-bold focus:outline-none focus:border-gold transition-all appearance-none"><option value="">None</option><option value="Veg">Veg</option><option value="Non-Veg">Non-Veg</option></select></div>
                 </div>
                 <div className="bg-card shadow-sm p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-border space-y-6">

@@ -187,77 +187,80 @@ export default function TestimonialsPage() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-card glass-card w-full max-w-xl rounded-[2.5rem] border border-foreground/10 p-10 relative z-10 shadow-2xl"
+              className="bg-card glass-card w-full max-w-xl max-h-[92vh] overflow-y-auto rounded-3xl sm:rounded-[2.5rem] border border-foreground/10 p-6 sm:p-10 relative z-10 shadow-2xl"
             >
-              <button onClick={() => setIsModalOpen(false)} className="absolute top-8 right-8 text-foreground/20 hover:text-foreground">
-                <X size={24} />
+              <button 
+                onClick={() => setIsModalOpen(false)} 
+                className="absolute top-5 right-5 sm:top-8 sm:right-8 p-1.5 text-foreground/40 hover:text-foreground rounded-full hover:bg-foreground/5 transition-colors"
+              >
+                <X size={20} className="sm:w-6 sm:h-6" />
               </button>
               
-              <h2 className="text-2xl font-black tracking-tight mb-8">
+              <h2 className="text-xl sm:text-2xl font-black tracking-tight mb-6 sm:mb-8 pr-8">
                 {editingTestimonial ? 'EDIT TESTIMONIAL' : 'ADD TESTIMONIAL'}
               </h2>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-foreground/40">User Name</label>
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] sm:text-xs font-black uppercase tracking-wider sm:tracking-widest text-foreground/40">User Name</label>
                     <input 
                       type="text" 
                       value={formData.userName}
                       onChange={(e) => setFormData({...formData, userName: e.target.value})}
                       placeholder="e.g. Rahul Sharma"
-                      className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all"
+                      className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all text-sm"
                       required
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-foreground/40">User Role</label>
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] sm:text-xs font-black uppercase tracking-wider sm:tracking-widest text-foreground/40">User Role</label>
                     <input 
                       type="text" 
                       value={formData.userRole}
                       onChange={(e) => setFormData({...formData, userRole: e.target.value})}
                       placeholder="e.g. Restaurant Owner"
-                      className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all"
+                      className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all text-sm"
                       required
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-foreground/40">Testimonial Content</label>
+                <div className="space-y-1.5">
+                  <label className="text-[11px] sm:text-xs font-black uppercase tracking-wider sm:tracking-widest text-foreground/40">Testimonial Content</label>
                   <textarea 
                     value={formData.content}
                     onChange={(e) => setFormData({...formData, content: e.target.value})}
-                    rows={4}
+                    rows={3}
                     className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all resize-none text-sm"
                     required
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-foreground/40">Rating (1-5)</label>
-                    <div className="flex gap-4 items-center h-[50px]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] sm:text-xs font-black uppercase tracking-wider sm:tracking-widest text-foreground/40">Rating (1-5)</label>
+                    <div className="flex gap-3 sm:gap-4 items-center py-1">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
                           key={star}
                           type="button"
                           onClick={() => setFormData({...formData, rating: star})}
-                          className={`transition-all ${formData.rating >= star ? 'text-gold' : 'text-foreground/10'}`}
+                          className={`transition-all p-1 hover:scale-110 ${formData.rating >= star ? 'text-gold' : 'text-foreground/15'}`}
                         >
-                          <Star size={24} fill={formData.rating >= star ? 'currentColor' : 'none'} />
+                          <Star size={22} fill={formData.rating >= star ? 'currentColor' : 'none'} />
                         </button>
                       ))}
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-foreground/40">Avatar URL (Optional)</label>
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] sm:text-xs font-black uppercase tracking-wider sm:tracking-widest text-foreground/40">Avatar URL (Optional)</label>
                     <input 
                       type="text" 
                       value={formData.avatarUrl}
                       onChange={(e) => setFormData({...formData, avatarUrl: e.target.value})}
                       placeholder="https://..."
-                      className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all"
+                      className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 focus:border-gold/50 outline-none transition-all text-sm"
                     />
                   </div>
                 </div>
