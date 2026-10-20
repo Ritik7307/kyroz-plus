@@ -1020,6 +1020,38 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
       }
     }
 
+    // Direct Sop / MasterSop full text fallback (Guarantees Chef AI never misses a recipe in the SOP library!)
+    if (!contextText) {
+      try {
+        const dishSearchTerms = [standaloneQuery, ...cleanedQuery.split(/\s+/)].filter(t => t && t.length > 2);
+        const searchRegex = new RegExp(dishSearchTerms.join('|'), 'i');
+
+        // Check user's own Sop records first
+        let matchedSop = await Sop.findOne({
+          userId,
+          title: searchRegex
+        }).lean() as any;
+
+        // If not found in user's library, check MasterSop directly
+        if (!matchedSop) {
+          matchedSop = await MasterSop.findOne({
+            title: searchRegex
+          }).lean() as any;
+        }
+
+        if (matchedSop) {
+          const content = targetLang === 'hi' 
+            ? (matchedSop.contentHi || matchedSop.contentEn || matchedSop.content || '')
+            : (matchedSop.contentEn || matchedSop.contentHi || matchedSop.content || '');
+          if (content) {
+            contextText = `[SOP: ${matchedSop.title}]\n${content}`;
+          }
+        }
+      } catch (directSopErr) {
+        console.error('Direct Sop/MasterSop fallback lookup error:', directSopErr);
+      }
+    }
+
     if (!contextText) {
       // Try fetching from Costing Master (Dish & Recipe)
       try {
@@ -1120,7 +1152,8 @@ ${suggestionsInstruction}
 
 
 
-    const llmQuery = isExactSopMatch ? standaloneQuery : cleanedQuery;
+    // Always pass the user's actual question to the LLM so it knows whether the user asked for full recipe or troubleshooting/specific part
+    const llmQuery = cleanedQuery;
 
     const cleanHistory = history.filter(m => m.content !== query && m.content !== cleanedQuery);
 
