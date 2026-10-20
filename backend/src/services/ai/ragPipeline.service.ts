@@ -1130,7 +1130,7 @@ ${languageRule}
 
 4. SECTION & HEADING SPECIFICITY:
    - When the user asks about a specific step, part, or aspect of a dish (temperature, marination, measurement, cooking time, plating, or storage), locate that exact heading and answer ONLY that specific part.
-   - DO NOT recite the entire recipe unless the user explicitly asks for the whole recipe ("puri recipe batao", "give full procedure").
+   - FULL PROCEDURE RULE: If the user asks how to cook/prepare the dish, asks for the recipe, or asks for the complete SOP (e.g. "how to cook biryani", "give me complete SOP", "recipe batao", "kaise banate hain"), you MUST provide the COMPLETE step-by-step procedure from the SOP including key preparation, cooking steps, and dum/finishing steps in order. Do not truncate or omit steps.
 
 5. CLEAN SPEECH & ZERO SYMBOL PRONUNCIATION:
    - This text is read aloud by the speech engine (TTS).
@@ -1193,7 +1193,7 @@ ${suggestionsInstruction}
 
           temperature: 0.2,
 
-          max_tokens: 512, // Reduce max tokens to speed up output
+          max_tokens: 2000, // Generous token allowance so full SOP steps + suggestions never get cut off
 
         });
 
@@ -1267,10 +1267,13 @@ ${suggestionsInstruction}
 
     let reply = rawReply;
     let suggestions: string[] = [];
-    const suggestionMatch = rawReply.match(/\[SUGGESTIONS\](.*)$/is);
+    const suggestionMatch = rawReply.match(/(?:\[SUGGESTIONS\]|SUGGESTIONS:?)(.*)$/is);
     if (suggestionMatch) {
-      reply = rawReply.replace(/\[SUGGESTIONS\].*$/is, '').trim();
-      suggestions = suggestionMatch[1].split(/[\n,]/).map(s => s.trim().replace(/[*"-]/g, '')).filter(s => s.length > 2);
+      reply = rawReply.replace(/(?:\[SUGGESTIONS\]|SUGGESTIONS:?).*$/is, '').trim();
+      suggestions = suggestionMatch[1]
+        .split(/[\n,]/)
+        .map(s => s.trim().replace(/^[\d\.\-\*\•\s]+/, '').replace(/[*"-]/g, ''))
+        .filter(s => s.length > 2);
     }
     
     // Clean up excessive formatting characters and symbols that cause TTS voice issues
