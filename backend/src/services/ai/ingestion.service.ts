@@ -27,20 +27,35 @@ export const processSopText = async (userId: string, text: string, language: str
     'GARNISH', 
     'TROUBLESHOOTING', 
     'TIP',
-    'GARNISH & PLATING'
+    'GARNISH & PLATING',
+    'MARINATION',
+    'BATTER',
+    'PREPARATION',
+    'ASSEMBLY',
+    'MEASUREMENT',
+    'STORAGE',
+    'QUALITY AUDIT',
+    'नियम',
+    'तैयारी',
+    'विधि',
+    'पकाने की विधि',
+    'सुझाव',
+    'समस्या और समाधान',
+    'माप'
   ];
 
   // Regex to detect a header: 
   // - Starts with # (Markdown header)
-  // - Starts with a number or letter followed by a dot (e.g., "1. ", "A. ")
-  // - Or matches one of the legacy exact keywords
+  // - Starts with number/letter followed by dot/paren (e.g., "1. ", "1) ", "A. ")
+  // - Or matches one of the known section keywords
   const isHeader = (line: string): boolean => {
     const trimmed = line.trim();
     if (trimmed.startsWith('#')) return true;
-    if (/^([0-9]+|[A-Z])\.\s/.test(trimmed) && trimmed.length < 80) return true;
+    if (/^([0-9]+|[A-Z])[\.\)]\s/i.test(trimmed) && trimmed.length < 90) return true;
+    if (/^[०-९]+[\.\)]\s/.test(trimmed) && trimmed.length < 90) return true;
     
     const upperLine = trimmed.toUpperCase();
-    if (sectionKeywords.some(keyword => upperLine.startsWith(keyword))) {
+    if (sectionKeywords.some(keyword => upperLine.includes(keyword))) {
         return true;
     }
     

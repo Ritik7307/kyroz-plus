@@ -303,127 +303,74 @@ const cleanDishNameForMatching = (name: string): string => {
 
 
 const matchDishByKeywords = (englishQuery: string, dishes: { title: string }[]): string | null => {
-
   const queryLower = englishQuery.toLowerCase();
-
   const stopwords = new Set([
-
     'how', 'make', 'cook', 'recipe', 'prepare', 'need', 'want', 'get', 'show', 'give', 
-
     'find', 'does', 'what', 'where', 'easy', 'step', 'steps', 'method', 'way', 'info', 
-
-    'information', 'detail', 'details', 'about', 'from', 'with', 'within', 'made', 'done'
-
+    'information', 'detail', 'details', 'about', 'from', 'with', 'within', 'made', 'done',
+    'banae', 'banaye', 'banayein', 'banti', 'hai', 'kaise', 'kare', 'karna', 'karein',
+    'kitna', 'kitni', 'kyun', 'kya', 'batao', 'bataiye', 'sikhao', 'sikhiye', 'chahiye'
   ]);
 
-  
-
   const queryWords = queryLower
-
-    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "")
-
+    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, " ")
     .split(/\s+/)
-
     .filter(w => w.length > 2 && !stopwords.has(w));
 
-
-
-  let bestMatch: string | null = null;
-
-  let maxMatchCount = 0;
-
-  let bestDishWordCount = 0;
-
-
-
+  // 1. Direct whole-name or substring check on cleaned title
   for (const d of dishes) {
-
     if (!d.title) continue;
-
     const cleanedTitle = cleanDishNameForMatching(d.title);
-
-    const dishWords = cleanedTitle.split(/\s+/).filter(w => w.length > 2);
-
-    
-
-    // Count matches
-
-    let matchCount = 0;
-
-    for (const qw of queryWords) {
-
-      if (dishWords.includes(qw)) {
-
-        matchCount++;
-
-      } else {
-
-        // Allow minor fuzzy matching on words (e.g. spelling errors)
-
-        for (const dw of dishWords) {
-
-          if (getSimilarity(qw, dw) > 0.8) {
-
-            matchCount++;
-
-            break;
-
-          }
-
-        }
-
-      }
-
+    if (!cleanedTitle) continue;
+    // e.g. "biryani" in "shahi lucknowi biryani"
+    if (queryLower.includes(cleanedTitle)) {
+      return d.title;
     }
-
-
-
-    if (matchCount > 0) {
-
-      // For multi-word dishes (>= 2 keywords), we need at least 2 matches
-
-      // For single-word dishes (1 keyword), 1 match is sufficient if it's an exact/close match
-
-      const isQualifying = dishWords.length >= 2 ? matchCount >= 2 : matchCount >= 1;
-
-      
-
-      if (isQualifying) {
-
-        // Prioritize the dish that matches more words
-
-        if (matchCount > maxMatchCount) {
-
-          maxMatchCount = matchCount;
-
-          bestMatch = d.title;
-
-          bestDishWordCount = dishWords.length;
-
-        } else if (matchCount === maxMatchCount) {
-
-          // Tie-breaker: prefer the more specific dish (fewer total words)
-
-          if (bestDishWordCount === 0 || dishWords.length < bestDishWordCount) {
-
-            bestMatch = d.title;
-
-            bestDishWordCount = dishWords.length;
-
-          }
-
-        }
-
-      }
-
-    }
-
   }
 
+  // 2. Keyword matching with single-token fallbacks
+  let bestMatch: string | null = null;
+  let maxMatchCount = 0;
+  let bestDishWordCount = 0;
 
+  for (const d of dishes) {
+    if (!d.title) continue;
+    const cleanedTitle = cleanDishNameForMatching(d.title);
+    const dishWords = cleanedTitle.split(/\s+/).filter(w => w.length > 2);
+    if (dishWords.length === 0) continue;
+
+    let matchCount = 0;
+    for (const qw of queryWords) {
+      if (dishWords.includes(qw)) {
+        matchCount++;
+      } else {
+        // Fuzzy matching on words
+        for (const dw of dishWords) {
+          if (getSimilarity(qw, dw) > 0.8) {
+            matchCount++;
+            break;
+          }
+        }
+      }
+    }
+
+    if (matchCount > 0) {
+      // If any core dish word matches (e.g. user says "biryani" or "burger" or "pizza" or "dosa"), it's qualifying!
+      if (matchCount > maxMatchCount) {
+        maxMatchCount = matchCount;
+        bestMatch = d.title;
+        bestDishWordCount = dishWords.length;
+      } else if (matchCount === maxMatchCount) {
+        // Tie-breaker: prefer the more specific dish (fewer total words)
+        if (bestDishWordCount === 0 || dishWords.length < bestDishWordCount) {
+          bestMatch = d.title;
+          bestDishWordCount = dishWords.length;
+        }
+      }
+    }
+  }
 
   return bestMatch;
-
 };
 
 
@@ -1016,63 +963,14 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
 
 
 
-    // Specific query check to bypass general answers if user asks a specific question
+    // Specific query check to bypass general answers if user asks a specific question or reports a problem
+    const englishSpecific = /\b(recipe|ingredient|make|cook|prepare|cost|price|packaging|sop|method|step|how|what|button|batches|portion|plates|kg|gm|ml|chicken|mutton|veg|rava|onion|masala|white|shahi|lucknowi|arabic|batter|stuffing|mini|regular|large|medium|small|size|about|scale|yield|quantity|ratio|water|tadka|tempering|store|storage|troubleshoot|spoilage|yields|plates|pieces|piece|sops|coconut|red|kara|rice|medu|premium|indo|burn|burnt|raw|undercooked|salty|spicy|thick|thin|sticky|bad|smell|fix|help|wrong|taste|bland|less|more|extra|loose|soggy|hard|oil|temperature|heat|flame|time)\b/i.test(queryLower);
 
-    const englishSpecific = /\b(recipe|ingredient|make|cook|prepare|cost|price|packaging|sop|method|step|how|what|button|batches|portion|plates|kg|gm|ml|chicken|mutton|veg|rava|onion|masala|white|shahi|lucknowi|arabic|batter|stuffing|mini|regular|large|medium|small|size|about|scale|yield|quantity|ratio|water|tadka|tempering|store|storage|troubleshoot|spoilage|yields|plates|pieces|piece|sops|coconut|red|kara|rice|medu|premium|indo|burn|burnt|raw|undercooked|salty|spicy|thick|thin|sticky|bad|smell|fix|help|wrong)\b/i.test(queryLower);
+    const hindiSpecific = /(विधि|सामग्री|बनाएं|बनाएँ|कैसे|मूल्य|कीमत|चिकन|मटन|वेज|रवा|प्याज़|मसाला|सफेद|शाही|लखनऊ|बैटर|स्टफिंग|साइज|मात्रा|अनुपात|पानी|स्टोर|फ्रिज|तापमान|उबाल|पकाना|परोस|नारियल|लाल|कारा|चावल|मेदु|प्रीमियम|इंडो|जल|कच्चा|नमक|मिर्च|ज़्यादा|ज्यादा|कम|खराब|स्मेल|क्यों|क्या|करूं|करु|करें|करू|पतला|गाढ़ा|टूट|चिपक|स्वाद|टेस्ट|jal|kaccha|namak|mirch|zyada|kam|kharab|kyu|kya|karu|kare|patla|gaada|toot|chipak|thik|theek|swad|taste)/i.test(queryLower);
 
-    const hindiSpecific = /(विधि|सामग्री|बनाएं|बनाएँ|कैसे|मूल्य|कीमत|चिकन|मटन|वेज|रवा|प्याज़|मसाला|सफेद|शाही|लखनऊ|बैटर|स्टफिंग|साइज|मात्रा|अनुपात|पानी|स्टोर|फ्रिज|तापमान|उबाल|पकाना|परोस|नारियल|लाल|कारा|चावल|मेदु|प्रीमियम|इंडो|जल|कच्चा|नमक|मिर्च|ज़्यादा|ज्यादा|कम|खराब|स्मेल|क्यों|क्या|करूं|करु|करें|करू|पतला|गाढ़ा|टूट|चिपक|jal|kaccha|namak|mirch|zyada|kam|kharab|kyu|kya|karu|kare|patla|gaada|toot|chipak|thik|theek)/i.test(queryLower);
-
-    
-
-    const isSentence = queryLower.trim().split(/\s+/).length >= 3;
+    const isSentence = queryLower.trim().split(/\s+/).length >= 2;
 
     const isSpecificQuery = englishSpecific || hindiSpecific || isExactSopMatch || isSentence;
-
-
-
-    if (!isSpecificQuery) {
-
-      const matchedKey = Object.keys(keywordMappings).find(key => {
-
-        const words = queryLower.split(/\s+/);
-
-        return words.some(word => {
-
-          if (word === key || word === `${key}s` || word === `${key}es`) return true;
-
-          if (word.length >= 4 && key.length >= 4) {
-
-            const sim = getSimilarity(word, key);
-
-            return sim > 0.7;
-
-          }
-
-          return false;
-
-        });
-
-      });
-
-
-
-      if (matchedKey) {
-
-        const mapping = keywordMappings[matchedKey];
-
-        return {
-
-          reply: isHi ? mapping.hiReply : mapping.enReply,
-
-          suggestions: mapping.suggestions,
-
-          detectedLang: targetLang
-
-        };
-
-      }
-
-    }
 
 
 
@@ -1160,9 +1058,12 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
 
     const languageRule = targetLang === 'hi'
 
-      ? `1. LANGUAGE: You MUST respond entirely in proper, grammatically correct, professional Hindi using the Devanagari script (हिंदी देवनागरी). Do NOT write in Hinglish or write Hindi words in English/Latin letters (Roman script). Do NOT use English letters/words in the response (e.g. write "रेसिपी", "सामग्री", "विधि", "फ़्रीज़र" instead of "recipe", "ingredients", "method", "freezer"). Translate all context details into clear, natural, and correct Hindi sentences.`
+      ? `1. LANGUAGE & SCRIPT: You MUST respond entirely in pure, standard Hindi using the Devanagari script (हिंदी देवनागरी).
+   - Absolutely NEVER use Hinglish or English letters/Roman script for Hindi words.
+   - For technical terms or ingredients, transliterate or translate naturally (e.g., "रेसिपी", "सामग्री", "तापमान", "विधि", "तड़का").
+   - Ensure complete, grammatically correct, natural Hindi sentences.`
 
-      : `1. LANGUAGE: You MUST respond entirely in professional English.`;
+      : `1. LANGUAGE: You MUST respond entirely in clear, professional English.`;
 
 
 
@@ -1176,32 +1077,42 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
 
     const systemInstruction = `
 
-You are Chef, a friendly, passionate, and professional human kitchen assistant for Kyroz Plus.
+You are Chef, an intuitive, expert kitchen assistant for Kyroz Plus designed to help restaurant staff and kitchen workers of all skill levels.
 
-Your primary goal is to answer the user's question EXACTLY and CONCISELY based on the provided SOP context.
+Even if the user is a complete beginner, mispronounces a word, speaks in informal terms, or makes voice-to-text typos, you MUST understand their intent with high empathy and intelligence.
 
-STRICT RULES:
+STRICT OPERATIONAL RULES:
 
 ${languageRule}
 
-2. SPECIFICITY & PRECISION: 
-   - If the user asks a specific question (e.g., "how much salt?", "what is the temperature?", "how long to boil?"), you MUST answer ONLY that specific detail. DO NOT provide the entire recipe or procedure.
-   - If the user explicitly asks for the full recipe (e.g., "how to make pizza", "what is the SOP for biryani"), then provide the complete step-by-step procedure.
-   - Be direct, professional, and clear. Avoid unnecessary fluff.
+2. BEGINNER-FRIENDLY DISH RESOLUTION & FUTURE SOP ADAPTABILITY:
+   - When a user asks about a general dish name (e.g. "biryani", "burger", "pizza", "dosa", "chutney", "garlic bread", "wrap"), and the SOP context contains a specific restaurant recipe (like "Shahi Lucknowi Biryani", "Master Cafe-Style Burger", or "S-301 Coastal Crust Dosa"), seamlessly treat their query as referring to that recipe!
+   - Never say "I do not have this recipe in my SOP library" if a matching dish family or recipe is present in the context.
+   - This applies dynamically to all dishes in the SOP library, including any future SOPs added by the restaurant owner.
 
-3. SOURCE & MISSING INFO: Use ONLY the provided SOP CONTEXT. Do NOT use your own database or general training knowledge to answer recipe or kitchen questions. 
-   - If the requested recipe or dish is COMPLETELY MISSING from the SOP CONTEXT, you MUST strictly respond with: "I do not have this recipe in my SOP library." (or in Hindi: "मेरे पास SOP लाइब्रेरी में यह रेसिपी नहीं है।") and absolutely nothing else.
-   - If the dish IS present in the context, but the specific detail the user asked for (like salt amount, temperature, etc.) is missing, you MUST say: "The provided SOP does not mention this detail." (or in Hindi: "SOP में इसकी जानकारी नहीं दी गई है।"). Do NOT say you don't have the recipe in this case.
+3. KITCHEN TROUBLESHOOTING & PROBLEM RESOLUTION:
+   - If the user reports a problem (e.g. "biryani jal gayi", "taste kharab ho gaya", "masala kam hai", "batter patla ho gaya", "dosa chipak raha hai", "bread jal rahi hai"):
+     * Check the SOP context's "TROUBLESHOOTING", "HELPER ADVICE", "TIPS", or cooking guidelines.
+     * Provide ONLY the immediate, practical solution for that exact problem. Do not repeat the entire recipe.
+     * If the SOP contains a specific fix, cite it clearly. If the user mentions taste adjustment or less masala, guide them using the SOP ratio adjustments or seasoning tips.
 
-4. PHONETIC/TYPO TOLERANCE: Treat transcription typos or phonetic variants (e.g. "Lye Siddeley" as "Rice Idli", "mendu wada" as "medu vada", "लक्नदी" as "लखनवी", "biryani" as "shahi lucknowi biryani") when matching with the context.
+4. SECTION & HEADING SPECIFICITY:
+   - When the user asks about a specific step, part, or aspect of a dish (temperature, marination, measurement, cooking time, plating, or storage), locate that exact heading and answer ONLY that specific part.
+   - DO NOT recite the entire recipe unless the user explicitly asks for the whole recipe ("puri recipe batao", "give full procedure").
 
+5. CLEAN SPEECH & ZERO SYMBOL PRONUNCIATION:
+   - This text is read aloud by the speech engine (TTS).
+   - NEVER include decorative punctuation, hashtags (#), markdown asterisks (** or *), equal signs (===), tildes (~), bullets (•, -, *), emojis, or bracket tags in the spoken text.
+   - Write in smooth, natural sentences so the voice synthesizer speaks smoothly without saying words like "asterisk", "hash", or "dash".
 
+6. MISSING RECIPES:
+   - ONLY if the requested dish is genuinely not found anywhere in the SOP library or context, say:
+     English: "I do not have this recipe in my SOP library."
+     Hindi: "मेरे पास SOP लाइब्रेरी में यह रेसिपी नहीं है।"
 
 SOP CONTEXT:
 
 ${(contextText || (targetLang === 'hi' ? 'लाइब्रेरी में कोई मिलान SOP नहीं मिला।' : 'No matching SOP found in the library.')).replace(/={3,}/g, '').replace(/-{4,}/g, '')}
-
-
 
 ${suggestionsInstruction}
 
@@ -1329,8 +1240,13 @@ ${suggestionsInstruction}
       suggestions = suggestionMatch[1].split(/[\n,]/).map(s => s.trim().replace(/[*"-]/g, '')).filter(s => s.length > 2);
     }
     
-    // Clean up excessive formatting characters that cause TTS issues
-    reply = reply.replace(/={3,}/g, '').replace(/-{4,}/g, '').trim();
+    // Clean up excessive formatting characters and symbols that cause TTS voice issues
+    reply = reply
+      .replace(/={3,}/g, '')
+      .replace(/-{4,}/g, '')
+      .replace(/[*_#`~[\]]/g, '')
+      .replace(/^[•▪◦●○\-]\s*/gm, '')
+      .trim();
     
     return { reply, suggestions, detectedLang: targetLang };
 
