@@ -490,13 +490,19 @@ export default function BusinessAiDashboard() {
 
             const targetLangStr = actualLang === 'hi' ? 'hi' : 'en';
             
-            // Filter voices by target language
-            const langVoices = voices.filter(v => v.lang.toLowerCase().startsWith(targetLangStr));
+            // Filter voices by target language, prioritizing Indian English (en-in)
+            let langVoices = actualLang === 'hi'
+              ? voices.filter(v => v.lang.toLowerCase().startsWith('hi'))
+              : voices.filter(v => v.lang.toLowerCase().replace('_', '-').includes('en-in'));
+
+            if (langVoices.length === 0) {
+              langVoices = voices.filter(v => v.lang.toLowerCase().startsWith(targetLangStr));
+            }
             
             // Prioritize female and penalize male voices to ensure 100% female voice selection
-            const femaleKeywords = ['swara', 'aria', 'jenny', 'zira', 'heera', 'kalpana', 'samantha', 'google', 'female', 'girl', 'woman', 'lady', 'aunt'];
-            const maleKeywords = ['madhur', 'hemant', 'ravi', 'david', 'mark', 'george', 'james', 'richard', 'stefan', 'male', 'boy', 'man', 'guy', 'gentleman'];
-            const premiumKeywords = ['natural', 'online', 'premium', 'neural'];
+            const femaleKeywords = ['swara', 'neerja', 'aria', 'jenny', 'zira', 'heera', 'kalpana', 'samantha', 'google', 'female', 'girl', 'woman', 'lady', 'aunt'];
+            const maleKeywords = ['madhur', 'prabhat', 'hemant', 'ravi', 'david', 'mark', 'george', 'james', 'richard', 'stefan', 'male', 'boy', 'man', 'guy', 'gentleman'];
+            const premiumKeywords = ['natural', 'online', 'premium', 'neural', 'india'];
             
             langVoices.sort((a, b) => {
               const nameA = a.name.toLowerCase();
@@ -535,7 +541,7 @@ export default function BusinessAiDashboard() {
             if (sentences.length > 0) {
               sentences.forEach((sentence, index) => {
                 const utterance = new SpeechSynthesisUtterance(sentence);
-                utterance.lang = actualLang === 'hi' ? 'hi-IN' : 'en-US';
+                utterance.lang = actualLang === 'hi' ? 'hi-IN' : 'en-IN';
                 if (selectedVoice) {
                   utterance.voice = selectedVoice;
                 }

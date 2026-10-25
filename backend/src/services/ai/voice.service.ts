@@ -54,21 +54,25 @@ export const generateSpeech = async (text: string, lang: string = 'auto'): Promi
     .replace(/\s+/g, ' ')
     .trim();
 
+  const isHindi = lang === 'hi' || /[\u0900-\u097F]/.test(cleanedText);
+
+  // Fix Hindi pronunciation issues:
+  // "स्टेप" (step) in Hindi TTS sounds awkward like "सतेप" (satep).
+  // Translating "स्टेप" / "step" to natural Hindi "चरण" produces clear pronunciation.
+  if (isHindi) {
+    cleanedText = cleanedText
+      .replace(/स्टेप्स?/g, 'चरण')
+      .replace(/\b[Ss]teps?\b/g, 'चरण');
+  }
+
   // Prevent TTS from reading "10-15" as "10 minus 15"
   cleanedText = cleanedText.replace(/(\d+)\s*[-–—]\s*(\d+)/g, (match, p1, p2) => {
-    return lang === 'hi' ? `${p1} से ${p2}` : `${p1} to ${p2}`;
+    return isHindi ? `${p1} से ${p2}` : `${p1} to ${p2}`;
   });
 
-  // For English, prioritize OpenAI TTS as it provides a much more human-like, expressive voice.
-  if (lang === 'en' && openai) {
-    try {
-      const mp3 = await openai.audio.speech.create({ model: "tts-1", voice: "shimmer", input: cleanedText });
-      const arrayBuffer = await mp3.arrayBuffer();
-      return Buffer.from(arrayBuffer);
-    } catch (openaiError) {
-      console.warn("OpenAI high-quality TTS failed, falling back to Python AI Core:", openaiError);
-    }
-  }
+  // Notice: For Indian English, Python AI Core uses Microsoft Edge's natural Indian English
+  // voice (en-IN-NeerjaExpressiveNeural) instead of American OpenAI voices.
+  // We prioritize the Indian AI Core TTS first. If AI Core is unavailable, fallback to OpenAI.
 
   try {
     const formData = new URLSearchParams();

@@ -1092,6 +1092,7 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
 
       ? `1. LANGUAGE & SCRIPT: You MUST respond entirely in pure, standard Hindi using the Devanagari script (हिंदी देवनागरी).
    - Absolutely NEVER use Hinglish or English letters/Roman script for Hindi words.
+   - For recipe steps, ALWAYS use "चरण 1", "चरण 2", "चरण 3" (NEVER use "स्टेप 1" or "स्टेप्स" because text-to-speech mispronounces "स्टेप").
    - For technical terms or ingredients, transliterate or translate naturally (e.g., "रेसिपी", "सामग्री", "तापमान", "विधि", "तड़का").
    - Ensure complete, grammatically correct, natural Hindi sentences.`
 

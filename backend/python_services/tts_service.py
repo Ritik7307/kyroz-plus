@@ -18,13 +18,30 @@ ENGLISH_VOICE = "en-IN-NeerjaExpressiveNeural"
 class TTSRequest(BaseModel):
     text: str
 
-def clean_tts_text(text: str) -> str:
+def clean_tts_text(text: str, lang: str = "auto") -> str:
     if not text:
         return ""
     # Strip markdown bold, italic, strike, headers, pluses, and bullets
     clean_text = re.sub(r'[\*#`_\~\+•▪◦●○]', '', text)
     # Strip line-leading list dashes
     clean_text = re.sub(r'(?:^|\n)\s*[-–—]\s*', ' ', clean_text)
+    
+    detected_lang = lang if lang in {"hi", "en"} else detect_language(clean_text)
+    
+    # Fix Hindi pronunciation issues:
+    # 1. 'स्टेप' (step) in Hindi TTS sounds like 'सतेप' (satep) because of the initial half-s conjunct.
+    #    Replacing with natural Hindi 'चरण' (Charan) produces flawless, natural Hindi pronunciation.
+    if detected_lang == "hi":
+        # Replace 'स्टेप' or 'स्टेप्स' with 'चरण' using explicit unicode escapes:
+        # \u0938\u094d\u091f\u0947\u092a = स्टेप, \u091a\u0930\u0923 = चरण
+        clean_text = re.sub(r'\u0938\u094d\u091f\u0947\u092a(?:\u094d\u0938)?', '\u091a\u0930\u0923', clean_text)
+        # Also replace English 'step' / 'steps' when in Hindi context
+        clean_text = re.sub(r'\b[Ss]teps?\b', '\u091a\u0930\u0923', clean_text)
+        # Prevent "10-15" being read as "10 minus 15"
+        clean_text = re.sub(r'(\d+)\s*[-–—]\s*(\d+)', lambda m: f"{m.group(1)} \u0938\u0947 {m.group(2)}", clean_text)
+    else:
+        clean_text = re.sub(r'(\d+)\s*[-–—]\s*(\d+)', r'\1 to \2', clean_text)
+
     clean_text = re.sub(r'\s+', ' ', clean_text).strip()
     return clean_text
 
@@ -40,11 +57,11 @@ def voice_for_text(text: str, requested_lang: str = "auto") -> tuple[str, str]:
     return lang, voice
 
 async def synthesize_speech(text: str, lang: str = "auto") -> bytes:
-    clean_text = clean_tts_text(text)
+    detected_lang, voice = voice_for_text(text, lang)
+    clean_text = clean_tts_text(text, lang=detected_lang)
     if not clean_text:
         raise ValueError("Text is required")
 
-    detected_lang, voice = voice_for_text(clean_text, lang)
     logger.info("Generating TTS for language=%s voice=%s", detected_lang, voice)
 
     audio_stream = io.BytesIO()

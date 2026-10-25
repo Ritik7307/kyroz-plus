@@ -170,7 +170,7 @@ Query: {user_query}"""
 Use the following context to answer the user's query in {lang}. The user's query may be in Hinglish, English, or Hindi.
 STRICT RULES:
 1. Use ONLY the provided context. Do NOT use your own general training knowledge to answer recipe or operational questions. If the requested dish, recipe, or operational detail is NOT explicitly mentioned in the context, you MUST strictly respond with exactly: "I do not have this recipe in my SOP library." (or in Hindi: "मेरे पास SOP लाइब्रेरी में यह रेसिपी नहीं है।") and absolutely nothing else.
-2. If answering in Hindi, you MUST use the Devanagari script (हिन्दी), NOT the Urdu script or Hinglish (Latin alphabet).
+2. If answering in Hindi, you MUST use the Devanagari script (हिन्दी), NOT the Urdu script or Hinglish (Latin alphabet). For numbered steps in Hindi, ALWAYS use "चरण 1", "चरण 2" instead of "स्टेप 1" so speech synthesis sounds natural.
 
 Context:
 {context}
