@@ -11,9 +11,9 @@ class VoiceEngine:
         
         if self.speech_key and self.speech_region:
             self.speech_config = speechsdk.SpeechConfig(subscription=self.speech_key, region=self.speech_region)
-            # Default voices
+            # Default voices (Indian English & Hindi)
             self.voices = {
-                "en": "en-US-AriaNeural",
+                "en": "en-IN-NeerjaNeural",
                 "hi": "hi-IN-SwaraNeural"
             }
         else:
