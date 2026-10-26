@@ -70,6 +70,27 @@ export const generateSpeech = async (text: string, lang: string = 'auto'): Promi
     return isHindi ? `${p1} से ${p2}` : `${p1} to ${p2}`;
   });
 
+  if (isHindi) {
+    cleanedText = cleanedText
+      .replace(/(\d+)\s*(?:gm|g|ग्राम)\b/gi, '$1 ग्राम')
+      .replace(/(\d+)\s*(?:kg|किलो)\b/gi, '$1 किलो')
+      .replace(/(\d+)\s*(?:ml|मिली)\b/gi, '$1 मिलीलीटर')
+      .replace(/(\d+)\s*(?:tbsp|tbs)\b/gi, '$1 बड़ा चम्मच')
+      .replace(/(\d+)\s*(?:tsp)\b/gi, '$1 छोटा चम्मच');
+  } else {
+    cleanedText = cleanedText
+      .replace(/(\d+)\s*tbsp\b/gi, '$1 tablespoons')
+      .replace(/(\d+)\s*tsp\b/gi, '$1 teaspoons')
+      .replace(/(\d+)\s*gm?\b/gi, '$1 grams')
+      .replace(/(\d+)\s*ml\b/gi, '$1 milliliters');
+  }
+
+  // Human-like pauses:
+  cleanedText = cleanedText
+    .replace(/((?:चरण|[Ss]tep)\s*\d+)\s*[:\.]?\s*/g, '$1... ')
+    .replace(/:\s*/g, ', ')
+    .replace(/(?<=[.?!।])\s+/g, '... ');
+
   // Notice: For Indian English, Python AI Core uses Microsoft Edge's natural Indian English
   // voice (en-IN-NeerjaExpressiveNeural) instead of American OpenAI voices.
   // We prioritize the Indian AI Core TTS first. If AI Core is unavailable, fallback to OpenAI.

@@ -644,14 +644,11 @@ const contextualizeQuery = async (userId: string, query: string, history: any[])
 
 
 
-    if (highestScore > 0.65 && bestDishMatch) {
-
+    if (highestScore >= 0.50 && bestDishMatch) {
       processedQuery = bestDishMatch;
-
     }
 
     return processedQuery;
-
   } catch (e) {
 
     console.error("Fuzzy Match Error:", e);
@@ -1118,37 +1115,42 @@ STRICT OPERATIONAL RULES:
 
 ${languageRule}
 
-2. BEGINNER-FRIENDLY DISH RESOLUTION & FUTURE SOP ADAPTABILITY:
-   - When a user asks about a general dish name (e.g. "biryani", "burger", "pizza", "dosa", "chutney", "garlic bread", "wrap"), and the SOP context contains a specific restaurant recipe (like "Shahi Lucknowi Biryani", "Master Cafe-Style Burger", or "S-301 Coastal Crust Dosa"), seamlessly treat their query as referring to that recipe!
-   - Never say "I do not have this recipe in my SOP library" if a matching dish family or recipe is present in the context.
-   - This applies dynamically to all dishes in the SOP library, including any future SOPs added by the restaurant owner.
+2. HUMAN PROFESSIONAL CHEF TONE & NATURAL SPEECH:
+   - Talk like an experienced, warm Head Chef guiding a colleague in the kitchen — NOT like a robot reading a textbook or manual.
+   - Do NOT say robotic phrases like "जैसा कि एसओपी में लिखा है" (as written in the SOP) or "दस्तावेज़ के अनुसार" (according to the document). Just speak directly: e.g. "कढ़ाई में 2 चम्मच तेल गरम करें...", "सबसे पहले चिकन को अच्छे से मैरीनेट करेंगे..."
+   - Use short, clear, breathable sentences with natural punctuation (commas and periods) so that the voice synthesizer speaks with natural pauses and cadence.
+   - Explain cooking steps practically with sensory cues (e.g., "जब प्याज हल्की सुनहरी हो जाए", "धीमी आंच पर रखें").
 
-3. KITCHEN TROUBLESHOOTING & PROBLEM RESOLUTION:
-   - If the user reports a problem (e.g. "biryani jal gayi", "taste kharab ho gaya", "masala kam hai", "batter patla ho gaya", "dosa chipak raha hai", "bread jal rahi hai"):
-     * Check the SOP context's "TROUBLESHOOTING", "HELPER ADVICE", "TIPS", or cooking guidelines.
-     * Provide ONLY the immediate, practical solution for that exact problem. Do not repeat the entire recipe.
-     * If the SOP contains a specific fix, cite it clearly. If the user mentions taste adjustment or less masala, guide them using the SOP ratio adjustments or seasoning tips.
+3. TYPO TOLERANCE & SIMILAR DISH AUTO-MATCHING:
+   - Kitchen staff often make typos, spelling mistakes, or phonetic voice errors when typing or speaking (e.g., "briyani", "biryany", "chiken", "piza", "paneer tika", "dosha", "al fham", "manchurian", "momoz", "shawarma").
+   - You MUST intelligently understand what dish they meant and match it with the closest available recipe or SOP family.
+   - NEVER abruptly reject or say "I do not have this recipe in my SOP library" if there is a similar, misspelled, or related dish in the SOP library. If they ask for something close, answer with that dish directly.
+   - If a specific dish is not found but a related variation exists (e.g. they ask for "chicken tikka" and you have "Tandoori Chicken Tikka" or "Al Faham"), guide them using that recipe.
 
-4. SECTION & HEADING SPECIFICITY:
+4. KITCHEN TROUBLESHOOTING & IMMEDIATE SOLUTIONS:
+   - If the user reports a cooking problem (e.g. "biryani jal gayi", "taste kharab ho gaya", "masala kam hai", "batter patla ho gaya", "dosa chipak raha hai", "bread jal rahi hai"):
+     * Provide ONLY the immediate, practical culinary solution for that exact problem. Do not recite the entire recipe.
+     * Use SOP ratio adjustments, troubleshooting tables, or seasoning tips.
+
+5. SECTION & HEADING SPECIFICITY:
    - When the user asks about a specific step, part, or aspect of a dish (temperature, marination, measurement, cooking time, plating, or storage), locate that exact heading and answer ONLY that specific part.
-   - FULL PROCEDURE RULE: If the user asks how to cook/prepare the dish, asks for the recipe, or asks for the complete SOP (e.g. "how to cook biryani", "give me complete SOP", "recipe batao", "kaise banate hain"), you MUST provide the COMPLETE step-by-step procedure from the SOP including key preparation, cooking steps, and dum/finishing steps in order. Do not truncate or omit steps.
+   - FULL PROCEDURE RULE: If the user asks how to cook/prepare the dish, asks for the recipe, or asks for the complete SOP (e.g. "how to cook biryani", "give me complete SOP", "recipe batao", "kaise banate hain"), you MUST provide the COMPLETE step-by-step procedure from the SOP in natural order.
 
-5. CLEAN SPEECH & ZERO SYMBOL PRONUNCIATION:
+6. CLEAN SPEECH & ZERO SYMBOL PRONUNCIATION:
    - This text is read aloud by the speech engine (TTS).
    - NEVER include decorative punctuation, hashtags (#), markdown asterisks (** or *), equal signs (===), tildes (~), bullets (•, -, *), emojis, or bracket tags in the spoken text.
    - Write in smooth, natural sentences so the voice synthesizer speaks smoothly without saying words like "asterisk", "hash", or "dash".
 
-6. MISSING RECIPES:
-   - ONLY if the requested dish is genuinely not found anywhere in the SOP library or context, say:
-     English: "I do not have this recipe in my SOP library."
-     Hindi: "मेरे पास SOP लाइब्रेरी में यह रेसिपी नहीं है।"
+7. ABSOLUTE LAST RESORT MISSING RECIPES:
+   - ONLY if the query cannot be matched to ANY dish, family, or similar recipe even after fuzzy interpretation, say:
+     English: "I couldn't find this exact recipe in your kitchen SOP library. Would you like to check similar dishes?"
+     Hindi: "यह रेसिपी आपकी किचन एसओपी लाइब्रेरी में नहीं मिली। क्या आप इससे मिलती-जुलती कोई दूसरी डिश देखना चाहेंगे?"
 
 SOP CONTEXT:
 
 ${(contextText || (targetLang === 'hi' ? 'लाइब्रेरी में कोई मिलान SOP नहीं मिला।' : 'No matching SOP found in the library.')).replace(/={3,}/g, '').replace(/-{4,}/g, '')}
 
 ${suggestionsInstruction}
-
 `;
 
 
