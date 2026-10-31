@@ -68,14 +68,15 @@ export const getSalesTrend = async (req: AuthRequest, res: Response): Promise<vo
     const userId = req.user?.userId;
     if (!userId) return;
 
-    // Aggregate orders by day for the last 30 days
-    const start = new Date(new Date().setDate(new Date().getDate() - 30));
+    const { startDate, endDate } = req.query;
+    const start = startDate ? new Date(startDate as string) : new Date(new Date().setDate(new Date().getDate() - 30));
+    const end = endDate ? new Date(endDate as string) : new Date();
     
     const pipeline: any[] = [
       {
         $match: {
           userId: userId,
-          createdAt: { $gte: start }
+          createdAt: { $gte: start, $lte: end }
         }
       },
       {
@@ -192,12 +193,19 @@ export const getAnomalies = async (req: AuthRequest, res: Response): Promise<voi
     const recentFC = calcFoodCost(recentOrders);
     const olderFC = calcFoodCost(olderOrders);
 
-    if (recentFC > olderFC + 3) { // 3% sudden increase
+    // Anomaly 2: Low Margin items with high order volume
+    const dishes = await Dish.find({ userId }).lean();
+    const lowMarginDishes = dishes.filter((d: any) => {
+      const margin = d.price > 0 ? ((d.price - (d.ingredientPrice || 0)) / d.price) * 100 : 0;
+      return margin < 25;
+    });
+
+    if (lowMarginDishes.length > 0) {
       anomalies.push({
-        type: 'Food Cost Spike',
-        message: `Food cost increased from ${olderFC.toFixed(1)}% to ${recentFC.toFixed(1)}% in the last 7 days.`,
-        severity: 'High',
-        action: 'Review recent purchase prices and portion sizes.'
+        type: 'Low Margin Dishes',
+        message: `${lowMarginDishes.length} menu items have gross margin below 25%.`,
+        severity: 'Medium',
+        action: 'Review recipe costing or adjust selling prices in Menu Engineering.'
       });
     }
 
@@ -207,3 +215,152 @@ export const getAnomalies = async (req: AuthRequest, res: Response): Promise<voi
     res.status(500).json({ error: 'Failed to fetch anomalies' });
   }
 };
+
+export const getPredictionsAndAlerts = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    // 1. Forecast Revenue (Simple Linear Moving Average & Growth Momentum)
+    const today = new Date();
+    const last30Days = new Date(today);
+    last30Days.setDate(today.getDate() - 30);
+
+    const orders = await Order.find({ userId, createdAt: { $gte: last30Days } }).lean();
+
+    // Group sales by day
+    const dayMap = new Map<string, number>();
+    orders.forEach(o => {
+      const day = new Date(o.createdAt).toISOString().split('T')[0];
+      dayMap.set(day, (dayMap.get(day) || 0) + (o.totalRevenue || 0));
+    });
+
+    const dayRevenues = Array.from(dayMap.values());
+    const avgDailyRevenue = dayRevenues.length > 0 
+      ? dayRevenues.reduce((a, b) => a + b, 0) / Math.max(1, dayRevenues.length)
+      : 0;
+
+    // Recent 7 days vs older 7 days trend
+    const recent7Days = new Date(today);
+    recent7Days.setDate(today.getDate() - 7);
+    const prev7Days = new Date(today);
+    prev7Days.setDate(today.getDate() - 14);
+
+    const revRecent7 = orders
+      .filter(o => new Date(o.createdAt) >= recent7Days)
+      .reduce((s, o) => s + (o.totalRevenue || 0), 0);
+    const revPrev7 = orders
+      .filter(o => new Date(o.createdAt) >= prev7Days && new Date(o.createdAt) < recent7Days)
+      .reduce((s, o) => s + (o.totalRevenue || 0), 0);
+
+    const growthRate = revPrev7 > 0 ? ((revRecent7 - revPrev7) / revPrev7) : 0;
+    const projectedNext7Days = Math.round(revRecent7 * (1 + Math.max(-0.5, Math.min(0.5, growthRate))));
+    const projectedNext30Days = Math.round(avgDailyRevenue * 30 * (1 + (growthRate * 0.5)));
+
+    // 2. Inventory Stockout Alerts
+    const RawMaterial = (await import('../models/RawMaterial')).default;
+    const rawMaterials = await RawMaterial.find({ userId }).lean();
+
+    const lowStockItems = rawMaterials
+      .filter((rm: any) => (rm.reorderLevel && rm.currentStock <= rm.reorderLevel) || rm.currentStock <= 5)
+      .map((rm: any) => ({
+        _id: rm._id,
+        name: rm.name,
+        category: rm.category,
+        currentStock: rm.currentStock,
+        reorderLevel: rm.reorderLevel || 5,
+        unit: rm.consumptionUnit || rm.purchaseUnit || 'units'
+      }));
+
+    // 3. Automated Action Recommendations
+    const actionRecommendations = [];
+    if (growthRate < -0.05) {
+      actionRecommendations.push({
+        title: 'Sales Velocity Dip Detected',
+        description: `Revenue contracted by ${(Math.abs(growthRate) * 100).toFixed(1)}% compared to the prior week. Consider launching a weekend campaign or combo deal.`,
+        urgency: 'High',
+        tag: 'Marketing'
+      });
+    } else if (growthRate > 0.1) {
+      actionRecommendations.push({
+        title: 'Strong Growth Momentum (+ ' + (growthRate * 100).toFixed(1) + '%)',
+        description: 'Orders are accelerating. Ensure peak shift staffing and prep stocks are reinforced.',
+        urgency: 'Medium',
+        tag: 'Operations'
+      });
+    }
+
+    if (lowStockItems.length > 0) {
+      actionRecommendations.push({
+        title: `${lowStockItems.length} Ingredients Approaching Stockout`,
+        description: `Critical items: ${lowStockItems.slice(0, 3).map(i => i.name).join(', ')}. Generate purchase order to prevent menu stockouts.`,
+        urgency: 'High',
+        tag: 'Inventory'
+      });
+    }
+
+    res.status(200).json({
+      forecast: {
+        avgDailyRevenue: Math.round(avgDailyRevenue),
+        growthRate: (growthRate * 100).toFixed(1),
+        projectedNext7Days,
+        projectedNext30Days,
+      },
+      stockoutAlerts: lowStockItems,
+      actionRecommendations
+    });
+  } catch (error) {
+    console.error('BI getPredictionsAndAlerts error:', error);
+    res.status(500).json({ error: 'Failed to generate predictions and alerts' });
+  }
+};
+
+export const getCategoryBreakdown = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const { startDate, endDate } = req.query;
+    const start = startDate ? new Date(startDate as string) : new Date(new Date().setDate(new Date().getDate() - 30));
+    const end = endDate ? new Date(endDate as string) : new Date();
+
+    const dishes = await Dish.find({ userId }).lean();
+    const dishCategoryMap = new Map<string, string>();
+    dishes.forEach((d: any) => {
+      dishCategoryMap.set(d._id.toString(), d.category || 'General');
+    });
+
+    const orders = await Order.find({ userId, createdAt: { $gte: start, $lte: end } }).lean();
+
+    const categoryStats = new Map<string, { category: string; revenue: number; itemsSold: number; cost: number }>();
+
+    orders.forEach(order => {
+      order.items.forEach((item: any) => {
+        const cat = dishCategoryMap.get(item.dishId.toString()) || 'General';
+        const curr = categoryStats.get(cat) || { category: cat, revenue: 0, itemsSold: 0, cost: 0 };
+        curr.revenue += (item.price || 0) * (item.quantity || 1);
+        curr.itemsSold += (item.quantity || 1);
+        curr.cost += (item.ingredientPrice || 0) * (item.quantity || 1);
+        categoryStats.set(cat, curr);
+      });
+    });
+
+    const breakdown = Array.from(categoryStats.values()).map(cat => ({
+      ...cat,
+      profit: cat.revenue - cat.cost,
+      margin: cat.revenue > 0 ? (((cat.revenue - cat.cost) / cat.revenue) * 100).toFixed(1) : '0'
+    })).sort((a, b) => b.revenue - a.revenue);
+
+    res.status(200).json({ breakdown });
+  } catch (error) {
+    console.error('BI getCategoryBreakdown error:', error);
+    res.status(500).json({ error: 'Failed to fetch category breakdown' });
+  }
+};
+
