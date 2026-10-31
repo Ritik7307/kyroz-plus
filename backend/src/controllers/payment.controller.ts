@@ -6,11 +6,13 @@ import { AuthRequest } from '../middleware/auth.middleware';
 import User from '../models/User';
 import PurchaseReminder from '../models/PurchaseReminder';
 
+import GlobalSetting from '../models/GlobalSetting';
+
 const JWT_SECRET = process.env.JWT_SECRET || 'kyroz_super_secret_key_123';
 
-const PLAN_PRICES = {
-  'Starter': 999 * 100, // ₹999 (in paise)
-  'Growth': 2999 * 100, // ₹2999 (in paise)
+const DEFAULT_PLAN_PRICES = {
+  'Starter': 2499 * 100, // ₹2499 (in paise)
+  'Growth': 4999 * 100, // ₹4999 (in paise)
   'Scale': 9999 * 100 // ₹9999 (in paise)
 };
 
@@ -42,7 +44,27 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
       return;
     }
 
-    const amount = PLAN_PRICES[plan as keyof typeof PLAN_PRICES];
+    let amount = DEFAULT_PLAN_PRICES[plan as keyof typeof DEFAULT_PLAN_PRICES];
+
+    // Read real-time configured pricing from GlobalSetting
+    try {
+      const pricingSetting = await GlobalSetting.findOne({ key: 'pricing' });
+      if (pricingSetting && pricingSetting.value) {
+        const val = pricingSetting.value as any;
+        let planObj: any;
+        if (plan === 'Starter') planObj = val.starter || val.basic;
+        else if (plan === 'Growth') planObj = val.growth || val.pro;
+        else if (plan === 'Scale') planObj = val.scale || val.elite;
+
+        if (planObj && planObj.price) {
+          const discount = planObj.discount || 0;
+          const finalPrice = Math.round(planObj.price * (1 - discount / 100));
+          amount = finalPrice * 100;
+        }
+      }
+    } catch (priceErr) {
+      console.error('Error fetching dynamic pricing for order:', priceErr);
+    }
 
     const options = {
       amount,

@@ -107,6 +107,24 @@ router.get('/settings/:key', async (req: Response | any, res: Response) => {
     if (!setting) {
       return res.status(404).json({ error: 'Setting not found' });
     }
+
+    if (req.params.key === 'pricing' && setting.value) {
+      const val = setting.value as any;
+      const starter = val.starter || val.basic || { price: 4999, discount: 50 };
+      const growth = val.growth || val.pro || { price: 9999, discount: 50 };
+      const scale = val.scale || val.elite || { price: 19999, discount: 50 };
+
+      // Return unified response accessible via both naming conventions
+      return res.json({
+        starter,
+        growth,
+        scale,
+        basic: starter,
+        pro: growth,
+        elite: scale
+      });
+    }
+
     res.json(setting.value);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch global setting' });
@@ -117,7 +135,22 @@ router.get('/settings/:key', async (req: Response | any, res: Response) => {
 router.put('/settings/:key', authenticateToken, isAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const { key } = req.params;
-    const { value } = req.body;
+    let { value } = req.body;
+
+    if (key === 'pricing' && value) {
+      const starter = value.starter || value.basic || { price: 4999, discount: 50 };
+      const growth = value.growth || value.pro || { price: 9999, discount: 50 };
+      const scale = value.scale || value.elite || { price: 19999, discount: 50 };
+
+      value = {
+        starter,
+        growth,
+        scale,
+        basic: starter,
+        pro: growth,
+        elite: scale
+      };
+    }
 
     const setting = await GlobalSetting.findOneAndUpdate(
       { key },
