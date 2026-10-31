@@ -16,6 +16,20 @@ export default function PremiumLayout({ children }: { children: React.ReactNode 
       return;
     }
 
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const u = JSON.parse(storedUser);
+        const plan = u?.subscriptionPlan || u?.plan;
+        if ((plan === 'Scale' || plan === 'Admin' || plan === 'Elite') && !u?.ownerId) {
+          setIsAuthorized(true);
+          setLoading(false);
+        }
+      } catch (e) {
+        // parse error fallback
+      }
+    }
+
     const checkAccess = async () => {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/me`, {
@@ -24,9 +38,12 @@ export default function PremiumLayout({ children }: { children: React.ReactNode 
         
         if (res.ok) {
           const user = await res.json();
-          // To access Premium HQ features, user must be on Scale/Admin AND NOT be a staff/branch member (i.e. no ownerId)
-          if ((user.subscriptionPlan === 'Scale' || user.subscriptionPlan === 'Admin') && !user.ownerId) {
+          const plan = user?.subscriptionPlan || user?.plan;
+          // To access Premium HQ features, user must be on Scale/Admin/Elite AND NOT be a staff/branch member (i.e. no ownerId)
+          if ((plan === 'Scale' || plan === 'Admin' || plan === 'Elite') && !user.ownerId) {
             setIsAuthorized(true);
+          } else {
+            setIsAuthorized(false);
           }
         }
       } catch (error) {

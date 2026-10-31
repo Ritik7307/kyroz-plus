@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Sparkles, ChefHat, BarChart3, Megaphone, Network, Crown, ArrowRight, Bot } from 'lucide-react';
+import { Sparkles, ChefHat, BarChart3, Megaphone, Network, Crown, ArrowRight, Bot, Store } from 'lucide-react';
 
 const premiumFeatures = [
   {
@@ -31,6 +31,13 @@ const premiumFeatures = [
     description: 'Get a bird\'s eye view of all your restaurant locations in one unified dashboard.',
     icon: Network,
     href: '/dashboard/premium/multi-outlet',
+    status: 'Active',
+  },
+  {
+    title: 'Elite Master Dashboard',
+    description: 'Centralized multi-location control center to manage franchise branches, locations, and direct store impersonation.',
+    icon: Store,
+    href: '/dashboard/elite',
     status: 'Active',
   },
   {

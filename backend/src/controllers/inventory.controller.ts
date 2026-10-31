@@ -23,12 +23,7 @@ export const getInventory = async (req: AuthRequest, res: Response): Promise<voi
       return;
     }
 
-    // Only run the massive blueprint seeder if the user has absolutely no dishes.
-    const existingDishesCount = await Dish.countDocuments({ userId });
-    if (existingDishesCount === 0) {
-      await seedBlueprints(userId);
-    }
-
+    // Inventory should load instantly and reflect items added by the user or purchased
     const [
       inventory,
       rawMaterials,
@@ -261,6 +256,26 @@ export const addPurchaseEntry = async (req: AuthRequest, res: Response): Promise
       pkg.costPerUnit = cost / quantity;
       await pkg.save();
       res.status(200).json({ message: 'Purchase registered successfully', item: pkg });
+    } else if (itemModel === 'Premix') {
+      const px = await Premix.findOne({ _id: itemId, userId });
+      if (!px) {
+        res.status(404).json({ error: 'Premix item not found' });
+        return;
+      }
+      px.currentStock += quantity;
+      px.costPerPacket = cost / quantity;
+      await px.save();
+      res.status(200).json({ message: 'Purchase registered successfully', item: px });
+    } else if (itemModel === 'SemiFinishedGood') {
+      const sfg = await SemiFinishedGood.findOne({ _id: itemId, userId });
+      if (!sfg) {
+        res.status(404).json({ error: 'Semi-finished good not found' });
+        return;
+      }
+      sfg.currentStock += quantity;
+      sfg.costPerUnit = cost / quantity;
+      await sfg.save();
+      res.status(200).json({ message: 'Purchase registered successfully', item: sfg });
     } else {
       res.status(400).json({ error: 'Invalid item model type' });
     }

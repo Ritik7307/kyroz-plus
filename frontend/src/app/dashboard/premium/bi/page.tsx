@@ -6,15 +6,15 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import { 
-  AlertCircle, TrendingUp, DollarSign, ShoppingBag, Percent, 
-  Calendar, Download, Sparkles, AlertTriangle, Layers, ChefHat, 
-  Store, Calculator, ArrowUpRight, ArrowDownRight, RefreshCw, 
-  CheckCircle2, Bot, Sliders, ChevronRight, Zap
+  AlertCircle, TrendingUp, IndianRupee, ShoppingBag, Percent, 
+  Calendar, Download, AlertTriangle, BarChart3, ChefHat, 
+  Building2, Calculator, ArrowUpRight, ArrowDownRight, RefreshCw, 
+  CheckCircle2, Sliders, MessageSquare, ShieldAlert, ArrowRight,
+  Sparkles, Layers
 } from 'lucide-react';
 import { API_URL } from '@/lib/api';
 
-const GOLD_PALETTE = ['#d4af37', '#f3e5ab', '#e6c875', '#8a7322', '#c5a028', '#ffd700'];
-const CATEGORY_COLORS = ['#d4af37', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
+const CATEGORY_COLORS = ['#d4af37', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899'];
 
 export default function BIDashboard() {
   // Navigation tabs
@@ -40,18 +40,18 @@ export default function BIDashboard() {
   const [simulationResult, setSimulationResult] = useState<any>(null);
   const [simulating, setSimulating] = useState(false);
 
-  // AI Chat / Prompt state
+  // AI Consultant query states
   const [aiQuery, setAiQuery] = useState('');
   const [aiResponse, setAiResponse] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
 
-  // Global loading
+  // Loading states
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const getDateQuery = () => {
     let start: Date | null = null;
-    let end: Date = new Date();
+    const end: Date = new Date();
 
     if (customStart && customEnd) {
       return `startDate=${customStart}&endDate=${customEnd}`;
@@ -117,7 +117,7 @@ export default function BIDashboard() {
         setOutlets(outletData.outlets || []);
       }
     } catch (error) {
-      console.error('Failed to load Advance BI data', error);
+      console.error('Failed to load BI data', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -175,11 +175,11 @@ export default function BIDashboard() {
         setAiResponse(data.response);
       } else {
         const err = await res.json();
-        setAiResponse(err.error || 'Failed to fetch AI recommendation.');
+        setAiResponse(err.error || 'Failed to generate advisory response.');
       }
     } catch (error) {
       console.error('AI consultation failed:', error);
-      setAiResponse('Error communicating with AI Consultant service.');
+      setAiResponse('Unable to reach the advisory engine. Please try again.');
     } finally {
       setAiLoading(false);
     }
@@ -195,7 +195,7 @@ export default function BIDashboard() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `kyroz_bi_report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `sales_bi_report_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -212,32 +212,32 @@ export default function BIDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center text-[#d4af37]">
-        <div className="w-12 h-12 border-4 border-[#d4af37] border-t-transparent rounded-full animate-spin mb-4" />
-        <span className="font-bold tracking-widest uppercase text-xs">Loading Executive Business Intelligence...</span>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-foreground/60">
+        <div className="w-8 h-8 border-3 border-[#d4af37] border-t-transparent rounded-full animate-spin mb-3" />
+        <span className="font-semibold text-xs tracking-wider uppercase">Loading Business Intelligence...</span>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 p-4 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Top Header & Executive Controls */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 pb-6 border-b border-border">
+    <div className="w-full max-w-7xl mx-auto space-y-6 p-4 sm:p-6 lg:p-8 animate-in fade-in duration-300">
+      {/* Header & Controls */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-border">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30 text-[#d4af37] text-xs font-bold uppercase tracking-widest mb-3">
-            <Zap size={14} /> Executive Command Center
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-[#d4af37]/10 border border-[#d4af37]/30 text-[#d4af37] text-xs font-semibold uppercase tracking-wider mb-2">
+            <BarChart3 size={13} /> Business Intelligence
           </div>
-          <h1 className="text-3xl md:text-5xl font-black tracking-tight text-foreground">
-            Advance Business <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-[#f3e5ab]">Intelligence</span>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+            Advance Business Reports & Analytics
           </h1>
-          <p className="text-foreground/60 mt-1 max-w-2xl text-sm md:text-base">
-            Comprehensive real-time profitability analytics, automated forecasting, menu engineering, and multi-outlet intelligence.
+          <p className="text-foreground/60 text-xs sm:text-sm mt-1 max-w-2xl">
+            Real-time financial performance, profitability margins, predictive run-rate forecasts, and menu performance matrix.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Date Range Selector */}
-          <div className="flex items-center bg-card border border-border p-1 rounded-2xl shadow-sm">
+        {/* Filter Controls */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="inline-flex items-center bg-card border border-border p-1 rounded-xl shadow-xs">
             {(['7', '30', '90', 'all'] as const).map(range => (
               <button
                 key={range}
@@ -246,86 +246,83 @@ export default function BIDashboard() {
                   setCustomEnd('');
                   setDateRange(range);
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-colors ${
                   dateRange === range && !customStart
-                    ? 'bg-[#d4af37] text-black shadow-md'
+                    ? 'bg-[#d4af37] text-black font-bold'
                     : 'text-foreground/60 hover:text-foreground'
                 }`}
               >
-                {range === 'all' ? 'All Time' : `${range}D`}
+                {range === 'all' ? 'All Time' : `${range} Days`}
               </button>
             ))}
           </div>
 
-          {/* Refresh Button */}
           <button
             onClick={() => fetchAllData(true)}
             disabled={refreshing}
-            className="p-2.5 rounded-2xl bg-card border border-border text-foreground/70 hover:text-[#d4af37] hover:border-[#d4af37]/50 transition-all flex items-center justify-center"
+            className="p-2 rounded-xl bg-card border border-border text-foreground/70 hover:text-[#d4af37] hover:border-[#d4af37]/40 transition-colors"
             title="Refresh Data"
+            aria-label="Refresh Data"
           >
-            <RefreshCw size={18} className={refreshing ? 'animate-spin text-[#d4af37]' : ''} />
+            <RefreshCw size={16} className={refreshing ? 'animate-spin text-[#d4af37]' : ''} />
           </button>
 
-          {/* CSV Export Button */}
           <button
             onClick={handleExportCSV}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-card border border-border hover:border-[#d4af37]/50 text-foreground font-bold text-xs uppercase tracking-wider hover:text-[#d4af37] transition-all shadow-sm"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-card border border-border hover:border-[#d4af37]/40 text-foreground font-semibold text-xs hover:text-[#d4af37] transition-colors"
           >
-            <Download size={16} /> Export Report
+            <Download size={15} /> Export CSV
           </button>
         </div>
       </div>
 
-      {/* Navigation Sub-Tabs */}
-      <div className="flex items-center gap-2 border-b border-border/60 pb-2 overflow-x-auto custom-scrollbar">
+      {/* Clean Tab Navigation */}
+      <div className="flex items-center gap-2 border-b border-border pb-2 overflow-x-auto custom-scrollbar">
         {[
-          { id: 'overview', label: 'Executive Health & Analytics', icon: Layers },
-          { id: 'predictions', label: 'AI Forecasting & Alerts', icon: Sparkles },
+          { id: 'overview', label: 'Financial Health', icon: BarChart3 },
+          { id: 'predictions', label: 'Forecasts & Safety Stock', icon: TrendingUp },
           { id: 'matrix', label: 'Menu Engineering Matrix', icon: ChefHat },
-          { id: 'outlets', label: 'Multi-Outlet Benchmark', icon: Store }
+          { id: 'outlets', label: 'Outlet Comparisons', icon: Building2 }
         ].map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`flex items-center gap-2.5 px-5 py-3 rounded-2xl font-bold text-xs uppercase tracking-wider transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all whitespace-nowrap ${
               activeTab === tab.id
-                ? 'bg-gradient-to-r from-[#2a220a] to-[#1a1505] border border-[#d4af37]/50 text-[#d4af37] shadow-[0_0_20px_rgba(212,175,55,0.15)]'
-                : 'text-foreground/60 hover:text-foreground hover:bg-card border border-transparent'
+                ? 'bg-card border border-[#d4af37]/40 text-[#d4af37] shadow-xs'
+                : 'text-foreground/60 hover:text-foreground hover:bg-card/50 border border-transparent'
             }`}
           >
-            <tab.icon size={16} />
+            <tab.icon size={15} />
             {tab.label}
           </button>
         ))}
       </div>
 
-      {/* Detected Anomalies Banner (Always Visible if Any Exist) */}
+      {/* Anomalies Banner (Only if genuine operational anomalies detected) */}
       {anomalies.length > 0 && (
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-red-400 flex items-center gap-2">
-              <AlertCircle size={16} /> Real-Time Health Anomalies ({anomalies.length})
-            </h2>
+          <div className="flex items-center gap-2 text-xs font-semibold text-red-400">
+            <AlertCircle size={15} /> Operational Alerts ({anomalies.length})
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {anomalies.map((anomaly, idx) => (
               <div 
                 key={idx} 
-                className="bg-red-500/10 border border-red-500/30 p-4 rounded-2xl flex flex-col justify-between gap-2 shadow-sm"
+                className="bg-red-500/5 border border-red-500/20 p-4 rounded-xl flex flex-col justify-between gap-2"
               >
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-red-400 font-extrabold uppercase text-[10px] tracking-widest px-2 py-0.5 rounded-full bg-red-500/20">
+                    <span className="text-red-400 font-bold uppercase text-[11px] tracking-wider">
                       {anomaly.type}
                     </span>
-                    <span className="text-xs text-red-300/80 font-bold">{anomaly.severity || 'High Priority'}</span>
+                    <span className="text-[11px] text-red-300 font-medium">{anomaly.severity || 'Attention'}</span>
                   </div>
-                  <p className="text-foreground text-sm font-medium mt-1">{anomaly.message}</p>
+                  <p className="text-foreground text-xs font-medium leading-relaxed">{anomaly.message}</p>
                 </div>
                 {anomaly.action && (
-                  <div className="text-xs text-foreground/80 bg-background/60 p-2.5 rounded-xl border border-red-500/20">
-                    <strong className="text-red-400">Recommended Action:</strong> {anomaly.action}
+                  <div className="text-[11px] text-foreground/80 bg-background/50 p-2.5 rounded-lg border border-red-500/10">
+                    <strong className="text-red-400">Action:</strong> {anomaly.action}
                   </div>
                 )}
               </div>
@@ -334,125 +331,119 @@ export default function BIDashboard() {
         </div>
       )}
 
-      {/* TAB 1: OVERVIEW & EXECUTIVE ANALYTICS */}
+      {/* TAB 1: FINANCIAL HEALTH & OVERVIEW */}
       {activeTab === 'overview' && (
-        <div className="space-y-8 animate-in fade-in duration-300">
-          {/* Executive KPI Grid */}
+        <div className="space-y-6">
+          {/* KPI Summary Cards */}
           {summary && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-              {/* Total Revenue */}
-              <div className="p-6 bg-card border border-border rounded-3xl shadow-sm hover:border-[#d4af37]/40 transition-all flex flex-col justify-between">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+              <div className="p-4 sm:p-5 bg-card border border-border rounded-2xl flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-foreground/50 uppercase tracking-wider">Total Revenue</span>
-                    <div className="w-8 h-8 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center">
-                      <DollarSign size={16} />
+                    <span className="text-xs font-semibold text-foreground/60 uppercase">Net Revenue</span>
+                    <div className="w-7 h-7 rounded-lg bg-green-500/10 text-green-500 flex items-center justify-center">
+                      <IndianRupee size={15} />
                     </div>
                   </div>
-                  <h3 className="text-2xl lg:text-3xl font-black tracking-tight">₹{summary.revenue?.toLocaleString() || 0}</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold tracking-tight">₹{summary.revenue?.toLocaleString() || 0}</h3>
                 </div>
-                <div className="mt-4 flex items-center gap-1.5 text-xs text-green-400 font-bold">
-                  <ArrowUpRight size={14} /> Total Net Gross
+                <div className="mt-3 text-[11px] text-green-500 font-medium flex items-center gap-1">
+                  <ArrowUpRight size={13} /> Recorded Sales
                 </div>
               </div>
 
-              {/* Total Orders */}
-              <div className="p-6 bg-card border border-border rounded-3xl shadow-sm hover:border-[#d4af37]/40 transition-all flex flex-col justify-between">
+              <div className="p-4 sm:p-5 bg-card border border-border rounded-2xl flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-foreground/50 uppercase tracking-wider">Orders Count</span>
-                    <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
-                      <ShoppingBag size={16} />
+                    <span className="text-xs font-semibold text-foreground/60 uppercase">Completed Orders</span>
+                    <div className="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center">
+                      <ShoppingBag size={15} />
                     </div>
                   </div>
-                  <h3 className="text-2xl lg:text-3xl font-black tracking-tight">{summary.orders?.toLocaleString() || 0}</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold tracking-tight">{summary.orders?.toLocaleString() || 0}</h3>
                 </div>
-                <div className="mt-4 flex items-center gap-1.5 text-xs text-blue-400 font-bold">
-                  AOV: ₹{summary.aov || 0}
+                <div className="mt-3 text-[11px] text-blue-400 font-medium">
+                  Average Order: ₹{summary.aov || 0}
                 </div>
               </div>
 
-              {/* Food Cost % */}
-              <div className="p-6 bg-card border border-border rounded-3xl shadow-sm hover:border-[#d4af37]/40 transition-all flex flex-col justify-between">
+              <div className="p-4 sm:p-5 bg-card border border-border rounded-2xl flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-foreground/50 uppercase tracking-wider">Food Cost %</span>
-                    <div className="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center">
-                      <Percent size={16} />
+                    <span className="text-xs font-semibold text-foreground/60 uppercase">Food Cost %</span>
+                    <div className="w-7 h-7 rounded-lg bg-orange-500/10 text-orange-400 flex items-center justify-center">
+                      <Percent size={15} />
                     </div>
                   </div>
-                  <h3 className="text-2xl lg:text-3xl font-black tracking-tight">{summary.foodCostPercentage || 0}%</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold tracking-tight">{summary.foodCostPercentage || 0}%</h3>
                 </div>
-                <div className={`mt-4 flex items-center gap-1 text-xs font-bold ${Number(summary.foodCostPercentage) > 35 ? 'text-red-400' : 'text-green-400'}`}>
-                  {Number(summary.foodCostPercentage) > 35 ? 'Above 35% benchmark' : 'Healthy margin standard'}
+                <div className={`mt-3 text-[11px] font-medium ${Number(summary.foodCostPercentage) > 35 ? 'text-red-400' : 'text-green-500'}`}>
+                  {Number(summary.foodCostPercentage) > 35 ? 'Above standard threshold' : 'Within target range'}
                 </div>
               </div>
 
-              {/* Gross Margin */}
-              <div className="p-6 bg-card border border-border rounded-3xl shadow-sm hover:border-[#d4af37]/40 transition-all flex flex-col justify-between">
+              <div className="p-4 sm:p-5 bg-card border border-border rounded-2xl flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-foreground/50 uppercase tracking-wider">Gross Margin</span>
-                    <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center">
-                      <TrendingUp size={16} />
+                    <span className="text-xs font-semibold text-foreground/60 uppercase">Gross Margin</span>
+                    <div className="w-7 h-7 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center">
+                      <TrendingUp size={15} />
                     </div>
                   </div>
-                  <h3 className="text-2xl lg:text-3xl font-black tracking-tight">{summary.grossMargin || 0}%</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold tracking-tight">{summary.grossMargin || 0}%</h3>
                 </div>
-                <div className="mt-4 flex items-center gap-1 text-xs text-purple-400 font-bold">
-                  ₹{summary.grossProfit?.toLocaleString() || 0} Profit
+                <div className="mt-3 text-[11px] text-purple-400 font-medium">
+                  ₹{summary.grossProfit?.toLocaleString() || 0} Gross Profit
                 </div>
               </div>
 
-              {/* Total Wastage Cost */}
-              <div className="p-6 bg-card border border-border rounded-3xl shadow-sm hover:border-[#d4af37]/40 transition-all flex flex-col justify-between">
+              <div className="p-4 sm:p-5 bg-card border border-border rounded-2xl flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-foreground/50 uppercase tracking-wider">Wastage Loss</span>
-                    <div className="w-8 h-8 rounded-xl bg-red-500/10 text-red-400 flex items-center justify-center">
-                      <AlertTriangle size={16} />
+                    <span className="text-xs font-semibold text-foreground/60 uppercase">Wastage Loss</span>
+                    <div className="w-7 h-7 rounded-lg bg-red-500/10 text-red-400 flex items-center justify-center">
+                      <ShieldAlert size={15} />
                     </div>
                   </div>
-                  <h3 className="text-2xl lg:text-3xl font-black tracking-tight">₹{summary.totalWastageCost?.toLocaleString() || 0}</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold tracking-tight">₹{summary.totalWastageCost?.toLocaleString() || 0}</h3>
                 </div>
-                <div className="mt-4 flex items-center gap-1 text-xs text-red-400 font-bold">
-                  Loss Impact
+                <div className="mt-3 text-[11px] text-red-400 font-medium">
+                  Recorded Waste Cost
                 </div>
               </div>
             </div>
           )}
 
-          {/* Charts Row: Revenue Trend & Category Breakdown */}
+          {/* Revenue & Volume Chart */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Sales Trend Line/Bar Chart */}
-            <div className="lg:col-span-2 p-6 bg-card border border-border rounded-3xl shadow-sm">
-              <div className="flex items-center justify-between mb-6">
+            <div className="lg:col-span-2 p-5 bg-card border border-border rounded-2xl flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-xl font-bold">Sales & Order Volume Trend</h3>
-                  <p className="text-foreground/50 text-xs">Daily aggregated turnover with volume patterns</p>
+                  <h3 className="text-base font-bold text-foreground">Revenue & Order Volume</h3>
+                  <p className="text-foreground/50 text-xs">Daily aggregated turnover pattern</p>
                 </div>
               </div>
 
               {trends.length > 0 ? (
-                <div className="h-[340px] w-full">
+                <div className="h-[300px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={trends} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                    <LineChart data={trends} margin={{ top: 5, right: 15, bottom: 5, left: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                      <XAxis dataKey="_id" stroke="#ffffff50" fontSize={12} tickLine={false} />
-                      <YAxis stroke="#ffffff50" fontSize={12} tickFormatter={(v) => `₹${v}`} tickLine={false} />
+                      <XAxis dataKey="_id" stroke="#ffffff50" fontSize={11} tickLine={false} />
+                      <YAxis stroke="#ffffff50" fontSize={11} tickFormatter={(v) => `₹${v}`} tickLine={false} />
                       <Tooltip 
-                        contentStyle={{ backgroundColor: '#141414', border: '1px solid #333', borderRadius: '12px' }}
+                        contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46', borderRadius: '8px' }}
                         itemStyle={{ color: '#d4af37' }}
                       />
-                      <Legend />
+                      <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
                       <Line 
                         type="monotone" 
-                        name="Revenue" 
+                        name="Revenue (₹)" 
                         dataKey="revenue" 
                         stroke="#d4af37" 
-                        strokeWidth={3} 
-                        dot={{ r: 3, fill: '#d4af37' }} 
-                        activeDot={{ r: 7 }} 
+                        strokeWidth={2.5} 
+                        dot={{ r: 2, fill: '#d4af37' }} 
+                        activeDot={{ r: 6 }} 
                       />
                       <Line 
                         type="monotone" 
@@ -466,21 +457,21 @@ export default function BIDashboard() {
                   </ResponsiveContainer>
                 </div>
               ) : (
-                <div className="h-[340px] flex items-center justify-center text-foreground/40 text-sm">
+                <div className="h-[300px] flex items-center justify-center text-foreground/40 text-xs">
                   No sales recorded in the selected period.
                 </div>
               )}
             </div>
 
-            {/* Category Revenue Distribution Pie/Bar */}
-            <div className="p-6 bg-card border border-border rounded-3xl shadow-sm flex flex-col justify-between">
+            {/* Category Revenue Contribution */}
+            <div className="p-5 bg-card border border-border rounded-2xl flex flex-col justify-between">
               <div>
-                <h3 className="text-xl font-bold mb-1">Category Contribution</h3>
-                <p className="text-foreground/50 text-xs mb-4">Share of total revenue by food category</p>
+                <h3 className="text-base font-bold text-foreground">Category Contribution</h3>
+                <p className="text-foreground/50 text-xs mb-3">Revenue percentage by menu category</p>
               </div>
 
               {categoryBreakdown.length > 0 ? (
-                <div className="h-[240px] w-full">
+                <div className="h-[210px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
@@ -489,76 +480,75 @@ export default function BIDashboard() {
                         nameKey="category"
                         cx="50%"
                         cy="50%"
-                        innerRadius={60}
-                        outerRadius={85}
-                        paddingAngle={4}
+                        innerRadius={50}
+                        outerRadius={75}
+                        paddingAngle={3}
                       >
                         {categoryBreakdown.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
                         ))}
                       </Pie>
                       <Tooltip 
-                        contentStyle={{ backgroundColor: '#141414', border: '1px solid #333', borderRadius: '12px' }}
+                        contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46', borderRadius: '8px' }}
                         formatter={(val: any) => [`₹${Number(val).toLocaleString()}`, 'Revenue']}
                       />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
               ) : (
-                <div className="h-[240px] flex items-center justify-center text-foreground/40 text-sm">
-                  No category transactions found.
+                <div className="h-[210px] flex items-center justify-center text-foreground/40 text-xs">
+                  No category transactions recorded.
                 </div>
               )}
 
-              {/* Category Mini Legend */}
-              <div className="space-y-2 mt-4 max-h-[140px] overflow-y-auto custom-scrollbar">
+              <div className="space-y-1.5 mt-2 max-h-[120px] overflow-y-auto custom-scrollbar">
                 {categoryBreakdown.slice(0, 5).map((cat, idx) => (
                   <div key={idx} className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2">
                       <span 
-                        className="w-2.5 h-2.5 rounded-full" 
+                        className="w-2.5 h-2.5 rounded-sm" 
                         style={{ backgroundColor: CATEGORY_COLORS[idx % CATEGORY_COLORS.length] }} 
                       />
-                      <span className="font-medium text-foreground/80">{cat.category}</span>
+                      <span className="text-foreground/80 truncate max-w-[120px]">{cat.category}</span>
                     </div>
-                    <span className="font-bold text-foreground">₹{cat.revenue?.toLocaleString()}</span>
+                    <span className="font-semibold text-foreground">₹{cat.revenue?.toLocaleString()}</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* Category Breakdown Full Table */}
+          {/* Detailed Category Margin Performance Table */}
           {categoryBreakdown.length > 0 && (
-            <div className="p-6 bg-card border border-border rounded-3xl shadow-sm">
-              <h3 className="text-xl font-bold mb-4">Category Margin Performance</h3>
+            <div className="p-5 bg-card border border-border rounded-2xl">
+              <h3 className="text-base font-bold text-foreground mb-4">Category Margin Performance</h3>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
+                <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-border text-foreground/50 text-xs uppercase tracking-wider">
-                      <th className="pb-3 font-bold">Category</th>
-                      <th className="pb-3 font-bold">Revenue</th>
-                      <th className="pb-3 font-bold">Items Sold</th>
-                      <th className="pb-3 font-bold">Total Cost</th>
-                      <th className="pb-3 font-bold">Profit</th>
-                      <th className="pb-3 font-bold">Gross Margin</th>
+                    <tr className="border-b border-border text-foreground/50 uppercase tracking-wider">
+                      <th className="pb-3 font-semibold">Category</th>
+                      <th className="pb-3 font-semibold">Revenue</th>
+                      <th className="pb-3 font-semibold">Units Sold</th>
+                      <th className="pb-3 font-semibold">Cost</th>
+                      <th className="pb-3 font-semibold">Profit</th>
+                      <th className="pb-3 font-semibold">Gross Margin</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border/50">
+                  <tbody className="divide-y divide-border/40">
                     {categoryBreakdown.map((cat, idx) => (
                       <tr key={idx} className="hover:bg-foreground/5 transition-colors">
-                        <td className="py-3 font-bold text-foreground flex items-center gap-2">
+                        <td className="py-2.5 font-medium text-foreground flex items-center gap-2">
                           <span 
                             className="w-2 h-2 rounded-full" 
                             style={{ backgroundColor: CATEGORY_COLORS[idx % CATEGORY_COLORS.length] }} 
                           />
                           {cat.category}
                         </td>
-                        <td className="py-3 font-medium">₹{cat.revenue?.toLocaleString()}</td>
-                        <td className="py-3 text-foreground/70">{cat.itemsSold}</td>
-                        <td className="py-3 text-foreground/70">₹{cat.cost?.toLocaleString()}</td>
-                        <td className="py-3 font-bold text-green-400">₹{cat.profit?.toLocaleString()}</td>
-                        <td className="py-3 font-black text-[#d4af37]">{cat.margin}%</td>
+                        <td className="py-2.5">₹{cat.revenue?.toLocaleString()}</td>
+                        <td className="py-2.5 text-foreground/70">{cat.itemsSold}</td>
+                        <td className="py-2.5 text-foreground/70">₹{cat.cost?.toLocaleString()}</td>
+                        <td className="py-2.5 font-semibold text-green-500">₹{cat.profit?.toLocaleString()}</td>
+                        <td className="py-2.5 font-bold text-[#d4af37]">{cat.margin}%</td>
                       </tr>
                     ))}
                   </tbody>
@@ -569,158 +559,143 @@ export default function BIDashboard() {
         </div>
       )}
 
-      {/* TAB 2: AI FORECASTING & PREDICTIVE ANALYTICS */}
+      {/* TAB 2: FORECASTS & SAFETY STOCK */}
       {activeTab === 'predictions' && (
-        <div className="space-y-8 animate-in fade-in duration-300">
-          {/* Revenue Forecast Cards */}
+        <div className="space-y-6">
+          {/* Forecast Metric Cards */}
           {predictions?.forecast && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-6 bg-gradient-to-br from-[#2a220a] to-[#121212] border border-[#d4af37]/40 rounded-3xl shadow-lg relative overflow-hidden">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-bold text-[#d4af37] uppercase tracking-wider">Next 7 Days Forecast</span>
-                  <Sparkles size={18} className="text-[#d4af37]" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-5 bg-card border border-border rounded-2xl">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-foreground/60 uppercase">7-Day Run Rate</span>
+                  <TrendingUp size={16} className="text-[#d4af37]" />
                 </div>
-                <h3 className="text-3xl font-black text-foreground">
+                <h3 className="text-2xl font-bold text-foreground">
                   ₹{predictions.forecast.projectedNext7Days?.toLocaleString()}
                 </h3>
-                <p className="text-foreground/60 text-xs mt-2">
-                  Projected revenue based on recent run rate & demand momentum.
+                <p className="text-foreground/50 text-xs mt-1">
+                  Estimated 7-day revenue based on recent daily run-rate.
                 </p>
-                <div className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d4af37]/20 text-[#d4af37] text-xs font-bold">
-                  Avg Daily: ₹{predictions.forecast.avgDailyRevenue?.toLocaleString()}
+                <div className="mt-3 text-xs font-semibold text-[#d4af37]">
+                  Daily Average: ₹{predictions.forecast.avgDailyRevenue?.toLocaleString()}
                 </div>
               </div>
 
-              <div className="p-6 bg-card border border-border rounded-3xl shadow-sm flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-bold text-foreground/50 uppercase tracking-wider">30-Day Outlook</span>
-                    <TrendingUp size={18} className="text-blue-400" />
-                  </div>
-                  <h3 className="text-3xl font-black text-foreground">
-                    ₹{predictions.forecast.projectedNext30Days?.toLocaleString()}
-                  </h3>
-                  <p className="text-foreground/60 text-xs mt-2">
-                    Estimated monthly run rate under current trajectory.
-                  </p>
+              <div className="p-5 bg-card border border-border rounded-2xl">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-foreground/60 uppercase">30-Day Projection</span>
+                  <BarChart3 size={16} className="text-blue-400" />
                 </div>
-                <div className="mt-4 text-xs font-bold text-blue-400">
-                  Growth Velocity: {predictions.forecast.growthRate}%
+                <h3 className="text-2xl font-bold text-foreground">
+                  ₹{predictions.forecast.projectedNext30Days?.toLocaleString()}
+                </h3>
+                <p className="text-foreground/50 text-xs mt-1">
+                  Monthly velocity assuming current traffic holds.
+                </p>
+                <div className="mt-3 text-xs font-semibold text-blue-400">
+                  Weekly Momentum: {predictions.forecast.growthRate}%
                 </div>
               </div>
 
-              <div className="p-6 bg-card border border-border rounded-3xl shadow-sm flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-bold text-foreground/50 uppercase tracking-wider">Stockout Warning Counter</span>
-                    <AlertTriangle size={18} className="text-orange-400" />
-                  </div>
-                  <h3 className="text-3xl font-black text-foreground">
-                    {predictions.stockoutAlerts?.length || 0} Items
-                  </h3>
-                  <p className="text-foreground/60 text-xs mt-2">
-                    Raw materials operating below safety threshold or reorder level.
-                  </p>
+              <div className="p-5 bg-card border border-border rounded-2xl">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-foreground/60 uppercase">Low Stock Warnings</span>
+                  <AlertTriangle size={16} className="text-orange-400" />
                 </div>
-                <div className="mt-4 text-xs font-bold text-orange-400">
-                  Critical supply attention needed
+                <h3 className="text-2xl font-bold text-foreground">
+                  {predictions.stockoutAlerts?.length || 0} Items
+                </h3>
+                <p className="text-foreground/50 text-xs mt-1">
+                  Ingredients near or below configured reorder levels.
+                </p>
+                <div className="mt-3 text-xs font-semibold text-orange-400">
+                  Inventory reorder review required
                 </div>
               </div>
             </div>
           )}
 
-          {/* Action Recommendations & Stockout Risk List */}
+          {/* Action Recommendations & Stockout List */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* AI Action Recommendations */}
-            <div className="p-6 bg-card border border-border rounded-3xl shadow-sm space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold flex items-center gap-2">
-                  <Bot className="text-[#d4af37]" size={20} /> Intelligent Action Recommendations
-                </h3>
-              </div>
-              <p className="text-foreground/60 text-xs">
-                Auto-generated prescriptive business actions based on real sales velocity and margins.
+            <div className="p-5 bg-card border border-border rounded-2xl space-y-4">
+              <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                <TrendingUp size={17} className="text-[#d4af37]" /> Operational Recommendations
+              </h3>
+              <p className="text-foreground/50 text-xs">
+                Derived directly from current order volume trends and margin variances.
               </p>
 
-              <div className="space-y-3 mt-4">
+              <div className="space-y-3 mt-2">
                 {predictions?.actionRecommendations?.map((act: any, idx: number) => (
-                  <div key={idx} className="p-4 rounded-2xl bg-background/50 border border-border hover:border-[#d4af37]/40 transition-all flex flex-col gap-2">
+                  <div key={idx} className="p-3.5 rounded-xl bg-background/50 border border-border flex flex-col gap-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#d4af37] uppercase tracking-wider">{act.tag}</span>
-                      <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
+                      <span className="text-[11px] font-bold text-[#d4af37] uppercase">{act.tag}</span>
+                      <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-md ${
                         act.urgency === 'High' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
                       }`}>
-                        {act.urgency} Urgency
+                        {act.urgency}
                       </span>
                     </div>
-                    <h4 className="font-bold text-foreground text-sm">{act.title}</h4>
+                    <h4 className="font-semibold text-foreground text-xs">{act.title}</h4>
                     <p className="text-foreground/70 text-xs leading-relaxed">{act.description}</p>
                   </div>
                 ))}
                 {(!predictions?.actionRecommendations || predictions.actionRecommendations.length === 0) && (
-                  <div className="p-8 text-center text-foreground/40 text-sm">
-                    No urgent operational actions flagged at this time. All systems running stably.
+                  <div className="p-6 text-center text-foreground/40 text-xs">
+                    No critical operational alerts at this time. Current velocity is stable.
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Inventory Stockout Risk Warnings */}
-            <div className="p-6 bg-card border border-border rounded-3xl shadow-sm space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold flex items-center gap-2">
-                  <AlertTriangle className="text-orange-400" size={20} /> Low Stock Warnings
-                </h3>
-              </div>
-              <p className="text-foreground/60 text-xs">
-                Ingredients at high risk of depletion before next replenishment cycle.
+            {/* Raw Material Low Stock List */}
+            <div className="p-5 bg-card border border-border rounded-2xl space-y-4">
+              <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                <AlertTriangle size={17} className="text-orange-400" /> Low Stock Warning Items
+              </h3>
+              <p className="text-foreground/50 text-xs">
+                Ingredients approaching depletion threshold.
               </p>
 
-              <div className="space-y-3 mt-4 max-h-[360px] overflow-y-auto custom-scrollbar">
+              <div className="space-y-2.5 mt-2 max-h-[300px] overflow-y-auto custom-scrollbar">
                 {predictions?.stockoutAlerts?.map((item: any, idx: number) => (
-                  <div key={idx} className="p-4 rounded-2xl bg-orange-500/5 border border-orange-500/20 flex items-center justify-between">
+                  <div key={idx} className="p-3 rounded-xl bg-orange-500/5 border border-orange-500/20 flex items-center justify-between">
                     <div>
-                      <h4 className="font-bold text-foreground text-sm">{item.name}</h4>
-                      <p className="text-foreground/50 text-xs">{item.category} • Reorder Threshold: {item.reorderLevel} {item.unit}</p>
+                      <h4 className="font-semibold text-foreground text-xs">{item.name}</h4>
+                      <p className="text-foreground/50 text-[11px]">{item.category} • Reorder Level: {item.reorderLevel} {item.unit}</p>
                     </div>
                     <div className="text-right">
-                      <span className="text-lg font-black text-orange-400">{item.currentStock} {item.unit}</span>
-                      <span className="block text-[10px] text-red-400 font-bold uppercase">Restock Required</span>
+                      <span className="text-sm font-bold text-orange-400">{item.currentStock} {item.unit}</span>
+                      <span className="block text-[10px] text-red-400 font-semibold uppercase">Reorder</span>
                     </div>
                   </div>
                 ))}
                 {(!predictions?.stockoutAlerts || predictions.stockoutAlerts.length === 0) && (
-                  <div className="p-8 text-center text-foreground/40 text-sm">
-                    All inventory items are currently safely above their reorder thresholds.
+                  <div className="p-6 text-center text-foreground/40 text-xs">
+                    All inventory items are currently above configured safety reorder levels.
                   </div>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Interactive AI Business Consultant Console */}
-          <div className="p-6 md:p-8 bg-gradient-to-br from-card via-[#161309] to-card border border-[#d4af37]/30 rounded-3xl shadow-lg space-y-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <span className="text-[#d4af37] text-xs font-black uppercase tracking-widest flex items-center gap-1.5">
-                  <Sparkles size={14} /> AI Decision Consultant
-                </span>
-                <h3 className="text-2xl font-black text-foreground mt-1">
-                  Ask Your Executive Business Partner
-                </h3>
-                <p className="text-foreground/60 text-xs md:text-sm mt-1">
-                  Query real-time numbers, ask for menu recommendations, or test price hypotheses.
-                </p>
-              </div>
+          {/* Business Advisory Query Console */}
+          <div className="p-5 sm:p-6 bg-card border border-border rounded-2xl space-y-4">
+            <div>
+              <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                <MessageSquare size={17} className="text-[#d4af37]" /> Business Advisory Console
+              </h3>
+              <p className="text-foreground/60 text-xs mt-0.5">
+                Query actual sales, recipe margins, and cost data to explore business recommendations.
+              </p>
             </div>
 
-            {/* Quick Prompt Chips */}
             <div className="flex flex-wrap gap-2">
               {[
                 'How can I lower my food cost percentage?',
-                'Which dishes should I promote this weekend?',
-                'What is the profit impact if I raise pricing by 8%?',
-                'Identify my least profitable menu items'
+                'Which dishes should I promote this week?',
+                'What is the profit impact of raising prices by 5%?',
+                'Identify underperforming menu items'
               ].map((chip, idx) => (
                 <button
                   key={idx}
@@ -728,40 +703,37 @@ export default function BIDashboard() {
                     setAiQuery(chip);
                     handleAskAI(chip);
                   }}
-                  className="px-3 py-1.5 rounded-full bg-background/60 border border-border text-xs text-foreground/70 hover:text-[#d4af37] hover:border-[#d4af37]/40 transition-all font-medium"
+                  className="px-2.5 py-1 rounded-lg bg-background border border-border text-xs text-foreground/70 hover:text-[#d4af37] hover:border-[#d4af37]/40 transition-colors"
                 >
                   {chip}
                 </button>
               ))}
             </div>
 
-            {/* Prompt Input Form */}
-            <div className="flex gap-3">
+            <div className="flex gap-2.5">
               <input
                 type="text"
                 value={aiQuery}
                 onChange={(e) => setAiQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAskAI()}
-                placeholder="Ask about your revenue, dishes, wastage, or business decisions..."
-                className="flex-1 bg-background border border-border rounded-2xl px-5 py-3 text-sm text-foreground focus:outline-none focus:border-[#d4af37] transition-all"
+                placeholder="Ask about margins, sales trends, or recipe costs..."
+                className="flex-1 bg-background border border-border rounded-xl px-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-[#d4af37]"
               />
               <button
                 onClick={() => handleAskAI()}
                 disabled={aiLoading || !aiQuery.trim()}
-                className="px-6 py-3 bg-[#d4af37] text-black font-black text-xs uppercase tracking-widest rounded-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2 shadow-md"
+                className="px-4 py-2.5 bg-[#d4af37] text-black font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#c5a028] disabled:opacity-50 transition-colors"
               >
-                {aiLoading ? <RefreshCw size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                Consult
+                {aiLoading ? 'Analyzing...' : 'Ask'}
               </button>
             </div>
 
-            {/* AI Response Display */}
             {aiResponse && (
-              <div className="p-6 rounded-2xl bg-background/80 border border-[#d4af37]/30 text-foreground space-y-3 animate-in fade-in">
-                <div className="flex items-center gap-2 text-xs font-bold text-[#d4af37] uppercase tracking-wider">
-                  <CheckCircle2 size={16} /> Consultation Result
+              <div className="p-4 rounded-xl bg-background border border-border text-xs text-foreground/90 space-y-2">
+                <div className="font-bold text-[#d4af37] flex items-center gap-1.5 uppercase tracking-wide">
+                  <CheckCircle2 size={14} /> Advisory Findings
                 </div>
-                <div className="text-sm leading-relaxed whitespace-pre-line text-foreground/90">
+                <div className="leading-relaxed whitespace-pre-line">
                   {aiResponse}
                 </div>
               </div>
@@ -770,135 +742,126 @@ export default function BIDashboard() {
         </div>
       )}
 
-      {/* TAB 3: MENU ENGINEERING 4-QUADRANT MATRIX & PRICING SIMULATOR */}
+      {/* TAB 3: MENU MATRIX & PRICING SIMULATOR */}
       {activeTab === 'matrix' && (
-        <div className="space-y-8 animate-in fade-in duration-300">
-          {/* Header Explanation */}
-          <div className="p-6 bg-card border border-border rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="space-y-6">
+          <div className="p-4 sm:p-5 bg-card border border-border rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h3 className="text-xl font-bold">Boston Consulting Group (BCG) Menu Matrix</h3>
-              <p className="text-foreground/60 text-xs mt-1">
+              <h3 className="text-base font-bold text-foreground">Menu Performance Matrix</h3>
+              <p className="text-foreground/60 text-xs mt-0.5">
                 Classifies dishes based on Popularity (Volume Sold) vs. Profitability (Contribution Margin %).
               </p>
             </div>
-            <div className="flex flex-wrap gap-2 text-xs">
-              <span className="px-3 py-1 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 font-bold">★ Stars (High Pop / High Profit)</span>
-              <span className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-bold">🐄 Cash Cows (High Pop / Low Profit)</span>
-              <span className="px-3 py-1 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20 font-bold">🧩 Puzzles (Low Pop / High Profit)</span>
-              <span className="px-3 py-1 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 font-bold">🐕 Dead Items (Low Pop / Low Profit)</span>
+            <div className="flex flex-wrap gap-2 text-[11px] font-semibold">
+              <span className="px-2.5 py-1 rounded-md bg-green-500/10 text-green-500 border border-green-500/20">Stars (High Pop / High Margin)</span>
+              <span className="px-2.5 py-1 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20">Workhorses (High Pop / Low Margin)</span>
+              <span className="px-2.5 py-1 rounded-md bg-orange-500/10 text-orange-400 border border-orange-500/20">Puzzles (Low Pop / High Margin)</span>
+              <span className="px-2.5 py-1 rounded-md bg-red-500/10 text-red-400 border border-red-500/20">Underperformers (Low Pop / Low Margin)</span>
             </div>
           </div>
 
-          {/* 4 Quadrants Interactive Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* 1. STARS */}
-            <div className="p-6 bg-green-500/5 border border-green-500/20 rounded-3xl shadow-sm space-y-4">
+          {/* 4 Quadrants Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Stars */}
+            <div className="p-4 sm:p-5 bg-card border border-green-500/20 rounded-2xl space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-lg font-black text-green-400 flex items-center gap-2">
-                    ★ Stars ({matrixQuadrants.stars.length})
-                  </h4>
-                  <p className="text-foreground/50 text-xs">High Margin • High Volume • Keep Promoted</p>
+                  <h4 className="text-sm font-bold text-green-500">Stars ({matrixQuadrants.stars.length})</h4>
+                  <p className="text-foreground/50 text-[11px]">High Demand & High Margin</p>
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-bold uppercase">
-                  Flagship
+                <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-green-500/10 text-green-500">
+                  Priority
                 </span>
               </div>
-              <div className="space-y-2.5 max-h-[250px] overflow-y-auto custom-scrollbar">
+              <div className="space-y-2 max-h-[220px] overflow-y-auto custom-scrollbar">
                 {matrixQuadrants.stars.map((item, idx) => (
-                  <div key={idx} className="p-3.5 rounded-xl bg-card border border-border flex items-center justify-between">
+                  <div key={idx} className="p-2.5 rounded-lg bg-background border border-border flex items-center justify-between text-xs">
                     <div>
-                      <h5 className="font-bold text-foreground text-sm">{item.name}</h5>
-                      <span className="text-xs text-foreground/50">₹{item.price} • Margin: {item.contributionMargin?.toFixed(1)}%</span>
+                      <span className="font-semibold text-foreground">{item.name}</span>
+                      <span className="block text-[11px] text-foreground/50">₹{item.price} • Margin: {item.contributionMargin?.toFixed(1)}%</span>
                     </div>
-                    <span className="text-xs font-bold text-green-400">{item.quantitySold} sold</span>
+                    <span className="font-bold text-green-500">{item.quantitySold} sold</span>
                   </div>
                 ))}
                 {matrixQuadrants.stars.length === 0 && (
-                  <p className="text-xs text-foreground/40 text-center py-4">No stars in this period.</p>
+                  <p className="text-xs text-foreground/40 text-center py-4">No star items in this period.</p>
                 )}
               </div>
             </div>
 
-            {/* 2. PUZZLES */}
-            <div className="p-6 bg-orange-500/5 border border-orange-500/20 rounded-3xl shadow-sm space-y-4">
+            {/* Puzzles */}
+            <div className="p-4 sm:p-5 bg-card border border-orange-500/20 rounded-2xl space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-lg font-black text-orange-400 flex items-center gap-2">
-                    🧩 Puzzles ({matrixQuadrants.puzzles.length})
-                  </h4>
-                  <p className="text-foreground/50 text-xs">High Margin • Low Volume • Reposition & Promote</p>
+                  <h4 className="text-sm font-bold text-orange-400">Puzzles ({matrixQuadrants.puzzles.length})</h4>
+                  <p className="text-foreground/50 text-[11px]">High Margin, Lower Volume</p>
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-orange-500/20 text-orange-400 text-xs font-bold uppercase">
-                  High Margin
+                <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-400">
+                  Reposition
                 </span>
               </div>
-              <div className="space-y-2.5 max-h-[250px] overflow-y-auto custom-scrollbar">
+              <div className="space-y-2 max-h-[220px] overflow-y-auto custom-scrollbar">
                 {matrixQuadrants.puzzles.map((item, idx) => (
-                  <div key={idx} className="p-3.5 rounded-xl bg-card border border-border flex items-center justify-between">
+                  <div key={idx} className="p-2.5 rounded-lg bg-background border border-border flex items-center justify-between text-xs">
                     <div>
-                      <h5 className="font-bold text-foreground text-sm">{item.name}</h5>
-                      <span className="text-xs text-foreground/50">₹{item.price} • Margin: {item.contributionMargin?.toFixed(1)}%</span>
+                      <span className="font-semibold text-foreground">{item.name}</span>
+                      <span className="block text-[11px] text-foreground/50">₹{item.price} • Margin: {item.contributionMargin?.toFixed(1)}%</span>
                     </div>
-                    <span className="text-xs font-bold text-orange-400">{item.quantitySold} sold</span>
+                    <span className="font-bold text-orange-400">{item.quantitySold} sold</span>
                   </div>
                 ))}
                 {matrixQuadrants.puzzles.length === 0 && (
-                  <p className="text-xs text-foreground/40 text-center py-4">No puzzles found.</p>
+                  <p className="text-xs text-foreground/40 text-center py-4">No puzzle items found.</p>
                 )}
               </div>
             </div>
 
-            {/* 3. CASH COWS / WORKHORSES */}
-            <div className="p-6 bg-blue-500/5 border border-blue-500/20 rounded-3xl shadow-sm space-y-4">
+            {/* Cash Cows / Workhorses */}
+            <div className="p-4 sm:p-5 bg-card border border-blue-500/20 rounded-2xl space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-lg font-black text-blue-400 flex items-center gap-2">
-                    🐄 Cash Cows ({matrixQuadrants.cashCows.length})
-                  </h4>
-                  <p className="text-foreground/50 text-xs">Low Margin • High Volume • Optimize Recipe & Pricing</p>
+                  <h4 className="text-sm font-bold text-blue-400">Workhorses ({matrixQuadrants.cashCows.length})</h4>
+                  <p className="text-foreground/50 text-[11px]">High Demand, Lower Margin</p>
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold uppercase">
-                  High Volume
+                <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-400">
+                  Optimize Cost
                 </span>
               </div>
-              <div className="space-y-2.5 max-h-[250px] overflow-y-auto custom-scrollbar">
+              <div className="space-y-2 max-h-[220px] overflow-y-auto custom-scrollbar">
                 {matrixQuadrants.cashCows.map((item, idx) => (
-                  <div key={idx} className="p-3.5 rounded-xl bg-card border border-border flex items-center justify-between">
+                  <div key={idx} className="p-2.5 rounded-lg bg-background border border-border flex items-center justify-between text-xs">
                     <div>
-                      <h5 className="font-bold text-foreground text-sm">{item.name}</h5>
-                      <span className="text-xs text-foreground/50">₹{item.price} • Margin: {item.contributionMargin?.toFixed(1)}%</span>
+                      <span className="font-semibold text-foreground">{item.name}</span>
+                      <span className="block text-[11px] text-foreground/50">₹{item.price} • Margin: {item.contributionMargin?.toFixed(1)}%</span>
                     </div>
-                    <span className="text-xs font-bold text-blue-400">{item.quantitySold} sold</span>
+                    <span className="font-bold text-blue-400">{item.quantitySold} sold</span>
                   </div>
                 ))}
                 {matrixQuadrants.cashCows.length === 0 && (
-                  <p className="text-xs text-foreground/40 text-center py-4">No cash cows in this period.</p>
+                  <p className="text-xs text-foreground/40 text-center py-4">No workhorse items recorded.</p>
                 )}
               </div>
             </div>
 
-            {/* 4. DEAD ITEMS / DOGS */}
-            <div className="p-6 bg-red-500/5 border border-red-500/20 rounded-3xl shadow-sm space-y-4">
+            {/* Dead Items / Underperformers */}
+            <div className="p-4 sm:p-5 bg-card border border-red-500/20 rounded-2xl space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-lg font-black text-red-400 flex items-center gap-2">
-                    🐕 Dead Items ({matrixQuadrants.deadItems.length})
-                  </h4>
-                  <p className="text-foreground/50 text-xs">Low Margin • Low Volume • Revamp or Eliminate</p>
+                  <h4 className="text-sm font-bold text-red-400">Underperformers ({matrixQuadrants.deadItems.length})</h4>
+                  <p className="text-foreground/50 text-[11px]">Low Margin, Low Demand</p>
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-red-500/20 text-red-400 text-xs font-bold uppercase">
-                  Underperformer
+                <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-red-500/10 text-red-400">
+                  Review
                 </span>
               </div>
-              <div className="space-y-2.5 max-h-[250px] overflow-y-auto custom-scrollbar">
+              <div className="space-y-2 max-h-[220px] overflow-y-auto custom-scrollbar">
                 {matrixQuadrants.deadItems.map((item, idx) => (
-                  <div key={idx} className="p-3.5 rounded-xl bg-card border border-border flex items-center justify-between">
+                  <div key={idx} className="p-2.5 rounded-lg bg-background border border-border flex items-center justify-between text-xs">
                     <div>
-                      <h5 className="font-bold text-foreground text-sm">{item.name}</h5>
-                      <span className="text-xs text-foreground/50">₹{item.price} • Margin: {item.contributionMargin?.toFixed(1)}%</span>
+                      <span className="font-semibold text-foreground">{item.name}</span>
+                      <span className="block text-[11px] text-foreground/50">₹{item.price} • Margin: {item.contributionMargin?.toFixed(1)}%</span>
                     </div>
-                    <span className="text-xs font-bold text-red-400">{item.quantitySold} sold</span>
+                    <span className="font-bold text-red-400">{item.quantitySold} sold</span>
                   </div>
                 ))}
                 {matrixQuadrants.deadItems.length === 0 && (
@@ -908,23 +871,20 @@ export default function BIDashboard() {
             </div>
           </div>
 
-          {/* Dynamic Price Simulation Sandbox */}
-          <div className="p-6 md:p-8 bg-card border border-[#d4af37]/30 rounded-3xl shadow-md space-y-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <span className="text-[#d4af37] text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <Calculator size={16} /> Pricing Simulator
-                </span>
-                <h3 className="text-2xl font-black text-foreground mt-1">Simulate Price Elasticity & Margin Impact</h3>
-                <p className="text-foreground/60 text-xs">
-                  Model what happens to contribution margins and projected sales volume before updating menu prices.
-                </p>
-              </div>
+          {/* Pricing Simulator */}
+          <div className="p-5 sm:p-6 bg-card border border-border rounded-2xl space-y-4">
+            <div>
+              <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                <Calculator size={17} className="text-[#d4af37]" /> Recipe Price Simulator
+              </h3>
+              <p className="text-foreground/60 text-xs mt-0.5">
+                Simulate gross contribution changes before revising dish pricing on the live POS terminal.
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
               <div>
-                <label className="block text-xs font-bold text-foreground/60 uppercase mb-2">Select Dish</label>
+                <label className="block text-xs font-semibold text-foreground/60 mb-1.5 uppercase">Menu Item</label>
                 <select
                   value={selectedSimDish}
                   onChange={(e) => {
@@ -932,7 +892,7 @@ export default function BIDashboard() {
                     const found = menuItems.find(i => i._id === e.target.value);
                     if (found) setProposedPrice(found.price);
                   }}
-                  className="w-full bg-background border border-border rounded-2xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-[#d4af37]"
+                  className="w-full bg-background border border-border rounded-xl px-3 py-2 text-xs text-foreground focus:outline-none focus:border-[#d4af37]"
                 >
                   {menuItems.map(item => (
                     <option key={item._id} value={item._id}>
@@ -943,59 +903,53 @@ export default function BIDashboard() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-foreground/60 uppercase mb-2">Proposed Selling Price (₹)</label>
+                <label className="block text-xs font-semibold text-foreground/60 mb-1.5 uppercase">Proposed Price (₹)</label>
                 <input
                   type="number"
                   value={proposedPrice}
                   onChange={(e) => setProposedPrice(Number(e.target.value))}
-                  className="w-full bg-background border border-border rounded-2xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-[#d4af37]"
+                  className="w-full bg-background border border-border rounded-xl px-3 py-2 text-xs text-foreground focus:outline-none focus:border-[#d4af37]"
                 />
               </div>
 
               <button
                 onClick={handleSimulate}
                 disabled={simulating}
-                className="w-full py-3 bg-[#d4af37] text-black font-black text-xs uppercase tracking-widest rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full py-2 bg-[#d4af37] text-black font-bold text-xs uppercase tracking-wide rounded-xl hover:bg-[#c5a028] disabled:opacity-50 transition-colors flex items-center justify-center gap-1.5"
               >
-                {simulating ? <RefreshCw size={16} className="animate-spin" /> : <Sliders size={16} />}
-                Run Simulation
+                {simulating ? 'Calculating...' : 'Calculate Margin'}
               </button>
             </div>
 
-            {/* Simulation Comparison Output */}
             {simulationResult && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-border animate-in fade-in">
-                <div className="p-4 rounded-2xl bg-background/50 border border-border">
-                  <span className="text-xs text-foreground/50 uppercase font-bold">Current Margin</span>
-                  <h5 className="text-xl font-black mt-1 text-foreground">
-                    ₹{simulationResult.currentContribution} <span className="text-xs text-foreground/50 font-normal">({(100 - Number(simulationResult.currentFoodCostPercent)).toFixed(1)}%)</span>
-                  </h5>
-                  <span className="text-[10px] text-foreground/40">Food Cost: {simulationResult.currentFoodCostPercent}%</span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-border text-xs">
+                <div className="p-3 rounded-xl bg-background border border-border">
+                  <span className="text-foreground/50 font-semibold uppercase text-[10px]">Current Margin</span>
+                  <p className="text-base font-bold text-foreground mt-0.5">
+                    ₹{simulationResult.currentContribution} <span className="text-[11px] font-normal text-foreground/50">({(100 - Number(simulationResult.currentFoodCostPercent)).toFixed(1)}%)</span>
+                  </p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-background/50 border border-border">
-                  <span className="text-xs text-[#d4af37] uppercase font-bold">Simulated Margin</span>
-                  <h5 className="text-xl font-black mt-1 text-[#d4af37]">
-                    ₹{simulationResult.proposedContribution} <span className="text-xs text-[#d4af37]/70 font-normal">({(100 - Number(simulationResult.proposedFoodCostPercent)).toFixed(1)}%)</span>
-                  </h5>
-                  <span className="text-[10px] text-foreground/40">Food Cost: {simulationResult.proposedFoodCostPercent}%</span>
+                <div className="p-3 rounded-xl bg-background border border-border">
+                  <span className="text-[#d4af37] font-semibold uppercase text-[10px]">Simulated Margin</span>
+                  <p className="text-base font-bold text-[#d4af37] mt-0.5">
+                    ₹{simulationResult.proposedContribution} <span className="text-[11px] font-normal text-[#d4af37]/70">({(100 - Number(simulationResult.proposedFoodCostPercent)).toFixed(1)}%)</span>
+                  </p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-background/50 border border-border">
-                  <span className="text-xs text-foreground/50 uppercase font-bold">Volume Elasticity</span>
-                  <h5 className="text-xl font-black mt-1 text-foreground">
+                <div className="p-3 rounded-xl bg-background border border-border">
+                  <span className="text-foreground/50 font-semibold uppercase text-[10px]">Volume Sensitivity</span>
+                  <p className="text-base font-bold text-foreground mt-0.5">
                     {simulationResult.volumeChangeImpact}
-                  </h5>
-                  <span className="text-[10px] text-foreground/40">Estimated customer demand sensitivity</span>
+                  </p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-background/50 border border-border">
-                  <span className="text-xs text-foreground/50 uppercase font-bold">Unit Profit Shift</span>
-                  <h5 className={`text-xl font-black mt-1 ${simulationResult.proposedContribution >= simulationResult.currentContribution ? 'text-green-400' : 'text-red-400'}`}>
+                <div className="p-3 rounded-xl bg-background border border-border">
+                  <span className="text-foreground/50 font-semibold uppercase text-[10px]">Net Difference</span>
+                  <p className={`text-base font-bold mt-0.5 ${simulationResult.proposedContribution >= simulationResult.currentContribution ? 'text-green-500' : 'text-red-400'}`}>
                     {simulationResult.proposedContribution >= simulationResult.currentContribution ? '+' : ''}
-                    ₹{(simulationResult.proposedContribution - simulationResult.currentContribution).toFixed(1)} / order
-                  </h5>
-                  <span className="text-[10px] text-foreground/40">Direct net gain per serving</span>
+                    ₹{(simulationResult.proposedContribution - simulationResult.currentContribution).toFixed(1)} / dish
+                  </p>
                 </div>
               </div>
             )}
@@ -1003,74 +957,74 @@ export default function BIDashboard() {
         </div>
       )}
 
-      {/* TAB 4: MULTI-OUTLET BENCHMARK */}
+      {/* TAB 4: OUTLET COMPARISONS */}
       {activeTab === 'outlets' && (
-        <div className="space-y-8 animate-in fade-in duration-300">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h3 className="text-xl font-bold">Multi-Outlet Performance Leaderboard</h3>
-              <p className="text-foreground/60 text-xs mt-1">
-                Comparative benchmarks across all franchise, company-owned, and branch locations.
+              <h3 className="text-base font-bold text-foreground">Multi-Outlet Benchmark</h3>
+              <p className="text-foreground/60 text-xs mt-0.5">
+                Financial comparison between company-owned and linked branch outlets.
               </p>
             </div>
-            <div className="text-xs font-bold text-[#d4af37] px-3 py-1.5 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30">
-              Total Outlets: {outlets.length}
-            </div>
+            <span className="text-xs font-semibold text-foreground/70 px-3 py-1 rounded-lg bg-card border border-border w-max">
+              Outlets: {outlets.length}
+            </span>
           </div>
 
           {outlets.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {outlets.map((outlet, idx) => (
                 <div 
                   key={idx}
-                  className="p-6 bg-card border border-border rounded-3xl shadow-sm hover:border-[#d4af37]/40 transition-all flex flex-col justify-between"
+                  className="p-4 sm:p-5 bg-card border border-border rounded-2xl flex flex-col justify-between"
                 >
                   <div>
-                    <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-start justify-between mb-3">
                       <div>
-                        <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-foreground/10 text-foreground/70">
+                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-foreground/10 text-foreground/70">
                           Branch #{idx + 1}
                         </span>
-                        <h4 className="text-xl font-bold text-foreground mt-2">{outlet.shopName}</h4>
-                        <p className="text-xs text-foreground/50">{outlet.shopAddress || 'Central HQ Unit'}</p>
+                        <h4 className="text-base font-bold text-foreground mt-1.5">{outlet.shopName}</h4>
+                        <p className="text-[11px] text-foreground/50 truncate max-w-[200px]">{outlet.shopAddress || 'Central Unit'}</p>
                       </div>
-                      <div className="w-10 h-10 rounded-2xl bg-[#d4af37]/10 text-[#d4af37] flex items-center justify-center font-black">
-                        <Store size={20} />
+                      <div className="w-8 h-8 rounded-xl bg-[#d4af37]/10 text-[#d4af37] flex items-center justify-center">
+                        <Building2 size={16} />
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 py-4 border-y border-border/60">
+                    <div className="grid grid-cols-2 gap-2.5 py-3 border-y border-border/50 text-xs">
                       <div>
-                        <span className="text-[10px] uppercase font-bold text-foreground/50">Revenue</span>
-                        <p className="text-lg font-black text-foreground">₹{outlet.revenue?.toLocaleString() || 0}</p>
+                        <span className="text-[10px] uppercase font-semibold text-foreground/50">Revenue</span>
+                        <p className="text-sm font-bold text-foreground">₹{outlet.revenue?.toLocaleString() || 0}</p>
                       </div>
                       <div>
-                        <span className="text-[10px] uppercase font-bold text-foreground/50">Orders</span>
-                        <p className="text-lg font-black text-foreground">{outlet.orders?.toLocaleString() || 0}</p>
+                        <span className="text-[10px] uppercase font-semibold text-foreground/50">Orders</span>
+                        <p className="text-sm font-bold text-foreground">{outlet.orders?.toLocaleString() || 0}</p>
                       </div>
                       <div>
-                        <span className="text-[10px] uppercase font-bold text-foreground/50">Food Cost</span>
-                        <p className={`text-lg font-black ${Number(outlet.foodCostPercentage) > 35 ? 'text-red-400' : 'text-green-400'}`}>
+                        <span className="text-[10px] uppercase font-semibold text-foreground/50">Food Cost</span>
+                        <p className={`text-sm font-bold ${Number(outlet.foodCostPercentage) > 35 ? 'text-red-400' : 'text-green-500'}`}>
                           {outlet.foodCostPercentage}%
                         </p>
                       </div>
                       <div>
-                        <span className="text-[10px] uppercase font-bold text-foreground/50">Gross Margin</span>
-                        <p className="text-lg font-black text-[#d4af37]">{outlet.grossMargin}%</p>
+                        <span className="text-[10px] uppercase font-semibold text-foreground/50">Gross Margin</span>
+                        <p className="text-sm font-bold text-[#d4af37]">{outlet.grossMargin}%</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-2 flex items-center justify-between text-xs">
-                    <span className="text-foreground/50 font-medium">Rank Benchmark:</span>
-                    <span className="font-bold text-[#d4af37]">Top Tier</span>
+                  <div className="mt-3 text-[11px] text-foreground/60 flex items-center justify-between">
+                    <span>Performance:</span>
+                    <span className="font-semibold text-green-500">Active</span>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="p-12 text-center text-foreground/50 bg-card rounded-3xl border border-border">
-              No branch outlets registered under your scale account yet. Go to Multi Outlet dashboard to link branch locations.
+            <div className="p-8 text-center text-foreground/40 bg-card rounded-2xl border border-border text-xs">
+              No branch outlets currently registered under your account.
             </div>
           )}
         </div>

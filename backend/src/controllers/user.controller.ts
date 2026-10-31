@@ -170,7 +170,8 @@ export const createLocation = async (req: AuthRequest, res: Response): Promise<v
       role: 'manager',
       subscriptionPlan: 'Scale',
       ownerId,
-      isLocation: true
+      isLocation: true,
+      permissions: ['dashboard', 'pos', 'kot', 'inventory', 'sop', 'packets', 'history', 'ai', 'costing', 'wastage', 'customers', 'account', 'settings']
     });
 
     await newLocation.save();

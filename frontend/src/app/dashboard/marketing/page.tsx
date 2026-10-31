@@ -75,7 +75,8 @@ export default function MarketingCRM() {
       }
       
       const user = JSON.parse(userStr);
-      if (user.plan !== 'Scale' && user.role !== 'admin') {
+      const plan = user.subscriptionPlan || user.plan;
+      if (plan !== 'Scale' && plan !== 'Elite' && user.role !== 'admin') {
         setIsElite(false);
         setLoading(false);
         return;

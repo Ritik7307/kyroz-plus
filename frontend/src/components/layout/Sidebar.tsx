@@ -82,8 +82,13 @@ export default function Sidebar({ isOpen, setIsOpen, userRole = 'user', permissi
         return permissions.includes(item.id);
       }
 
-      // Fallback for staff with no permissions
-      return ['dashboard', 'account', 'privacy', 'terms', 'data', 'premium'].includes(item.id);
+      // If user is a Manager (or branch manager), grant access to all operational modules
+      if (userRole === 'manager') {
+        return ['dashboard', 'pos', 'kot', 'sop', 'inventory', 'packets', 'history', 'ai', 'costing', 'wastage', 'customers', 'account', 'settings', 'privacy', 'terms', 'data'].includes(item.id);
+      }
+
+      // Fallback for cook / billing with no custom permissions
+      return ['dashboard', 'pos', 'kot', 'account', 'privacy', 'terms', 'data'].includes(item.id);
     });
   };
 

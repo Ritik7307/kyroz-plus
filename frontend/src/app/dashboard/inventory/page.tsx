@@ -29,10 +29,22 @@ import { API_URL } from '@/lib/api';
 import CustomDropdown from '@/components/ui/CustomDropdown';
 import { dataService } from '@/lib/dataService';
 
-const fetcher = (url: string) => {
-  const token = localStorage.getItem('token');
-  if (!token) return null;
-  return dataService.get(url, { 'Authorization': `Bearer ${token}` });
+const fetcher = async (url: string) => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  if (!token) return { dishes: [], rawMaterials: [], semiFinishedGoods: [], premixes: [], packaging: [], recipes: [] };
+
+  try {
+    const res = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) {
+      return { dishes: [], rawMaterials: [], semiFinishedGoods: [], premixes: [], packaging: [], recipes: [] };
+    }
+    return await res.json();
+  } catch (err) {
+    console.warn(`[Inventory] Fetch failed for ${url}:`, err);
+    return { dishes: [], rawMaterials: [], semiFinishedGoods: [], premixes: [], packaging: [], recipes: [] };
+  }
 };
 
 interface InventoryItem {
@@ -589,6 +601,11 @@ export default function InventoryPage() {
                   </motion.div>
                 );
               })}
+              {inventory.length === 0 && (
+                <div className="col-span-full text-center py-20 text-foreground/30 font-black uppercase tracking-widest text-xs">
+                  No dishes added to inventory yet. Use "Add Item" or register a purchase.
+                </div>
+              )}
             </div>
           )}
 

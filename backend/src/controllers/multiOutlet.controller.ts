@@ -47,7 +47,8 @@ export const createOutlet = async (req: AuthRequest, res: Response): Promise<voi
       role: 'manager', // Branch manager role
       ownerId: parentUserId,
       isLocation: true,
-      subscriptionPlan: subscriptionPlan // inherit plan from HQ
+      subscriptionPlan: subscriptionPlan, // inherit plan from HQ
+      permissions: ['dashboard', 'pos', 'kot', 'inventory', 'sop', 'packets', 'history', 'ai', 'costing', 'wastage', 'customers', 'account', 'settings']
     });
 
     await newOutlet.save();

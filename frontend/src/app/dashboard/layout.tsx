@@ -59,7 +59,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       try {
         setUser(JSON.parse(storedUser));
         setIsAuthorized(true);
-        fetchNotifications(token);
       } catch (e) {
         console.error('Error parsing stored user', e);
       }
@@ -160,14 +159,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     // If Owner (user) or Impersonating an Elite Location, show everything except specifically restricted ones
     if (user?.role === 'user' || impersonationData) return true;
 
+    // If it's a Branch Outlet Location (manager of a branch)
+    if (user?.isLocation) {
+      if (link.ownerOnly) return false;
+      // Branch locations can access all operational tools
+      if (!user?.permissions || user.permissions.length === 0) {
+        return ['dashboard', 'pos', 'kot', 'inventory', 'sop', 'packets', 'history', 'ai', 'costing', 'wastage', 'customers', 'account'].includes(link.id);
+      }
+      return user.permissions.includes(link.id) || ['dashboard', 'account'].includes(link.id);
+    }
+
     // If Staff, check permissions
     if (link.ownerOnly) return false;
     if (user?.permissions && user.permissions.length > 0) {
       return user.permissions.includes(link.id) || link.id === 'account';
     }
 
-    // Default for staff with no explicit permissions
-    return ['account', 'premium'].includes(link.id);
+    // Manager role default with no explicit permissions should access core operational tools
+    if (user?.role === 'manager') {
+      return ['dashboard', 'pos', 'kot', 'inventory', 'sop', 'packets', 'history', 'ai', 'costing', 'wastage', 'customers', 'account'].includes(link.id);
+    }
+
+    // Default fallback for cooks / billing with no explicit permissions
+    return ['dashboard', 'pos', 'kot', 'account'].includes(link.id);
   });
 
   let currentPlan = user?.plan || user?.subscriptionPlan || 'None';

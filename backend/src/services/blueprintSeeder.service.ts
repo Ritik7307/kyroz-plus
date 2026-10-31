@@ -333,7 +333,7 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
 
   const rmIds: Record<string, mongoose.Types.ObjectId> = {};
   for (const rm of rmData) {
-    const createdRm = await RawMaterial.findOneAndUpdate({ code: rm.code, userId }, { $set: { ...rm, userId } }, { upsert: true, new: true });
+    const createdRm = await RawMaterial.findOneAndUpdate({ code: rm.code, userId }, { $set: { ...rm, currentStock: 0, userId } }, { upsert: true, new: true });
     if(createdRm) rmIds[rm.code] = createdRm._id as mongoose.Types.ObjectId;
   }
 
@@ -465,7 +465,7 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
 
   const sfgIds: Record<string, mongoose.Types.ObjectId> = {};
   for (const sfg of sfgData) {
-    const createdSfg = await SemiFinishedGood.findOneAndUpdate({ code: sfg.code, userId }, { $set: { ...sfg, userId } }, { upsert: true, new: true });
+    const createdSfg = await SemiFinishedGood.findOneAndUpdate({ code: sfg.code, userId }, { $set: { ...sfg, currentStock: 0, userId } }, { upsert: true, new: true });
     if(createdSfg) sfgIds[sfg.code] = createdSfg._id as mongoose.Types.ObjectId;
   }
 
@@ -1123,7 +1123,7 @@ export const seedBlueprints = async (userId: string | mongoose.Types.ObjectId): 
 
   const pkgIds: Record<string, mongoose.Types.ObjectId> = {};
   for (const pkg of pkgData) {
-    const createdPkg = await Packaging.findOneAndUpdate({ code: pkg.code, userId }, { $set: { ...pkg, userId } }, { upsert: true, new: true });
+    const createdPkg = await Packaging.findOneAndUpdate({ code: pkg.code, userId }, { $set: { ...pkg, currentStock: 0, userId } }, { upsert: true, new: true });
     if(createdPkg) pkgIds[pkg.code] = createdPkg._id as mongoose.Types.ObjectId;
   }
 
