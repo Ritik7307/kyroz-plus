@@ -829,8 +829,8 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
     if ((normalizedQueryForCheck.includes('dosa') || normalizedQueryForCheck.includes('दोसा') || normalizedQueryForCheck.includes('डोसा')) && 
         (normalizedQueryForCheck.includes('पानी') || normalizedQueryForCheck.includes('water') || normalizedQueryForCheck.includes('patla') || normalizedQueryForCheck.includes('paani') || normalizedQueryForCheck.includes('watery') || normalizedQueryForCheck.includes('thin'))) {
       const reply = isHiLanguage 
-        ? "अगर आपके डोसा घोल (batter) में पानी ज्यादा हो गया है, तो उसे ठीक करने के आसान तरीके:\n\n1. **चावल का आटा मिलाएं**: घोल में 2-3 चम्मच चावल का आटा (Rice Flour) मिलाएं। यह अतिरिक्त पानी सोख लेगा और डोसे को कुरकुरा बनाएगा।\n2. **सूजी (Rava) मिलाएं**: आप घोल में थोड़ी सूजी या रवा मिला सकते हैं। सूजी मिलाने के बाद बैटर को 10-15 मिनट के लिए छोड़ दें ताकि सूजी पानी सोख कर फूल जाए।\n3. **उबला आलू या गेहूं का आटा**: इमरजेंसी में आप 1 चम्मच गेहूं का आटा या हल्का सा बेसन भी मिला सकते हैं, लेकिन चावल का आटा या सूजी सबसे बेहतरीन परिणाम देते हैं।"
-        : "If your dosa batter is too watery or thin, use these professional kitchen adjustments:\n\n1. **Add Rice Flour**: Mix in 2-3 tablespoons of fine rice flour. It will absorb the excess moisture and ensure the dosa remains crispy.\n2. **Add Semolina (Rava)**: Mix in a small amount of fine rava/semolina. Let the batter rest for 10-15 minutes so the semolina absorbs the water and swells.\n3. **Add Wheat Flour or Besan**: In an emergency, you can blend in a tablespoon of wheat flour or gram flour (besan) to thicken it, though rice flour yields the best results.";
+        ? "अगर आपके डोसा घोल (batter) में पानी ज्यादा हो गया है, तो उसे ठीक करने के आसान तरीके:\n\n1. **चावल का आटा मिलाएं**: घोल में 2 से 3 चम्मच चावल का आटा (Rice Flour) मिलाएं। यह अतिरिक्त पानी सोख लेगा और डोसे को कुरकुरा बनाएगा।\n2. **सूजी (Rava) मिलाएं**: आप घोल में थोड़ी सूजी या रवा मिला सकते हैं। सूजी मिलाने के बाद बैटर को 10 से 15 मिनट के लिए छोड़ दें ताकि सूजी पानी सोख कर फूल जाए।\n3. **उबला आलू या गेहूं का आटा**: इमरजेंसी में आप 1 चम्मच गेहूं का आटा या हल्का सा बेसन भी मिला सकते हैं, लेकिन चावल का आटा या सूजी सबसे बेहतरीन परिणाम देते हैं।"
+        : "If your dosa batter is too watery or thin, use these professional kitchen adjustments:\n\n1. **Add Rice Flour**: Mix in 2 to 3 tablespoons of fine rice flour. It will absorb the excess moisture and ensure the dosa remains crispy.\n2. **Add Semolina (Rava)**: Mix in a small amount of fine rava/semolina. Let the batter rest for 10 to 15 minutes so the semolina absorbs the water and swells.\n3. **Add Wheat Flour or Besan**: In an emergency, you can blend in a tablespoon of wheat flour or gram flour (besan) to thicken it, though rice flour yields the best results.";
       return { reply, suggestions: ["Instant Dosa SOP", "Dosa Batter Setup"], detectedLang: targetLang };
     }
 
@@ -838,8 +838,8 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
     if ((normalizedQueryForCheck.includes('biryani') || normalizedQueryForCheck.includes('बिरियानी') || normalizedQueryForCheck.includes('बिरयानी') || normalizedQueryForCheck.includes('rice') || normalizedQueryForCheck.includes('चावल')) && 
         (normalizedQueryForCheck.includes('जल') || normalizedQueryForCheck.includes('burnt') || normalizedQueryForCheck.includes('jala') || normalizedQueryForCheck.includes('jalna'))) {
       const reply = isHiLanguage 
-        ? "अगर आपकी बिरयानी या चावल नीचे से जल गए हैं, तो ये तुरंत उपाय करें:\n\n1. **बर्तन को तुरंत आंच से उतारें**: बर्तन को आंच से हटाएं और उसे एक गीले तौलिये (Wet Towel) पर रख दें। इससे पकने की प्रक्रिया तुरंत रुक जाएगी।\n2. **चावल खुरचें नहीं**: ऊपर के सही और खिले हुए चावल को सावधानी से दूसरे साफ बर्तन में निकाल लें। नीचे के जले हुए हिस्से को बिल्कुल न छुएं।\n3. **जले की महक दूर करें**: नए बर्तन में निकाले गए चावल के बीच में एक ब्रेड का टुकड़ा या कटे हुए कच्चे प्याज के टुकड़े रख दें और ढक दें। यह 10-15 मिनट में जले हुए की महक सोख लेगा।"
-        : "If your Biryani or Rice is burnt at the bottom, follow these immediate rescue steps:\n\n1. **Remove from Heat**: Immediately take the pot off the stove and place it on a damp towel to stop the cooking process.\n2. **Do Not Scrape**: Carefully scoop out the good rice from the top into a fresh container. Do not scrape the bottom at all.\n3. **Remove Burnt Odor**: Place a slice of bread or chopped raw onions on top of the rescued rice in the new container and cover it. It will absorb the burnt smell in 10-15 minutes.";
+        ? "अगर आपकी बिरयानी या चावल नीचे से जल गए हैं, तो ये तुरंत उपाय करें:\n\n1. **बर्तन को तुरंत आंच से उतारें**: बर्तन को आंच से हटाएं और उसे एक गीले तौलिये (Wet Towel) पर रख दें। इससे पकने की प्रक्रिया तुरंत रुक जाएगी।\n2. **चावल खुरचें नहीं**: ऊपर के सही और खिले हुए चावल को सावधानी से दूसरे साफ बर्तन में निकाल लें। नीचे के जले हुए हिस्से को बिल्कुल न छुएं।\n3. **जले की महक दूर करें**: नए बर्तन में निकाले गए चावल के बीच में एक ब्रेड का टुकड़ा या कटे हुए कच्चे प्याज के टुकड़े रख दें और ढक दें। यह 10 से 15 मिनट में जले हुए की महक सोख लेगा।"
+        : "If your Biryani or Rice is burnt at the bottom, follow these immediate rescue steps:\n\n1. **Remove from Heat**: Immediately take the pot off the stove and place it on a damp towel to stop the cooking process.\n2. **Do Not Scrape**: Carefully scoop out the good rice from the top into a fresh container. Do not scrape the bottom at all.\n3. **Remove Burnt Odor**: Place a slice of bread or chopped raw onions on top of the rescued rice in the new container and cover it. It will absorb the burnt smell in 10 to 15 minutes.";
       return { reply, suggestions: ["Biryani Preparation SOP", "Kitchen Troubleshooting"], detectedLang: targetLang };
     }
 
@@ -847,8 +847,8 @@ export const generateRagResponse = async (userId: string, query: string, lang: s
     if ((normalizedQueryForCheck.includes('biryani') || normalizedQueryForCheck.includes('बिरियानी') || normalizedQueryForCheck.includes('बिरयानी') || normalizedQueryForCheck.includes('rice') || normalizedQueryForCheck.includes('चावल')) && 
         (normalizedQueryForCheck.includes('पानी') || normalizedQueryForCheck.includes('water') || normalizedQueryForCheck.includes('gila') || normalizedQueryForCheck.includes('soggy') || normalizedQueryForCheck.includes('chipchipa') || normalizedQueryForCheck.includes('गीला'))) {
       const reply = isHiLanguage 
-        ? "अगर आपकी बिरयानी या चावल में पानी ज्यादा हो गया है (गीले/चिपचिपे हो गए हैं), तो उसे ठीक करने के तरीके:\n\n1. **पंखे के नीचे सुखाएं**: चावल को तुरंत एक बड़ी खुली ट्रे या थाली में फैला लें और पंखे के नीचे 10-15 मिनट के लिए रख दें। इससे अतिरिक्त नमी उड़ जाएगी।\n2. **दम देने की तकनीक**: बर्तन के मुंह पर एक साफ, सूखा सूती कपड़ा कसकर बांध दें और ऊपर से ढक्कन लगा दें। 5 मिनट तक बहुत ही धीमी आंच पर दम दें। कपड़ा सारा अतिरिक्त पानी सोख लेगा।\n3. **ब्रेड का इस्तेमाल**: चावल के ऊपर ब्रेड के 2-3 स्लाइस रख दें और ढक दें। ब्रेड अतिरिक्त नमी सोख लेगी।"
-        : "If your Biryani or rice has become too watery or soggy, try these fixes:\n\n1. **Air Dry**: Immediately spread the rice on a large open tray or wide plate and place it under a fan for 10-15 minutes to let excess moisture evaporate.\n2. **Cloth Dum Technique**: Place a clean, dry cotton cloth tightly over the mouth of the pot and put the lid on. Simmer on very low heat for 5 minutes. The cloth will absorb the excess steam and moisture.\n3. **Bread Hack**: Place 2-3 slices of bread on top of the rice and cover it. The bread acts as a sponge for extra moisture.";
+        ? "अगर आपकी बिरयानी या चावल में पानी ज्यादा हो गया है (गीले/चिपचिपे हो गए हैं), तो उसे ठीक करने के तरीके:\n\n1. **पंखे के नीचे सुखाएं**: चावल को तुरंत एक बड़ी खुली ट्रे या थाली में फैला लें और पंखे के नीचे 10 से 15 मिनट के लिए रख दें। इससे अतिरिक्त नमी उड़ जाएगी।\n2. **दम देने की तकनीक**: बर्तन के मुंह पर एक साफ, सूखा सूती कपड़ा कसकर बांध दें और ऊपर से ढक्कन लगा दें। 5 मिनट तक बहुत ही धीमी आंच पर दम दें। कपड़ा सारा अतिरिक्त पानी सोख लेगा।\n3. **ब्रेड का इस्तेमाल**: चावल के ऊपर ब्रेड के 2 से 3 स्लाइस रख दें और ढक दें। ब्रेड अतिरिक्त नमी सोख लेगी।"
+        : "If your Biryani or rice has become too watery or soggy, try these fixes:\n\n1. **Air Dry**: Immediately spread the rice on a large open tray or wide plate and place it under a fan for 10 to 15 minutes to let excess moisture evaporate.\n2. **Cloth Dum Technique**: Place a clean, dry cotton cloth tightly over the mouth of the pot and put the lid on. Simmer on very low heat for 5 minutes. The cloth will absorb the excess steam and moisture.\n3. **Bread Hack**: Place 2 to 3 slices of bread on top of the rice and cover it. The bread acts as a sponge for extra moisture.";
       return { reply, suggestions: ["Biryani Preparation SOP", "Perfect Rice Cooking"], detectedLang: targetLang };
     }
 
@@ -1136,10 +1136,13 @@ ${languageRule}
    - When the user asks about a specific step, part, or aspect of a dish (temperature, marination, measurement, cooking time, plating, or storage), locate that exact heading and answer ONLY that specific part.
    - FULL PROCEDURE RULE: If the user asks how to cook/prepare the dish, asks for the recipe, or asks for the complete SOP (e.g. "how to cook biryani", "give me complete SOP", "recipe batao", "kaise banate hain"), you MUST provide the COMPLETE step-by-step procedure from the SOP in natural order.
 
-6. CLEAN SPEECH & ZERO SYMBOL PRONUNCIATION:
+6. CLEAN SPEECH, ZERO SYMBOL PRONUNCIATION & HYPHEN AVOIDANCE:
    - This text is read aloud by the speech engine (TTS).
    - NEVER include decorative punctuation, hashtags (#), markdown asterisks (** or *), equal signs (===), tildes (~), bullets (•, -, *), emojis, or bracket tags in the spoken text.
-   - Write in smooth, natural sentences so the voice synthesizer speaks smoothly without saying words like "asterisk", "hash", or "dash".
+   - HYPHEN/DASH RULE: NEVER use hyphens or dashes (-) for ranges, intervals, bullet points, or separators. Speech engines mistakenly pronounce "-" as "minus".
+     * In English, always write ranges with "to" (e.g. write "10 to 15 minutes", NEVER "10-15 minutes"; "2 to 3 spoons", NEVER "2-3 spoons").
+     * In Hindi, always write ranges with "से" (e.g. write "10 से 15 मिनट", NEVER "10-15 मिनट"; "2 से 3 चम्मच", NEVER "2-3 चम्मच").
+   - Write in smooth, natural sentences so the voice synthesizer speaks smoothly without saying words like "asterisk", "hash", "dash", or "minus".
 
 7. ABSOLUTE LAST RESORT MISSING RECIPES:
    - ONLY if the query cannot be matched to ANY dish, family, or similar recipe even after fuzzy interpretation, say:
@@ -1284,8 +1287,16 @@ ${suggestionsInstruction}
       .replace(/={3,}/g, '')
       .replace(/-{4,}/g, '')
       .replace(/[*_#`~[\]]/g, '')
-      .replace(/^[•▪◦●○\-]\s*/gm, '')
-      .trim();
+      .replace(/^[•▪◦●○\-]\s*/gm, '');
+
+    // Prevent TTS from pronouncing "-" as "minus": Convert number ranges ("10-15") to "10 to 15" in English and "10 से 15" / "10 se 15" in Hindi
+    const isDevanagariReply = /[\u0900-\u097F]/.test(reply);
+    const isHiReply = targetLang === 'hi' || isDevanagariReply;
+    const toWordReply = isHiReply ? (isDevanagariReply ? ' से ' : ' se ') : ' to ';
+    reply = reply.replace(/([0-9\u0966-\u096F]+(?:\.[0-9\u0966-\u096F]+)?)\s*[-–—]\s*([0-9\u0966-\u096F]+(?:\.[0-9\u0966-\u096F]+)?)/g, (_match, p1, p2) => {
+      return `${p1}${toWordReply}${p2}`;
+    });
+    reply = reply.trim();
     
     return { reply, suggestions, detectedLang: targetLang };
 
