@@ -60,5 +60,8 @@
     "@types/sharp": "^0.31.1",
     "concurrently": "^9.2.1",
     "ts-node-dev": "^2.0.0"
+  },
+  "overrides": {
+    "minimatch": "^11.0.1"
   }
 }
