@@ -82,38 +82,57 @@ def clean_tts_text(text: str, lang: str = "auto") -> str:
     and_word = " और " if (is_hindi and is_devanagari) else (" aur " if is_hindi else " and ")
     s = re.sub(r'&', and_word, s)
 
-    # 8. Strip brackets, parentheses, quotes, and punctuation symbols that TTS reads aloud
-    s = re.sub(r'[()\[\]{}"\'“”‘’`#*_~^=|<><>+@•▪◦●○■□★☆✓✔✕✖✗➤➜➡◆◇▲▼※]', ' ', s)
+    # 8. Specific symbol corrections for: " , : ; . ' ~ ` - _ + =
+    # 8a. Tilde (~) -> approximately before numbers, else space
+    tilde_word = "लगभग " if (is_hindi and is_devanagari) else ("lagbhag " if is_hindi else "about ")
+    s = re.sub(r'~\s*([0-9\u0966-\u096F]+)', lambda m: f"{tilde_word}{m.group(1)}", s)
+    s = re.sub(r'~', ' ', s)
+
+    # 8b. Plus (+) -> between numbers (2 + 2) or as conjunction (paneer + onion)
+    plus_sym_word = " प्लस " if (is_hindi and is_devanagari) else " plus "
+    s = re.sub(r'([0-9\u0966-\u096F]+)\s*\+\s*([0-9\u0966-\u096F]+)', lambda m: f"{m.group(1)}{plus_sym_word}{m.group(2)}", s)
+    s = re.sub(r'\s*\+\s*', and_word, s)
+    s = re.sub(r'\+', ' ', s)
+
+    # 8c. Equals (=) -> equals / बराबर
+    eq_word = " बराबर " if (is_hindi and is_devanagari) else (" barabar " if is_hindi else " equals ")
+    s = re.sub(r'\s*=\s*', eq_word, s)
+    s = re.sub(r'=', ' ', s)
+
+    # 8d. Underscore (_) -> space
+    s = re.sub(r'_+', ' ', s)
+
+    # 8e. Quotes (" ' ` “ ” ‘ ’) -> remove completely so TTS does not read symbol names
+    s = re.sub(r'["\'`“”‘’]', '', s)
+
+    # 8f. Brackets, hashes, asterisks, and decorative markers
+    s = re.sub(r'[()\[\]{}#*^|<><>@•▪◦●○■□★☆✓✔✕✖✗➤➜➡◆◇▲▼※]', ' ', s)
 
     # 9. Fix Hindi step pronunciation if Hindi:
     if is_hindi:
         s = re.sub(r'(?:स्टेप्स|स्टेप)', 'चरण', s)
         s = re.sub(r'\b[Ss]teps?\b', 'चरण', s)
 
-    # 10. Number ranges: 10-15, 10 - 15, 1.5-2, 10–15, १०-१५, etc.
+    # 10. Hyphens / Dashes (-):
+    # 10a. Number ranges: 10-15 -> 10 to 15 in English / 10 से 15 in Hindi
     s = re.sub(
         r'([0-9\u0966-\u096F]+(?:\.[0-9\u0966-\u096F]+)?)\s*[-–—]\s*([0-9\u0966-\u096F]+(?:\.[0-9\u0966-\u096F]+)?)',
         lambda m: f"{m.group(1)}{to_word}{m.group(2)}",
         s
     )
-
-    # 11. Word-based ranges: two-three, low-medium, धीमी-मध्यम
+    # 10b. Word-based ranges: low-medium -> low to medium
     s = re.sub(r'(low|medium|high)\s*[-–—]\s*(medium|high|low)', r'\1 to \2', s, flags=re.I)
     s = re.sub(r'(धीमी|मध्यम|तेज)\s*[-–—]\s*(मध्यम|तेज|धीमी)', lambda m: f"{m.group(1)} से {m.group(2)}" if is_hindi else f"{m.group(1)} to {m.group(2)}", s)
-
-    # 12. Bullet points at start of line or after punctuation
+    # 10c. Bullet points at start of line
     s = re.sub(r'(?:^|\n|(?<=[:.,!?]))\s*[-–—]\s*', ' ', s)
-
-    # 13. Separator dashes like " - " -> replace with comma pause
+    # 10d. Separator dashes like " - " -> comma pause
     s = re.sub(r'\s+[-–—]+\s+', ', ', s)
-
-    # 14. Compound words: deep-fry -> deep fry, गरम-गरम -> गरम गरम
+    # 10e. Compound words: deep-fry -> deep fry
     s = re.sub(r'([A-Za-z\u0900-\u097F]+)[-–—]([A-Za-z\u0900-\u097F]+)', r'\1 \2', s)
-
-    # 15. Any remaining hyphens or dashes
+    # 10f. Remaining hyphens
     s = re.sub(r'[-–—]+', ' ', s)
 
-    # 16. Unit expansions
+    # 11. Unit expansions
     if is_hindi:
         s = re.sub(r'(\d+)\s*(?:gm|g|ग्राम)\b', r'\1 ग्राम', s, flags=re.I)
         s = re.sub(r'(\d+)\s*(?:kg|किलो)\b', r'\1 किलो', s, flags=re.I)
@@ -127,13 +146,21 @@ def clean_tts_text(text: str, lang: str = "auto") -> str:
         s = re.sub(r'(\d+)\s*kg\b', r'\1 kilograms', s, flags=re.I)
         s = re.sub(r'(\d+)\s*ml\b', r'\1 milliliters', s, flags=re.I)
 
-    # 17. Human-like natural breath pauses & clean colons / semicolons / multiple commas
+    # 12. Punctuation timing (: ; , .)
+    # Step numbers
     s = re.sub(r'((?:चरण|[Ss]tep)\s*\d+)\s*[:\.,]?\s*', r'\1, ', s)
-    s = re.sub(r'[:;]\s*', ', ', s)
+    # Colons and semicolons (: ;) -> replace with comma pause
+    s = re.sub(r'[:;]+', ', ', s)
+    # Clean ellipses (...) -> single dot
+    s = re.sub(r'\.{2,}', '. ', s)
+    # Comma cleanup: multiple commas (,,,) -> single comma
     s = re.sub(r',\s*,+', ', ', s)
-    s = re.sub(r'\.{2,}', '.', s)
     s = re.sub(r'\s*,\s*', ', ', s)
-    s = re.sub(r'(?<=[.?!।])\s+', ' ', s)
+    # Comma directly before or after dot -> single dot
+    s = re.sub(r',\s*\.', '.', s)
+    s = re.sub(r'\.\s*,', '.', s)
+    # Space after sentence punctuation (. ? ! ।), preserving decimals like 1.5
+    s = re.sub(r'(?<=[?!।])\s*|(?<=[a-zA-Z\u0900-\u097F]\.)\s*', ' ', s)
 
     return re.sub(r'\s+', ' ', s).strip()
 

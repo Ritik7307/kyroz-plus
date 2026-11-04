@@ -70,8 +70,6 @@ const cleanSpeechText = (text: string, forceLang?: 'en' | 'hi' | 'auto' | string
     isDevanagari ||
     /\b(karein|kare|kijiye|dalen|chammach|ke|liye|aur|se|mein|ko|hai|hain|bhi|tak|ka|ki|pakaen|kholiye|dhyan|rakhein)\b/i.test(text);
 
-  const toWord = isHindi ? (isDevanagari ? ' से ' : ' se ') : ' to ';
-
   let s = text;
 
   // 1. Remove URLs
@@ -126,36 +124,54 @@ const cleanSpeechText = (text: string, forceLang?: 'en' | 'hi' | 'auto' | string
   // 7. Fix ampersand (&)
   s = s.replace(/&/g, isHindi ? (isDevanagari ? ' और ' : ' aur ') : ' and ');
 
-  // 8. Strip brackets, parentheses, quotes, and punctuation symbols that TTS reads aloud
-  s = s.replace(/[()\[\]{}"'“”‘’`#*_~^=|<><>\+@•▪◦●○■□★☆✓✔✕✖✗➤➜➡◆◇▲▼※]/g, ' ');
+  // 8. Specific symbol corrections for: " , : ; . ' ~ ` - _ + =
+  // 8a. Tilde (~) -> approximately before numbers, else space
+  s = s.replace(/~\s*([0-9\u0966-\u096F]+)/g, isHindi ? (isDevanagari ? 'लगभग $1' : 'lagbhag $1') : 'about $1');
+  s = s.replace(/~/g, ' ');
+
+  // 8b. Plus (+) -> between numbers (2 + 2) or as conjunction (paneer + onion)
+  s = s.replace(/([0-9\u0966-\u096F]+)\s*\+\s*([0-9\u0966-\u096F]+)/g, isHindi ? (isDevanagari ? '$1 प्लस $2' : '$1 plus $2') : '$1 plus $2');
+  s = s.replace(/\s*\+\s*/g, isHindi ? (isDevanagari ? ' और ' : ' aur ') : ' and ');
+  s = s.replace(/\+/g, ' ');
+
+  // 8c. Equals (=) -> equals / बराबर
+  s = s.replace(/\s*=\s*/g, isHindi ? (isDevanagari ? ' बराबर ' : ' barabar ') : ' equals ');
+  s = s.replace(/=/g, ' ');
+
+  // 8d. Underscore (_) -> space
+  s = s.replace(/_+/g, ' ');
+
+  // 8e. Quotes (" ' ` “ ” ‘ ’) -> remove completely so TTS doesn't read symbol names
+  s = s.replace(/["'`“”‘’]/g, '');
+
+  // 8f. Brackets, hashes, asterisks, and decorative markers
+  s = s.replace(/[()[\]{}#*^|<><>@•▪◦●○■□★☆✓✔✕✖✗➤➜➡◆◇▲▼※]/g, ' ');
 
   // 9. Fix Hindi step pronunciation if Hindi
   if (isHindi) {
     s = s.replace(/(?:स्टेप्स|स्टेप)/g, 'चरण').replace(/\b[Ss]teps?\b/g, 'चरण');
   }
 
-  // 10. Number ranges: 10-15, 10 - 15, 1.5-2, 10–15, १०-१५, etc.
+  const toWord = isHindi ? (isDevanagari ? ' से ' : ' se ') : ' to ';
+
+  // 10. Hyphens / Dashes (-):
+  // 10a. Number ranges: 10-15 -> 10 to 15 in English / 10 से 15 in Hindi
   s = s.replace(/([0-9\u0966-\u096F]+(?:\.[0-9\u0966-\u096F]+)?)\s*[-–—]\s*([0-9\u0966-\u096F]+(?:\.[0-9\u0966-\u096F]+)?)/g, (_match, p1, p2) => {
     return `${p1}${toWord}${p2}`;
   });
-
-  // 11. Word-based ranges: two-three, low-medium, धीमी-मध्यम
+  // 10b. Word-based ranges: low-medium -> low to medium
   s = s.replace(/(low|medium|high)\s*[-–—]\s*(medium|high|low)/gi, '$1 to $2');
   s = s.replace(/(धीमी|मध्यम|तेज)\s*[-–—]\s*(मध्यम|तेज|धीमी)/g, isHindi ? '$1 से $2' : '$1 to $2');
-
-  // 12. Bullet points at start of line or after punctuation
+  // 10c. Bullet points at start of line
   s = s.replace(/(?:^|\n|(?<=[:.,!?]))\s*[-–—]\s*/g, ' ');
-
-  // 13. Separator dashes like " - " -> replace with comma pause
+  // 10d. Separator dashes like " - " -> comma pause
   s = s.replace(/\s+[-–—]+\s+/g, ', ');
-
-  // 14. Compound words or word pairs: deep-fry -> deep fry, गरम-गरम -> गरम गरम
+  // 10e. Compound words or word pairs: deep-fry -> deep fry
   s = s.replace(/([A-Za-z\u0900-\u097F]+)[-–—]([A-Za-z\u0900-\u097F]+)/g, '$1 $2');
-
-  // 15. Any remaining hyphens or dashes -> replace with space
+  // 10f. Remaining hyphens
   s = s.replace(/[-–—]+/g, ' ');
 
-  // 16. Unit expansions for natural pronunciation
+  // 11. Unit expansions for natural pronunciation
   if (isHindi) {
     s = s
       .replace(/(\d+)\s*(?:gm|g|ग्राम)\b/gi, '$1 ग्राम')
@@ -172,14 +188,21 @@ const cleanSpeechText = (text: string, forceLang?: 'en' | 'hi' | 'auto' | string
       .replace(/(\d+)\s*ml\b/gi, '$1 milliliters');
   }
 
-  // 17. Natural pauses and clean colons / semicolons / multiple punctuation
-  s = s
-    .replace(/((?:चरण|[Ss]tep)\s*\d+)\s*[:\.,]?\s*/g, '$1, ')
-    .replace(/[;:]\s*/g, ', ')
-    .replace(/,\s*,+/g, ', ')
-    .replace(/\.{2,}/g, '.')
-    .replace(/\s*,\s*/g, ', ')
-    .replace(/(?<=[.?!।])\s+/g, ' ');
+  // 12. Punctuation timing (: ; , .)
+  // Step numbers
+  s = s.replace(/((?:चरण|[Ss]tep)\s*\d+)\s*[:\.,]?\s*/g, '$1, ');
+  // Colons and semicolons (: ;) -> replace with comma pause so TTS pauses naturally without pronouncing symbol names
+  s = s.replace(/[:;]+/g, ', ');
+  // Clean ellipses (...) -> single dot
+  s = s.replace(/\.{2,}/g, '. ');
+  // Comma cleanup: multiple commas (,,,) -> single comma
+  s = s.replace(/,\s*,+/g, ', ');
+  s = s.replace(/\s*,\s*/g, ', ');
+  // Comma directly before or after dot -> single dot
+  s = s.replace(/,\s*\./g, '.');
+  s = s.replace(/\.\s*,/g, '.');
+  // Space after sentence punctuation (. ? ! ।), preserving decimals like 1.5
+  s = s.replace(/(?<=[?!।])\s*|(?<=[a-zA-Z\u0900-\u097F]\.)\s*/g, ' ');
 
   return s.replace(/\s+/g, ' ').trim();
 };
