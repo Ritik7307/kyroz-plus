@@ -83,38 +83,88 @@ const cleanSpeechText = (text: string, forceLang?: 'en' | 'hi' | 'auto' | string
 
   let s = text;
 
-  // 1. Remove markdown, emojis, bullets, and structural markers
-  s = s.replace(/[\*#`_\~\+•▪◦●○=]/g, '');
+  // 1. Remove URLs
+  s = s.replace(/https?:\/\/\S+/gi, '');
 
-  // 2. Fix Hindi step pronunciation if Hindi:
-  // "स्टेप्स" / "स्टेप" mispronounces as "सतेप" in Hindi TTS. Replace with natural Hindi "चरण"
+  // 2. Remove all emojis and pictographs completely (so TTS does not read symbol names)
+  s = s.replace(/[\u{1F300}-\u{1F9FF}\u{1FA00}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{200C}\u{20E3}\u{E0020}-\u{E007F}]/gu, '');
+
+  // 3. Fix Brand Name pronunciation (KYROZ / KYROZ+ / KOSA)
+  // Prevents TTS from spelling letter-by-letter (K-Y-R-O-Z) and reads as the word "Kyroz" / "कैरोज़"
+  if (isHindi && isDevanagari) {
+    s = s
+      .replace(/\bKYROZ\s*\+/gi, 'कैरोज़ प्लस')
+      .replace(/\bKYROZ\s+PLUS\b/gi, 'कैरोज़ प्लस')
+      .replace(/\bKYROZ\b/gi, 'कैरोज़')
+      .replace(/\bKOSA\b/gi, 'कोसा');
+  } else {
+    s = s
+      .replace(/\bKYROZ\s*\+/gi, 'Kyroz Plus')
+      .replace(/\bKYROZ\s+PLUS\b/gi, 'Kyroz Plus')
+      .replace(/\bKYROZ\b/gi, 'Kyroz')
+      .replace(/\bKOSA\b/gi, 'Kosa');
+  }
+
+  // 4. Fix fractions and cooking measurements with slashes
+  if (isHindi && isDevanagari) {
+    s = s
+      .replace(/\b1\/2\b/g, 'आधा')
+      .replace(/\b1\/4\b/g, 'एक चौथाई')
+      .replace(/\b3\/4\b/g, 'तीन चौथाई');
+  } else {
+    s = s
+      .replace(/\b1\/2\b/g, 'half')
+      .replace(/\b1\/4\b/g, 'one fourth')
+      .replace(/\b3\/4\b/g, 'three fourths');
+  }
+  // Replace word/word with "word or word" / "word ya word"
+  s = s.replace(/([A-Za-z\u0900-\u097F]+)\s*\/\s*([A-Za-z\u0900-\u097F]+)/g, isHindi ? (isDevanagari ? '$1 या $2' : '$1 ya $2') : '$1 or $2');
+  // Replace remaining slashes
+  s = s.replace(/[\\\/]/g, ' ');
+
+  // 5. Fix percentages and degrees
+  s = s.replace(/(\d+)\s*%/g, isHindi ? (isDevanagari ? '$1 प्रतिशत' : '$1 percent') : '$1 percent');
+  s = s.replace(/(\d+)\s*°\s*C\b/gi, isHindi ? (isDevanagari ? '$1 डिग्री सेल्सियस' : '$1 degree Celsius') : '$1 degrees Celsius');
+  s = s.replace(/(\d+)\s*°\s*F\b/gi, isHindi ? (isDevanagari ? '$1 डिग्री फ़ारेनहाइट' : '$1 degree Fahrenheit') : '$1 degrees Fahrenheit');
+  s = s.replace(/(\d+)\s*°\b/g, isHindi ? (isDevanagari ? '$1 डिग्री' : '$1 degree') : '$1 degrees');
+
+  // 6. Fix currencies
+  s = s.replace(/(?:₹|Rs\.?)\s*(\d+(?:\.\d+)?)/gi, isHindi ? (isDevanagari ? '$1 रुपये' : '$1 rupees') : '$1 rupees');
+  s = s.replace(/\$\s*(\d+(?:\.\d+)?)/g, isHindi ? (isDevanagari ? '$1 डॉलर' : '$1 dollars') : '$1 dollars');
+
+  // 7. Fix ampersand (&)
+  s = s.replace(/&/g, isHindi ? (isDevanagari ? ' और ' : ' aur ') : ' and ');
+
+  // 8. Strip brackets, parentheses, quotes, and punctuation symbols that TTS reads aloud
+  s = s.replace(/[()\[\]{}"'“”‘’`#*_~^=|<><>\+@•▪◦●○■□★☆✓✔✕✖✗➤➜➡◆◇▲▼※]/g, ' ');
+
+  // 9. Fix Hindi step pronunciation if Hindi
   if (isHindi) {
     s = s.replace(/(?:स्टेप्स|स्टेप)/g, 'चरण').replace(/\b[Ss]teps?\b/g, 'चरण');
   }
 
-  // 3. Number ranges: 10-15, 10 - 15, 1.5-2, 10–15, १०-१५, etc.
-  // Converts to "10 to 15" in English and "10 से 15" (or "10 se 15") in Hindi
+  // 10. Number ranges: 10-15, 10 - 15, 1.5-2, 10–15, १०-१५, etc.
   s = s.replace(/([0-9\u0966-\u096F]+(?:\.[0-9\u0966-\u096F]+)?)\s*[-–—]\s*([0-9\u0966-\u096F]+(?:\.[0-9\u0966-\u096F]+)?)/g, (_match, p1, p2) => {
     return `${p1}${toWord}${p2}`;
   });
 
-  // 4. Word-based ranges: two-three, low-medium, धीमी-मध्यम
+  // 11. Word-based ranges: two-three, low-medium, धीमी-मध्यम
   s = s.replace(/(low|medium|high)\s*[-–—]\s*(medium|high|low)/gi, '$1 to $2');
   s = s.replace(/(धीमी|मध्यम|तेज)\s*[-–—]\s*(मध्यम|तेज|धीमी)/g, isHindi ? '$1 से $2' : '$1 to $2');
 
-  // 5. Bullet points at start of line or after punctuation (e.g. "- Item" or "\n- Step")
+  // 12. Bullet points at start of line or after punctuation
   s = s.replace(/(?:^|\n|(?<=[:.,!?]))\s*[-–—]\s*/g, ' ');
 
-  // 6. Separator dashes like " - " -> replace with comma pause so TTS pauses instead of saying "minus"
+  // 13. Separator dashes like " - " -> replace with comma pause
   s = s.replace(/\s+[-–—]+\s+/g, ', ');
 
-  // 7. Compound words or word pairs: deep-fry -> deep fry, गरम-गरम -> गरम गरम
+  // 14. Compound words or word pairs: deep-fry -> deep fry, गरम-गरम -> गरम गरम
   s = s.replace(/([A-Za-z\u0900-\u097F]+)[-–—]([A-Za-z\u0900-\u097F]+)/g, '$1 $2');
 
-  // 8. Any remaining hyphens or dashes (standalone, dangling, etc.) -> replace with space
+  // 15. Any remaining hyphens or dashes -> replace with space
   s = s.replace(/[-–—]+/g, ' ');
 
-  // 9. Unit expansions for human-like natural pronunciation
+  // 16. Unit expansions for natural pronunciation
   if (isHindi) {
     s = s
       .replace(/(\d+)\s*(?:gm|g|ग्राम)\b/gi, '$1 ग्राम')
@@ -131,11 +181,13 @@ const cleanSpeechText = (text: string, forceLang?: 'en' | 'hi' | 'auto' | string
       .replace(/(\d+)\s*ml\b/gi, '$1 milliliters');
   }
 
-  // 10. Human-like natural breath pauses
+  // 17. Natural pauses and clean colons / semicolons / multiple punctuation
   s = s
     .replace(/((?:चरण|[Ss]tep)\s*\d+)\s*[:\.,]?\s*/g, '$1, ')
-    .replace(/:\s*/g, ', ')
-    .replace(/,\s*,+/g, ',')
+    .replace(/[;:]\s*/g, ', ')
+    .replace(/,\s*,+/g, ', ')
+    .replace(/\.{2,}/g, '.')
+    .replace(/\s*,\s*/g, ', ')
     .replace(/(?<=[.?!।])\s+/g, ' ');
 
   return s.replace(/\s+/g, ' ').trim();

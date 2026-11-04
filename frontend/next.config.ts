@@ -9,6 +9,8 @@ const withPWA = withPWAInit({
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  compress: true,
+  poweredByHeader: false,
   output: 'standalone',
   // Removed turbopack root: '..' to prevent watching the entire project directory
   // which was causing slow compilation and infinite loops.

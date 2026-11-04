@@ -88,33 +88,34 @@ function SOPLibraryContent() {
     try {
       const token = localStorage.getItem('token');
       
-      // Auto-sync master SOPs first
-      try {
-        await fetch(`${API_URL}/api/sops/sync`, {
-          method: 'POST',
+      // Non-blocking background sync of master SOPs (does not stall UI)
+      fetch(`${API_URL}/api/sops/sync`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).catch(syncErr => console.warn('Background master SOP sync note:', syncErr));
+
+      // Fetch user profile and SOPs in parallel for ultra-fast loading
+      const [userRes, res] = await Promise.all([
+        fetch(`${API_URL}/api/auth/me`, {
           headers: { 'Authorization': `Bearer ${token}` }
-        });
-      } catch (syncErr) {
-        console.error('Failed to sync master SOPs:', syncErr);
+        }),
+        fetch(`${API_URL}/api/sops`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+      ]);
+
+      if (userRes.ok) {
+        const userData = await userRes.json();
+        const plan = userData.plan || userData.subscriptionPlan || 'Starter';
+        setUserPlan(plan);
+        setSelectedSopCategory(userData.selectedSopCategory || null);
+
+        if (plan === 'Starter' && userData.role !== 'admin' && !userData.selectedSopCategory) {
+          setShowCategoryModal(true);
+        } else if (plan === 'Starter' && userData.role !== 'admin' && userData.selectedSopCategory) {
+          setActiveCategory(userData.selectedSopCategory);
+        }
       }
-
-      const userRes = await fetch(`${API_URL}/api/auth/me`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const userData = await userRes.json();
-      const plan = userData.plan || userData.subscriptionPlan || 'Starter';
-      setUserPlan(plan);
-      setSelectedSopCategory(userData.selectedSopCategory || null);
-
-      if (plan === 'Starter' && userData.role !== 'admin' && !userData.selectedSopCategory) {
-        setShowCategoryModal(true);
-      } else if (plan === 'Starter' && userData.role !== 'admin' && userData.selectedSopCategory) {
-        setActiveCategory(userData.selectedSopCategory);
-      }
-
-      const res = await fetch(`${API_URL}/api/sops`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
       if (res.ok) {
         const data = await res.json();
         setSops(Array.isArray(data) ? data : []);

@@ -3,7 +3,8 @@ import Image from 'next/image';
 import { API_URL } from '@/lib/api';
 import { AlertCircle, IndianRupee, User, MessageSquare } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
+// Incremental Static Regeneration: cache page for 5 minutes, ultra-fast initial load
+export const revalidate = 300;
 
 async function getPricingConfig() {
   const defaultPricing = {
@@ -12,59 +13,48 @@ async function getPricingConfig() {
     scale: { price: 9999, discount: 0 }
   };
 
-  const urlsToTry = [
-    `${API_URL}/api/admin/settings/pricing`,
-    `http://127.0.0.1:5000/api/admin/settings/pricing`,
-    `http://localhost:5000/api/admin/settings/pricing`,
-    `https://kyroz-plus-backend.onrender.com/api/admin/settings/pricing`
-  ];
-
-  let lastError = null;
-
-  for (const url of urlsToTry) {
-    try {
-      const res = await fetch(url, { cache: 'no-store' });
-      if (res.ok) {
-        const data = await res.json();
-        return {
-          starter: data?.starter || data?.basic || defaultPricing.starter,
-          growth: data?.growth || data?.pro || defaultPricing.growth,
-          scale: data?.scale || data?.elite || defaultPricing.scale
-        };
-      }
-    } catch (err) {
-      lastError = err;
+  try {
+    const res = await fetch(`${API_URL}/api/admin/settings/pricing`, {
+      next: { revalidate: 300 },
+      signal: AbortSignal.timeout(1500)
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return {
+        starter: data?.starter || data?.basic || defaultPricing.starter,
+        growth: data?.growth || data?.pro || defaultPricing.growth,
+        scale: data?.scale || data?.elite || defaultPricing.scale
+      };
     }
+  } catch (err) {
+    // Return default pricing instantly without blocking page load
   }
 
-  return { ...defaultPricing, isError: true, errorMessage: String(lastError) };
+  return defaultPricing;
 }
 
 async function getTestimonials() {
-  const urlsToTry = [
-    `${API_URL}/api/testimonials`,
-    `http://127.0.0.1:5000/api/testimonials`,
-    `http://localhost:5000/api/testimonials`,
-    `https://kyroz-plus-backend.onrender.com/api/testimonials`
-  ];
-
-  for (const url of urlsToTry) {
-    try {
-      const res = await fetch(url, { next: { revalidate: 60 } }); // Cache for 60 seconds
-      if (res.ok) {
-        const data = await res.json();
-        return Array.isArray(data) ? data : [];
-      }
-    } catch (err) {
-      // Ignore and try next
+  try {
+    const res = await fetch(`${API_URL}/api/testimonials`, {
+      next: { revalidate: 300 },
+      signal: AbortSignal.timeout(1500)
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
     }
+  } catch (err) {
+    // Ignore and return empty
   }
   return [];
 }
 
 export default async function Home() {
-  const pricing = await getPricingConfig();
-  const testimonials = await getTestimonials();
+  // Parallel fetch: both pricing and testimonials load at the same time
+  const [pricing, testimonials] = await Promise.all([
+    getPricingConfig(),
+    getTestimonials()
+  ]);
 
   const getFinalPrice = (plan: any) => {
     if (!plan) return 0;
@@ -92,13 +82,7 @@ export default async function Home() {
 
       {/* 2. Hero Section */}
       <section className="relative pt-16 md:pt-48 pb-12 md:pb-24 px-6 overflow-hidden">
-        {(pricing as any).isError && (
-          <div className="bg-red-500/20 text-red-500 p-4 rounded-xl max-w-4xl mx-auto mb-8 font-mono text-sm border border-red-500/50">
-            [DEBUG] Fetch Error: {(pricing as any).errorMessage}
-            <br />
-            API_URL: {API_URL}
-          </div>
-        )}
+        
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#d4af37]/5 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <div className="inline-block mb-6 px-4 py-1.5 rounded-full border border-[#d4af37]/30 bg-[#d4af37]/10 text-[#d4af37] text-xs font-semibold tracking-wide uppercase">

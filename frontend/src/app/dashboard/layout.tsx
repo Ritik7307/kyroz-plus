@@ -95,19 +95,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const fetchUser = async (token: string) => {
     try {
       const res = await fetch(`${API_URL}/api/auth/me`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}` },
+        signal: AbortSignal.timeout(5000)
       });
+      if (res.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        router.push('/login');
+        return;
+      }
       if (!res.ok) {
-        throw new Error('Unauthorized');
+        return;
       }
       const data = await res.json();
       setUser(data);
+      localStorage.setItem('user', JSON.stringify(data));
       setIsAuthorized(true);
       fetchNotifications(token);
     } catch (err) {
-      console.error('Failed to fetch user:', err instanceof Error ? err.message : String(err));
-      localStorage.removeItem('token');
-      router.push('/login');
+      console.warn('Network issue fetching user in background:', err);
+      if (!localStorage.getItem('user')) {
+        localStorage.removeItem('token');
+        router.push('/login');
+      }
     }
   };
 

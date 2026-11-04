@@ -1136,13 +1136,14 @@ ${languageRule}
    - When the user asks about a specific step, part, or aspect of a dish (temperature, marination, measurement, cooking time, plating, or storage), locate that exact heading and answer ONLY that specific part.
    - FULL PROCEDURE RULE: If the user asks how to cook/prepare the dish, asks for the recipe, or asks for the complete SOP (e.g. "how to cook biryani", "give me complete SOP", "recipe batao", "kaise banate hain"), you MUST provide the COMPLETE step-by-step procedure from the SOP in natural order.
 
-6. CLEAN SPEECH, ZERO SYMBOL PRONUNCIATION & HYPHEN AVOIDANCE:
+6. CLEAN SPEECH, ZERO SYMBOL PRONUNCIATION, BRAND NAMES & HYPHEN AVOIDANCE:
    - This text is read aloud by the speech engine (TTS).
-   - NEVER include decorative punctuation, hashtags (#), markdown asterisks (** or *), equal signs (===), tildes (~), bullets (•, -, *), emojis, or bracket tags in the spoken text.
+   - BRAND NAME RULE: Never spell out "KYROZ" in all caps. In English write "Kyroz" or "Kyroz Plus". In Hindi write "कैरोज़" or "कैरोज़ प्लस" so speech engines pronounce it smoothly as a word and never spell it letter-by-letter.
+   - SYMBOL & EMOJI RULE: NEVER include emojis (🔥, 👨‍🍳, etc.), decorative punctuation, hashtags (#), markdown asterisks (** or *), equal signs (===), tildes (~), bullets (•, -, *), quotes, or bracket tags. Emojis and raw symbols cause TTS engines to read their symbol names out loud.
    - HYPHEN/DASH RULE: NEVER use hyphens or dashes (-) for ranges, intervals, bullet points, or separators. Speech engines mistakenly pronounce "-" as "minus".
      * In English, always write ranges with "to" (e.g. write "10 to 15 minutes", NEVER "10-15 minutes"; "2 to 3 spoons", NEVER "2-3 spoons").
      * In Hindi, always write ranges with "से" (e.g. write "10 से 15 मिनट", NEVER "10-15 मिनट"; "2 से 3 चम्मच", NEVER "2-3 चम्मच").
-   - Write in smooth, natural sentences so the voice synthesizer speaks smoothly without saying words like "asterisk", "hash", "dash", or "minus".
+   - Write in smooth, natural sentences so the voice synthesizer speaks smoothly without saying words like "asterisk", "hash", "dash", "symbol", or "minus".
 
 7. ABSOLUTE LAST RESORT MISSING RECIPES:
    - ONLY if the query cannot be matched to ANY dish, family, or similar recipe even after fuzzy interpretation, say:
@@ -1282,16 +1283,30 @@ ${suggestionsInstruction}
         .filter(s => s.length > 2);
     }
     
-    // Clean up excessive formatting characters and symbols that cause TTS voice issues
+    // Clean up excessive formatting characters, emojis, and symbols that cause TTS voice issues
     reply = reply
       .replace(/={3,}/g, '')
       .replace(/-{4,}/g, '')
-      .replace(/[*_#`~[\]]/g, '')
-      .replace(/^[•▪◦●○\-]\s*/gm, '');
+      .replace(/[*_#`~[\]{}]/g, '')
+      .replace(/^[•▪◦●○\-]\s*/gm, '')
+      .replace(/[\u{1F300}-\u{1F9FF}\u{1FA00}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}]/gu, '');
 
-    // Prevent TTS from pronouncing "-" as "minus": Convert number ranges ("10-15") to "10 to 15" in English and "10 से 15" / "10 se 15" in Hindi
+    // Brand name normalization in generated reply so it's never spelled letter-by-letter
     const isDevanagariReply = /[\u0900-\u097F]/.test(reply);
     const isHiReply = targetLang === 'hi' || isDevanagariReply;
+    if (isHiReply && isDevanagariReply) {
+      reply = reply
+        .replace(/\bKYROZ\s*\+/gi, 'कैरोज़ प्लस')
+        .replace(/\bKYROZ\s+PLUS\b/gi, 'कैरोज़ प्लस')
+        .replace(/\bKYROZ\b/gi, 'कैरोज़');
+    } else {
+      reply = reply
+        .replace(/\bKYROZ\s*\+/gi, 'Kyroz Plus')
+        .replace(/\bKYROZ\s+PLUS\b/gi, 'Kyroz Plus')
+        .replace(/\bKYROZ\b/gi, 'Kyroz');
+    }
+
+    // Prevent TTS from pronouncing "-" as "minus": Convert number ranges ("10-15") to "10 to 15" in English and "10 से 15" / "10 se 15" in Hindi
     const toWordReply = isHiReply ? (isDevanagariReply ? ' से ' : ' se ') : ' to ';
     reply = reply.replace(/([0-9\u0966-\u096F]+(?:\.[0-9\u0966-\u096F]+)?)\s*[-–—]\s*([0-9\u0966-\u096F]+(?:\.[0-9\u0966-\u096F]+)?)/g, (_match, p1, p2) => {
       return `${p1}${toWordReply}${p2}`;

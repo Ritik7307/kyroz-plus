@@ -104,7 +104,8 @@ app.use(compression());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
+  max: 1000, // Generous limit so active dashboard navigation & polling is never throttled
+  skip: (req) => req.path.startsWith('/api/health'),
   message: { error: 'Too many requests from this IP, please try again after 15 minutes' }
 });
 app.use(limiter);
